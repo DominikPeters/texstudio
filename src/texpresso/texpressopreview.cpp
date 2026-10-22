@@ -5,6 +5,7 @@
 #include <QBuffer>
 #include <QImageReader>
 #include <QPainter>
+#include <QScopedValueRollback>
 #include <algorithm>
 #include <cmath>
 
@@ -15,8 +16,78 @@ QRectF frameBounds(const QJsonObject &header)
     return QRectF(QPointF(b[0].toDouble(), b[1].toDouble()), QPointF(b[2].toDouble(), b[3].toDouble()));
 }
 }
+TexpressoPreview::TexpressoPreview(QObject *parent) : QObject(parent)
+{
+    forwardTimer.setSingleShot(true); forwardTimer.setInterval(2000);
+    connect(&forwardTimer, &QTimer::timeout, this, [this] { waitingForward = false; emit activityChanged(); schedulePrefetch(); });
+    prefetchTimer.setSingleShot(true); prefetchTimer.setInterval(150);
+    connect(&prefetchTimer, &QTimer::timeout, this, [this] { prefetchReady = true; request(); });
+    gestureTimer.setSingleShot(true); gestureTimer.setInterval(150);
+    connect(&gestureTimer, &QTimer::timeout, this, [this] {
+        gestureActive = false; emit activityChanged(); request(); schedulePrefetch();
+    });
+}
+bool TexpressoPreview::busy() const
+{
+    if (!active) return false;
+    if (gestureActive || (inFlight && (!renderingBackground || visiblePages.contains(flightPage))) || dirty || pendingRegion || pendingInverse || waitingForward) return true;
+    for (int page : visiblePages) if (!pageValid(page) && !prefetched.contains(page)) return true;
+    return false;
+}
+void TexpressoPreview::setPreparationPending(bool value)
+{
+    preparationPending = value;
+    if (value) { prefetchTimer.stop(); prefetchReady = false; interruptBackground(); }
+    else { request(); schedulePrefetch(); }
+}
+void TexpressoPreview::interruptBackground()
+{
+    if (!inFlight || !renderingBackground) return;
+    prefetched.remove(flightPage);
+    emit command({"preview-cancel", double(inFlight), currentPage});
+    inFlight = 0; pending.reset(); renderingBackground = false;
+}
+QImage TexpressoPreview::pageImage(int page) const
+{
+    if (page == currentPage) return pixels;
+    for (const auto &cached : pages) if (cached.page == page && cached.width == pixelWidth) return cached.image;
+    return {};
+}
+QRectF TexpressoPreview::boundsForPage(int page) const
+{
+    if (page == currentPage) return pageBounds;
+    for (const auto &cached : pages) if (cached.page == page) return cached.bounds;
+    return pageBounds.isEmpty() ? QRectF(0, 0, 595, 842) : pageBounds;
+}
+bool TexpressoPreview::pageValid(int page) const
+{
+    if (page == currentPage && fresh) return true;
+    for (const auto &cached : pages) if (cached.page == page && cached.width == pixelWidth) return true;
+    return false;
+}
+void TexpressoPreview::setViewportPages(const QList<int> &visible, bool gesture)
+{
+    QList<int> next;
+    for (int page : visible) if (page >= 0 && (!finished || page < count) && !next.contains(page) && next.size() < 16) next.append(page);
+    if (next == visiblePages && !gesture) return;
+    if (gesture) {
+        emit interactionStarted(); gestureActive = true; gestureTimer.start();
+        frontierBudget = 1; prefetched.clear(); prefetchReady = false; prefetchTimer.stop();
+    }
+    visiblePages = next;
+    if (!next.isEmpty() && currentPage != next.first()) {
+        const auto position = scroll; setPage(next.first()); scroll = position;
+    }
+    interruptBackground(); request(); emit activityChanged(); schedulePrefetch();
+}
+void TexpressoPreview::schedulePrefetch()
+{
+    if (active && supportsBackground && !gestureActive && !preparationPending && !visiblePages.isEmpty()
+        && !prefetchReady && !prefetchTimer.isActive() && !busy()) prefetchTimer.start();
+}
 void TexpressoPreview::setCapabilities(const QJsonObject &capabilities)
 {
+    supportsBackground = capabilities["backgroundRendering"].toBool();
     supportsRegions = capabilities["regions"].toBool();
     supportsPatches = capabilities["pngPatches"].toBool();
     if (!supportsRegions) cancelRegion();
@@ -28,20 +99,23 @@ void TexpressoPreview::requestRegion(const QRectF &bounds, int width, qint64 tok
     const auto clipped = bounds.intersected(pageBounds);
     if (clipped.isEmpty() || !std::isfinite(clipped.x()) || !std::isfinite(clipped.y())
         || !std::isfinite(clipped.width()) || !std::isfinite(clipped.height())) return;
+    emit interactionStarted(); interruptBackground();
     regionToken = token;
     pendingRegion = Region{clipped, std::clamp(width, 1, 4096), token};
     request();
 }
 void TexpressoPreview::cancelRegion()
 {
-    pendingRegion.reset(); regionToken = -1;
+    pendingRegion.reset(); regionToken = -1; emit activityChanged();
 }
 
 void TexpressoPreview::sourceChanged(qint64 sequence)
 {
+    emit interactionStarted();
+    prefetched.clear(); frontierBudget = 1; prefetchReady = false; prefetchTimer.stop();
     sourceSequence = sequence; engineRevision = -1;
     dirty = true; fresh = false; inFlight = 0; pending.reset();
-    waitingForward = false;
+    waitingForward = false; forwardTimer.stop();
     cancelRegion();
     clearCache();
     emit updated();
@@ -49,16 +123,18 @@ void TexpressoPreview::sourceChanged(qint64 sequence)
 void TexpressoPreview::setActive(bool enabled)
 {
     active = enabled;
-    if (!active) cancelRegion();
+    if (!active) { cancelRegion(); prefetchTimer.stop(); gestureTimer.stop(); gestureActive = false; interruptBackground(); }
     if (active) request();
+    emit activityChanged();
 }
 void TexpressoPreview::setPage(int page)
 {
-    waitingForward = false;
+    waitingForward = false; forwardTimer.stop();
     pendingInverse.reset();
     const int maximum = finished ? std::max(0, count - 1) : 100000;
     page = std::clamp(page, 0, maximum);
     if (page == currentPage) return;
+    emit interactionStarted(); interruptBackground();
     cancelRegion(); rasterId = 0;
     currentPage = page; dirty = true; fresh = false; inFlight = 0; pending.reset();
     scroll = {}; emit updated(); request();
@@ -67,7 +143,8 @@ void TexpressoPreview::setWidth(int width)
 {
     width = std::clamp(width, 1, 4096);
     if (width == pixelWidth) return;
-    pixelWidth = width; dirty = true; inFlight = 0;
+    emit interactionStarted(); interruptBackground();
+    pixelWidth = width; prefetched.clear(); dirty = true; inFlight = 0;
     cancelRegion(); rasterId = 0;
     request();
 }
@@ -96,11 +173,11 @@ void TexpressoPreview::message(const QJsonArray &m)
         emit updated(); request();
     } else if (verb == "preview-retry" && m.size() == 2 && m[1].toDouble() == inFlight) {
         inFlight = 0;
-        if (!renderingRegion) dirty = true;
+        if (!renderingRegion && !renderingBackground) dirty = true;
         request();
     } else if (verb == "preview-error" && m.size() == 3 && m[1].toDouble() == inFlight) {
         inFlight = 0;
-        if (!renderingRegion) { pendingInverse.reset(); emit failed(m[2].toString()); }
+        if (!renderingRegion && !renderingBackground) { pendingInverse.reset(); emit failed(m[2].toString()); }
         request();
     } else if (verb == "preview-forward" && waitingForward && m.size() == 6 && m[1].toDouble() == engineRevision && m[2].toDouble() == sourceSequence) {
         setPage(m[3].toInt()); emit reveal(QPointF(m[4].toDouble(), m[5].toDouble()));
@@ -108,9 +185,13 @@ void TexpressoPreview::message(const QJsonArray &m)
 }
 void TexpressoPreview::request()
 {
-    if ((!active && !pendingInverse) || inFlight || engineRevision < 0 || (finished && !count)) return;
+    if (pumping) return;
+    QScopedValueRollback<bool> guard(pumping, true);
+    if ((!active && !pendingInverse) || inFlight || engineRevision < 0 || (finished && !count)) { emit activityChanged(); return; }
     if (dirty && !pendingInverse) restorePage();
+    renderingBackground = false; flightPage = currentPage; flightWidth = pixelWidth;
     if (dirty) {
+        emit interactionStarted();
         inFlight = ++nextRequest; dirty = false; renderingRegion = false;
         if (supportsPatches)
             emit command({"preview-png", double(inFlight), currentPage, pixelWidth, double(engineRevision), double(sourceSequence), double(rasterId)});
@@ -121,12 +202,35 @@ void TexpressoPreview::request()
         const auto b = region.bounds;
         emit command({"preview-region", double(inFlight), currentPage, region.width, double(engineRevision), double(sourceSequence),
             b.left(), b.top(), b.right(), b.bottom()});
+    } else if (supportsBackground && !preparationPending) {
+        int target = -1;
+        // Visible pages precede speculative neighbors. Never let an idle
+        // frontier request recursively compile the entire document.
+        for (int page : visiblePages) if (!pageValid(page) && !prefetched.contains(page)) { target = page; break; }
+        if (target < 0 && prefetchReady && !gestureActive && !visiblePages.isEmpty()) {
+            const int first = *std::min_element(visiblePages.begin(), visiblePages.end());
+            const int last = *std::max_element(visiblePages.begin(), visiblePages.end());
+            for (int page : {last + 1, first - 1}) {
+                if (page < 0 || (finished && page >= count) || page > count || pageValid(page) || prefetched.contains(page)) continue;
+                if (page >= count) { if (!frontierBudget) continue; --frontierBudget; }
+                target = page; prefetched.insert(page); break;
+            }
+        }
+        if (target >= 0) {
+            if (visiblePages.contains(target)) emit interactionStarted();
+            prefetched.insert(target);
+            renderingBackground = true; renderingRegion = false; flightPage = target;
+            inFlight = ++nextRequest;
+            emit command({"preview-background", double(inFlight), target, pixelWidth, double(engineRevision), double(sourceSequence), 0, 0});
+        }
     }
+    emit activityChanged();
+    if (!inFlight) schedulePrefetch();
 }
 bool TexpressoPreview::matches(const QJsonObject &h) const
 {
     return h["requestId"].toDouble() == inFlight && h["revision"].toDouble() == engineRevision
-        && h["sequence"].toDouble() == sourceSequence && h["page"].toInt() == currentPage;
+        && h["sequence"].toDouble() == sourceSequence && h["page"].toInt() == flightPage;
 }
 void TexpressoPreview::receive(const QJsonObject &header, const QByteArray &bytes)
 {
@@ -144,14 +248,14 @@ void TexpressoPreview::receive(const QJsonObject &header, const QByteArray &byte
         }
         base = pixels;
     }
-    Frame frame{header, bytes, base, renderingRegion, flightRegionToken};
+    Frame frame{header, bytes, base, renderingRegion, flightRegionToken, renderingBackground};
     if (decoding) pending = std::move(frame); else decode(std::move(frame));
 }
 void TexpressoPreview::decode(Frame frame)
 {
     decoding = true;
     auto watcher = new QFutureWatcher<QImage>(this);
-    connect(watcher, &QFutureWatcher<QImage>::finished, this, [this, watcher, header = frame.header, region = frame.region, token = frame.token] {
+    connect(watcher, &QFutureWatcher<QImage>::finished, this, [this, watcher, header = frame.header, region = frame.region, token = frame.token, background = frame.background] {
         const auto image = watcher->result(); watcher->deleteLater(); decoding = false;
         if (matches(header)) {
             inFlight = 0;
@@ -159,6 +263,8 @@ void TexpressoPreview::decode(Frame frame)
                 // A lens result must never replace the page or its patch base.
                 if (!image.isNull() && token == regionToken && active && fresh)
                     emit regionReady(token, image, frameBounds(header));
+            } else if (background) {
+                if (!image.isNull()) { storePage(header["page"].toInt(), flightWidth, image, frameBounds(header)); emit updated(); }
             } else if (image.isNull() && header.contains("patch")) retryFullFrame();
             else if (image.isNull()) emit failed(tr("Cannot decode TeXpresso preview image."));
             else {
@@ -207,6 +313,7 @@ void TexpressoPreview::retryFullFrame()
 void TexpressoPreview::inverse(const QPointF &point)
 {
     if (!fresh) return;
+    emit interactionStarted(); interruptBackground();
     cancelRegion();
     pendingInverse = point;
     // A cached image does not select the engine's single hit-testing display
@@ -222,7 +329,10 @@ void TexpressoPreview::finishInverse()
 }
 void TexpressoPreview::clearCache()
 {
-    releaseCache(); needsNativePage = true;
+    releaseCache();
+    // Auxiliary reruns can advance only the engine revision. Attempted exports
+    // belong to that revision just as much as their cached page images do.
+    prefetched.clear(); prefetchReady = false; prefetchTimer.stop(); needsNativePage = true;
 }
 void TexpressoPreview::releaseCache()
 {
@@ -230,19 +340,28 @@ void TexpressoPreview::releaseCache()
 }
 void TexpressoPreview::cachePage()
 {
+    storePage(currentPage, pixelWidth, pixels, pageBounds);
+}
+void TexpressoPreview::storePage(int page, int width, const QImage &image, const QRectF &bounds)
+{
     if (!active) return;
     constexpr qint64 budget = 32 * 1024 * 1024;
     for (int i = pages.size() - 1; i >= 0; --i) {
-        if (pages[i].page == currentPage && pages[i].width == pixelWidth) {
+        if (pages[i].page == page && pages[i].width == width) {
             cacheBytes -= pages[i].image.sizeInBytes(); pages.removeAt(i);
         }
     }
-    const auto bytes = pixels.sizeInBytes();
+    const auto bytes = image.sizeInBytes();
     if (bytes > budget) return;
-    while (!pages.isEmpty() && (pages.size() >= 4 || cacheBytes + bytes > budget)) {
-        cacheBytes -= pages.first().image.sizeInBytes(); pages.removeFirst();
+    const int entryLimit = std::clamp(int(visiblePages.size()) + 2, 4, 16);
+    while (!pages.isEmpty() && (pages.size() >= entryLimit || cacheBytes + bytes > budget)) {
+        int victim = -1;
+        for (int i = 0; i < pages.size(); ++i) if (!visiblePages.contains(pages[i].page)) { victim = i; break; }
+        // Speculative neighbors may not evict a page currently on screen.
+        if (victim < 0) { if (!visiblePages.contains(page)) return; victim = 0; }
+        cacheBytes -= pages[victim].image.sizeInBytes(); pages.removeAt(victim);
     }
-    pages.append({currentPage, pixelWidth, pixels, pageBounds}); cacheBytes += bytes;
+    pages.append({page, width, image, bounds}); cacheBytes += bytes;
 }
 bool TexpressoPreview::restorePage()
 {
@@ -260,7 +379,8 @@ void TexpressoPreview::forward(const QString &path, int zeroBasedLine)
 {
     if (active) {
         // Forward search can move the native viewer before its reply arrives.
-        needsNativePage = true; waitingForward = true;
+        emit interactionStarted(); interruptBackground();
+        needsNativePage = true; waitingForward = true; forwardTimer.start();
         emit command({"synctex-forward", path, zeroBasedLine + 1});
     }
 }

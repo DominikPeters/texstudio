@@ -2,6 +2,7 @@
 #define TEXPRESSOSESSION_H
 #include "texpressoprocess.h"
 #include "texpressopreview.h"
+#include "texpressoprewarm.h"
 #include <QMap>
 #include <QSet>
 #include <QFileSystemWatcher>
@@ -35,6 +36,7 @@ public:
     void changeBuffer(const QString &path, int startLine, int startColumn, int endLine, int endColumn, const QString &text, const QString &currentText);
     void closeBuffer(const QString &path);
     void syncForward(const QString &path, int line);
+    void prepareEdit(const QString &path, int line, int column);
     TexpressoPreview preview;
     QString status;
     QString previewError;
@@ -42,6 +44,9 @@ public:
     // process, since the next editor change can repair the document.
     QString compilerError, compilerWarning;
     QString compilerOutput, engineOutput;
+    QString compilerLogOutput() const { return compilerLog; }
+    qint64 compilerLogSourceSequence() const { return compilerLogSequence; }
+    bool compilerOutputCurrent() const { return compilerLogSequence == preview.sequence(); }
     bool userPaused = false;
     bool userStopped = false;
     bool followCursor = true;
@@ -53,7 +58,10 @@ signals:
     void outputUpdated();
     void sourceLocation(const QString &file, int oneBasedLine, int column, const QString &word);
 private:
+    friend class RerunTest;
     friend class TexpressoDiagnosticsTest;
+    friend class TexpressoPrewarmTest;
+    void refreshPrewarmContext();
     void refreshCompilerOutput();
     void createProcess();
     void resetEngine();
@@ -64,6 +72,12 @@ private:
     void applyPause();
     QString rootFile, engineFile;
     Buffers buffers;
+    QMap<QString, quint64> bufferVersions;
+    TexpressoPrewarm prewarm;
+    bool supportsPreparation = false;
+    QString preparationPath;
+    int preparationLine = 0, preparationColumn = 0;
+    QString lastPreparationFrame;
     QMap<QString, QSet<QString>> aliases;
     QMap<QString, QString> editorPaths, inputAliases;
     std::unique_ptr<TexpressoProcess> process;
@@ -78,8 +92,10 @@ private:
     QStringList pendingDependencies;
     QSet<QString> writtenFiles;
     QStringList outputLines, logLines;
+    QString compilerLog;
     bool ready = false, foreground = false, failure = false;
     qint64 acknowledgedSource = 0;
+    qint64 compilerLogSequence = -1;
     bool resumePending = false;
     bool syncAfterCompile = false;
     QString syncFile;

@@ -202,6 +202,7 @@ private:
     QTimer texpressoActivationTimer;
     QSet<LatexDocument *> texpressoDocuments;
     void setupTexpresso();
+    void setupTexpressoOutput();
     void updateTexpresso();
     void watchTexpressoDocument(LatexDocument *document);
     bool syncTexpressoViewer(const QDocumentCursor &cursor, bool inForeground);

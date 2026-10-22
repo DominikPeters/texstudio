@@ -130,3 +130,19 @@ TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/darwin-arm64/bin/texpresso" \
 
 Use the appropriate Linux bundle path on Linux. The engine revision remains
 shared with the extension; these changes require no engine modifications.
+
+## Scrolling and cursor checkpoints
+
+The subsequent port follows extension commits `c0424c9` (scrolling) and `2e07dff`
+(cursor preparation), using engine `863e9880`, based on its `4919c95` snapshot
+plus the settled-rerun fix. Continuous scrolling uses bounded canvases and the
+existing 32 MiB cache. The ordinary four-entry limit grows with visible demand
+when zoomed out, capped at sixteen entries and sixteen canvases. Visible pages precede idle neighbor prefetch;
+each gesture permits at most one page beyond the known compiler frontier.
+
+Cursor positions are resolved to engine aliases and UTF-8 offsets only after
+200 ms of idle time. Prepared positions are deduplicated by source generation,
+revision, file and 64-byte bucket, with a 16-entry history. Actual edits and
+foreground rendering cancel speculative work immediately. This ports the
+extension's scheduling behavior; the earlier measurements above do not measure
+the latency benefit of cursor preparation or continuous scrolling.

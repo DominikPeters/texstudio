@@ -313,10 +313,34 @@ OutputViewWidget::OutputViewWidget(QWidget *parent, InternalTerminalConfig *term
 	OutputMessages->setMinimumHeight(3 * (fm.lineSpacing() + 4));
 	OutputMessages->setReadOnly(true);
 
-	appendPage(new TitledPanelPage(OutputMessages, MESSAGES_PAGE, tr("Messages")), false);
+	auto messagesPage = new QWidget(this);
+    auto messagesLayout = new QVBoxLayout(messagesPage);
+    messagesLayout->setContentsMargins(0, 0, 0, 0);
+    messagesLayout->setSpacing(0);
+    messageSourceSelector = new QComboBox(messagesPage);
+    messageSourceSelector->setObjectName("messageOutputSource");
+    messageSourceSelector->addItems({tr("Build"), tr("Live"), tr("Engine trace")});
+    messageSourceSelector->setToolTip(tr("Compilation output for the active project"));
+#ifndef TEXSTUDIO_TEXPRESSO
+    messageSourceSelector->hide();
+#endif
+    messagesLayout->addWidget(messageSourceSelector);
+    messagesLayout->addWidget(OutputMessages);
+    appendPage(new TitledPanelPage(messagesPage, MESSAGES_PAGE, tr("Messages")), false);
 
 	// log / errors
 	logWidget = new LatexLogWidget(this);
+    connect(messageSourceSelector, QOverload<int>::of(&QComboBox::currentIndexChanged), logWidget,
+            [this](int source) { logWidget->setOutputSource(static_cast<LatexLogWidget::OutputSource>(source)); });
+    connect(logWidget, &LatexLogWidget::logLoaded, this, [this] {
+        if (logWidget->outputSource() == LatexLogWidget::EngineTrace) displayMessages();
+    });
+    connect(logWidget, &LatexLogWidget::outputSourceChanged, this, [this] {
+        const QSignalBlocker blocker(messageSourceSelector);
+        messageSourceSelector->setCurrentIndex(logWidget->outputSource());
+        messageSourceSelector->setToolTip(logWidget->outputRoot());
+        displayMessages();
+    });
 
 	TitledPanelPage *page = new TitledPanelPage(logWidget, LOG_PAGE, tr("Log"));
 	page->addToolbarActions(logWidget->displayActions());
@@ -354,13 +378,65 @@ bool OutputViewWidget::isPreviewPanelVisible()
 
 void OutputViewWidget::setMessage(const QString &message)
 {
-	setCurrentPage(MESSAGES_PAGE);
-	OutputMessages->setText(message);
+    const auto root = logWidget->outputRoot();
+    if (!buildOutputDepth) setBuildOutputRoot(root);
+    logWidget->setOutputSource(LatexLogWidget::BuildOutput);
+    setCurrentPage(MESSAGES_PAGE);
+    messages[root].build = message;
+    OutputMessages->setPlainText(message);
 }
 
 void OutputViewWidget::insertMessageLine(const QString &message)
 {
-	OutputMessages->insertLine(message);
+    if (!buildOutputDepth) {
+        setBuildOutputRoot(logWidget->outputRoot());
+        logWidget->setOutputSource(LatexLogWidget::BuildOutput);
+    }
+    auto &text = messages[buildOutputRoot].build;
+    if (!text.isEmpty()) text += '\n';
+    text += message;
+    if (logWidget->outputRoot() == buildOutputRoot && logWidget->outputSource() == LatexLogWidget::BuildOutput)
+        OutputMessages->insertLine(message);
+}
+
+void OutputViewWidget::setOutputRoot(const QString &root)
+{
+    if (!buildOutputDepth) setBuildOutputRoot(root);
+    logWidget->setOutputRoot(root);
+}
+
+void OutputViewWidget::setBuildOutputRoot(const QString &root)
+{
+    buildOutputRoot = LatexLogWidget::outputIdentity(root);
+}
+
+void OutputViewWidget::setBuildOutputActive(bool active)
+{
+    if (active) ++buildOutputDepth;
+    else buildOutputDepth = qMax(0, buildOutputDepth - 1);
+    if (!buildOutputDepth) setBuildOutputRoot(logWidget->outputRoot());
+}
+
+void OutputViewWidget::setLiveMessages(const QString &root, const QString &text)
+{
+    const auto key = LatexLogWidget::outputIdentity(root);
+    if (messages.value(key).live == text) return;
+    messages[key].live = text;
+    if (logWidget->outputRoot() == key && logWidget->outputSource() == LatexLogWidget::LiveOutput) displayMessages();
+    else if (logWidget->outputRoot() == key && logWidget->outputSource() == LatexLogWidget::EngineTrace) displayMessages();
+}
+
+void OutputViewWidget::displayMessages()
+{
+    const auto snapshot = messages.value(logWidget->outputRoot());
+    const auto source = logWidget->outputSource();
+    const auto text = source == LatexLogWidget::BuildOutput ? snapshot.build : source == LatexLogWidget::LiveOutput ? snapshot.live : logWidget->logText();
+    if (OutputMessages->toPlainText() == text) return;
+    auto scroll = OutputMessages->verticalScrollBar();
+    const int position = scroll->value();
+    const bool bottom = position == scroll->maximum();
+    OutputMessages->setPlainText(text);
+    scroll->setValue(bottom ? scroll->maximum() : position);
 }
 
 void OutputViewWidget::copy()
@@ -376,14 +452,17 @@ void OutputViewWidget::copy()
 
 void OutputViewWidget::resetMessages(bool noTabChange)
 {
-	OutputMessages->clear();
-	if (!noTabChange) setCurrentPage(MESSAGES_PAGE);
+    messages[buildOutputRoot].build.clear();
+    if (logWidget->outputRoot() == buildOutputRoot && logWidget->outputSource() == LatexLogWidget::BuildOutput) {
+        OutputMessages->clear();
+        if (!noTabChange) setCurrentPage(MESSAGES_PAGE);
+    }
 }
 
 void OutputViewWidget::resetMessagesAndLog(bool noTabChange)
 {
 	resetMessages(noTabChange);
-	logWidget->resetLog();
+    logWidget->resetBuildLog(buildOutputRoot);
 }
 void OutputViewWidget::selectLogEntry(int logEntryNumber, bool makeVisible)
 {

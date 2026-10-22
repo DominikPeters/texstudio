@@ -7,12 +7,14 @@
 #include <QJsonObject>
 #include <optional>
 #include <QList>
+#include <QSet>
+#include <QTimer>
 
 class TexpressoPreview : public QObject
 {
     Q_OBJECT
 public:
-    explicit TexpressoPreview(QObject *parent = nullptr) : QObject(parent) {}
+    explicit TexpressoPreview(QObject *parent = nullptr);
     void sourceChanged(qint64 sequence);
     void message(const QJsonArray &message);
     void receive(const QJsonObject &header, const QByteArray &bytes);
@@ -25,6 +27,14 @@ public:
     void inverse(const QPointF &point);
     void forward(const QString &path, int zeroBasedLine);
     void releaseCache();
+    void setViewportPages(const QList<int> &visible, bool gesture = false);
+    QImage pageImage(int page) const;
+    QRectF boundsForPage(int page) const;
+    bool pageValid(int page) const;
+    bool busy() const;
+    void setPreparationPending(bool pending);
+    qint64 nextRequestId() { return ++nextRequest; }
+    void invalidateNativePage() { needsNativePage = true; }
     const QImage &image() const { return pixels; }
     QRectF bounds() const { return pageBounds; }
     int page() const { return currentPage; }
@@ -37,12 +47,15 @@ public:
     QPoint scroll;
 signals:
     void command(const QJsonArray &command);
+    void interactionStarted();
+    void activityChanged();
     void updated();
     void failed(const QString &reason);
     void reveal(const QPointF &point);
     void regionReady(qint64 token, const QImage &image, const QRectF &bounds);
 private:
-    struct Frame { QJsonObject header; QByteArray bytes; QImage base; bool region; qint64 token; };
+    friend class RerunTest;
+    struct Frame { QJsonObject header; QByteArray bytes; QImage base; bool region; qint64 token; bool background = false; };
     struct Region { QRectF bounds; int width; qint64 token; };
     void request();
     void decode(Frame frame);
@@ -50,6 +63,9 @@ private:
     struct CachedPage { int page, width; QImage image; QRectF bounds; };
     void clearCache();
     void cachePage();
+    void storePage(int page, int width, const QImage &image, const QRectF &bounds);
+    void interruptBackground();
+    void schedulePrefetch();
     bool restorePage();
     void finishInverse();
     void retryFullFrame();
@@ -60,8 +76,14 @@ private:
     bool active = false, finished = false, dirty = true, fresh = false, decoding = false;
     bool waitingForward = false;
     std::optional<Frame> pending;
-    QList<CachedPage> pages; // LRU, at most four images / 32 MiB per session.
+    QList<CachedPage> pages; // LRU, four entries normally, up to sixteen for zoomed-out visible pages / 32 MiB.
     qint64 cacheBytes = 0;
+    QList<int> visiblePages;
+    QSet<int> prefetched;
+    QTimer prefetchTimer, gestureTimer, forwardTimer;
+    bool supportsBackground = false, renderingBackground = false, gestureActive = false, preparationPending = false;
+    bool prefetchReady = false, pumping = false;
+    int flightPage = 0, flightWidth = 1200, frontierBudget = 1;
     bool needsNativePage = false;
     std::optional<QPointF> pendingInverse;
     bool supportsRegions = false, supportsPatches = false, renderingRegion = false;

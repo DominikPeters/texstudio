@@ -8,7 +8,8 @@ Agreed design, 22 October 2026:
   engine. Switching projects preserves each engine and its page/zoom/scroll;
   inactive sessions pause compilation. Explicit Pause/Stop survive tab changes.
 - Keep normal TeXstudio compilation and its PDF viewer for final PDF output.
-- Start with one page at a time; port scrolling as the extension develops it.
+- Continuous scrolling with bounded page rendering, following the extension;
+  retain a single-page mode for users who prefer it.
 - Reuse the existing editor and headless-preview protocols. Keep compilation,
   MuPDF rendering and SyncTeX in the engine process.
 - Share rendering-independent viewer controls and tools with the saved-PDF
@@ -30,8 +31,8 @@ project session.
 Initial acceptance: install the bundled application, open two multi-file
 projects, edit unsaved included text (including Unicode and undo), switch tabs,
 and recover each project's correct preview without restarts or path setup.
-Then extend dependency watching/diagnostics, packaging checks, and finally
-scrolling/SVG using the extension as the behavioral reference.
+Then extend dependency watching/diagnostics, packaging checks and adaptive SVG
+rendering using the extension as the behavioral reference.
 
 ## Shared viewer components
 
@@ -66,7 +67,7 @@ wrong document revision.
 
 `src/texpresso/` contains the independently testable Qt client: binary protocol
 reader, subprocess/process-group lifecycle, sessions, renderer scheduling and a
-one-page Qt widget. `src/texstudio_texpresso.cpp` connects it to TeXstudio.
+virtualized Qt viewer. `src/texstudio_texpresso.cpp` connects it to TeXstudio.
 
 Automatic sessions follow the existing root resolution and use canonical paths
 for editor identity while retaining the engine's logical aliases. Open included
@@ -107,7 +108,8 @@ Cache tests cover invalidations, source/width changes, entry and byte eviction,
 abandoned inverse clicks and a real two-page source-navigation round trip.
 The initial runtime update used the extension's `5d906d6` engine snapshot,
 bringing checkpoint reuse, worker recovery and dashed-stroke ownership fixes.
-The current `664486e` snapshot adds the no-op rerun correction described below.
+The current `863e9880` snapshot incorporates the extension's `4919c95` engine
+and retains our no-op rerun correction described below.
 
 Run the client tests separately:
 
@@ -168,8 +170,8 @@ these single IDs are recognized again, while chains, arguments and modifiers
 continue through the existing permission check.
 
 Recoverable TeX errors and missing bibliography warnings appear directly in the
-panel, with source context in the tooltip. Output dialogs follow their original
-session and update live. Compiler log publication is coalesced per event-loop
+panel, with source context in the tooltip. Its Output button opens TeXstudio's
+shared Log panel. Compiler log publication is coalesced per event-loop
 turn, while a protocol flush publishes immediately; checkpoint truncation clears
 obsolete diagnostics. A completed compile with zero pages reports a failure
 instead of leaving the panel on “Updating preview…”. Source repair can resume
@@ -187,6 +189,13 @@ cover automatic/manual modes, repeated settled reruns, a following edit with
 automatic reruns disabled, zero-page errors and recovery. A separate read-only
 check on a 35-page mathematical document completed three settled reruns in the
 same process without a restart.
+
+Engine `863e9880` also preserves an already-polled SDL event when starting an
+on-demand finishing pass. Dropping a queued reload left its coalescing flag set,
+so later reloads were suppressed even after a repaired document produced a page.
+Rapid reruns followed by source repair exposed this intermittent stall. The
+engine now requeues the event before continuing the pass; the Qt regression
+retains detailed request/source state and optional protocol tracing.
 
 ## Incremental raster updates and magnifier detail
 
@@ -223,13 +232,60 @@ generated bibliography and refreshed live session. Run that application check
 with `TEXPRESSO_TEST_BIBLIOGRAPHY=1` and TeX Live on `PATH`; it uses temporary
 projects and an isolated settings directory.
 
+## Shared compilation output
+
+The existing Messages and Log panels have a synchronized Build/Live/Engine trace
+selector. Output and the selected source are retained per project. Live output
+uses the existing TeX log parser, error/warning/bad-box filters, clickable table,
+next-error navigation and editor gutter marks. Log parsing is coalesced over
+150 ms; publishing background diagnostics does not focus the panel or select its
+first error. Engine stderr is available separately for debugging.
+
+Source edits immediately mark previous live diagnostics stale and disable their
+navigation and gutter marks. Acknowledged compiler output for the new source
+sequence restores them. Live locations address current unsaved buffers; normal
+build locations use the saved line snapshot. The normal build has an independent
+parsed model, so viewing live errors cannot affect its success, rerun or
+bibliography decisions. Build & Refresh still runs the normal recipe and imports
+the resulting auxiliary state when that complete recipe succeeds.
+
+## Continuous scrolling and cursor preparation
+
+The scrolling viewer reuses the shared Qt PDF controls, tools and SyncTeX entry
+points. It keeps a bounded pool of canvases and a 32 MiB page-image cache. Ordinary
+views retain four cached images; zooming out expands the entry limit to visible
+demand plus two neighbors, capped at sixteen images and sixteen canvases. Visible pages take priority over idle neighbor rendering. A gesture
+permits at most one speculative page beyond the known compilation frontier;
+prefetch cannot recursively compile the entire document. Page exports preserve
+the engine's foreground display list and PNG comparison base. Zoom and edits
+preserve the viewport's page anchor. Single-page mode remains available.
+
+Cursor preparation follows the extension's idle selection scheduler: wait 200 ms
+after a cursor change, then lazily resolve the engine file alias and UTF-8 byte
+offset from the current editor buffer. It runs only for the active, unpaused
+session after foreground rendering settles. Typing, scrolling, source navigation
+and magnifier work cancel preparation immediately. No editor update waits for
+the idle timer. Requests share the renderer's monotonic IDs and validate source
+sequence and engine revision. A bounded 16-entry history deduplicates positions
+in 64-byte buckets, and a five-second watchdog releases unacknowledged work.
+Preparation is best effort; a cancelled checkpoint may fall back to foreground
+replay. Skipped checkpoints retry only after foreground progress. Preparation invalidates
+the assumed native SyncTeX page, so inverse search restores its actual page first.
+
+The current macOS validation passes seven live-client suites (63 Qt cases),
+including real scrolling at thumbnail zoom, engine-only rerun invalidation,
+Unicode cursor preparation, cancellation, watchdogs and both SyncTeX directions.
+Five additional complete rerun-suite passes cover rapid reruns and error repair.
+The full application passes 1,613 cases across 29 suites, including the real
+Biber workflow with Live output selected; all 18 native-tooling tests pass.
+Linux execution remains for CI.
+
 ## Remaining work
 
-- Continuous page scrolling, following the extension's implementation.
 - Measured Qt SVG/adaptive rendering.
 - Full dependency reconciliation (missing/deleted files, external include
   directories), source renames, bounded idle-session eviction and memory budgets.
-- Clickable log diagnostics and auxiliary-directory precedence in the engine.
+- Auxiliary-directory precedence in the engine.
 - Automated editor interaction tests and Linux runtime verification in CI.
 - macOS/Linux release packaging with complete Qt deployment, release signing,
   notarization and clean-machine checks. Existing macOS engine signing tools are

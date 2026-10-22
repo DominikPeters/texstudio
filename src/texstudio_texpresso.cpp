@@ -37,6 +37,7 @@ void Texstudio::setupTexpresso()
     configManager.registerOption("Preview/Invert Colors", &previewConfig->invertColors, false);
     configManager.registerOption("Preview/Grayscale", &previewConfig->grayscale, false);
     texpressoWidget = new TexpressoWidget(texpressoManager, previewConfig, getRealIcon, mainHSplitter);
+    setupTexpressoOutput();
     // Use the PDF action IDs so configured PDF shortcuts also reach the live
     // panel. Widget-scoped contexts prevent clashes with the editor or PDF.
     for (auto it = texpressoWidget->viewerActions().cbegin(); it != texpressoWidget->viewerActions().cend(); ++it) {
@@ -129,7 +130,14 @@ void Texstudio::watchTexpressoDocument(LatexDocument *document)
     connect(document, &LatexDocument::structureUpdated, texpressoManager, [this] { texpressoActivationTimer.start(); });
     if (auto view = document->getEditorView()) {
         connect(view->editor, &QEditor::cursorPositionChanged, texpressoManager, [this, document, view] {
-            if (currentEditorView() == view) syncPDFViewer(view->editor->cursor(), false);
+            if (currentEditorView() != view) return;
+            const auto cursor = view->editor->cursor();
+            const auto start = cursor.hasSelection() ? cursor.selectionStart() : cursor;
+            const auto session = texpressoManager->current();
+            const auto root = documents.getRootDocumentForDoc(document);
+            if (session && root && TexpressoSession::identity(root->getFileName()) == session->root())
+                session->prepareEdit(document->getFileName(), start.lineNumber(), start.columnNumber());
+            syncPDFViewer(cursor, false);
         });
         connect(view->editor, &QEditor::saved, texpressoManager, [this] { texpressoActivationTimer.start(); });
         connect(view->editor, &QEditor::fileReloaded, texpressoManager, [this] { texpressoActivationTimer.start(); });
@@ -157,7 +165,15 @@ void Texstudio::updateTexpresso()
     texpressoManager->retainProjects(roots);
     const auto root = documents.getRootDocumentForDoc();
     texpressoManager->activate(texpressoAction->isChecked() && root ? root->getFileName() : QString());
-    if (auto session = texpressoManager->current()) session->followCursor = configManager.pdfDocumentConfig->followFromCursor;
+    if (auto session = texpressoManager->current()) {
+        session->followCursor = configManager.pdfDocumentConfig->followFromCursor;
+        if (auto editor = currentEditor()) {
+            const auto cursor = editor->cursor();
+            const auto start = cursor.hasSelection() ? cursor.selectionStart() : cursor;
+            if (auto document = qobject_cast<LatexDocument *>(cursor.document()))
+                session->prepareEdit(document->getFileName(), start.lineNumber(), start.columnNumber());
+        }
+    }
     texpressoWidget->refresh();
 }
 

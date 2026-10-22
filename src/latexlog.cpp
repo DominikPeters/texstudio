@@ -81,6 +81,7 @@ void LatexLogModel::clear()
 {
 	beginResetModel();
 	log.clear();
+    foundType[LT_NONE] = foundType[LT_ERROR] = foundType[LT_WARNING] = foundType[LT_BADBOX] = false;
 	endResetModel();
 }
 

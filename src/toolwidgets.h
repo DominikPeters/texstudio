@@ -93,6 +93,11 @@ public:
 #endif
 	bool isPreviewPanelVisible();
 	void setMessage(const QString &message); //set the message text (don't change page and no auto-show)
+    void setOutputRoot(const QString &root);
+    void setBuildOutputRoot(const QString &root);
+    void setBuildOutputActive(bool active);
+    void setLiveMessages(const QString &root, const QString &text);
+    QString messagesText() const { return OutputMessages->toPlainText(); }
 	bool childHasFocus();
     void updateIcon();
 
@@ -117,6 +122,12 @@ private:
 	LatexLogWidget *logWidget;
 	SearchResultWidget *searchResultWidget;
 	LogEditor *OutputMessages;
+    struct MessageSnapshot { QString build, live; };
+    QHash<QString, MessageSnapshot> messages;
+    QString buildOutputRoot;
+    int buildOutputDepth = 0;
+    QComboBox *messageSourceSelector;
+    void displayMessages();
 
 	void retranslateUi();
 };

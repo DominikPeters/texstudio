@@ -1,9 +1,7 @@
 #include <QtTest>
 #include "texpressowidget.h"
 #include <QAction>
-#include <QDialog>
 #include <QFile>
-#include <QPlainTextEdit>
 #include <QTemporaryDir>
 
 class TexpressoDiagnosticsTest : public QObject
@@ -13,6 +11,7 @@ private slots:
     void compilerErrorsAndRecovery();
     void bibliographyWarnings();
     void batchedLogUpdates();
+    void diagnosticSourceGeneration();
     void liveOutputAndStatus();
 };
 
@@ -92,6 +91,29 @@ void TexpressoDiagnosticsTest::batchedLogUpdates()
     QCOMPARE(publications.size(), 2);
 }
 
+void TexpressoDiagnosticsTest::diagnosticSourceGeneration()
+{
+    TexpressoSession session("/tmp/main.tex", QString(), {});
+    session.message({"append-lines", "log", "! Undefined control sequence.", "l.3 \\oldError"});
+    session.message({"flush"});
+    QCOMPARE(session.compilerLogSourceSequence(), qint64(0));
+    QVERIFY(session.compilerOutputCurrent());
+    session.preview.sourceChanged(1);
+    QVERIFY(!session.compilerOutputCurrent());
+    session.message({"preview-state", 1, 1, 0, false, false});
+    // A source barrier acknowledgment or stderr publication does not prove
+    // that the old TeX log belongs to the newly accepted source buffer.
+    QVERIFY(!session.compilerOutputCurrent());
+    emit session.outputUpdated();
+    QVERIFY(!session.compilerOutputCurrent());
+    session.message({"truncate-lines", "log", 0});
+    session.message({"append-lines", "log", "This is XeTeX"});
+    session.message({"flush"});
+    QCOMPARE(session.compilerLogSourceSequence(), qint64(1));
+    QVERIFY(session.compilerOutputCurrent());
+    QVERIFY(session.compilerError.isEmpty());
+}
+
 void TexpressoDiagnosticsTest::liveOutputAndStatus()
 {
     const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
@@ -109,19 +131,19 @@ void TexpressoDiagnosticsTest::liveOutputAndStatus()
     QVERIFY2(!session->failed(), qPrintable(session->status));
     auto status = widget.findChild<QLabel *>("texpressoStatus"); QVERIFY(status);
     auto output = widget.findChild<QToolButton *>("texpressoOutput"); QVERIFY(output);
+    QSignalSpy outputRequests(&widget, &TexpressoWidget::outputRequested);
     QTest::mouseClick(output, Qt::LeftButton);
-    auto text = widget.findChild<QPlainTextEdit *>(); QVERIFY(text);
+    QCOMPARE(outputRequests.size(), 1);
     manager.openBuffer(root, "\\documentclass{article}\n\\usepackage{texpresso_missing_package}\n\\begin{document}\nBroken.\n\\end{document}\n");
     QTRY_VERIFY_WITH_TIMEOUT(session->compilerError.contains("texpresso_missing_package"), 20000);
     QTRY_VERIFY(status->text().contains("texpresso_missing_package"));
     QVERIFY(!status->text().contains("Updating preview"));
-    QTRY_VERIFY(text->toPlainText().contains("texpresso_missing_package"));
+    QVERIFY(session->compilerLogOutput().contains("texpresso_missing_package"));
     QVERIFY(!session->failed());
     manager.openBuffer(root, good);
     QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid() && session->compilerError.isEmpty(), 20000);
     QTRY_VERIFY(!status->text().startsWith("TeX error:"));
-    // The same open Output dialog follows new log contents after recovery.
-    QTRY_VERIFY(!text->toPlainText().contains("! LaTeX Error: File `texpresso_missing_package.sty'"));
+    QTRY_VERIFY(!session->compilerLogOutput().contains("! LaTeX Error: File `texpresso_missing_package.sty'"));
     session->message({"append-lines", "out", "No file main.bbl."});
     QTRY_VERIFY(status->text().contains("Build & Refresh"));
     QSignalSpy build(&widget, &TexpressoWidget::buildRequested);

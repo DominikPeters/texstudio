@@ -3,6 +3,7 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <algorithm>
+#include <limits>
 
 QString TexpressoSession::identity(const QString &path)
 {
@@ -15,7 +16,8 @@ QString TexpressoSession::absolute(const QString &path) const
     return QDir::cleanPath(QFileInfo(path).isAbsolute() ? path : QDir(QFileInfo(rootFile).absolutePath()).absoluteFilePath(path));
 }
 TexpressoSession::TexpressoSession(const QString &root, const QString &engine, const Buffers &initial, QObject *parent)
-    : QObject(parent), preview(this), rootFile(identity(root)), engineFile(engine), buffers(initial)
+    : QObject(parent), preview(this), rootFile(identity(root)), engineFile(engine), buffers(initial),
+      prewarm([this] { return preview.nextRequestId(); }, this)
 {
     status = tr("Starting live preview…");
     syncFile = rootFile;
@@ -23,9 +25,22 @@ TexpressoSession::TexpressoSession(const QString &root, const QString &engine, c
     rescanTimer.setSingleShot(true); rescanTimer.setInterval(200);
     compilerOutputTimer.setSingleShot(true);
     connect(&compilerOutputTimer, &QTimer::timeout, this, &TexpressoSession::refreshCompilerOutput);
+    connect(&prewarm, &TexpressoPrewarm::command, this, [this](const QJsonArray &command) {
+        if (process && ready) process->send(command);
+    });
+    connect(&prewarm, &TexpressoPrewarm::pendingChanged, &preview, &TexpressoPreview::setPreparationPending);
+    connect(&prewarm, &TexpressoPrewarm::started, &preview, &TexpressoPreview::invalidateNativePage);
+    connect(&preview, &TexpressoPreview::activityChanged, this, &TexpressoSession::refreshPrewarmContext);
+    connect(&preview, &TexpressoPreview::interactionStarted, &prewarm, [this] { prewarm.interrupt(); });
     connect(&preview, &TexpressoPreview::failed, this, [this](const QString &reason) { previewError = reason; emit updated(); });
     connect(&preview, &TexpressoPreview::updated, this, [this] {
         if (preview.valid()) previewError.clear();
+        refreshPrewarmContext();
+        const QString frame = QString::number(preview.image().cacheKey());
+        if (preview.valid() && frame != lastPreparationFrame) {
+            lastPreparationFrame = frame;
+            prewarm.refresh(true);
+        }
         emit updated();
     });
     connect(&watcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
@@ -48,6 +63,7 @@ void TexpressoSession::createProcess()
     process = std::make_unique<TexpressoProcess>();
     connect(process.get(), &TexpressoProcess::ready, this, [this](const QJsonObject &features) {
         preview.setCapabilities(features);
+        supportsPreparation = features.value("prepareEdit").toBool();
         ready = true;
         // Pause stepping while priming the editor overlays. Input remains live.
         process->send({"pause"});
@@ -71,6 +87,7 @@ void TexpressoSession::createProcess()
 }
 TexpressoSession::~TexpressoSession()
 {
+    foreground = false; ready = false; prewarm.setContext({});
     if (process) {
         disconnect(process.get(), nullptr, this, nullptr);
         disconnect(process.get(), nullptr, &preview, nullptr);
@@ -86,6 +103,8 @@ void TexpressoSession::resetEngine()
 {
     ready = false; resumePending = false;
     preview.setActive(false);
+    prewarm.setContext({}); prewarm.reset();
+    supportsPreparation = false; lastPreparationFrame.clear();
     preview.sourceChanged(preview.sequence() + 1);
     if (process) {
         disconnect(process.get(), nullptr, this, nullptr);
@@ -98,6 +117,7 @@ void TexpressoSession::resetEngine()
     editorPaths.clear(); inputAliases.clear(); acknowledgedSource = 0;
     compilerOutputTimer.stop();
     outputLines.clear(); logLines.clear(); compilerOutput.clear(); engineOutput.clear();
+    compilerLogSequence = -1; compilerLog.clear();
     previewError.clear(); compilerError.clear(); compilerWarning.clear();
     failure = false; syncAfterCompile = false;
     emit outputUpdated();
@@ -156,6 +176,7 @@ void TexpressoSession::error(const QString &reason)
 void TexpressoSession::sendSource(QJsonArray command)
 {
     if (!ready || failure || userStopped) return;
+    prewarm.interrupt();
     previewError.clear();
     process->send(command);
     syncAfterCompile = !suppressRestartSync;
@@ -182,6 +203,7 @@ void TexpressoSession::applyPause()
         }
     }
     if (!failure && !userStopped) status = externalBuildRunning() ? tr("External build running…") : !foreground ? tr("Project inactive") : userPaused ? tr("Compilation paused") : tr("Live preview");
+    refreshPrewarmContext();
     emit updated();
 }
 void TexpressoSession::stop()
@@ -192,21 +214,27 @@ void TexpressoSession::stop()
 void TexpressoSession::openBuffer(const QString &path, const QString &text)
 {
     suppressRestartSync = false;
-    const auto key = identity(path); buffers[key] = text;
+    const auto key = identity(path);
+    if (!buffers.contains(key) || buffers.value(key) != text) ++bufferVersions[key];
+    buffers[key] = text;
     for (const auto &alias : aliases.value(key)) sendSource({"open", alias, text});
+    if (key == preparationPath) prepareEdit(key, preparationLine, preparationColumn);
 }
 void TexpressoSession::replaceBuffer(const QString &path, const QString &text) { openBuffer(path, text); }
 void TexpressoSession::changeBuffer(const QString &path, int sl, int sc, int el, int ec, const QString &text, const QString &currentText)
 {
     suppressRestartSync = false;
-    const auto key = identity(path); buffers[key] = currentText;
+    const auto key = identity(path); buffers[key] = currentText; ++bufferVersions[key];
     if (aliases.contains(key)) { syncFile = path; syncLine = sl; }
     for (const auto &alias : aliases.value(key)) sendSource({"change-range", alias, sl, sc, el, ec, text});
+    if (key == preparationPath) prepareEdit(key, preparationLine, preparationColumn);
 }
 void TexpressoSession::closeBuffer(const QString &path)
 {
     suppressRestartSync = false;
     const auto key = identity(path); buffers.remove(key);
+    ++bufferVersions[key];
+    if (key == preparationPath) { preparationPath.clear(); prewarm.select(); }
     for (const auto &alias : aliases.value(key)) sendSource({"close", alias});
 }
 void TexpressoSession::announce(const QString &path, const QString &editorPath)
@@ -222,6 +250,7 @@ void TexpressoSession::announce(const QString &path, const QString &editorPath)
 void TexpressoSession::message(const QJsonArray &m)
 {
     preview.message(m);
+    prewarm.message(m);
     const auto verb = m[0].toString();
     if (verb == "preview-state" && m.size() == 6) {
         acknowledgedSource = std::max(acknowledgedSource, qint64(m[2].toDouble()));
@@ -233,6 +262,7 @@ void TexpressoSession::message(const QJsonArray &m)
         const auto logical = absolute(m[2].toString());
         const auto editor = editorPaths.value(logical, identity(logical));
         announce(logical, editor); inputAliases[editor] = logical;
+        prewarm.refresh(true);
     }
     else if (verb == "lookup-file" && m.size() == 4 && m[1] == "write") {
         const auto path = absolute(m[3].toString());
@@ -280,6 +310,8 @@ void TexpressoSession::message(const QJsonArray &m)
 void TexpressoSession::refreshCompilerOutput()
 {
     compilerOutputTimer.stop();
+    compilerLogSequence = acknowledgedSource == preview.sequence() ? preview.sequence() : -1;
+    compilerLog = (logLines.isEmpty() ? outputLines : logLines).join('\n');
     compilerOutput = outputLines.join('\n') + '\n' + logLines.join('\n');
     const auto oldError = compilerError, oldWarning = compilerWarning;
     compilerError.clear(); compilerWarning.clear();
@@ -314,6 +346,41 @@ void TexpressoSession::refreshCompilerOutput()
     }
     emit outputUpdated();
     if (compilerError != oldError || compilerWarning != oldWarning) emit updated();
+}
+void TexpressoSession::refreshPrewarmContext()
+{
+    prewarm.setContext({ready && supportsPreparation && foreground && !userPaused && !userStopped
+        && !failure && !externalBuildRunning(), preview.valid() && !preview.busy(),
+        preview.revision(), preview.sequence()});
+}
+void TexpressoSession::prepareEdit(const QString &path, int line, int column)
+{
+    preparationPath = identity(path); preparationLine = line; preparationColumn = column;
+    const auto key = preparationPath;
+    const auto version = bufferVersions.value(key);
+    const QString selection = key + ':' + QString::number(version) + ':' + QString::number(line) + ':' + QString::number(column);
+    prewarm.select(selection, [this, key, version, line, column]() -> std::optional<TexpressoPrewarm::Position> {
+        if (!buffers.contains(key) || bufferVersions.value(key) != version || line < 0 || column < 0) return {};
+        const auto known = aliases.value(key);
+        if (known.isEmpty()) return {};
+        const auto &text = buffers[key];
+        qsizetype offset = 0;
+        for (int i = 0; i < line; ++i) {
+            offset = text.indexOf('\n', offset);
+            if (offset < 0) return {};
+            ++offset;
+        }
+        auto end = text.indexOf('\n', offset);
+        if (end < 0) end = text.size();
+        offset += qMin(qsizetype(column), end - offset);
+        // A cursor cannot split a Unicode scalar; keep synthetic/test positions
+        // consistent with the editor before converting UTF-16 to engine bytes.
+        if (offset > 0 && offset < text.size() && text[offset].isLowSurrogate() && text[offset - 1].isHighSurrogate()) --offset;
+        const auto bytes = text.left(offset).toUtf8().size();
+        if (bytes > std::numeric_limits<int>::max()) return {};
+        return TexpressoPrewarm::Position{inputAliases.value(key, *known.cbegin()), int(bytes)};
+    });
+    refreshPrewarmContext();
 }
 void TexpressoSession::syncForward(const QString &path, int line)
 {

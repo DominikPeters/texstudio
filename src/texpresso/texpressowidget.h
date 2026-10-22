@@ -19,12 +19,15 @@ public:
     QRectF pageBounds;
     double scale = 1;
     bool fresh = false;
+    bool interactionActive = false;
     void setTool(int tool);
     void resetTools();
     void setPreview(TexpressoPreview *preview);
     void invalidateMagnifier() { magnifier->invalidate(); }
 signals:
     void sourceClicked(const QPointF &point);
+    void activated();
+    void interactionFinished();
     void zoomRequested(int direction, const QPoint &anchor);
 protected:
     void paintEvent(QPaintEvent *) override;
@@ -62,6 +65,7 @@ public:
     const QHash<QString, QAction *> &viewerActions() const { return actions; }
     void configureAppearance(bool modern, int iconSize);
 signals:
+    void outputRequested();
     void syncRequested();
     void buildRequested();
     void followCursorChanged(bool enabled);
@@ -70,6 +74,9 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 private:
     void layoutPage();
+    void updateViewport(bool gesture = false);
+    void connectCanvas(TexpressoCanvas *pageCanvas);
+    void showPage(int page);
     void setZoom(qreal value, const QPoint &anchor = QPoint(-1, -1));
     TexpressoManager *manager;
     PDFDocumentConfig *config;
@@ -79,6 +86,12 @@ private:
     QPointer<TexpressoSession> shown;
     QMetaObject::Connection revealConnection;
     TexpressoCanvas *canvas;
+    QWidget *documentCanvas;
+    QList<TexpressoCanvas *> extraCanvases;
+    QList<QRect> pageRects;
+    QHash<int, QRectF> knownBounds;
+    int extentPages = 1, viewportPage = 0;
+    bool continuous = true;
     QScrollArea *area;
     QToolBar *toolbar;
     QLabel *status, *project;

@@ -17,6 +17,22 @@ public:
 
 	bool loadLogFile(const QString &logname, const QString &compiledFileName, QTextCodec* fallbackCodec);
 	LatexLogModel *getLogModel() { return logModel; }
+    // Build decisions always use this model, independent of the visible source.
+    LatexLogModel *getBuildLogModel() { return buildModel; }
+    enum OutputSource { BuildOutput, LiveOutput, EngineTrace };
+    void setOutputRoot(const QString &root);
+    QString outputRoot() const { return currentRoot; }
+    OutputSource outputSource() const;
+    void setOutputSource(OutputSource source);
+    void setLiveLog(const QString &root, const QString &text, qint64 sequence, bool current);
+    void setLiveState(const QString &root, const QString &status, const QString &trace, qint64 sequence);
+    bool currentBufferLog() const { return outputSource() == LiveOutput; }
+    bool liveLogCurrent() const;
+    void resetBuildLog(const QString &root = QString());
+    void setBuildLog(const QString &root, const QString &text);
+    QString buildLogRoot() const { return lastBuildRoot; }
+    QString logText() const { return log->toPlainText(); }
+    static QString outputIdentity(const QString &root);
 
 	bool logEntryNumberValid(int logEntryNumber);
 	bool logPresent();
@@ -32,6 +48,7 @@ signals:
 	void logEntryActivated(int);
 	void logLoaded();
 	void logResetted();
+    void outputSourceChanged();
 
 public slots:
 
@@ -49,6 +66,17 @@ private slots:
 
 private:
 	LatexLogModel *logModel;
+    LatexLogModel *buildModel;
+    struct OutputSnapshot {
+        QString buildText, liveText, status, trace;
+        bool buildPresent = false, livePresent = false, liveCurrent = false;
+        qint64 liveSequence = -1;
+        OutputSource source = BuildOutput;
+    };
+    QHash<QString, OutputSnapshot> outputs;
+    QString currentRoot, lastBuildRoot;
+    QComboBox *sourceSelector;
+    void displayOutput();
 	QSortFilterProxyModel *proxyModel;
 	bool logpresent;
 

@@ -21,6 +21,7 @@
 #include "texstudio.h"
 #ifdef TEXSTUDIO_TEXPRESSO
 #include "texpresso/texpressomanager.h"
+#include "texpresso/texpressowidget.h"
 #endif
 #include "latexeditorview.h"
 
@@ -820,6 +821,10 @@ void Texstudio::setupDockWidgets()
     if (!outputView) {
         outputView = new OutputViewWidget(this, configManager.terminalConfig);
         outputView->setObjectName("OutputView");
+        connect(&buildManager, &BuildManager::beginRunningCommands, outputView,
+                [this](const QString &, bool, bool, bool) { outputView->setBuildOutputActive(true); });
+        connect(&buildManager, &BuildManager::endRunningCommands, outputView,
+                [this](const QString &, bool, bool, bool) { outputView->setBuildOutputActive(false); });
         centralVSplitter->addWidget(outputView);
         outputView->toggleViewAction()->setChecked(configManager.getOption("GUI/outputView/visible", true).toBool());
         centralVSplitter->setStretchFactor(1, 0);
@@ -6904,8 +6909,8 @@ void Texstudio::beginRunningSubCommand(ProcessX *p, const QString &commandMain, 
 {
 	if (commandMain != subCommand)
         setStatusMessageProcess(QString(" %1: %2 ").arg(buildManager.getCommandInfo(commandMain).displayName,buildManager.getCommandInfo(subCommand).displayName));
-	if (flags & RCF_COMPILES_TEX)
-		clearLogEntriesInEditors();
+    if ((flags & RCF_COMPILES_TEX) && outputView->getLogWidget()->outputSource() == LatexLogWidget::BuildOutput)
+        clearLogEntriesInEditors();
 	//outputView->resetMessages();
 	connectSubCommand(p, (RCF_SHOW_STDOUT & flags));
 }
@@ -6958,8 +6963,71 @@ void Texstudio::processNotification(const QString &message)
  * \brief clear log view in panel
  */
 void Texstudio::clearLogs(){
+    const auto root = buildManager.activeBuildRoot().isEmpty() ? documents.getTemporaryCompileFileName() : buildManager.activeBuildRoot();
+    outputView->setBuildOutputRoot(root);
+    outputView->setOutputRoot(documents.getTemporaryCompileFileName());
     outputView->resetMessagesAndLog(!configManager.showMessagesWhenCompiling);
 }
+
+#ifdef TEXSTUDIO_TEXPRESSO
+void Texstudio::setupTexpressoOutput()
+{
+    connect(&buildManager, &BuildManager::buildSequenceStarted, outputView,
+            [this](const QString &root, const QStringList &, bool) { outputView->setBuildOutputRoot(root); });
+    auto attach = [this] {
+        const auto root = documents.getRootDocumentForDoc();
+        if (root) outputView->setOutputRoot(root->getFileName());
+        auto session = texpressoManager->current();
+        if (!session || session->property("sharedOutputConnected").toBool()) return;
+        session->setProperty("sharedOutputConnected", true);
+        struct PendingLog { QString text; qint64 sequence = -1; bool current = false; };
+        auto pending = std::make_shared<PendingLog>();
+        auto timer = new QTimer(session);
+        timer->setSingleShot(true); timer->setInterval(150);
+        auto publishState = [this, session] {
+            QStringList status{session->status};
+            for (const auto &detail : {session->compilerError, session->compilerWarning, session->previewError})
+                if (!detail.isEmpty() && !status.contains(detail)) status.append(detail);
+            const auto state = status.join('\n');
+            outputView->getLogWidget()->setLiveState(session->root(), state, session->engineOutput, session->preview.sequence());
+            // Build stdout and live messages have independent stores. Rendering
+            // notifications must not repeatedly copy a large compiler log.
+            if (session->property("sharedOutputStatus").toString() != state) {
+                session->setProperty("sharedOutputStatus", state);
+                outputView->setLiveMessages(session->root(), state + "\n\n" + session->compilerOutput);
+            }
+        };
+        connect(timer, &QTimer::timeout, this, [this, session, pending, publishState] {
+            const bool current = pending->current && pending->sequence == session->preview.sequence();
+            outputView->getLogWidget()->setLiveLog(session->root(), pending->text, pending->sequence, current);
+            publishState();
+            if (session->property("sharedCompilerOutput").toString() != session->compilerOutput) {
+                session->setProperty("sharedCompilerOutput", session->compilerOutput);
+                outputView->setLiveMessages(session->root(), session->property("sharedOutputStatus").toString() + "\n\n" + session->compilerOutput);
+            }
+        });
+        auto queueLog = [session, pending, timer] {
+            pending->text = session->compilerLogOutput();
+            pending->sequence = session->compilerLogSourceSequence();
+            pending->current = session->compilerOutputCurrent();
+            if (!timer->isActive()) timer->start();
+        };
+        connect(session, &TexpressoSession::outputUpdated, this, queueLog);
+        connect(session, &TexpressoSession::updated, this, publishState);
+        // Source invalidation is synchronous. Old line numbers must stop
+        // creating gutter marks before the next checkpoint log arrives.
+        connect(&session->preview, &TexpressoPreview::updated, this, publishState);
+        queueLog(); publishState();
+    };
+    connect(texpressoManager, &TexpressoManager::updated, this, attach);
+    connect(texpressoWidget, &TexpressoWidget::outputRequested, this, [this, attach] {
+        attach();
+        outputView->getLogWidget()->setOutputSource(LatexLogWidget::LiveOutput);
+        outputView->showPage(outputView->LOG_PAGE);
+    });
+    attach();
+}
+#endif
 
 /*!
  * \brief Opens a new external terminal
@@ -7469,10 +7537,13 @@ bool Texstudio::logExists()
  */
 bool Texstudio::loadLog()
 {
-	outputView->getLogWidget()->resetLog();
-	if (!documents.getCurrentDocument()) return false;
+    if (!documents.getCurrentDocument()) {
+        outputView->getLogWidget()->resetBuildLog();
+        return false;
+    }
     const QString buildRoot = buildManager.activeBuildRoot();
 	QString compileFileName = buildRoot.isEmpty() ? documents.getTemporaryCompileFileName() : buildRoot;
+    outputView->getLogWidget()->resetBuildLog(compileFileName);
 	if (compileFileName == "") {
 		QMessageBox::warning(this, tr("Error"), tr("File must be saved and compiling before you can view the log"));
 		return false;
@@ -7527,8 +7598,11 @@ void Texstudio::viewLog()
 void Texstudio::viewLogOrReRun(LatexCompileResult *result)
 {
 	loadLog();
-	REQUIRE(result);
-	if (hasLatexErrors()) {
+    REQUIRE(result);
+    // Live diagnostics may be visible while a normal recipe is running. Never
+    // let that selection decide whether TeX needs Biber, another pass, or fails.
+    const auto buildLog = outputView->getLogWidget()->getBuildLogModel();
+    if (buildLog->found(LT_ERROR)) {
 		onCompileError();
 		*result = LCR_ERROR;
 	} else {
@@ -7537,7 +7611,7 @@ void Texstudio::viewLogOrReRun(LatexCompileResult *result)
 			// Bibliography work must precede a generic TeX rerun: another TeX
 			// pass cannot create a missing .bbl, and can otherwise consume the
 			// entire rerun budget before BibTeX/Biber gets a chance to run.
-			const auto log = outputView->getLogWidget()->getLogModel();
+			const auto log = buildLog;
 			static const QRegularExpression bibliographyRequest(
 				"Please\\s+(?:\\(re\\))?run\\s+(?:Biber|BibTeX)\\b",
 				QRegularExpression::CaseInsensitiveOption);
@@ -7550,7 +7624,7 @@ void Texstudio::viewLogOrReRun(LatexCompileResult *result)
 				}
 			}
 			//run bibtex if citation is unknown to bibtex but contained in an included bib file
-			QStringList missingCitations = outputView->getLogWidget()->getLogModel()->getMissingCitations();
+			QStringList missingCitations = buildLog->getMissingCitations();
             QStringList bibliographyFiles = documents.mentionedBibTeXFiles;
             const auto buildRoot = buildManager.activeBuildRoot();
             if (!buildRoot.isEmpty()) {
@@ -7576,7 +7650,7 @@ void Texstudio::viewLogOrReRun(LatexCompileResult *result)
 			if (runBibTeX)
 				*result = LCR_RERUN_WITH_BIBLIOGRAPHY;
 		}
-		if (*result == LCR_NORMAL && outputView->getLogWidget()->getLogModel()->existsReRunWarning())
+		if (*result == LCR_NORMAL && buildLog->existsReRunWarning())
 			*result = LCR_RERUN;
 	}
 }
@@ -7587,6 +7661,13 @@ void Texstudio::viewLogOrReRun(LatexCompileResult *result)
  */
 void Texstudio::onCompileError()
 {
+    // A failed explicit build keeps TeXstudio's existing reveal-error behavior.
+    // Successful/background updates never change the user's selected source.
+    const auto widget = outputView->getLogWidget();
+    if (!previewIsAutoCompiling && configManager.getOption("Tools/ShowLogInCaseOfCompileError").toBool()) {
+        outputView->setOutputRoot(widget->buildLogRoot());
+        widget->setOutputSource(LatexLogWidget::BuildOutput);
+    }
 	if (!previewIsAutoCompiling && configManager.getOption("Tools/ShowLogInCaseOfCompileError").toBool()) {
 		viewLog();
 	} else {
@@ -7616,7 +7697,9 @@ void Texstudio::clearLogEntriesInEditors()
 void Texstudio::updateLogEntriesInEditors()
 {
 	clearLogEntriesInEditors();
-	LatexLogModel *logModel = outputView->getLogWidget()->getLogModel();
+    const auto widget = outputView->getLogWidget();
+    if (widget->currentBufferLog() && !widget->liveLogCurrent()) return;
+    LatexLogModel *logModel = widget->getLogModel();
 	QHash<QString, LatexEditorView *> tempFilenames; //temporary maps the filenames (as they appear in this log!) to the editor
 	int errorMarkID = QLineMarksInfoCenter::instance()->markTypeId("error");
 	int warningMarkID = QLineMarksInfoCenter::instance()->markTypeId("warning");
@@ -7645,10 +7728,17 @@ void Texstudio::updateLogEntriesInEditors()
 				default:
 					markID = -1;
 				}
-				edView->addLogEntry(i, logModel->at(i).oldline - 1, markID);
+                int line = logModel->at(i).oldline - 1;
+                if (!widget->currentBufferLog()) {
+                    const auto savedLine = edView->document->lineFromLineSnapshot(line);
+                    if (savedLine.isValid()) line = edView->document->indexOf(savedLine, line);
+                }
+                if (line >= 0 && line < edView->document->lines()) edView->addLogEntry(i, line, markID);
 			}
 		}
-	}
+    }
+    const auto action = getManagedAction("main/tools/logmarkers");
+    if (action && action->isChecked()) setLogMarksVisible(true);
 }
 /*!
  * \brief check if the log viewer contains latex errors
@@ -9030,7 +9120,7 @@ void Texstudio::updateCompleter(LatexEditorView *edView)
 
 void Texstudio::outputPageChanged(const QString &id)
 {
-	if (id == outputView->LOG_PAGE && !outputView->getLogWidget()->logPresent()) {
+	if (id == outputView->LOG_PAGE && outputView->getLogWidget()->outputSource() == LatexLogWidget::BuildOutput && !outputView->getLogWidget()->logPresent()) {
 		if (!loadLog())
 			return;
 		if (hasLatexErrors())
@@ -9188,6 +9278,7 @@ void Texstudio::gotoLine(QTreeWidgetItem *item, int)
 
 void Texstudio::gotoLogEntryEditorOnly(int logEntryNumber)
 {
+    if (outputView->getLogWidget()->currentBufferLog() && !outputView->getLogWidget()->liveLogCurrent()) return;
 	if (logEntryNumber < 0 || logEntryNumber >= outputView->getLogWidget()->getLogModel()->count()) return;
 	LatexLogEntry entry = outputView->getLogWidget()->getLogModel()->at(logEntryNumber);
 	QString fileName = entry.file;

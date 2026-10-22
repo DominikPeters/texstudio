@@ -25,6 +25,7 @@ LatexLogWidget::LatexLogWidget(QWidget *parent) :
     QWidget(parent), logModel(nullptr), proxyModel(nullptr), logpresent(false), filterErrorAction(nullptr), filterWarningAction(nullptr), filterBadBoxAction(nullptr)
 {
 	logModel = new LatexLogModel(this);//needs loaded line marks
+    buildModel = new LatexLogModel(this);
 
 	errorTable = new QTableView(this);
 	int rowHeight = getOptimalRowHeight(errorTable);
@@ -92,7 +93,17 @@ LatexLogWidget::LatexLogWidget(QWidget *parent) :
 #else
     vLayout->setContentsMargins(0,0,0,0);
 #endif
-	vLayout->addWidget(infoLabel);
+	sourceSelector = new QComboBox(this);
+    sourceSelector->setObjectName("compilationOutputSource");
+    sourceSelector->addItems({tr("Build"), tr("Live"), tr("Engine trace")});
+    sourceSelector->setToolTip(tr("Compilation output for the active project"));
+    connect(sourceSelector, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            [this](int index) { setOutputSource(static_cast<OutputSource>(index)); });
+#ifndef TEXSTUDIO_TEXPRESSO
+    sourceSelector->hide();
+#endif
+    vLayout->addWidget(sourceSelector);
+    vLayout->addWidget(infoLabel);
 	vLayout->addWidget(splitter);
 	setLayout(vLayout);
 
@@ -145,14 +156,14 @@ void LatexLogWidget::resizeRows()
 
 bool LatexLogWidget::loadLogFile(const QString &logname, const QString &compiledFileName, QTextCodec* fallbackCodec)
 {
-	resetLog();
+    resetBuildLog(compiledFileName);
 	QFileInfo fi(logname);
 	if (logname.isEmpty() || !fi.exists()) {
-		setInfo(tr("Log file not found."));
+		if (outputSource() == BuildOutput && outputIdentity(compiledFileName) == currentRoot) setInfo(tr("Log file not found."));
 		return false;
 	}
 	if (!fi.isReadable()) {
-		setInfo(tr("Log file not readable."));
+		if (outputSource() == BuildOutput && outputIdentity(compiledFileName) == currentRoot) setInfo(tr("Log file not readable."));
 		return false;
 	}
 
@@ -191,22 +202,123 @@ bool LatexLogWidget::loadLogFile(const QString &logname, const QString &compiled
 		QTextCodec *codec = Encoding::guessEncodingBasic(fullLog, &sure);
 		if (sure < 2 || !codec) codec = fallbackCodec ? fallbackCodec : QTextCodec::codecForLocale();
 
-		log->setPlainText(codec->toUnicode(fullLog));
-
-		logModel->parseLogDocument(log->document(), compiledFileName);
-
-		logpresent = true;
-
-		errorTable->resizeColumnsToContents();
-		errorTable->horizontalHeader()->setStretchLastSection(true);
-
-		selectLogEntry(0);
-		emit logLoaded();
+        setBuildLog(compiledFileName, codec->toUnicode(fullLog));
 		return true;
 	}
 
-	setInfo(tr("Log file not readable."));
+	if (outputSource() == BuildOutput && outputIdentity(compiledFileName) == currentRoot) setInfo(tr("Log file not readable."));
 	return false;
+}
+
+QString LatexLogWidget::outputIdentity(const QString &root)
+{
+    if (root.isEmpty()) return QString();
+    const QFileInfo file(root);
+    const auto canonical = file.canonicalFilePath();
+    return canonical.isEmpty() ? file.absoluteFilePath() : canonical;
+}
+
+LatexLogWidget::OutputSource LatexLogWidget::outputSource() const
+{
+    return outputs.value(currentRoot).source;
+}
+
+void LatexLogWidget::setOutputRoot(const QString &root)
+{
+    const auto key = outputIdentity(root);
+    if (currentRoot == key) return;
+    currentRoot = key;
+    const QSignalBlocker blocker(sourceSelector);
+    sourceSelector->setCurrentIndex(outputSource());
+    sourceSelector->setToolTip(root);
+    displayOutput();
+    emit outputSourceChanged();
+}
+
+void LatexLogWidget::setOutputSource(OutputSource source)
+{
+    if (source < BuildOutput || source > EngineTrace) return;
+    if (outputs[currentRoot].source == source) return;
+    outputs[currentRoot].source = source;
+    const QSignalBlocker blocker(sourceSelector);
+    sourceSelector->setCurrentIndex(source);
+    displayOutput();
+    emit outputSourceChanged();
+}
+
+bool LatexLogWidget::liveLogCurrent() const
+{
+    return outputs.value(currentRoot).liveCurrent;
+}
+
+void LatexLogWidget::resetBuildLog(const QString &root)
+{
+    lastBuildRoot = outputIdentity(root.isEmpty() ? currentRoot : root);
+    buildModel->clear();
+    auto &snapshot = outputs[lastBuildRoot];
+    snapshot.buildText.clear(); snapshot.buildPresent = false;
+    if (currentRoot == lastBuildRoot && outputSource() == BuildOutput) displayOutput();
+}
+
+void LatexLogWidget::setBuildLog(const QString &root, const QString &text)
+{
+    lastBuildRoot = outputIdentity(root);
+    QTextDocument document;
+    document.setPlainText(text);
+    buildModel->parseLogDocument(&document, lastBuildRoot);
+    auto &snapshot = outputs[lastBuildRoot];
+    snapshot.buildText = text; snapshot.buildPresent = true;
+    // A standalone log load before project activation still works normally.
+    if (currentRoot.isEmpty()) setOutputRoot(root);
+    else if (currentRoot == lastBuildRoot && outputSource() == BuildOutput) displayOutput();
+}
+
+void LatexLogWidget::setLiveLog(const QString &root, const QString &text, qint64 sequence, bool current)
+{
+    const auto key = outputIdentity(root);
+    auto &snapshot = outputs[key];
+    if (snapshot.liveText == text && snapshot.liveSequence == sequence && snapshot.liveCurrent == current && snapshot.livePresent) return;
+    snapshot.liveText = text; snapshot.liveSequence = sequence;
+    snapshot.livePresent = true; snapshot.liveCurrent = current;
+    if (key == currentRoot && outputSource() == LiveOutput) displayOutput();
+}
+
+void LatexLogWidget::setLiveState(const QString &root, const QString &status, const QString &trace, qint64 sequence)
+{
+    const auto key = outputIdentity(root);
+    auto &snapshot = outputs[key];
+    const bool stale = snapshot.liveCurrent && snapshot.liveSequence != sequence;
+    const bool traceChanged = snapshot.trace != trace;
+    const bool statusChanged = snapshot.status != status;
+    snapshot.status = status; snapshot.trace = trace;
+    if (stale) snapshot.liveCurrent = false;
+    if (key != currentRoot) return;
+    if ((stale || statusChanged) && outputSource() == LiveOutput) {
+        setInfo((snapshot.liveCurrent || !snapshot.livePresent) ? status : tr("Live output is from an earlier edit. Waiting for current diagnostics.\n%1").arg(status));
+        if (stale) emit logResetted();
+    } else if (traceChanged && outputSource() == EngineTrace) displayOutput();
+}
+
+void LatexLogWidget::displayOutput()
+{
+    const auto snapshot = outputs.value(currentRoot);
+    const int position = log->verticalScrollBar()->value();
+    const bool atBottom = position == log->verticalScrollBar()->maximum();
+    resetLog();
+    const auto source = snapshot.source;
+    logpresent = source == BuildOutput ? snapshot.buildPresent : source == LiveOutput ? snapshot.livePresent : true;
+    const auto text = source == BuildOutput ? snapshot.buildText : source == LiveOutput ? snapshot.liveText : snapshot.trace;
+    log->setPlainText(text);
+    if (source != EngineTrace && logpresent) logModel->parseLogDocument(log->document(), currentRoot);
+    if (source == LiveOutput) setInfo((snapshot.liveCurrent || !snapshot.livePresent) ? snapshot.status : tr("Live output is from an earlier edit. Waiting for current diagnostics.\n%1").arg(snapshot.status));
+    else if (source == EngineTrace) setInfo(tr("Engine trace (debugging output)"));
+    else if (!logpresent) setInfo(tr("No build log available for this project."));
+    errorTable->resizeColumnsToContents();
+    errorTable->horizontalHeader()->setStretchLastSection(true);
+    if (atBottom) log->verticalScrollBar()->setValue(log->verticalScrollBar()->maximum());
+    else log->verticalScrollBar()->setValue(position);
+    // Loading live output never changes focus or jumps to its first error.
+    if (logpresent) emit logLoaded();
 }
 
 bool LatexLogWidget::logPresent()

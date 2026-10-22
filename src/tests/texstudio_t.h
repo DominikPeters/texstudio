@@ -18,6 +18,7 @@ private slots:
     void normalCompletion();
     void dragDropTexFileSource();
     void bibliographyRerunPriority();
+    void sharedCompilationOutput();
     void liveBuildAndRefresh();
 
 private:

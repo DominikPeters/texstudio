@@ -302,6 +302,12 @@ void TexStudioTest::bibliographyRerunPriority()
               "(biblatex)                main\n"
               "(biblatex)                and rerun LaTeX afterwards.\n\n)\n");
     log.close();
+    auto output = txs->outputView;
+    auto logWidget = output->getLogWidget();
+    output->setOutputRoot(path);
+    logWidget->setLiveLog(path, "This is XeTeX\n(./main.tex\n! Undefined control sequence.\nl.2 \\liveOnlyError\n)\n", 1, true);
+    logWidget->setOutputSource(LatexLogWidget::LiveOutput);
+    QVERIFY(logWidget->getLogModel()->found(LT_ERROR));
     txs->configManager.runLaTeXBibTeXLaTeX = true;
     LatexCompileResult result = LCR_NORMAL;
     txs->viewLogOrReRun(&result);
@@ -309,6 +315,123 @@ void TexStudioTest::bibliographyRerunPriority()
     txs->configManager.runLaTeXBibTeXLaTeX = false;
     txs->viewLogOrReRun(&result);
     QCOMPARE(result, LCR_RERUN);
+    QCOMPARE(logWidget->outputSource(), LatexLogWidget::LiveOutput);
+    QVERIFY(logWidget->getLogModel()->found(LT_ERROR));
+    QVERIFY(QFile::remove(log.fileName()));
+    txs->viewLogOrReRun(&result);
+    QCOMPARE(result, LCR_NORMAL);
+    QVERIFY(!logWidget->getBuildLogModel()->found(LT_WARNING));
+    logWidget->setOutputSource(LatexLogWidget::BuildOutput);
+}
+
+void TexStudioTest::sharedCompilationOutput()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const auto main = directory.filePath("main.tex"), child = directory.filePath("chapter.tex");
+    for (const auto &path : {main, child}) {
+        QFile file(path); QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(path == main ? "\\documentclass{article}\n\\begin{document}\n\\input{chapter}\n\\end{document}\n"
+                                : "% !TeX root = main.tex\nSaved line\nSaved end\n");
+    }
+    auto txs = txsInstance;
+#ifdef TEXSTUDIO_TEXPRESSO
+    const bool liveEnabled = txs->texpressoAction->isChecked();
+    txs->texpressoAction->setChecked(false);
+    txs->updateTexpresso();
+#endif
+    auto rootView = txs->load(main); QVERIFY(rootView);
+    auto childView = txs->load(child); QVERIFY(childView);
+    const auto cleanup = qScopeGuard([&] {
+        txs->outputView->setBuildOutputActive(false);
+        txs->editors->setCurrentEditor(childView);
+        childView->document->setClean(); txs->fileClose();
+        txs->editors->setCurrentEditor(rootView); txs->fileClose();
+#ifdef TEXSTUDIO_TEXPRESSO
+        txs->texpressoAction->setChecked(liveEnabled);
+        txs->updateTexpresso();
+#endif
+    });
+    auto output = txs->outputView;
+    auto log = output->getLogWidget();
+    output->setOutputRoot(main);
+    output->setBuildOutputRoot(main);
+    log->setOutputSource(LatexLogWidget::BuildOutput);
+    // A normal recipe log is retained while the live engine rolls back its
+    // own diagnostics. BuildManager must never consult the visible live model.
+    const auto buildText = "This is pdfTeX\n(" + main + "\n"
+        "Package biblatex Warning: Please (re)run Biber on the file:\n"
+        "(biblatex)                main\n"
+        "(biblatex)                and rerun LaTeX afterwards.\n\n)\n";
+    log->setBuildLog(main, buildText);
+    output->setBuildOutputActive(true);
+    output->insertMessageLine("Normal build output");
+    QVERIFY(log->getBuildLogModel()->found(LT_WARNING));
+    childView->editor->setText("% !TeX root = main.tex\nUnsaved first line\n\n\n"
+                               "\\unknownLiveCommand\nSaved end\n", true);
+    const auto liveText = "This is XeTeX\n(" + main + "\n(" + child + "\n"
+        "! Undefined control sequence.\nl.5 \\unknownLiveCommand\n)\n)\n";
+    log->setLiveState(main, "Live preview", "Engine debug trace", 11);
+    log->setLiveLog(main, liveText, 11, true);
+    // Background live output cannot replace the build currently being read.
+    QCOMPARE(log->logText(), buildText);
+    QCOMPARE(output->messagesText(), QString("Normal build output"));
+    output->setLiveMessages(main, "Current live messages");
+    log->setOutputSource(LatexLogWidget::LiveOutput);
+    QVERIFY(log->getLogModel()->found(LT_ERROR));
+    QCOMPARE(log->getLogModel()->count(), 1);
+    QCOMPARE(log->getLogModel()->at(0).oldline, 5);
+    QCOMPARE(LatexLogWidget::outputIdentity(log->getLogModel()->at(0).file), LatexLogWidget::outputIdentity(child));
+    QCOMPARE(output->messagesText(), QString("Current live messages"));
+    // Live diagnostics refer to the unsaved included buffer, without applying
+    // the disk build's saved-line mapping. Reuse click and next-error paths.
+    txs->gotoLogEntryEditorOnly(0);
+    QCOMPARE(txs->currentEditorView(), childView);
+    QCOMPARE(txs->currentEditor()->cursor().lineNumber(), 4);
+    QVERIFY(childView->logEntryToLine.contains(0));
+    const auto errorMark = log->getLogModel()->markID(LT_ERROR);
+    txs->setLogMarksVisible(true);
+    txs->gotoLine(0);
+    QVERIFY(txs->gotoMark(false, errorMark));
+    QCOMPARE(txs->currentEditor()->cursor().lineNumber(), 4);
+    // Once another edit is queued the old table stays readable, but its line
+    // numbers cannot make new marks or navigate against the new source text.
+    log->setLiveState(main, "Updating preview", "Engine debug trace", 12);
+    QVERIFY(!log->liveLogCurrent());
+    QVERIFY(childView->logEntryToLine.isEmpty());
+    txs->gotoLine(0);
+    txs->gotoLogEntryEditorOnly(0);
+    QCOMPARE(txs->currentEditor()->cursor().lineNumber(), 0);
+    // Checkpoint rollback removes obsolete error rows as well as found flags.
+    log->setLiveLog(main, "This is XeTeX\n(" + main + "\n)\n", 12, true);
+    QCOMPARE(log->getLogModel()->count(), 0);
+    QVERIFY(!log->getLogModel()->found(LT_ERROR));
+    QVERIFY(log->getBuildLogModel()->found(LT_WARNING));
+    output->setBuildOutputActive(true); // Nested recipe.
+    output->setBuildOutputActive(false);
+    output->insertMessageLine("More build output");
+    QCOMPARE(output->messagesText(), QString("Current live messages"));
+    // Per-project snapshots and selection survive switching to another root.
+    const auto other = directory.filePath("other.tex");
+    output->setOutputRoot(other);
+    QCOMPARE(log->outputSource(), LatexLogWidget::BuildOutput);
+    QVERIFY(!log->logPresent());
+    output->setOutputRoot(main);
+    QCOMPARE(log->outputSource(), LatexLogWidget::LiveOutput);
+    QCOMPARE(log->getLogModel()->count(), 0);
+    log->setOutputSource(LatexLogWidget::BuildOutput);
+    QCOMPARE(log->logText(), buildText);
+    QVERIFY(log->getLogModel()->found(LT_WARNING));
+    QCOMPARE(output->messagesText(), QString("Normal build output\nMore build output"));
+    output->setBuildOutputActive(false);
+    log->setOutputSource(LatexLogWidget::EngineTrace);
+    QCOMPARE(log->logText(), QString("Engine debug trace"));
+    QCOMPARE(log->getLogModel()->count(), 0);
+    QVERIFY(!log->getLogModel()->found(LT_ERROR));
+    log->setOutputSource(LatexLogWidget::LiveOutput);
+    output->insertMessageLine("Standalone notification");
+    QCOMPARE(log->outputSource(), LatexLogWidget::BuildOutput);
+    QVERIFY(output->messagesText().endsWith("Standalone notification"));
 }
 
 void TexStudioTest::liveBuildAndRefresh()
@@ -378,6 +501,11 @@ void TexStudioTest::liveBuildAndRefresh()
     auto session = txs->texpressoManager->current();
     QVERIFY(session);
     QTRY_VERIFY_WITH_TIMEOUT(!session->preview.image().isNull(), 30000);
+    QVERIFY(QMetaObject::invokeMethod(txs->texpressoWidget, "outputRequested", Qt::DirectConnection));
+    auto liveLog = txs->outputView->getLogWidget();
+    QCOMPARE(liveLog->outputSource(), LatexLogWidget::LiveOutput);
+    QCOMPARE(liveLog->outputRoot(), session->root());
+    QTRY_VERIFY_WITH_TIMEOUT(liveLog->liveLogCurrent(), 10000);
     const auto previousPid = session->processId();
     QVERIFY(previousPid > 0);
     QVERIFY(!QFileInfo::exists(directory.filePath("main.bbl")));
@@ -421,5 +549,18 @@ void TexStudioTest::liveBuildAndRefresh()
     QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid(), 30000);
     QVERIFY2(session->compilerWarning.isEmpty(), qPrintable(session->compilerWarning));
     QVERIFY2(session->compilerError.isEmpty(), qPrintable(session->compilerError));
+    QCOMPARE(liveLog->outputSource(), LatexLogWidget::LiveOutput);
+    // Actual engine output must flow through the existing parser, gutter maps,
+    // and editor navigation, and disappear after checkpoint rollback repairs it.
+    const auto goodText = view->editor->text();
+    view->editor->setText(QString(goodText).replace("Saved text", "\\unknownPanelCommand"), true);
+    QTRY_VERIFY_WITH_TIMEOUT(session->compilerError.contains("Undefined control sequence"), 30000);
+    QTRY_VERIFY_WITH_TIMEOUT(liveLog->liveLogCurrent() && liveLog->getLogModel()->found(LT_ERROR), 10000);
+    txs->gotoLogEntryEditorOnly(0);
+    QCOMPARE(txs->currentEditorView(), view);
+    QVERIFY(txs->currentEditor()->cursor().line().text().contains("unknownPanelCommand"));
+    view->editor->setText(goodText, true);
+    QTRY_VERIFY_WITH_TIMEOUT(session->compilerError.isEmpty() && session->preview.valid(), 30000);
+    QTRY_VERIFY_WITH_TIMEOUT(liveLog->liveLogCurrent() && !liveLog->getLogModel()->found(LT_ERROR), 10000);
 #endif
 }

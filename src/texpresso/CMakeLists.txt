@@ -16,6 +16,7 @@ add_library(texpresso-client STATIC
     texpressopreview.cpp texpressopreview.h
     texpressosession.cpp texpressosession.h
     texpressomanager.cpp texpressomanager.h
+    texpressoprewarm.cpp texpressoprewarm.h
     texpressowidget.cpp texpressowidget.h)
 target_include_directories(texpresso-client PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(texpresso-client PUBLIC document-viewer Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent)
@@ -49,6 +50,14 @@ if(TEXSTUDIO_TEXPRESSO_TESTS)
     target_link_libraries(texpresso-rerun-tests PRIVATE texpresso-client Qt${QT_VERSION_MAJOR}::Test)
     add_test(NAME texpresso-rerun COMMAND texpresso-rerun-tests)
     set_tests_properties(texpresso-rerun PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+    add_executable(texpresso-scrolling-tests tests/scrolling_test.cpp)
+    target_link_libraries(texpresso-scrolling-tests PRIVATE texpresso-client Qt${QT_VERSION_MAJOR}::Test)
+    add_test(NAME texpresso-scrolling COMMAND texpresso-scrolling-tests)
+    set_tests_properties(texpresso-scrolling PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+    add_executable(texpresso-prewarm-tests tests/prewarm_test.cpp)
+    target_link_libraries(texpresso-prewarm-tests PRIVATE texpresso-client Qt${QT_VERSION_MAJOR}::Test)
+    add_test(NAME texpresso-prewarm COMMAND texpresso-prewarm-tests)
+    set_tests_properties(texpresso-prewarm PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
     set_tests_properties(texpresso-client PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()
 option(TEXSTUDIO_TEXPRESSO_BENCHMARKS "Build opt-in live preview benchmarks" OFF)
