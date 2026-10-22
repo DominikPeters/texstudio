@@ -362,6 +362,19 @@ and matching early/middle/late owning pages from the independent oracle. The
 ends at 100 pages (owners 0/49/98). Compact provenance and results are recorded in
 `docs/texpresso-source-follow-validation-2026-10-22.json`.
 
+Final macOS validation passes all 14 client suites (144 checks, with the two
+expensive rows exercised separately) and all 1,613 application checks, including
+real bibliography builds and shared output. Native SyncTeX tests, three upstream
+source-routing regressions, six rerun regressions and 18 native-tooling checks
+also pass. Linux execution remains for CI.
+
+The isolated development app at `/tmp/texstudio-shared-preview.app` contains the
+tested `06e93971b` build executable and validated `1db9818` engine runtime; its
+bundle identity and settings are retained. The development executable keeps local
+Poppler/Qt lookup paths. The install target strips build lookup paths, so portable
+application dependency deployment remains release-packaging work below. The
+installed engine runtime validates and starts in a clean environment.
+
 ## Remaining work
 
 - Measured Qt SVG/adaptive rendering.
