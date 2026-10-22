@@ -38,6 +38,9 @@ public:
     TexpressoPreview preview;
     QString status;
     QString previewError;
+    // Recoverable compiler diagnostics; a TeX error does not kill the live
+    // process, since the next editor change can repair the document.
+    QString compilerError, compilerWarning;
     QString compilerOutput, engineOutput;
     bool userPaused = false;
     bool userStopped = false;
@@ -47,8 +50,11 @@ public:
     qint64 processId() const { return process ? process->processId() : 0; }
 signals:
     void updated();
+    void outputUpdated();
     void sourceLocation(const QString &file, int oneBasedLine, int column, const QString &word);
 private:
+    friend class TexpressoDiagnosticsTest;
+    void refreshCompilerOutput();
     void createProcess();
     void resetEngine();
     void sendSource(QJsonArray command);
@@ -68,6 +74,7 @@ private:
     bool suppressRestartSync = false; // Retain view until the next editor mutation.
     QFileSystemWatcher watcher;
     QTimer rescanTimer;
+    QTimer compilerOutputTimer;
     QStringList pendingDependencies;
     QSet<QString> writtenFiles;
     QStringList outputLines, logLines;

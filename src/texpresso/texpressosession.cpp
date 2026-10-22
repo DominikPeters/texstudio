@@ -1,6 +1,7 @@
 #include "texpressosession.h"
 #include <QDir>
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <algorithm>
 
 QString TexpressoSession::identity(const QString &path)
@@ -20,6 +21,8 @@ TexpressoSession::TexpressoSession(const QString &root, const QString &engine, c
     syncFile = rootFile;
     aliases[identity(root)].insert(rootFile);
     rescanTimer.setSingleShot(true); rescanTimer.setInterval(200);
+    compilerOutputTimer.setSingleShot(true);
+    connect(&compilerOutputTimer, &QTimer::timeout, this, &TexpressoSession::refreshCompilerOutput);
     connect(&preview, &TexpressoPreview::failed, this, [this](const QString &reason) { previewError = reason; emit updated(); });
     connect(&preview, &TexpressoPreview::updated, this, [this] {
         if (preview.valid()) previewError.clear();
@@ -61,6 +64,7 @@ void TexpressoSession::createProcess()
     connect(process.get(), &TexpressoProcess::image, &preview, &TexpressoPreview::receive);
     connect(process.get(), &TexpressoProcess::diagnostic, this, [this](const QString &text) {
         engineOutput = (engineOutput + text).right(64000);
+        emit outputUpdated();
     });
     connect(process.get(), &TexpressoProcess::failed, this, &TexpressoSession::error);
     connect(&preview, &TexpressoPreview::command, process.get(), &TexpressoProcess::send);
@@ -92,8 +96,11 @@ void TexpressoSession::resetEngine()
     rescanTimer.stop(); pendingDependencies.clear(); writtenFiles.clear();
     aliases.clear(); aliases[identity(rootFile)].insert(rootFile);
     editorPaths.clear(); inputAliases.clear(); acknowledgedSource = 0;
+    compilerOutputTimer.stop();
     outputLines.clear(); logLines.clear(); compilerOutput.clear(); engineOutput.clear();
-    previewError.clear(); failure = false; syncAfterCompile = false;
+    previewError.clear(); compilerError.clear(); compilerWarning.clear();
+    failure = false; syncAfterCompile = false;
+    emit outputUpdated();
     suppressRestartSync = true;
 }
 void TexpressoSession::restart()
@@ -252,18 +259,61 @@ void TexpressoSession::message(const QJsonArray &m)
     } else if (verb == "append-lines" && m.size() >= 2) {
         auto &lines = m[1] == "out" ? outputLines : logLines;
         for (int i = 2; i < m.size(); ++i) lines.append(m[i].toString());
+        if (!compilerOutputTimer.isActive()) compilerOutputTimer.start();
     } else if (verb == "truncate-lines" && m.size() == 3) {
         auto &lines = m[1] == "out" ? outputLines : logLines;
         const int keep = std::clamp(m[2].toInt(), 0, int(lines.size()));
         while (lines.size() > keep) lines.removeLast();
+        if (!compilerOutputTimer.isActive()) compilerOutputTimer.start();
     } else if (verb == "flush") {
-        compilerOutput = outputLines.join('\n') + '\n' + logLines.join('\n'); emit updated();
+        // A protocol flush makes diagnostics immediately observable. Without
+        // one, publish once when this batch of incoming messages completes.
+        if (compilerOutputTimer.isActive()) refreshCompilerOutput();
+        emit updated();
         // Match the extension's automatic source synchronization after a pass.
         if (syncAfterCompile && acknowledgedSource == preview.sequence() && foreground && !userPaused && !externalBuildRunning()) {
             syncAfterCompile = false;
             if (followCursor && !suppressRestartSync) syncForward(syncFile, syncLine);
         }
     }
+}
+void TexpressoSession::refreshCompilerOutput()
+{
+    compilerOutputTimer.stop();
+    compilerOutput = outputLines.join('\n') + '\n' + logLines.join('\n');
+    const auto oldError = compilerError, oldWarning = compilerWarning;
+    compilerError.clear(); compilerWarning.clear();
+    // Prefer the original error over TeX's subsequent "Emergency stop".
+    // Both streams are checkpointed: recompute after truncation as well as
+    // append, so a repaired document cannot retain a stale diagnostic.
+    for (const auto &lines : {outputLines, logLines}) {
+        for (int i = 0; i < lines.size(); ++i) {
+            const auto line = lines[i].trimmed();
+            if (!line.startsWith("! ")) continue;
+            compilerError = line.mid(2).trimmed();
+            for (int j = i + 1; j < std::min(i + 12, int(lines.size())); ++j) {
+                const auto context = lines[j].trimmed();
+                if (context.startsWith("! ")) break;
+                if (context.startsWith("l.") && context.size() > 2 && context[2].isDigit()) {
+                    compilerError += '\n' + context;
+                    break;
+                }
+            }
+            break;
+        }
+        if (!compilerError.isEmpty()) break;
+    }
+    static const QRegularExpression bibliographyTool("Please\\s+\\(re\\)run\\s+(Biber|BibTeX)", QRegularExpression::CaseInsensitiveOption);
+    const auto tool = bibliographyTool.match(compilerOutput);
+    if (tool.hasMatch()) {
+        compilerWarning = tr("Bibliography needs %1. Use Build & Refresh to update it.").arg(tool.captured(1));
+    } else {
+        static const QRegularExpression missingBibliography("(?:^|\\n)\\s*No file [^\\n]+\\.bbl\\.", QRegularExpression::CaseInsensitiveOption);
+        if (missingBibliography.match(compilerOutput).hasMatch())
+            compilerWarning = tr("Bibliography output is missing. Use Build & Refresh to run BibTeX or Biber.");
+    }
+    emit outputUpdated();
+    if (compilerError != oldError || compilerWarning != oldWarning) emit updated();
 }
 void TexpressoSession::syncForward(const QString &path, int line)
 {

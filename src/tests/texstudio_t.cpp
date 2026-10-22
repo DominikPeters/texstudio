@@ -2,7 +2,14 @@
 
 #include "testutil.h"
 #include "texstudio.h"
+#include "editors.h"
 #include <QtTest/QtTest>
+#include <QScopeGuard>
+#include <QTemporaryDir>
+#ifdef TEXSTUDIO_TEXPRESSO
+#include "texpresso/texpressomanager.h"
+#include "texpresso/texpressowidget.h"
+#endif
 
 extern Texstudio *txsInstance;
 
@@ -265,4 +272,154 @@ void TexStudioTest::dragDropTexFileSource()
     QVERIFY2(txs->isInternalFileExplorerDragSource(txs->fileView->viewport()), "drag from the file explorer's viewport should be recognized as internal");
     QVERIFY2(!txs->isInternalFileExplorerDragSource(nullptr), "a drop without a source (e.g. from an external application) must not be recognized as internal");
     QVERIFY2(!txs->isInternalFileExplorerDragSource(txs), "a drag from an unrelated widget must not be recognized as internal");
+}
+
+void TexStudioTest::bibliographyRerunPriority()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const auto path = directory.filePath("main.tex");
+    QFile source(path);
+    QVERIFY(source.open(QIODevice::WriteOnly));
+    source.write("\\documentclass{article}\n\\begin{document}Test\\end{document}\n");
+    source.close();
+    auto txs = txsInstance;
+    auto view = txs->load(path);
+    QVERIFY(view);
+    QVERIFY(txs->checkProgramPermission("txs:///biber", "bibliography", view->document));
+    QVERIFY(!txs->checkProgramPermission("txs:///biber|unexpected-command", "bibliography", nullptr));
+    QVERIFY(!txs->checkProgramPermission("txs:///biber --unexpected-option", "bibliography", nullptr));
+    const bool oldAutomaticBibliography = txs->configManager.runLaTeXBibTeXLaTeX;
+    const auto cleanup = qScopeGuard([&] {
+        txs->configManager.runLaTeXBibTeXLaTeX = oldAutomaticBibliography;
+        txs->fileClose();
+    });
+    QFile log(directory.filePath("main.log"));
+    QVERIFY(log.open(QIODevice::WriteOnly));
+    log.write("This is pdfTeX\n(./main.tex\n"
+              "LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.\n\n"
+              "Package biblatex Warning: Please (re)run Biber on the file:\n"
+              "(biblatex)                main\n"
+              "(biblatex)                and rerun LaTeX afterwards.\n\n)\n");
+    log.close();
+    txs->configManager.runLaTeXBibTeXLaTeX = true;
+    LatexCompileResult result = LCR_NORMAL;
+    txs->viewLogOrReRun(&result);
+    QCOMPARE(result, LCR_RERUN_WITH_BIBLIOGRAPHY);
+    txs->configManager.runLaTeXBibTeXLaTeX = false;
+    txs->viewLogOrReRun(&result);
+    QCOMPARE(result, LCR_RERUN);
+}
+
+void TexStudioTest::liveBuildAndRefresh()
+{
+#ifndef TEXSTUDIO_TEXPRESSO
+    QSKIP("Live preview is not built");
+#else
+    // Opt in: this exercises the actual installed TeX distribution and Biber.
+    // It never writes to an existing project or uses its auxiliary files.
+    if (!qEnvironmentVariableIsSet("TEXPRESSO_TEST_BIBLIOGRAPHY"))
+        QSKIP("Set TEXPRESSO_TEST_BIBLIOGRAPHY=1 to test the real Compile/Biber/live-preview workflow");
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    QFile bibliography(directory.filePath("refs.bib"));
+    QVERIFY(bibliography.open(QIODevice::WriteOnly));
+    bibliography.write("@book{sample,author={Ada Example},title={Bibliography resolved},year={2020}}\n");
+    bibliography.close();
+    const auto path = directory.filePath("main.tex");
+    QFile source(path);
+    QVERIFY(source.open(QIODevice::WriteOnly));
+    source.write("% !TeX TXS-program:bibliography = txs:///biber\n"
+                 "\\documentclass{article}\n\\usepackage[backend=biber]{biblatex}\n"
+                 "\\addbibresource{refs.bib}\n\\begin{document}\n"
+                 "Old text. Citation: \\cite{sample}.\\printbibliography\n\\end{document}\n");
+    source.close();
+    QFile otherSource(directory.filePath("other.tex"));
+    QVERIFY(otherSource.open(QIODevice::WriteOnly));
+    otherSource.write("% !TeX TXS-program:bibliography = txs:///bibtex\n"
+                      "\\documentclass{article}\n\\begin{document}Other project\\end{document}\n");
+    otherSource.close();
+    auto txs = txsInstance;
+    auto &manager = txs->buildManager;
+    const auto oldCommands = manager.getAllCommands();
+    const auto oldOrder = manager.getCommandsOrder();
+    const auto oldSave = manager.saveFilesBeforeCompiling;
+    const bool oldAutomaticBibliography = txs->configManager.runLaTeXBibTeXLaTeX;
+    const bool oldEnabled = txs->texpressoAction->isChecked();
+    LatexEditorView *view = nullptr, *otherView = nullptr;
+    bool buildStarted = false;
+    const auto cleanup = qScopeGuard([&] {
+        if (buildStarted && manager.busyRunningCommands()) manager.killCurrentProcess();
+        manager.setAllCommands(oldCommands, oldOrder);
+        manager.saveFilesBeforeCompiling = oldSave;
+        txs->configManager.runLaTeXBibTeXLaTeX = oldAutomaticBibliography;
+        txs->texpressoAction->setChecked(oldEnabled);
+        if (otherView) {
+            txs->editors->setCurrentEditor(otherView);
+            txs->fileClose();
+        }
+        if (view) {
+            txs->editors->setCurrentEditor(view);
+            view->document->setClean();
+            txs->fileClose();
+        }
+    });
+    QVERIFY(!manager.busyRunningCommands());
+    auto commands = oldCommands;
+    commands["compile"].commandLine = "txs:///pdflatex";
+    commands["bibliography"].commandLine = "txs:///bibtex"; // Document overrides this to Biber.
+    manager.setAllCommands(commands, oldOrder);
+    manager.saveFilesBeforeCompiling = BuildManager::SFBC_ONLY_NAMED;
+    txs->configManager.runLaTeXBibTeXLaTeX = true;
+    view = txs->load(path);
+    QVERIFY(view);
+    txs->texpressoAction->setChecked(true);
+    txs->updateTexpresso();
+    auto session = txs->texpressoManager->current();
+    QVERIFY(session);
+    QTRY_VERIFY_WITH_TIMEOUT(!session->preview.image().isNull(), 30000);
+    const auto previousPid = session->processId();
+    QVERIFY(previousPid > 0);
+    QVERIFY(!QFileInfo::exists(directory.filePath("main.bbl")));
+    QVERIFY(!QFileInfo::exists(directory.filePath("main.bcf")));
+    // External compilation must consume the same current text as live preview.
+    view->editor->setText(view->editor->text().replace("Old text", "Saved text"), true);
+    QVERIFY(view->editor->isContentModified());
+    QSignalSpy finished(&manager, &BuildManager::buildSequenceFinished);
+    bool ranBiber = false;
+    bool switchedProject = false;
+    QObject commandRecorder;
+    connect(&manager, &BuildManager::beginRunningSubCommand, &commandRecorder,
+            [&](ProcessX *, const QString &, const QString &command, const RunCommandFlags &flags) {
+        ranBiber |= command == "biber";
+        if (!switchedProject && flags.testFlag(RCF_COMPILES_TEX)) {
+            switchedProject = true;
+            QTimer::singleShot(0, &commandRecorder, [&] {
+                otherView = txs->load(directory.filePath("other.tex"));
+                txs->updateTexpresso();
+            });
+        }
+    });
+    buildStarted = true;
+    QVERIFY(QMetaObject::invokeMethod(txs->texpressoWidget, "buildRequested", Qt::DirectConnection));
+    QTRY_VERIFY_WITH_TIMEOUT(!finished.isEmpty() && !manager.busyRunningCommands(), 60000);
+    bool successful = false;
+    for (const auto &args : finished)
+        if (TexpressoSession::identity(args[0].toString()) == session->root()) successful = args[1].toBool();
+    QVERIFY(successful);
+    QVERIFY(otherView);
+    QCOMPARE(txs->texpressoManager->current()->root(), TexpressoSession::identity(otherSource.fileName()));
+    QVERIFY2(ranBiber, "Normal Compile must honor the document's Biber override");
+    QFile bbl(directory.filePath("main.bbl"));
+    QVERIFY(bbl.open(QIODevice::ReadOnly));
+    QVERIFY(bbl.readAll().contains("Bibliography resolved"));
+    QVERIFY(source.open(QIODevice::ReadOnly));
+    QVERIFY(source.readAll().contains("Saved text"));
+    txs->editors->setCurrentEditor(view);
+    txs->updateTexpresso();
+    QTRY_VERIFY_WITH_TIMEOUT(session->processId() > 0 && session->processId() != previousPid, 30000);
+    QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid(), 30000);
+    QVERIFY2(session->compilerWarning.isEmpty(), qPrintable(session->compilerWarning));
+    QVERIFY2(session->compilerError.isEmpty(), qPrintable(session->compilerError));
+#endif
 }

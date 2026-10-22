@@ -79,6 +79,23 @@ void Texstudio::setupTexpresso()
     connect(texpressoWidget, &TexpressoWidget::syncRequested, this, [this] {
         if (auto editor = currentEditor()) syncTexpressoViewer(editor->cursor(), true);
     });
+    connect(texpressoWidget, &TexpressoWidget::buildRequested, this, [this] {
+        // The tab may have changed during the activation debounce. Never run a
+        // recipe for a different project from the one shown in the live panel.
+        const auto session = texpressoManager->current();
+        const auto root = documents.getRootDocumentForDoc();
+        if (!session || !root || TexpressoSession::identity(root->getFileName()) != session->root()) {
+            updateTexpresso();
+            setStatusMessageProcess(tr("The active project changed. Click Build & Refresh again to build its live preview."));
+            return;
+        }
+        // This is the normal Compile action: it saves using the user's build
+        // settings, honors compiler/bibliography magic comments, and lets the
+        // BuildManager run additional TeX/BibTeX/Biber passes. Its sequence
+        // signals above pause and refresh the captured root, even after a tab
+        // switch. runCommand also rejects an already running command.
+        runCommand(BuildManager::CMD_COMPILE);
+    });
     connect(&documents, &LatexDocuments::masterDocumentChanged, this, [this] { texpressoActivationTimer.start(); });
     connect(editors, &Editors::listOfEditorsChanged, this, [this] { texpressoActivationTimer.start(); });
     connect(&documents, &LatexDocuments::aboutToDeleteDocument, this, [this](LatexDocument *document) {

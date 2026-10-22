@@ -63,6 +63,7 @@ public:
     void configureAppearance(bool modern, int iconSize);
 signals:
     void syncRequested();
+    void buildRequested();
     void followCursorChanged(bool enabled);
     void toolChanged(int tool);
 protected:

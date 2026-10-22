@@ -105,8 +105,9 @@ cache, memoized color conversion and merged viewer refreshes. It follows the
 extension's deferred native-page preparation for inverse SyncTeX on cached pages.
 Cache tests cover invalidations, source/width changes, entry and byte eviction,
 abandoned inverse clicks and a real two-page source-navigation round trip.
-The bundled runtime now uses the extension's `5d906d6` engine snapshot, bringing
-checkpoint reuse, worker recovery and dashed-stroke ownership fixes.
+The initial runtime update used the extension's `5d906d6` engine snapshot,
+bringing checkpoint reuse, worker recovery and dashed-stroke ownership fixes.
+The current `664486e` snapshot adds the no-op rerun correction described below.
 
 Run the client tests separately:
 
@@ -154,6 +155,39 @@ beside the source before its additional directories: remove obsolete duplicate
 auxiliary files beside the source when moving a project to a separate output
 directory.
 
+The panel's **Build & Refresh** runs TeXstudio's normal Compile recipe, including
+its save policy, compiler/bibliography magic comments and automatic bibliography
+passes. **Rerun Once** only requests another TeX pass; it cannot create a missing
+`.bbl` by invoking Biber or BibTeX. Explicit bibliography requests now take
+priority over generic reference rerun warnings, so ordinary TeX reruns cannot
+consume the entire build budget before the bibliography tool runs. The build's
+captured root also supplies its log and bibliography override after tab switches.
+An invalid regular expression in the inherited command-permission check also
+prevented plain configured IDs such as `txs:///biber` from being recognized;
+these single IDs are recognized again, while chains, arguments and modifiers
+continue through the existing permission check.
+
+Recoverable TeX errors and missing bibliography warnings appear directly in the
+panel, with source context in the tooltip. Output dialogs follow their original
+session and update live. Compiler log publication is coalesced per event-loop
+turn, while a protocol flush publishes immediately; checkpoint truncation clears
+obsolete diagnostics. A completed compile with zero pages reports a failure
+instead of leaving the panel on “Updating preview…”. Source repair can resume
+the same process.
+
+### Settled-document reruns
+
+Engine `664486e` fixes a hang after auxiliary convergence. Previously,
+`rerun-once` invalidated the retained display list before determining whether a
+finishing pass was necessary. When the auxiliary contents were already stable,
+no finishing pass or redraw followed, leaving a same-page image request pending
+forever. No-op reruns now retain the display list and consume their pending flag;
+actual finishing passes still invalidate and redraw normally. Regression tests
+cover automatic/manual modes, repeated settled reruns, a following edit with
+automatic reruns disabled, zero-page errors and recovery. A separate read-only
+check on a 35-page mathematical document completed three settled reruns in the
+same process without a restart.
+
 ## Incremental raster updates and magnifier detail
 
 Clients with `pngPatches` support receive a full PNG base followed by cropped
@@ -171,7 +205,7 @@ pixels. Region replies never replace the page image or patch base, and stale
 source, revision, request, page and lens tokens are rejected. Unsupported
 engines retain full PNG frames and the immediate crop fallback.
 
-The current macOS verification passes all three live-client suites (33 Qt test
+The first compiler/rendering pass passed all three live-client suites (33 Qt test
 cases), including real BibTeX and Biber builds in both root and separate output
 directories, initially missing and changed bibliographies, executed TOC entries,
 forward-reference convergence and project lifecycle cases. The rendering suite
@@ -180,13 +214,22 @@ passes, including all 64 BuildManager cases and the new recipe lifecycle tests.
 Linux CI installs Biber and the bibliography packages so those tests run there
 as well; Linux runtime verification still requires a CI run.
 
+The rerun/diagnostics follow-up passes all five client suites (45 Qt cases) and
+the full application's automatic tests. Its opt-in real Biber workflow starts
+without a `.bcf` or `.bbl`, modifies a named editor buffer, clicks Build &
+Refresh, and switches to a different project with a conflicting bibliography
+override. It verifies the original root's Biber command, saved buffer contents,
+generated bibliography and refreshed live session. Run that application check
+with `TEXPRESSO_TEST_BIBLIOGRAPHY=1` and TeX Live on `PATH`; it uses temporary
+projects and an isolated settings directory.
+
 ## Remaining work
 
 - Continuous page scrolling, following the extension's implementation.
 - Measured Qt SVG/adaptive rendering.
 - Full dependency reconciliation (missing/deleted files, external include
   directories), source renames, bounded idle-session eviction and memory budgets.
-- Integrated log diagnostics and auxiliary-directory precedence in the engine.
+- Clickable log diagnostics and auxiliary-directory precedence in the engine.
 - Automated editor interaction tests and Linux runtime verification in CI.
 - macOS/Linux release packaging with complete Qt deployment, release signing,
   notarization and clean-machine checks. Existing macOS engine signing tools are

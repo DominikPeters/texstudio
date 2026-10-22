@@ -522,6 +522,10 @@ Texstudio::Texstudio(QWidget *parent, Qt::WindowFlags flags, QSplashScreen *spla
  */
 Texstudio::~Texstudio()
 {
+    // QWidget closes visible docks after the Texstudio subobject is gone.
+    // Their visibility callbacks must not access the destroyed derived class.
+    for (auto dock : findChildren<QDockWidget *>(QString(), Qt::FindDirectChildrenOnly))
+        disconnect(dock, nullptr, this, nullptr);
 #ifdef TEXSTUDIO_TEXPRESSO
     texpressoActivationTimer.stop();
     delete texpressoManager;
@@ -6674,7 +6678,9 @@ void Texstudio::runInternalPdfViewer(const QFileInfo &master, const QString &opt
 
 bool Texstudio::checkProgramPermission(const QString &program, const QString &cmdId, LatexDocument *master)
 {
-    static const QRegularExpression txsCmd("^"+QRegularExpression::escape(BuildManager::TXS_CMD_PREFIX) + "([^/ [{]+))$");
+    // Only a single internal command ID is implicitly trusted. Command
+    // chains, arguments and modifiers still go through the permission check.
+    static const QRegularExpression txsCmd("^"+QRegularExpression::escape(BuildManager::TXS_CMD_PREFIX) + "[A-Za-z0-9_-]+$");
     if (txsCmd.match(program).hasMatch()) return true;
 	static QStringList programWhiteList;
 	configManager.registerOption("Tools/Program Whitelist", &programWhiteList, QStringList() << "latex" << "pdflatex");
@@ -6728,7 +6734,8 @@ bool Texstudio::checkRunBibliographyIfNecessary(const QFileInfo &cmd)
     if (!configManager.runLaTeXBibTeXLaTeX) return false;
     if (runBibliographyIfNecessaryEntered) return false;
 
-    LatexDocument *rootDoc = documents.getRootDocumentForDoc();
+    LatexDocument *rootDoc = cmd.filePath().isEmpty() ? documents.getRootDocumentForDoc()
+                                                    : documents.findDocument(cmd.absoluteFilePath(), true);
     REQUIRE_RET(rootDoc,false);
 
     QList<LatexDocument *> docs = rootDoc->getListOfDocs();
@@ -6760,7 +6767,8 @@ bool Texstudio::checkRunBibliographyIfNecessary(const QFileInfo &cmd)
 
 QDateTime Texstudio::GetBblLastModified(void)
 {
-	QFileInfo compileFile (documents.getTemporaryCompileFileName());
+    const QString buildRoot = buildManager.activeBuildRoot();
+	QFileInfo compileFile (buildRoot.isEmpty() ? documents.getTemporaryCompileFileName() : buildRoot);
 	QString compileDir(compileFile.absolutePath());
 	FindInDirs findInDirs(true, false, compileDir);
 	findInDirs.loadDirs(compileDir);
@@ -6811,7 +6819,9 @@ void Texstudio::runInternalCommand(const QString &cmd, const QString &mainfile, 
 void Texstudio::commandLineRequested(const QString &cmdId, QString *result, bool *)
 {
 	if (!buildManager.m_interpetCommandDefinitionInMagicComment) return;
-    LatexDocument *rootDoc = documents.getRootDocumentForDoc(nullptr,true);
+    const auto buildRoot = buildManager.activeBuildRoot();
+    LatexDocument *rootDoc = buildRoot.isEmpty() ? documents.getRootDocumentForDoc(nullptr,true)
+                                               : documents.findDocument(buildRoot, true);
 	if (!rootDoc) return;
 	QString magic = rootDoc->getMagicComment("TXS-program:" + cmdId);
 	if (!magic.isEmpty()) {
@@ -7461,12 +7471,23 @@ bool Texstudio::loadLog()
 {
 	outputView->getLogWidget()->resetLog();
 	if (!documents.getCurrentDocument()) return false;
-	QString compileFileName = documents.getTemporaryCompileFileName();
+    const QString buildRoot = buildManager.activeBuildRoot();
+	QString compileFileName = buildRoot.isEmpty() ? documents.getTemporaryCompileFileName() : buildRoot;
 	if (compileFileName == "") {
 		QMessageBox::warning(this, tr("Error"), tr("File must be saved and compiling before you can view the log"));
 		return false;
 	}
-	QString logPathname(getAbsoluteFilePath(documents.getLogFileName()));
+    auto compileDocument = documents.findDocument(compileFileName, true);
+    QString logPathname;
+    if (buildRoot.isEmpty()) {
+        logPathname = getAbsoluteFilePath(documents.getLogFileName());
+    } else {
+        // The compiler belongs to the root captured at launch, even if the
+        // user switches projects while it runs. Preserve its job-name too.
+        const QString jobName = compileDocument ? compileDocument->getMagicComment("-job-name") : QString();
+        logPathname = jobName.isEmpty() ? replaceFileExtension(compileFileName, ".log")
+            : QFileInfo(compileFileName).absoluteDir().filePath(jobName + ".log");
+    }
 	FindInDirs findInDirs(
 		true,
 		true,
@@ -7481,7 +7502,7 @@ bool Texstudio::loadLog()
 	return outputView->getLogWidget()->loadLogFile(
 		foundPathname,
 		compileFileName,
-		codec ? codec : documents.getCurrentDocument()->codec()
+		codec ? codec : (compileDocument ? compileDocument : documents.getCurrentDocument())->codec()
 	);
 }
 /// open log page on panel
@@ -7512,16 +7533,39 @@ void Texstudio::viewLogOrReRun(LatexCompileResult *result)
 		*result = LCR_ERROR;
 	} else {
 		*result = LCR_NORMAL;
-		if (outputView->getLogWidget()->getLogModel()->existsReRunWarning())
-			*result = LCR_RERUN;
-		else if (configManager.runLaTeXBibTeXLaTeX) {
+		if (configManager.runLaTeXBibTeXLaTeX) {
+			// Bibliography work must precede a generic TeX rerun: another TeX
+			// pass cannot create a missing .bbl, and can otherwise consume the
+			// entire rerun budget before BibTeX/Biber gets a chance to run.
+			const auto log = outputView->getLogWidget()->getLogModel();
+			static const QRegularExpression bibliographyRequest(
+				"Please\\s+(?:\\(re\\))?run\\s+(?:Biber|BibTeX)\\b",
+				QRegularExpression::CaseInsensitiveOption);
+			bool runBibTeX = false;
+			for (int i = 0; i < log->count(); ++i) {
+				const auto &entry = log->at(i);
+				if (entry.type == LT_WARNING && entry.message.contains(bibliographyRequest)) {
+					runBibTeX = true;
+					break;
+				}
+			}
 			//run bibtex if citation is unknown to bibtex but contained in an included bib file
 			QStringList missingCitations = outputView->getLogWidget()->getLogModel()->getMissingCitations();
-			bool runBibTeX = false;
+            QStringList bibliographyFiles = documents.mentionedBibTeXFiles;
+            const auto buildRoot = buildManager.activeBuildRoot();
+            if (!buildRoot.isEmpty()) {
+                bibliographyFiles.clear();
+                if (auto root = documents.findDocument(buildRoot, true)) {
+                    for (auto document : root->getListOfDocs())
+                        for (const auto &file : document->mentionedBibTeXFiles())
+                            bibliographyFiles.append(file.absolute);
+                }
+            }
 			foreach (const QString &s, missingCitations) {
-				for (int i = 0; i < documents.mentionedBibTeXFiles.count(); i++) {
-					if (!documents.bibTeXFiles.contains(documents.mentionedBibTeXFiles[i])) continue;
-					BibTeXFileInfo &bibTex = documents.bibTeXFiles[documents.mentionedBibTeXFiles[i]];
+				if (runBibTeX) break;
+				for (const auto &file : bibliographyFiles) {
+					if (!documents.bibTeXFiles.contains(file)) continue;
+					BibTeXFileInfo &bibTex = documents.bibTeXFiles[file];
 					if (bibTex.ids.contains(s)) {
 						runBibTeX = true;
 						break;
@@ -7532,6 +7576,8 @@ void Texstudio::viewLogOrReRun(LatexCompileResult *result)
 			if (runBibTeX)
 				*result = LCR_RERUN_WITH_BIBLIOGRAPHY;
 		}
+		if (*result == LCR_NORMAL && outputView->getLogWidget()->getLogModel()->existsReRunWarning())
+			*result = LCR_RERUN;
 	}
 }
 

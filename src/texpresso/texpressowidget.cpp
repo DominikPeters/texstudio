@@ -160,7 +160,7 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     pause = new QToolButton(this); pause->setText(tr("Pause")); controls->addWidget(pause);
     stop = new QToolButton(this); stop->setText(tr("Stop")); controls->addWidget(stop);
     restart = new QToolButton(this); restart->setText(tr("Restart")); controls->addWidget(restart);
-    auto output = new QToolButton(this); output->setText(tr("Output")); controls->addWidget(output);
+    auto output = new QToolButton(this); output->setText(tr("Output")); output->setObjectName("texpressoOutput"); controls->addWidget(output);
     auto sync = new QToolButton(this); sync->setText(tr("Sync")); sync->setToolTip(tr("Show the editor cursor in the preview")); controls->addWidget(sync);
     auto follow = new QToolButton(this); follow->setDefaultAction(actions["followCursor"]); controls->addWidget(follow);
     controls->addStretch(); layout->addLayout(controls);
@@ -171,11 +171,16 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     actions.insert("autoRerun", autoRerun);
     auto autoButton = new QToolButton(this); autoButton->setDefaultAction(autoRerun); reruns->addWidget(autoButton);
     auto rerunOnce = new QAction(tr("Rerun Once"), this); actions.insert("rerunOnce", rerunOnce);
+    rerunOnce->setToolTip(tr("Run one additional TeX pass for references and auxiliary files. Use Build & Refresh to run BibTeX or Biber."));
     auto onceButton = new QToolButton(this); onceButton->setDefaultAction(rerunOnce); reruns->addWidget(onceButton);
+    auto build = new QAction(tr("Build & Refresh"), this); actions.insert("build", build);
+    build->setToolTip(tr("Run the normal compilation recipe, including bibliography tools, then refresh the live preview"));
+    auto buildButton = new QToolButton(this); buildButton->setDefaultAction(build); reruns->addWidget(buildButton);
     reruns->addStretch(); layout->addLayout(reruns);
     connect(autoRerun, &QAction::toggled, this, [this](bool enabled) { if (shown) shown->setAutoRerun(enabled); });
     connect(rerunOnce, &QAction::triggered, this, [this] { if (shown) shown->rerunOnce(); });
-    status = new QLabel(this); status->setWordWrap(true); layout->addWidget(status);
+    connect(build, &QAction::triggered, this, &TexpressoWidget::buildRequested);
+    status = new QLabel(this); status->setObjectName("texpressoStatus"); status->setWordWrap(true); layout->addWidget(status);
     area = new QScrollArea(this); area->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     area->setWidgetResizable(false); area->setBackgroundRole(QPalette::Dark); area->setFrameStyle(QFrame::NoFrame);
     canvas = new TexpressoCanvas(config, area); area->setWidget(canvas); layout->addWidget(area, 1);
@@ -239,9 +244,21 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     });
     connect(output, &QToolButton::clicked, this, [this] {
         if (!shown) return;
+        const QPointer<TexpressoSession> session = shown;
         auto dialog = new QDialog(this); dialog->setAttribute(Qt::WA_DeleteOnClose); dialog->setWindowTitle(tr("TeXpresso output — %1").arg(QFileInfo(shown->root()).fileName()));
         auto layout = new QVBoxLayout(dialog); auto text = new QPlainTextEdit(dialog); text->setReadOnly(true);
-        text->setPlainText(shown->compilerOutput + "\n\n" + shown->engineOutput); layout->addWidget(text); dialog->resize(800, 500); dialog->show();
+        text->setPlainText(session->compilerOutput + "\n\n" + session->engineOutput);
+        auto update = new QTimer(dialog); update->setSingleShot(true); update->setInterval(100);
+        connect(session, &TexpressoSession::outputUpdated, dialog, [update] { if (!update->isActive()) update->start(); });
+        connect(update, &QTimer::timeout, dialog, [session, text] {
+            if (!session) return;
+            const auto scroll = text->verticalScrollBar();
+            const bool follow = scroll->value() == scroll->maximum();
+            const int position = scroll->value();
+            text->setPlainText(session->compilerOutput + "\n\n" + session->engineOutput);
+            scroll->setValue(follow ? scroll->maximum() : position);
+        });
+        layout->addWidget(text); dialog->resize(800, 500); dialog->show();
     });
     const auto saveScroll = [this] {
         if (shown && !updating) shown->preview.scroll = {area->horizontalScrollBar()->value(), area->verticalScrollBar()->value()};
@@ -281,6 +298,7 @@ void TexpressoWidget::refresh()
         { const QSignalBlocker blocker(actions["autoRerun"]); actions["autoRerun"]->setChecked(session->autoRerun()); }
         actions["autoRerun"]->setEnabled(!session->userStopped && !session->failed());
         actions["rerunOnce"]->setEnabled(!session->userStopped && !session->userPaused && !session->failed() && !session->externalBuildRunning());
+        actions["build"]->setEnabled(!session->externalBuildRunning());
         auto &preview = session->preview;
         pages.validator->setTop(preview.complete() ? std::max(1, preview.pageCount()) : 99999);
         if (!pages.number->hasFocus() || switched) pages.number->setText(QString::number(preview.page() + 1));
@@ -297,8 +315,11 @@ void TexpressoWidget::refresh()
         const QString liveHint = tr("Live preview · Ctrl-click to open source");
 #endif
         status->setText(session->failed() || session->userStopped || session->userPaused || session->externalBuildRunning() ? session->status
+            : !session->compilerError.isEmpty() ? tr("TeX error: %1 — open Output for details.").arg(session->compilerError.section('\n', 0, 0))
             : !session->previewError.isEmpty() ? session->previewError
+            : !session->compilerWarning.isEmpty() ? session->compilerWarning
             : preview.valid() ? liveHint : tr("Updating preview…"));
+        status->setToolTip(QStringList{session->compilerError, session->compilerWarning, session->previewError}.join('\n').trimmed());
         const bool changed = canvas->pixels.cacheKey() != preview.image().cacheKey()
             || shownInvert != config->invertColors || shownGray != config->grayscale;
         if (changed) { canvas->resetTools(); canvas->invalidateMagnifier(); }
@@ -322,6 +343,7 @@ void TexpressoWidget::refresh()
         }
     } else {
         status->setText(tr("Open a saved LaTeX project to start live preview."));
+        status->setToolTip(QString());
         canvas->pixels = {}; canvas->fresh = false; canvas->hide(); pages.count->clear();
     }
     updating = false;

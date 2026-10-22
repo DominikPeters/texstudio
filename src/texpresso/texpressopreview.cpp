@@ -81,6 +81,13 @@ void TexpressoPreview::message(const QJsonArray &m)
         if (m[5].toInt() != currentPage) needsNativePage = true;
         count = std::max(0, m[3].toInt()); finished = m[4].toBool();
         if (finished && count && currentPage >= count) setPage(count - 1);
+        // No render request is sent for a terminal zero-page document. Report
+        // that terminal state here; waiting for preview-error would leave the
+        // UI updating forever because the engine only emits it for a request.
+        if (finished && !count) {
+            inFlight = 0; fresh = false; pending.reset(); pendingInverse.reset(); cancelRegion();
+            emit failed(tr("The document has not produced a page. Open Output for compiler messages."));
+        }
         emit updated(); request();
     } else if (verb == "preview-invalidated" && m.size() == 3 && m[2].toDouble() == sourceSequence) {
         clearCache();

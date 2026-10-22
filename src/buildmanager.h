@@ -144,6 +144,7 @@ public:
 	void checkLatexConfiguration(bool &noWarnAgain);
     bool prependCommandAsync(const QString &unparsedCommandLine, const QFileInfo &mainFile, const QFileInfo &currentFile = QFileInfo(), int currentLine = 0);
     bool busyRunningCommands() const;
+    QString activeBuildRoot() const { return busyRunningCommands() ? m_mainFile.absoluteFilePath() : QString(); }
 
 public slots:
     bool runCommand(const QString &unparsedCommandLine, const QFileInfo &mainFile, const QFileInfo &currentFile = QFileInfo(), int currentLine = 0, QString *buffer = nullptr, QTextCodec *codecForBuffer = nullptr, QString *errorMsg = nullptr);
