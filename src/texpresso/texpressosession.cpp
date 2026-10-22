@@ -82,6 +82,7 @@ void TexpressoSession::sendSource(QJsonArray command)
 void TexpressoSession::setActive(bool active)
 {
     foreground = active; applyPause();
+    if (!active) preview.releaseCache(); // Retain its displayed frame, not extra pages.
 }
 void TexpressoSession::setPaused(bool paused) { userPaused = paused; applyPause(); }
 void TexpressoSession::applyPause()

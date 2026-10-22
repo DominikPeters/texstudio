@@ -41,6 +41,9 @@ private:
     bool dragging = false;
     QPoint dragPosition;
     Qt::KeyboardModifiers pressedModifiers;
+    QPixmap convertedPixels;
+    qint64 convertedKey = 0;
+    bool convertedInvert = false, convertedGray = false;
 };
 
 class TexpressoWidget : public QWidget
@@ -74,6 +77,10 @@ private:
     QLabel *status, *project;
     QToolButton *pause, *stop, *restart;
     QTimer widthTimer;
+    QTimer refreshTimer;
+    QPointer<TexpressoSession> rasterSession;
+    int rasterWidth = 0;
+    bool shownInvert = false, shownGray = false;
     bool updating = false;
 };
 #endif

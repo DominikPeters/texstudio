@@ -48,7 +48,17 @@ void TexpressoCanvas::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.fillRect(rect(), Qt::white);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
-    if (!pixels.isNull()) painter.drawPixmap(rect(), convertImage(QPixmap::fromImage(pixels), config->invertColors, config->grayscale));
+    if (pixels.isNull()) return;
+    if (!config->invertColors && !config->grayscale) {
+        convertedPixels = {}; convertedKey = 0;
+        painter.drawImage(rect(), pixels);
+    } else {
+        if (convertedKey != pixels.cacheKey() || convertedInvert != config->invertColors || convertedGray != config->grayscale) {
+            convertedPixels = convertImage(QPixmap::fromImage(pixels), config->invertColors, config->grayscale);
+            convertedKey = pixels.cacheKey(); convertedInvert = config->invertColors; convertedGray = config->grayscale;
+        }
+        painter.drawPixmap(rect(), convertedPixels);
+    }
 }
 void TexpressoCanvas::magnify(const QPoint &point)
 {
@@ -149,7 +159,17 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     connect(&widthTimer, &QTimer::timeout, this, [this] {
         if (auto session = this->manager->current()) session->preview.setWidth(qRound(canvas->width() * devicePixelRatioF()));
     });
-    connect(manager, &TexpressoManager::updated, this, &TexpressoWidget::refresh);
+    refreshTimer.setSingleShot(true);
+    connect(&refreshTimer, &QTimer::timeout, this, &TexpressoWidget::refresh);
+    connect(manager, &TexpressoManager::updated, this, [this] {
+        // Invalidate interaction immediately, but merge status/frame/layout
+        // notifications from the same protocol batch into one GUI update.
+        auto session = this->manager->current();
+        if (session != shown || !session || !session->preview.valid() || session->userStopped || session->failed()) {
+            canvas->fresh = false; canvas->resetTools();
+        }
+        if (!refreshTimer.isActive()) refreshTimer.start();
+    });
     const auto navigate = [this](const QString &id, const std::function<int(TexpressoPreview &)> &target) {
         connect(actions[id], &QAction::triggered, this, [this, target] { if (shown) shown->preview.setPage(target(shown->preview)); });
     };
@@ -203,6 +223,7 @@ void TexpressoWidget::configureAppearance(bool modern, int iconSize)
 }
 void TexpressoWidget::refresh()
 {
+    refreshTimer.stop();
     updating = true;
     auto session = manager->current();
     const bool switched = session != shown;
@@ -239,7 +260,10 @@ void TexpressoWidget::refresh()
         status->setText(session->failed() || session->userStopped || session->userPaused ? session->status
             : !session->previewError.isEmpty() ? session->previewError
             : preview.valid() ? liveHint : tr("Updating preview…"));
-        if (canvas->pixels.cacheKey() != preview.image().cacheKey()) { canvas->resetTools(); canvas->invalidateMagnifier(); }
+        const bool changed = canvas->pixels.cacheKey() != preview.image().cacheKey()
+            || shownInvert != config->invertColors || shownGray != config->grayscale;
+        if (changed) { canvas->resetTools(); canvas->invalidateMagnifier(); }
+        shownInvert = config->invertColors; shownGray = config->grayscale;
         canvas->pixels = preview.image(); canvas->pageBounds = preview.bounds(); canvas->fresh = preview.valid() && !session->userStopped && !session->failed();
         if (!canvas->fresh) canvas->resetTools();
         actions["gotoSource"]->setEnabled(canvas->fresh);
@@ -251,6 +275,7 @@ void TexpressoWidget::refresh()
             });
         }
         layoutPage();
+        if (changed) canvas->update();
         if (switched) {
             area->horizontalScrollBar()->setValue(preview.scroll.x());
             area->verticalScrollBar()->setValue(preview.scroll.y());
@@ -286,6 +311,10 @@ void TexpressoWidget::layoutPage()
     actions["fitToWindow"]->setChecked(shown->preview.zoom < 0);
     actions["zoomIn"]->setEnabled(factor < 4); zoomControls.in->setEnabled(factor < 4);
     actions["zoomOut"]->setEnabled(factor > .125); zoomControls.out->setEnabled(factor > .125);
-    canvas->show(); canvas->update(); widthTimer.start();
+    canvas->show();
+    const int width = qRound(canvas->width() * devicePixelRatioF());
+    if (shown != rasterSession || width != rasterWidth) {
+        rasterSession = shown; rasterWidth = width; widthTimer.start();
+    }
 }
 void TexpressoWidget::resizeEvent(QResizeEvent *event) { QWidget::resizeEvent(event); layoutPage(); }

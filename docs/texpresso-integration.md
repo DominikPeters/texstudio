@@ -89,7 +89,7 @@ The application includes the pinned native runtime in its build and install
 outputs; validation before bundling checks source revision, platform and file hashes.
 
 Validation on macOS includes the full application build/install, relocated
-engine validation with a clean environment, 18 native-tooling tests, and twelve Qt
+engine validation with a clean environment, 18 native-tooling tests, and sixteen Qt
 checks, including shared zoom controls, page navigation, magnifier interaction
 and stale-frame source-click rejection. Pixel checks verify magnifier contents
 and refresh on a large viewport. The real-engine cases cover explicit/extensionless includes, unsaved
@@ -98,6 +98,12 @@ SyncTeX directions, page preservation, compilation-error recovery and process
 group cleanup. The actual editor was also exercised with an unsaved included
 file edit and undo. The extension's three headless-preview tests passed against
 the same bundled engine without changing the extension checkout.
+
+The [first performance pass](texpresso-performance.md) adds a bounded decoded-page
+cache, memoized color conversion and merged viewer refreshes. It follows the
+extension's deferred native-page preparation for inverse SyncTeX on cached pages.
+Cache tests cover invalidations, source/width changes, entry and byte eviction,
+abandoned inverse clicks and a real two-page source-navigation round trip.
 
 Run the client tests separately:
 

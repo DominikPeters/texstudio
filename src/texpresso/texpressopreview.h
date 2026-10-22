@@ -6,6 +6,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <optional>
+#include <QList>
 
 class TexpressoPreview : public QObject
 {
@@ -20,6 +21,7 @@ public:
     void setWidth(int width);
     void inverse(const QPointF &point);
     void forward(const QString &path, int zeroBasedLine);
+    void releaseCache();
     const QImage &image() const { return pixels; }
     QRectF bounds() const { return pageBounds; }
     int page() const { return currentPage; }
@@ -40,6 +42,11 @@ private:
     void request();
     void decode(Frame frame);
     bool matches(const QJsonObject &header) const;
+    struct CachedPage { int page, width; QImage image; QRectF bounds; };
+    void clearCache();
+    void cachePage();
+    bool restorePage();
+    void finishInverse();
     QImage pixels;
     QRectF pageBounds;
     qint64 sourceSequence = 0, engineRevision = -1, nextRequest = 0, inFlight = 0;
@@ -47,5 +54,9 @@ private:
     bool active = false, finished = false, dirty = true, fresh = false, decoding = false;
     bool waitingForward = false;
     std::optional<Frame> pending;
+    QList<CachedPage> pages; // LRU, at most four images / 32 MiB per session.
+    qint64 cacheBytes = 0;
+    bool needsNativePage = false;
+    std::optional<QPointF> pendingInverse;
 };
 #endif

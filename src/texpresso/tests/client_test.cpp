@@ -24,6 +24,10 @@ private slots:
     void viewerControls();
     void viewerInteractions();
     void magnifierPixels();
+    void pageCache();
+    void cacheEviction_data();
+    void cacheEviction();
+    void canvasColors();
 };
 static QJsonObject header(int bytes) {
     return {{"requestId", 1}, {"revision", 2}, {"sequence", 3}, {"page", 0},
@@ -79,6 +83,80 @@ void ClientTest::obsoleteDecode()
     preview.message({"preview-state", 3, 4, 1, true, 0});
     h["requestId"] = commands.last()[0].toJsonArray()[1]; h["revision"] = 3; h["sequence"] = 4;
     preview.receive(h, bytes); QTRY_VERIFY(preview.valid()); QCOMPARE(preview.image(), red);
+}
+static QJsonObject imageFrame(TexpressoPreview &preview, const QJsonArray &request, const QImage &image)
+{
+    QByteArray bytes; QBuffer output(&bytes); output.open(QIODevice::WriteOnly); image.save(&output, "PNG");
+    auto h = header(bytes.size()); h["requestId"] = request[1]; h["page"] = request[2];
+    h["width"] = image.width(); h["height"] = image.height();
+    h["revision"] = double(preview.revision()); h["sequence"] = double(preview.sequence());
+    preview.receive(h, bytes); return h;
+}
+void ClientTest::pageCache()
+{
+    TexpressoPreview preview; QSignalSpy commands(&preview, &TexpressoPreview::command);
+    preview.setActive(true); preview.sourceChanged(3); preview.message({"preview-state", 2, 3, 2, true, 0});
+    QImage red(2, 2, QImage::Format_RGB32); red.fill(Qt::red);
+    imageFrame(preview, commands.last()[0].toJsonArray(), red); QTRY_VERIFY(preview.valid());
+    preview.setPage(1); QImage blue = red; blue.fill(Qt::blue);
+    imageFrame(preview, commands.last()[0].toJsonArray(), blue); QTRY_VERIFY(preview.valid());
+    const int count = commands.size(); preview.setPage(0);
+    QVERIFY(preview.valid()); QCOMPARE(preview.image(), red); QCOMPARE(commands.size(), count);
+    // Cached pixels cannot be used with the engine's other-page display list.
+    preview.inverse({20, 30}); QCOMPARE(commands.size(), count + 1);
+    auto request = commands.last()[0].toJsonArray(); QCOMPARE(request[0].toString(), QString("preview-render"));
+    imageFrame(preview, request, red);
+    QTRY_COMPARE(commands.last()[0].toJsonArray()[0].toString(), QString("preview-inverse"));
+    QCOMPARE(commands.last()[0].toJsonArray()[3].toInt(), 0);
+    // An inverse click abandoned by another page change must never be sent.
+    preview.setPage(1); preview.inverse({40, 50}); request = commands.last()[0].toJsonArray();
+    preview.setPage(0); const int before = commands.size(); imageFrame(preview, request, blue);
+    QTest::qWait(30); QCOMPARE(commands.size(), before);
+    preview.sourceChanged(4); QVERIFY(!preview.valid()); preview.message({"preview-state", 3, 4, 2, true, 0});
+    QCOMPARE(commands.last()[0].toJsonArray()[0].toString(), QString("preview-render"));
+    QVERIFY(!preview.valid()); // no reuse across source revisions
+    imageFrame(preview, commands.last()[0].toJsonArray(), blue); QTRY_VERIFY(preview.valid());
+    preview.setWidth(600);
+    imageFrame(preview, commands.last()[0].toJsonArray(), red);
+    QTRY_COMPARE(preview.image(), red);
+    const int resized = commands.size(); preview.setWidth(1200);
+    QVERIFY(preview.valid()); QCOMPARE(preview.image(), blue); QCOMPARE(commands.size(), resized);
+    preview.message({"preview-invalidated", 4, 4}); QVERIFY(!preview.valid());
+    QCOMPARE(commands.last()[0].toJsonArray()[0].toString(), QString("preview-render"));
+}
+void ClientTest::cacheEviction_data()
+{
+    QTest::addColumn<QSize>("size"); QTest::addColumn<int>("count");
+    QTest::newRow("entry-budget") << QSize(2, 2) << 5;
+    QTest::newRow("byte-budget") << QSize(4000, 1000) << 3;
+}
+void ClientTest::cacheEviction()
+{
+    QFETCH(QSize, size); QFETCH(int, count);
+    TexpressoPreview preview; QSignalSpy commands(&preview, &TexpressoPreview::command);
+    preview.setActive(true); preview.message({"preview-state", 1, 0, count, true, 0});
+    QImage image(size, QImage::Format_RGB32); image.fill(Qt::red);
+    for (int i = 0; i < count; ++i) {
+        preview.setPage(i); imageFrame(preview, commands.last()[0].toJsonArray(), image); QTRY_VERIFY(preview.valid());
+    }
+    const int before = commands.size(); preview.setPage(0);
+    QVERIFY(!preview.valid()); QCOMPARE(commands.size(), before + 1);
+}
+void ClientTest::canvasColors()
+{
+    PDFDocumentConfig config{}; config.editTool = 2;
+    QScrollArea area; auto canvas = new TexpressoCanvas(&config, &area); area.setWidget(canvas);
+    canvas->resize(20, 20); canvas->pixels = QImage(2, 2, QImage::Format_RGB32); canvas->pixels.fill(Qt::red);
+    QImage target(20, 20, QImage::Format_RGB32);
+    const auto check = [&] {
+        canvas->render(&target);
+        const auto reference = convertImage(QPixmap::fromImage(canvas->pixels), config.invertColors, config.grayscale).toImage();
+        QCOMPARE(target.pixelColor(10, 10), reference.pixelColor(0, 0));
+    };
+    check(); config.grayscale = true; check(); check();
+    config.invertColors = true; check();
+    canvas->pixels.fill(Qt::blue); check();
+    config.grayscale = false; check(); config.invertColors = false; check();
 }
 static void write(const QString &path, const QString &text) {
     QFile file(path); QVERIFY(file.open(QIODevice::WriteOnly)); file.write(text.toUtf8());
@@ -147,7 +225,7 @@ void ClientTest::viewerInteractions()
     QVERIFY(actions["next"]->isEnabled());
     actions["next"]->trigger();
     QTRY_VERIFY(session->preview.valid() && session->preview.page() == 1);
-    QVERIFY(actions["previous"]->isEnabled());
+    QTRY_VERIFY(actions["previous"]->isEnabled());
     actions["actualSize"]->trigger(); QCOMPARE(session->preview.zoom, 1.0);
     actions["zoomIn"]->trigger(); QVERIFY(session->preview.zoom > 1.0);
     actions["fitToWindow"]->trigger(); QCOMPARE(session->preview.zoom, -1.0);
@@ -200,8 +278,20 @@ void ClientTest::realProjects()
     manager.activate(two); auto second = manager.current(); QVERIFY(second != first);
     QTRY_VERIFY_WITH_TIMEOUT(second->preview.valid() || second->failed(), 20000);
     QVERIFY2(!second->failed(), qPrintable(second->status + '\n' + second->engineOutput));
+    QSignalSpy secondReveals(&second->preview, &TexpressoPreview::reveal), secondSources(second, &TexpressoSession::sourceLocation);
+    second->syncForward(two, 2);
+    QTRY_VERIFY_WITH_TIMEOUT(!secondReveals.isEmpty(), 5000);
+    const auto firstPagePoint = secondReveals.last()[0].toPointF();
     second->preview.setPage(1);
     QTRY_VERIFY_WITH_TIMEOUT(second->preview.valid(), 10000);
+    QSignalSpy secondCommands(&second->preview, &TexpressoPreview::command);
+    second->preview.setPage(0); QVERIFY(second->preview.valid());
+    QVERIFY(secondCommands.isEmpty()); // the page is displayed without a native render
+    second->preview.inverse(firstPagePoint);
+    QTRY_VERIFY_WITH_TIMEOUT(!secondSources.isEmpty(), 5000);
+    QCOMPARE(TexpressoSession::identity(secondSources.last()[0].toString()), TexpressoSession::identity(two));
+    QCOMPARE(secondSources.last()[1].toInt(), 3); // page one's source, although the engine last rendered page two
+    second->preview.setPage(1); QVERIFY(second->preview.valid());
     const auto edited = prefix + " and more" + suffix;
     const int offset = prefix.size();
     manager.changeBuffer(child, 0, offset, 0, offset, " and more", edited);
