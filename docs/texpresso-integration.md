@@ -104,6 +104,8 @@ cache, memoized color conversion and merged viewer refreshes. It follows the
 extension's deferred native-page preparation for inverse SyncTeX on cached pages.
 Cache tests cover invalidations, source/width changes, entry and byte eviction,
 abandoned inverse clicks and a real two-page source-navigation round trip.
+The bundled runtime now uses the extension's `5d906d6` engine snapshot, bringing
+checkpoint reuse, worker recovery and dashed-stroke ownership fixes.
 
 Run the client tests separately:
 

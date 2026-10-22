@@ -71,6 +71,21 @@ entry/byte budgets. Cached color conversion is checked against the original
 converter for new images and setting changes. The color and magnifier pixel
 checks also pass at 2× scale.
 
+## Engine snapshot update
+
+After measuring the Qt changes, the runtime was updated from `08684365` to the
+extension's `5d906d6` snapshot from the same fork. This brings its checkpoint
+reuse and interrupted-worker recovery improvements, the obsolete-render request
+handling fix, export timing metadata and safe ownership of dashed stroke arrays.
+The extension continues developing independently; this is a fixed, tested
+snapshot rather than a moving branch reference.
+
+The macOS runtime was reused from the extension's immutable dashes archive,
+validated against the pinned source and every manifest file hash, and tested
+with a clean environment. All 16 Qt checks and 18 native-tooling tests pass with
+this snapshot. Linux CI builds this same source pin; Linux execution was not
+available on the development host.
+
 Next useful measurements are edit-to-visible-frame latency in large multi-file
 projects and remaining native rendering/PNG costs on cache misses. Full-buffer
 serialization in the editor adapter is also a candidate for a separate measured
