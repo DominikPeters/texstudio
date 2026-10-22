@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Sign and notarize a copy of an existing macOS native bundle on a CI runner."""
 import argparse
+from contextlib import contextmanager
 import base64
 import json
 import os
@@ -163,6 +164,19 @@ def main():
         parser.error('A Developer ID Application identity is required, not ad-hoc signing')
     # Validate inputs before importing any credentials.
     bundle_inputs(args.bundle)
+    with signing_credentials() as (identity, keychain):
+        archive = sign_bundle(args.bundle, args.output, identity, keychain)
+        notarize(archive, args.reports, keychain, args.timeout)
+
+
+@contextmanager
+def signing_credentials():
+    """Import a temporary Developer ID identity; also shared by the app signer."""
+    missing = [name for name in SECRETS if not os.environ.get(name)]
+    if missing:
+        raise ValueError('Missing required secrets: ' + ', '.join(missing))
+    if os.environ['APPLE_SIGNING_IDENTITY'].strip() == '-':
+        raise ValueError('A Developer ID Application identity is required, not ad-hoc signing')
     certificate = binary_secret(os.environ['APPLE_CERTIFICATE'])
     key = private_key(os.environ['APPLE_API_PRIVATE_KEY'])
     with tempfile.TemporaryDirectory(prefix='texpresso-sign-', dir=os.environ.get('RUNNER_TEMP')) as folder:
@@ -185,8 +199,7 @@ def main():
                      '--key-id', os.environ['APPLE_API_KEY'], '--issuer', os.environ['APPLE_API_ISSUER'],
                      '--keychain', keychain], sensitive=True)
             p12.unlink(); p8.unlink()
-            archive = sign_bundle(args.bundle, args.output, os.environ['APPLE_SIGNING_IDENTITY'], keychain)
-            notarize(archive, args.reports, keychain, args.timeout)
+            yield os.environ['APPLE_SIGNING_IDENTITY'], keychain
         finally:
             command(['security', 'list-keychains', '-d', 'user', '-s', *original_keychains], sensitive=True, check=False)
             command(['security', 'delete-keychain', keychain], sensitive=True, check=False)

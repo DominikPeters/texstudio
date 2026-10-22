@@ -1,0 +1,179 @@
+name: Signed TeXpresso macOS app
+run-name: Signed TeXpresso macOS (${{ inputs.architecture }})
+on:
+  workflow_call:
+    inputs:
+      architecture:
+        description: arm64, x86_64, or both
+        type: string
+        default: arm64
+permissions:
+  contents: read
+concurrency:
+  group: texpresso-macos-${{ inputs.architecture }}
+  cancel-in-progress: false
+jobs:
+  macos:
+    name: Signed app (${{ matrix.architecture }})
+    if: contains(fromJSON('["arm64", "x86_64", "both"]'), inputs.architecture)
+    runs-on: ${{ matrix.architecture == 'arm64' && 'macos-15' || 'macos-15-intel' }}
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: ${{ fromJSON(inputs.architecture == 'both' && '["arm64", "x86_64"]' || format('["{0}"]', inputs.architecture)) }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      HOMEBREW_NO_INSTALL_CLEANUP: '1'
+      QT_QPA_PLATFORM: offscreen
+      SDL_VIDEODRIVER: dummy
+    steps:
+      - name: Check out the live-preview branch
+        uses: actions/checkout@v7
+        with:
+          ref: texpresso
+          fetch-depth: 0
+          submodules: true
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Read source revisions
+        id: source
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          lock = json.load(open('native/dependencies.lock.json'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('mupdf=' + lock['mupdf']['revision'] + '\n')
+              output.write('commit=' + subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() + '\n')
+          PY
+      - name: Cache Homebrew downloads
+        uses: actions/cache@v6
+        with:
+          path: ~/Library/Caches/Homebrew
+          key: signed-app-brew-${{ runner.os }}-${{ matrix.architecture }}-${{ hashFiles('native/*lock.json', 'native/profiles/*', '.github/workflows/texpresso-macos.yml') }}
+      - name: Install build dependencies
+        run: |
+          brew install cmake ninja pkgconf qt qt5compat hunspell \
+            freetype jpeg-turbo openjpeg brotli sdl2 harfbuzz graphite2 fontconfig \
+            libpng jbig2dec icu4c@78 boost cairo libtiff little-cms2 poppler-data
+          echo "$(brew --prefix qt)/bin" >> "$GITHUB_PATH"
+      - name: Check tooling contracts
+        run: python3 -m unittest discover -s native/tests
+      - name: Fetch locked MuPDF sources
+        uses: actions/checkout@v7
+        with:
+          repository: ArtifexSoftware/mupdf
+          ref: ${{ steps.source.outputs.mupdf }}
+          path: .native-sources/mupdf
+          persist-credentials: false
+      - name: Initialize only MuPDF's required submodule
+        run: git -C .native-sources/mupdf submodule update --init --depth 1 thirdparty/lcms2
+      - name: Build the shared engine and its complete runtime
+        run: |
+          python3 native/scripts/build.py --mupdf-source .native-sources/mupdf \
+            --icu-prefix "$(brew --prefix icu4c@78)" --jobs 3
+          python3 native/scripts/validate_bundle.py "native/.bundles/darwin-$(uname -m)"
+      - name: Fetch and build Poppler with Qt preview support
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib, urllib.request
+          lock = json.load(open('native/macos-dependencies.lock.json'))['poppler']
+          archive = pathlib.Path('.native-sources/poppler.tar.xz')
+          urllib.request.urlretrieve(lock['url'], archive)
+          if hashlib.file_digest(archive.open('rb'), 'sha256').hexdigest() != lock['sha256']:
+              raise SystemExit('Poppler source checksum mismatch')
+          PY
+          mkdir -p .native-sources/poppler
+          tar -xf .native-sources/poppler.tar.xz -C .native-sources/poppler --strip-components=1
+          cmake -S .native-sources/poppler -B build-poppler -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/poppler" \
+            -DCMAKE_PREFIX_PATH="$(brew --prefix qt)" \
+            -DENABLE_QT6=ON -DENABLE_QT5=OFF -DENABLE_CPP=ON \
+            -DENABLE_UNSTABLE_API_ABI_HEADERS=ON -DENABLE_GLIB=OFF \
+            -DENABLE_GOBJECT_INTROSPECTION=OFF -DENABLE_BOOST=OFF \
+            -DENABLE_LIBCURL=OFF -DENABLE_NSS3=OFF -DENABLE_GPGME=OFF \
+            -DENABLE_PGP_SIGNATURES=OFF -DENABLE_UTILS=OFF \
+            -DBUILD_GTK_TESTS=OFF -DBUILD_QT5_TESTS=OFF -DBUILD_QT6_TESTS=OFF \
+            -DBUILD_CPP_TESTS=OFF -DBUILD_MANUAL_TESTS=OFF
+          cmake --build build-poppler --parallel 3
+          cmake --install build-poppler
+      - name: Install the test TeX Live provider
+        run: |
+          brew install --cask basictex
+          sudo /Library/TeX/texbin/tlmgr update --self
+          sudo /Library/TeX/texbin/tlmgr install geometry amsmath hyperref xcolor fontspec refcount biblatex biber
+          echo /Library/TeX/texbin >> "$GITHUB_PATH"
+      - name: Configure and build TeXstudio with live preview
+        run: |
+          export PKG_CONFIG_PATH="$RUNNER_TEMP/poppler/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+          pkg-config --exists poppler poppler-cpp poppler-qt6
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/poppler;$(brew --prefix qt);$(brew --prefix qt5compat)" \
+            -DTEXSTUDIO_ENABLE_TEXPRESSO=ON -DTEXSTUDIO_TEXPRESSO_TESTS=ON
+          cmake --build build --parallel 3
+          TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/darwin-$(uname -m)/bin/texpresso" \
+            ctest --test-dir build/src/texpresso --output-on-failure
+      - name: Deploy Qt, PDF dependencies, and the engine into the app
+        run: |
+          python3 native/scripts/deploy_macos.py --app build/texstudio.app \
+            --output "$RUNNER_TEMP/deploy/texstudio.app" \
+            --macdeployqt "$(brew --prefix qt)/bin/macdeployqt" \
+            --library-path "$RUNNER_TEMP/poppler/lib" --library-path "$(brew --prefix)/lib" \
+            --poppler-data "$(brew --prefix poppler-data)/share/poppler"
+      - name: Sign, notarize, staple, and verify the complete app
+        timeout-minutes: 35
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_API_PRIVATE_KEY: ${{ secrets.APPLE_API_PRIVATE_KEY }}
+        run: |
+          python3 native/scripts/notarize_app.py --app "$RUNNER_TEMP/deploy/texstudio.app" \
+            --output "dist/texstudio-texpresso-macos-${{ matrix.architecture }}.zip" \
+            --reports notarization --timeout 25m
+          TEXPRESSO_TEST_ENGINE="$RUNNER_TEMP/deploy/texstudio.app/Contents/Helpers/texpresso/bin/texpresso" \
+            ctest --test-dir build/src/texpresso --output-on-failure
+          env QT_QPA_PLATFORM=offscreen "$RUNNER_TEMP/deploy/texstudio.app/Contents/MacOS/texstudio" --version
+      - name: Upload the accepted app
+        uses: actions/upload-artifact@v7
+        with:
+          name: texstudio-texpresso-macos-${{ matrix.architecture }}-notarized
+          path: dist/*.zip*
+          if-no-files-found: error
+          retention-days: 14
+      - name: Build provenance
+        if: success()
+        env:
+          SOURCE_COMMIT: ${{ steps.source.outputs.commit }}
+        run: |
+          echo "Built texpresso commit: $SOURCE_COMMIT" >> "$GITHUB_STEP_SUMMARY"
+          echo "Architecture: ${{ matrix.architecture }}" >> "$GITHUB_STEP_SUMMARY"
+          echo 'App signed with Developer ID, accepted by Apple, stapled and Gatekeeper-verified.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove credentials after failure or cancellation
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, shutil, subprocess
+          for folder in pathlib.Path(os.environ['RUNNER_TEMP']).glob('texpresso-sign-*'):
+              subprocess.run(['security', 'delete-keychain', str(folder / 'signing.keychain-db')],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+              shutil.rmtree(folder)
+          PY
+      - name: Save build and notarization diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: texstudio-texpresso-macos-${{ matrix.architecture }}-diagnostics
+          path: |
+            notarization/
+            build/CMakeFiles/CMakeConfigureLog.yaml
+            build/src/texpresso/Testing/Temporary/
+          if-no-files-found: ignore
+          retention-days: 14

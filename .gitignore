@@ -38,3 +38,8 @@ js_*
 native/.bundles/
 native/.work/
 __pycache__/
+
+# Signed macOS workflow outputs
+.native-sources/
+dist/
+notarization/
