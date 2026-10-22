@@ -36,8 +36,11 @@ TexpressoSession::TexpressoSession(const QString &root, const QString &engine, c
     });
     connect(&process, &TexpressoProcess::failed, this, &TexpressoSession::error);
     connect(&preview, &TexpressoPreview::command, &process, &TexpressoProcess::send);
-    connect(&preview, &TexpressoPreview::failed, this, [this](const QString &reason) { status = reason; emit updated(); });
-    connect(&preview, &TexpressoPreview::updated, this, &TexpressoSession::updated);
+    connect(&preview, &TexpressoPreview::failed, this, [this](const QString &reason) { previewError = reason; emit updated(); });
+    connect(&preview, &TexpressoPreview::updated, this, [this] {
+        if (preview.valid()) previewError.clear();
+        emit updated();
+    });
     connect(&watcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
         pendingDependencies.append(path); rescanTimer.start();
     });
@@ -51,7 +54,14 @@ TexpressoSession::TexpressoSession(const QString &root, const QString &engine, c
         if (changed) sendSource({"rescan"});
     });
 }
-TexpressoSession::~TexpressoSession() { process.stop(); }
+TexpressoSession::~TexpressoSession()
+{
+    // Draining the process during its destruction can emit buffered output.
+    // Disconnect before the session's buffers and other members are destroyed.
+    disconnect(&process, nullptr, this, nullptr);
+    disconnect(&process, nullptr, &preview, nullptr);
+    process.stop();
+}
 void TexpressoSession::start() { process.start(engineFile, rootFile); }
 void TexpressoSession::error(const QString &reason)
 {
@@ -62,6 +72,7 @@ void TexpressoSession::error(const QString &reason)
 void TexpressoSession::sendSource(QJsonArray command)
 {
     if (!ready || failure || userStopped) return;
+    previewError.clear();
     process.send(command);
     syncAfterCompile = true;
     const auto sequence = preview.sequence() + 1;

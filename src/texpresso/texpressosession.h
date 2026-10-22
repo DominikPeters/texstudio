@@ -27,6 +27,7 @@ public:
     void syncForward(const QString &path, int line);
     TexpressoPreview preview;
     QString status;
+    QString previewError;
     QString compilerOutput, engineOutput;
     bool userPaused = false;
     bool userStopped = false;

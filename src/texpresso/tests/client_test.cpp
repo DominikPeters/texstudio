@@ -130,6 +130,12 @@ void ClientTest::realProjects()
     QTRY_VERIFY_WITH_TIMEOUT(!sources.isEmpty(), 5000);
     QCOMPARE(TexpressoSession::identity(sources.last()[0].toString()), TexpressoSession::identity(child));
     QCOMPARE(sources.last()[1].toInt(), 1);
+    manager.reconcileBuffer(child, "\\undefinedcommand\n");
+    QTRY_VERIFY_WITH_TIMEOUT(!first->previewError.isEmpty(), 10000);
+    QVERIFY(!first->failed()); QVERIFY(!first->preview.valid());
+    manager.reconcileBuffer(child, prefix + suffix);
+    QTRY_VERIFY_WITH_TIMEOUT(first->preview.valid(), 10000);
+    QCOMPARE(first->preview.image(), original);
     first->setPaused(true); manager.activate(two);
     QTest::qWait(150); QCOMPARE(second->preview.page(), 1);
     manager.activate(one); QVERIFY(first->userPaused);

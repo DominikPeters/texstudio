@@ -30,3 +30,65 @@ projects, edit unsaved included text (including Unicode and undo), switch tabs,
 and recover each project's correct preview without restarts or path setup.
 Then extend dependency watching/diagnostics, SyncTeX, regions/patches, packaging
 checks, and finally scrolling/SVG using the extension as the behavioral reference.
+
+## First working implementation
+
+`src/texpresso/` contains the independently testable Qt client: binary protocol
+reader, subprocess/process-group lifecycle, sessions, renderer scheduling and a
+one-page Qt widget. `src/texstudio_texpresso.cpp` connects it to TeXstudio.
+
+Automatic sessions follow the existing root resolution and use canonical paths
+for editor identity while retaining the engine's logical aliases. Open included
+buffers override disk, including extensionless `\input{chapter}` lookups.
+Source updates use ordered UTF-16 ranges and barriers; whole-document reloads
+and edits suppressed by collaboration signals reconcile afterward. Shared
+buffers update every subscribed session. Explicit Pause/Stop survives tab
+switching. Page, zoom, scroll and the last image are stored per session.
+
+The first renderer uses bounded full-page PNG frames and one decode worker per
+session, discarding outdated frames after source/page changes. Failed TeX passes
+keep old pixels visible with their source interactions disabled, then recover
+when the source is corrected. Source synchronization uses current buffers and
+converts between zero-based editor lines and one-based SyncTeX lines.
+
+TeX Live is selected explicitly. macOS GUI launches discover MacTeX's
+`/Library/TeX/texbin`; conventional `/usr/local/texlive/<year>/bin/<platform>`
+installations are also discovered. No engine executable path is exposed to users.
+The application includes the pinned native runtime in its build and install
+outputs; validation before bundling checks source revision, platform and file hashes.
+
+Validation on macOS includes the full application build/install, relocated
+engine validation with a clean environment, 18 native-tooling tests, and nine Qt
+checks. The real-engine cases cover explicit/extensionless includes, unsaved
+Unicode (including UTF-16 surrogate pairs), undo, inactive-project edits, both
+SyncTeX directions, page preservation, compilation-error recovery and process
+group cleanup. The actual editor was also exercised with an unsaved included
+file edit and undo. The extension's three headless-preview tests passed against
+the same bundled engine without changing the extension checkout.
+
+Run the client tests separately:
+
+```
+cmake -S src/texpresso -B build-client
+cmake --build build-client --parallel
+TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/darwin-arm64/bin/texpresso" \
+  ctest --test-dir build-client --output-on-failure
+```
+
+Use the corresponding `linux-<architecture>` bundle on Linux. The new TeXpresso
+CI workflow builds a Linux runtime, runs real-engine Qt tests and installs the
+application with both executables. It needs its first CI run; Linux execution
+was unavailable on the development host. Inherited CI/CD jobs explicitly build
+upstream compatibility configurations without live preview.
+
+## Remaining work
+
+- Continuous page scrolling, following the extension's implementation.
+- Region detail, magnifier, PNG patches and measured Qt SVG/adaptive rendering.
+- Full dependency reconciliation (missing/deleted files, external include
+  directories), source renames, bounded idle-session eviction and memory budgets.
+- Integrated log diagnostics, rerun controls and coordinated final-build refresh.
+- Automated editor interaction tests and Linux runtime verification in CI.
+- macOS/Linux release packaging with complete Qt deployment, release signing,
+  notarization and clean-machine checks. Existing macOS engine signing tools are
+  available, but the development application is not a notarized release.

@@ -19,6 +19,9 @@
 #endif
 #include <QAtomicInt>
 #include "texstudio.h"
+#ifdef TEXSTUDIO_TEXPRESSO
+#include "texpresso/texpressomanager.h"
+#endif
 #include "latexeditorview.h"
 
 #include "smallUsefulFunctions.h"
@@ -497,6 +500,9 @@ Texstudio::Texstudio(QWidget *parent, Qt::WindowFlags flags, QSplashScreen *spla
 	connectWithAdditionalArguments(this, SIGNAL(infoAfterTypeset()), this, "runScripts", QList<QVariant>() << Macro::ST_AFTER_TYPESET);
 	connectWithAdditionalArguments(&buildManager, SIGNAL(endRunningCommands(QString, bool, bool, bool)), this, "runScripts", QList<QVariant>() << Macro::ST_AFTER_COMMAND_RUN);
 
+#ifdef TEXSTUDIO_TEXPRESSO
+    setupTexpresso();
+#endif
     QString txsLastStartupCompletion=config->value("texmaker/startupCompletion","new").toString();
     if(txsLastStartupCompletion=="restoreSession"){
         // last txs start failed in restore, don't restore this time
@@ -516,6 +522,11 @@ Texstudio::Texstudio(QWidget *parent, Qt::WindowFlags flags, QSplashScreen *spla
  */
 Texstudio::~Texstudio()
 {
+#ifdef TEXSTUDIO_TEXPRESSO
+    texpressoActivationTimer.stop();
+    delete texpressoManager;
+    texpressoManager = nullptr;
+#endif
     //structureTreeView->setModel(nullptr);
 	iconCache.clear();
 	QDocument::setDefaultFormatScheme(m_formatsOldDefault); //prevents crash when deleted latexeditorview accesses the default format scheme, as m_format is going to be deleted
@@ -1943,6 +1954,9 @@ void Texstudio::updateMasterDocumentCaption()
 
 void Texstudio::currentEditorChanged()
 {
+#ifdef TEXSTUDIO_TEXPRESSO
+    if (texpressoManager) texpressoActivationTimer.start();
+#endif
     if(mDisableTOCupdates) return; // skip during restore file session
 	updateCaption();
 #ifdef INTERNAL_TERMINAL
@@ -2156,6 +2170,9 @@ void Texstudio::configureNewEditorView(LatexEditorView *edit)
 void Texstudio::configureNewEditorViewEnd(LatexEditorView *edit, bool reloadFromDoc, bool hidden)
 {
     REQUIRE(edit->document);
+#ifdef TEXSTUDIO_TEXPRESSO
+    if (texpressoManager && !hidden) watchTexpressoDocument(edit->document);
+#endif
     // set speller here as document is needed
     edit->setSpellerManager(&spellerManager);
     edit->setSpeller("<default>");

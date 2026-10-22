@@ -104,8 +104,14 @@ void TexpressoWidget::refresh()
         pause->setEnabled(!session->userStopped && !session->failed());
         stop->setEnabled(!session->userStopped && !session->failed());
         zoom->setCurrentIndex(zoom->findData(preview.zoom));
+#ifdef Q_OS_MACOS
+        const QString liveHint = tr("Live preview · Command-click to open source");
+#else
+        const QString liveHint = tr("Live preview · Ctrl-click to open source");
+#endif
         status->setText(session->failed() || session->userStopped || session->userPaused ? session->status
-            : preview.valid() ? tr("Live preview · Ctrl-click to open source") : tr("Updating preview…"));
+            : !session->previewError.isEmpty() ? session->previewError
+            : preview.valid() ? liveHint : tr("Updating preview…"));
         canvas->pixels = preview.image(); canvas->pageBounds = preview.bounds(); canvas->fresh = preview.valid() && !session->userStopped && !session->failed();
         if (switched) {
             disconnect(revealConnection);

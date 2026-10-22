@@ -68,6 +68,8 @@ class LatexReference;
 class SymbolListModel;
 class SymbolWidget;
 class StructureTreeView;
+class TexpressoManager;
+class TexpressoWidget;
 
 //Q_DECLARE_METATYPE(QSet<QString>)
 #if QT_VERSION_MAJOR<6
@@ -191,6 +193,16 @@ public:
     Q_INVOKABLE bool completerIsVisible();
 private:
 	OutputViewWidget *outputView; ///< contains output widgets (over OutputLayout)
+#ifdef TEXSTUDIO_TEXPRESSO
+    TexpressoManager *texpressoManager = nullptr;
+    TexpressoWidget *texpressoWidget = nullptr;
+    QAction *texpressoAction = nullptr;
+    QTimer texpressoActivationTimer;
+    QSet<LatexDocument *> texpressoDocuments;
+    void setupTexpresso();
+    void updateTexpresso();
+    void watchTexpressoDocument(LatexDocument *document);
+#endif
 
 	//menu
 	QActionGroup *bibtexEntryActions;

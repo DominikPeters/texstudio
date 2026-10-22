@@ -396,6 +396,12 @@ target_link_libraries(texstudio PRIVATE
     Qt${QT_VERSION_MAJOR}::Concurrent
     Qt${QT_VERSION_MAJOR}::UiTools
 )
+if(TEXSTUDIO_ENABLE_TEXPRESSO)
+    add_subdirectory(src/texpresso)
+    target_sources(texstudio PRIVATE src/texstudio_texpresso.cpp)
+    target_link_libraries(texstudio PRIVATE texpresso-client)
+    target_compile_definitions(texstudio PRIVATE TEXSTUDIO_TEXPRESSO)
+endif()
 if(NOT MSVC AND CMAKE_VERSION VERSION_GREATER_EQUAL "3.16.0")
     target_precompile_headers(texstudio PUBLIC src/mostQtHeaders.h)
 endif()

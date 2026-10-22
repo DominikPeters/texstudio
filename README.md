@@ -1,3 +1,19 @@
+# TeXstudio with TeXpresso live preview
+
+This fork adds an automatic native Qt preview using the same pinned TeXpresso
+engine as `DominikPeters/texpresso-vscode`. The engine is bundled with the
+application; install TeX Live for its packages. Each open project retains its
+own session and preview position when switching tabs. Normal TeXstudio build
+commands remain available for final PDFs.
+
+Open a saved `.tex` project to start. The preview includes page navigation,
+zoom, Pause/Resume, Stop, Restart, Output, and Sync controls. Command-click on
+macOS (Ctrl-click on Linux) jumps from the preview to the source.
+View → Show → Live Preview enables or disables automatic preview.
+
+See [native build instructions](native/README.md) and the
+[integration design and implementation status](docs/texpresso-integration.md).
+
 
 [CI]: https://github.com/texstudio-org/texstudio/workflows/CI/badge.svg
 [Codacy Badge]: https://app.codacy.com/project/badge/Grade/892de515e8c54a7a99bd836743c4510c
