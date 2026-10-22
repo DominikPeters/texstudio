@@ -1,11 +1,14 @@
 #include <QtTest>
 #include "texpressoprotocol.h"
 #include "texpressomanager.h"
+#include "texpressowidget.h"
+#include "ViewerControls.h"
 #include <QJsonDocument>
 #include <QTemporaryDir>
 #include <QFile>
 #include <QBuffer>
 #include <csignal>
+#include <cmath>
 
 class ClientTest : public QObject
 {
@@ -18,6 +21,9 @@ private slots:
     void emptyPatchFrame();
     void realProjects();
     void realProjects_data();
+    void viewerControls();
+    void viewerInteractions();
+    void magnifierPixels();
 };
 static QJsonObject header(int bytes) {
     return {{"requestId", 1}, {"revision", 2}, {"sequence", 3}, {"page", 0},
@@ -76,6 +82,92 @@ void ClientTest::obsoleteDecode()
 }
 static void write(const QString &path, const QString &text) {
     QFile file(path); QVERIFY(file.open(QIODevice::WriteOnly)); file.write(text.toUtf8());
+}
+void ClientTest::viewerControls()
+{
+    // Preserve the PDF viewer's 100% slider detent and asymmetric range.
+    QCOMPARE(ViewerControls::sliderToScale(-100), .125);
+    QCOMPARE(ViewerControls::sliderToScale(100), 4.0);
+    for (int position = -100; position <= 100; ++position) {
+        const auto scale = ViewerControls::sliderToScale(position);
+        if (std::abs(position) <= 10) QCOMPARE(scale, 1.0);
+        else if (std::abs(scale - 1) < .01) QCOMPARE(ViewerControls::scaleToSlider(scale), 0);
+        else QCOMPARE(ViewerControls::scaleToSlider(scale), position);
+    }
+    QVERIFY(ViewerControls::isSyncClick(Qt::ControlModifier));
+    QVERIFY(!ViewerControls::isSyncClick(Qt::ControlModifier | Qt::ShiftModifier));
+    QVERIFY(!ViewerControls::isSyncClick(Qt::NoModifier));
+}
+void ClientTest::magnifierPixels()
+{
+    PDFDocumentConfig config{};
+    config.editTool = 1; config.magnifierSize = 160;
+    config.magnifierShape = PDFDocumentConfig::Circle; config.magnifierBorder = true;
+    QScrollArea area; area.resize(4200, 2200);
+    auto canvas = new TexpressoCanvas(&config, &area);
+    canvas->pixels = QImage(8, 8, QImage::Format_RGB32); canvas->pixels.fill(Qt::red);
+    canvas->pageBounds = QRectF(0, 0, 4200, 2200); canvas->resize(4200, 2200); canvas->fresh = true;
+    area.setWidget(canvas); area.show(); QCoreApplication::processEvents();
+    const QPoint point(2000, 1000);
+    QTest::mousePress(canvas, Qt::LeftButton, Qt::NoModifier, point);
+    auto lens = canvas->findChild<PDFMagnifier *>(); QVERIFY(lens && lens->isVisible());
+    const auto image = lens->grab().toImage();
+    QCOMPARE(image.pixelColor(image.width() / 2, image.height() / 2), QColor(Qt::red));
+    QTest::mouseMove(canvas, point + QPoint(200, 100));
+    const auto moved = lens->grab().toImage();
+    QCOMPARE(moved.pixelColor(moved.width() / 2, moved.height() / 2), QColor(Qt::red));
+    QTest::mouseRelease(canvas, Qt::LeftButton, Qt::NoModifier, point);
+    canvas->pixels.fill(Qt::blue); canvas->invalidateMagnifier();
+    QTest::mousePress(canvas, Qt::LeftButton, Qt::NoModifier, point);
+    const auto changed = lens->grab().toImage();
+    QCOMPARE(changed.pixelColor(changed.width() / 2, changed.height() / 2), QColor(Qt::blue));
+    QTest::mouseRelease(canvas, Qt::LeftButton, Qt::NoModifier, point);
+}
+void ClientTest::viewerInteractions()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE to run viewer integration tests");
+    QTemporaryDir project;
+    const auto root = project.filePath("main.tex");
+    write(root, "\\documentclass{article}\n\\begin{document}\nFirst page\\newpage Second page\n\\end{document}\n");
+    TexpressoManager manager(nullptr, engine);
+    PDFDocumentConfig config{};
+    config.editTool = 1; config.zoomStepFactor = std::sqrt(2.0);
+    config.magnifierSize = 160; config.magnifierShape = PDFDocumentConfig::Circle;
+    config.magnifierBorder = true;
+    TexpressoWidget widget(&manager, &config, [](const QString &) { return QIcon(); });
+    widget.resize(640, 700); widget.show();
+    manager.activate(root);
+    auto session = manager.current();
+    QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid(), 15000);
+    auto canvas = widget.findChild<TexpressoCanvas *>(); QVERIFY(canvas);
+    const auto actions = widget.viewerActions();
+    QVERIFY(!actions.contains("selectText"));
+    QVERIFY(!actions["previous"]->isEnabled());
+    QVERIFY(actions["next"]->isEnabled());
+    actions["next"]->trigger();
+    QTRY_VERIFY(session->preview.valid() && session->preview.page() == 1);
+    QVERIFY(actions["previous"]->isEnabled());
+    actions["actualSize"]->trigger(); QCOMPARE(session->preview.zoom, 1.0);
+    actions["zoomIn"]->trigger(); QVERIFY(session->preview.zoom > 1.0);
+    actions["fitToWindow"]->trigger(); QCOMPARE(session->preview.zoom, -1.0);
+    QTRY_VERIFY(session->preview.valid());
+    QSignalSpy source(canvas, &TexpressoCanvas::sourceClicked);
+    const QPoint point(100, 120);
+    QTest::mouseClick(canvas, Qt::LeftButton, Qt::ControlModifier, point);
+    QCOMPARE(source.size(), 1);
+    const auto expected = QPointF(point) / canvas->scale + canvas->pageBounds.topLeft();
+    QCOMPARE(source[0][0].toPointF(), expected);
+    // The actual PDF magnifier is also the live viewer's lens.
+    QTest::mousePress(canvas, Qt::LeftButton, Qt::NoModifier, point);
+    auto lens = canvas->findChild<PDFMagnifier *>(); QVERIFY(lens && lens->isVisible());
+    QVERIFY(!lens->grab().isNull());
+    QTest::mouseRelease(canvas, Qt::LeftButton, Qt::NoModifier, point);
+    QVERIFY(!lens->isVisible());
+    canvas->fresh = false;
+    QTest::mouseClick(canvas, Qt::LeftButton, Qt::ControlModifier, point);
+    QCOMPARE(source.size(), 1); // stale frames cannot navigate the source
+    manager.shutdown();
 }
 void ClientTest::realProjects_data()
 {

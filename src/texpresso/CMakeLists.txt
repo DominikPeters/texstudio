@@ -9,6 +9,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets Concurrent Test)
     option(TEXSTUDIO_TEXPRESSO_TESTS "Build live-preview tests" ON)
 endif()
+include("${CMAKE_CURRENT_SOURCE_DIR}/../pdfviewer/ViewerComponents.cmake")
 add_library(texpresso-client STATIC
     texpressoprotocol.cpp texpressoprotocol.h
     texpressoprocess.cpp texpressoprocess.h
@@ -17,7 +18,7 @@ add_library(texpresso-client STATIC
     texpressomanager.cpp texpressomanager.h
     texpressowidget.cpp texpressowidget.h)
 target_include_directories(texpresso-client PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-target_link_libraries(texpresso-client PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent)
+target_link_libraries(texpresso-client PUBLIC document-viewer Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent)
 if(NOT APPLE)
     if(NOT CMAKE_INSTALL_LIBEXECDIR)
         set(CMAKE_INSTALL_LIBEXECDIR libexec)

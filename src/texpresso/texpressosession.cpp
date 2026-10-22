@@ -138,7 +138,8 @@ void TexpressoSession::message(const QJsonArray &m)
     if (verb == "preview-state" && m.size() == 6) {
         acknowledgedSource = std::max(acknowledgedSource, qint64(m[2].toDouble()));
         if (resumePending && acknowledgedSource == preview.sequence() && foreground && !userPaused && !userStopped) {
-            resumePending = false; process.send({"resume"}); syncForward(syncFile, syncLine);
+            resumePending = false; process.send({"resume"});
+            if (followCursor) syncForward(syncFile, syncLine);
         }
     } else if (verb == "input-file" && m.size() == 3) {
         const auto logical = absolute(m[2].toString());
@@ -178,7 +179,8 @@ void TexpressoSession::message(const QJsonArray &m)
         compilerOutput = outputLines.join('\n') + '\n' + logLines.join('\n'); emit updated();
         // Match the extension's automatic source synchronization after a pass.
         if (syncAfterCompile && acknowledgedSource == preview.sequence() && foreground && !userPaused) {
-            syncAfterCompile = false; syncForward(syncFile, syncLine);
+            syncAfterCompile = false;
+            if (followCursor) syncForward(syncFile, syncLine);
         }
     }
 }

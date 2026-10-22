@@ -6,8 +6,10 @@
 #include "qdocument.h"
 #include "qdocumentcursor.h"
 #include "qeditor.h"
+#include "utilsSystem.h"
 #include <QPointer>
 #include <QSettings>
+#include <QScreen>
 
 namespace {
 QString bufferText(LatexDocument *document) { return document->textLines().join('\n'); }
@@ -16,7 +18,27 @@ QString bufferText(LatexDocument *document) { return document->textLines().join(
 void Texstudio::setupTexpresso()
 {
     texpressoManager = new TexpressoManager(this);
-    texpressoWidget = new TexpressoWidget(texpressoManager, mainHSplitter);
+    auto previewConfig = configManager.pdfDocumentConfig;
+    configManager.registerOption("Preview/EditTool", &previewConfig->editTool, 1);
+    configManager.registerOption("Preview/Scrolling Follows Cursor", &previewConfig->followFromCursor, false);
+    configManager.registerOption("Preview/Invert Colors", &previewConfig->invertColors, false);
+    configManager.registerOption("Preview/Grayscale", &previewConfig->grayscale, false);
+    texpressoWidget = new TexpressoWidget(texpressoManager, previewConfig, getRealIcon, mainHSplitter);
+    // Use the PDF action IDs so configured PDF shortcuts also reach the live
+    // panel. Widget-scoped contexts prevent clashes with the editor or PDF.
+    for (auto it = texpressoWidget->viewerActions().cbegin(); it != texpressoWidget->viewerActions().cend(); ++it) {
+        const QString menu = it.key() == "gotoSource" ? "window" : it.key() == "followCursor" ? "config" : "view";
+        it.value()->setObjectName("pdf/" + menu + '/' + it.key());
+    }
+    configManager.modifyManagedShortcuts("pdf");
+    const int iconSize = qRound(qMax(16, configManager.guiSecondaryToolbarIconSize) * QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96);
+    texpressoWidget->configureAppearance(configManager.getOption("GUI/Style").toInt() != 0, iconSize);
+    connect(texpressoWidget, &TexpressoWidget::followCursorChanged, this, [this](bool enabled) {
+        configManager.pdfDocumentConfig->followFromCursor = enabled;
+        updateTexpresso();
+        if (enabled && currentEditor()) syncPDFViewer(currentEditor()->cursor(), false);
+    });
+    connect(texpressoWidget, &TexpressoWidget::toolChanged, this, [this](int tool) { configManager.pdfDocumentConfig->editTool = tool; });
     mainHSplitter->addWidget(texpressoWidget); texpressoWidget->hide();
     texpressoAction = getManagedMenu("main/view/show")->addAction(tr("Live Preview"));
     texpressoAction->setObjectName("texpressoLivePreviewAction");
@@ -39,14 +61,10 @@ void Texstudio::setupTexpresso()
     });
     connect(texpressoManager, &TexpressoManager::sourceLocation, this, [this](const QString &file, int line, int column, const QString &word) {
         Q_UNUSED(column)
-        Q_UNUSED(word)
-        // Live SyncTeX refers to the current buffers, not saved PDF line snapshots.
-        gotoLine(qMax(0, line - 1), file);
+        syncFromPreview(file, qMax(0, line - 1), true, word, PreviewSourceVersion::CurrentBuffer);
     });
     connect(texpressoWidget, &TexpressoWidget::syncRequested, this, [this] {
-        if (auto session = texpressoManager->current()) {
-            if (auto editor = currentEditor()) session->syncForward(getCurrentFileName(), editor->cursor().lineNumber());
-        }
+        if (auto editor = currentEditor()) syncTexpressoViewer(editor->cursor(), true);
     });
     connect(&documents, &LatexDocuments::masterDocumentChanged, this, [this] { texpressoActivationTimer.start(); });
     connect(editors, &Editors::listOfEditorsChanged, this, [this] { texpressoActivationTimer.start(); });
@@ -81,8 +99,7 @@ void Texstudio::watchTexpressoDocument(LatexDocument *document)
     connect(document, &LatexDocument::structureUpdated, texpressoManager, [this] { texpressoActivationTimer.start(); });
     if (auto view = document->getEditorView()) {
         connect(view->editor, &QEditor::cursorPositionChanged, texpressoManager, [this, document, view] {
-            if (currentEditorView() == view)
-                if (auto session = texpressoManager->current()) session->syncForward(document->getFileName(), view->editor->cursor().lineNumber());
+            if (currentEditorView() == view) syncPDFViewer(view->editor->cursor(), false);
         });
         connect(view->editor, &QEditor::saved, texpressoManager, [this] { texpressoActivationTimer.start(); });
         connect(view->editor, &QEditor::fileReloaded, texpressoManager, [this] { texpressoActivationTimer.start(); });
@@ -110,4 +127,21 @@ void Texstudio::updateTexpresso()
     texpressoManager->retainProjects(roots);
     const auto root = documents.getRootDocumentForDoc();
     texpressoManager->activate(texpressoAction->isChecked() && root ? root->getFileName() : QString());
+    if (auto session = texpressoManager->current()) session->followCursor = configManager.pdfDocumentConfig->followFromCursor;
+    texpressoWidget->refresh();
+}
+
+bool Texstudio::syncTexpressoViewer(const QDocumentCursor &cursor, bool inForeground)
+{
+    if (!texpressoManager || !texpressoWidget->isVisible()) return false;
+    auto session = texpressoManager->current();
+    if (!session) return false;
+    auto document = qobject_cast<LatexDocument *>(cursor.document());
+    if (!document) return false;
+    auto root = documents.getRootDocumentForDoc(document);
+    if (!root || TexpressoSession::identity(root->getFileName()) != session->root()) return false;
+    session->followCursor = configManager.pdfDocumentConfig->followFromCursor;
+    if (inForeground || session->followCursor) session->syncForward(document->getFileName(), cursor.lineNumber());
+    if (inForeground) texpressoWidget->setFocus();
+    return true;
 }

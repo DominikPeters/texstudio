@@ -11,6 +11,8 @@ Agreed design, 22 October 2026:
 - Start with one page at a time; port scrolling as the extension develops it.
 - Reuse the existing editor and headless-preview protocols. Keep compilation,
   MuPDF rendering and SyncTeX in the engine process.
+- Share rendering-independent viewer controls and tools with the saved-PDF
+  viewer. Keep Poppler and the live engine behind separate rendering adapters.
 
 Implementation boundaries: process/framing, project session/buffer overlays,
 preview scheduling, Qt widget, and the TeXstudio document adapter. Guard every
@@ -30,6 +32,35 @@ projects, edit unsaved included text (including Unicode and undo), switch tabs,
 and recover each project's correct preview without restarts or path setup.
 Then extend dependency watching/diagnostics, SyncTeX, regions/patches, packaging
 checks, and finally scrolling/SVG using the extension as the behavioral reference.
+
+## Shared viewer components
+
+`src/pdfviewer/ViewerControls.*` owns the common action definitions, toolbar
+ordering, page entry/count widgets, zoom menu/slider and zoom-step calculations.
+Both `PDFDocument` and `TexpressoWidget` use these components. Live actions use
+the PDF action IDs and widget-scoped shortcuts, so customized PDF shortcuts also
+apply without intercepting editor commands. The live panel exposes magnifier,
+hand scrolling, page navigation, actual size, fit width and fit window. PDF-only
+capabilities (text selection, annotations and fit-to-text bounds) remain absent
+until the engine provides their data.
+
+`ViewerTools.*` contains the existing PDF magnifier and laser-pointer painting,
+without Poppler dependencies. The magnifier accepts a renderer callback:
+Poppler supplies its usual detailed region; the live adapter currently supplies
+an enlarged crop of its PNG frame, bounded to the lens neighborhood on large
+and high-DPI displays. Engine region rendering can replace that
+callback without adding another magnifier implementation. Both viewers use
+the same magnifier appearance, size, color conversion and zoom preferences.
+
+Both inverse-sync paths call `Texstudio::syncFromPreview`, sharing file opening,
+editor activation, navigation history, approximate word matching and temporary
+source highlighting. Saved PDF positions pass through the saved line snapshot;
+live positions address current buffers directly. The editor's existing forward
+sync entry point also reaches the active live session. The live toolbar shares
+the PDF viewer's “Scrolling follows cursor” preference, and explicit sync works
+regardless of that preference. Engine SyncTeX remains authoritative for live
+page/source mappings; reading the final build's `.synctex` file would map the
+wrong document revision.
 
 ## First working implementation
 
@@ -58,8 +89,10 @@ The application includes the pinned native runtime in its build and install
 outputs; validation before bundling checks source revision, platform and file hashes.
 
 Validation on macOS includes the full application build/install, relocated
-engine validation with a clean environment, 18 native-tooling tests, and nine Qt
-checks. The real-engine cases cover explicit/extensionless includes, unsaved
+engine validation with a clean environment, 18 native-tooling tests, and twelve Qt
+checks, including shared zoom controls, page navigation, magnifier interaction
+and stale-frame source-click rejection. Pixel checks verify magnifier contents
+and refresh on a large viewport. The real-engine cases cover explicit/extensionless includes, unsaved
 Unicode (including UTF-16 surrogate pairs), undo, inactive-project edits, both
 SyncTeX directions, page preservation, compilation-error recovery and process
 group cleanup. The actual editor was also exercised with an unsaved included
@@ -84,7 +117,8 @@ upstream compatibility configurations without live preview.
 ## Remaining work
 
 - Continuous page scrolling, following the extension's implementation.
-- Region detail, magnifier, PNG patches and measured Qt SVG/adaptive rendering.
+- Engine region detail for the shared magnifier, PNG patches and measured Qt
+  SVG/adaptive rendering.
 - Full dependency reconciliation (missing/deleted files, external include
   directories), source renames, bounded idle-session eviction and memory budgets.
 - Integrated log diagnostics, rerun controls and coordinated final-build refresh.

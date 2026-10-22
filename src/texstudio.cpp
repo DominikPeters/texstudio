@@ -9352,20 +9352,31 @@ QList<int> Texstudio::findOccurencesApproximate(QString line, const QString &gue
 
 void Texstudio::syncFromViewer(const QString &fileName, int line, bool activate, const QString &guessedWord)
 {
-    QWidget *w = focusWidget();
+    syncFromPreview(fileName, line, activate, guessedWord, PreviewSourceVersion::SavedSnapshot);
+}
+
+void Texstudio::syncFromPreview(const QString &fileName, int line, bool activate, const QString &guessedWord, PreviewSourceVersion source)
+{
+    QPointer<QWidget> w = focusWidget();
 	if (!activateEditorForFile(fileName, true, activate)) {
 		bool success = load(fileName);
-		if (!activate)
+		if (!activate && w)
 			w->setFocus();  // restore focus
 		if (!success) return;
 	}
 	shrinkEmbeddedPDFViewer();
 
-	QDocumentLine l = currentEditorView()->document->lineFromLineSnapshot(line);
-	if (l.isValid()) {
-		int originalLineNumber = currentEditorView()->document->indexOf(l, line);
-		if (originalLineNumber >= 0) line = originalLineNumber;
-	}
+    if (!currentEditorView()) return;
+    // The live engine already tracks unsaved edits. Only saved PDFs refer to
+    // the line snapshot recorded by the last conventional build.
+    if (source == PreviewSourceVersion::SavedSnapshot) {
+        QDocumentLine l = currentEditorView()->document->lineFromLineSnapshot(line);
+        if (l.isValid()) {
+            int originalLineNumber = currentEditorView()->document->indexOf(l, line);
+            if (originalLineNumber >= 0) line = originalLineNumber;
+        }
+    }
+    line = qBound(0, line, currentEditorView()->document->lines() - 1);
 
 	gotoLine(line, 0, nullptr, QEditor::Navigation, activate);
 	Q_ASSERT(currentEditor());
@@ -9402,7 +9413,7 @@ void Texstudio::syncFromViewer(const QString &fileName, int line, bool activate,
 		show();
 		activateWindow();
 		if (isMinimized()) showNormal();
-    }else{
+    }else if (w){
         w->setFocus();  // restore focus
     }
 }
@@ -10132,6 +10143,9 @@ void Texstudio::cursorPositionChanged()
 
 void Texstudio::syncPDFViewer(QDocumentCursor cur, bool inForeground)
 {
+#ifdef TEXSTUDIO_TEXPRESSO
+    if (syncTexpressoViewer(cur, inForeground) && inForeground) return;
+#endif
 #ifndef NO_POPPLER_PREVIEW
         if (inForeground) {
 		// open new viewer, if none exists

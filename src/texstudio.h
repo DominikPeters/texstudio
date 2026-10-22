@@ -193,6 +193,8 @@ public:
     Q_INVOKABLE bool completerIsVisible();
 private:
 	OutputViewWidget *outputView; ///< contains output widgets (over OutputLayout)
+    enum class PreviewSourceVersion { SavedSnapshot, CurrentBuffer };
+    void syncFromPreview(const QString &fileName, int line, bool activate, const QString &word, PreviewSourceVersion source);
 #ifdef TEXSTUDIO_TEXPRESSO
     TexpressoManager *texpressoManager = nullptr;
     TexpressoWidget *texpressoWidget = nullptr;
@@ -202,6 +204,7 @@ private:
     void setupTexpresso();
     void updateTexpresso();
     void watchTexpressoDocument(LatexDocument *document);
+    bool syncTexpressoViewer(const QDocumentCursor &cursor, bool inForeground);
 #endif
 
 	//menu

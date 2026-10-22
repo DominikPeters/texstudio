@@ -42,6 +42,7 @@
 #include "qsynctex.h"
 
 #include "pdfrendermanager.h"
+#include "ViewerTools.h"
 
 
 const int kPDFWindowStateVersion = 1;
@@ -61,60 +62,6 @@ class PDFAnnotations;
 class PDFAnnotation;
 class PDFAnnotationTableView;
 class MessageFrame;
-
-class PDFDraggableTool : public QLabel
-{
-public:
-	PDFDraggableTool(QWidget* parent): QLabel(parent) {}
-	virtual void reshape() = 0;
-	void drawGradient(QPainter& painter, const QRect& outline, QColor color, int padding, int magnifierShape);
-};
-
-class PDFMagnifier : public PDFDraggableTool
-{
-	Q_OBJECT
-
-public:
-	PDFMagnifier(QWidget *parent, qreal inDpi);
-	void setPage(int p, qreal scale, const QRect &visibleRect);
-	void reshape();
-
-public slots:
-	void setImage(const QPixmap &img, int pageNr);
-
-protected:
-	virtual void paintEvent(QPaintEvent *event);
-	QPixmap &getConvertedImage();
-
-private:
-	int oldshape;
-	int page;
-    qreal   overScale;
-	qreal	scaleFactor;
-	qreal	parentDpi;
-	QPixmap	image;
-	QPixmap	convertedImage;
-	bool	convertedImageIsGrayscale;
-	bool	convertedImageIsColorInverted;
-
-	QPoint mouseTranslate;
-
-	QPoint	imageLoc, mouseOffset;
-	QSize	imageSize;
-	qreal	imageDpi;
-	int imagePage;
-};
-
-class PDFLaserPointer : public PDFDraggableTool {
-	Q_OBJECT
-
-public:
-	PDFLaserPointer(QWidget *parent);
-	void reshape();
-protected:
-	virtual void paintEvent(QPaintEvent *event);
-
-};
 
 #ifdef MEDIAPLAYER
 #include <QtMultimedia>

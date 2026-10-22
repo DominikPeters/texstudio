@@ -31,6 +31,7 @@ public:
     QString compilerOutput, engineOutput;
     bool userPaused = false;
     bool userStopped = false;
+    bool followCursor = true;
     bool active() const { return foreground; }
     bool failed() const { return failure; }
     qint64 processId() const { return process.processId(); }
