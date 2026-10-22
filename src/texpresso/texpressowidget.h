@@ -21,6 +21,7 @@ public:
     bool fresh = false;
     void setTool(int tool);
     void resetTools();
+    void setPreview(TexpressoPreview *preview);
     void invalidateMagnifier() { magnifier->invalidate(); }
 signals:
     void sourceClicked(const QPointF &point);
@@ -41,6 +42,11 @@ private:
     bool dragging = false;
     QPoint dragPosition;
     Qt::KeyboardModifiers pressedModifiers;
+    QPointer<TexpressoPreview> preview;
+    QMetaObject::Connection regionConnection;
+    QRect lensRegion;
+    qreal lensResolution = 0;
+    qint64 lensToken = 0;
     QPixmap convertedPixels;
     qint64 convertedKey = 0;
     bool convertedInvert = false, convertedGray = false;

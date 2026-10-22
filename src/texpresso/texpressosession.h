@@ -6,6 +6,7 @@
 #include <QSet>
 #include <QFileSystemWatcher>
 #include <QTimer>
+#include <memory>
 
 class TexpressoSession : public QObject
 {
@@ -20,6 +21,15 @@ public:
     void setActive(bool active);
     void setPaused(bool paused);
     void stop();
+    void restart();
+    void setAutoRerun(bool enabled);
+    bool autoRerun() const { return automaticReruns; }
+    void rerunOnce();
+    // Balanced per recipe; nested builds share one paused session and restart.
+    // Top-level directories replace the prior search path, including empty.
+    void beginExternalBuild(const QStringList &auxiliaryDirectories = {});
+    void endExternalBuild(bool success);
+    bool externalBuildRunning() const { return externalBuildDepth > 0; }
     void openBuffer(const QString &path, const QString &text);
     void replaceBuffer(const QString &path, const QString &text);
     void changeBuffer(const QString &path, int startLine, int startColumn, int endLine, int endColumn, const QString &text, const QString &currentText);
@@ -34,11 +44,13 @@ public:
     bool followCursor = true;
     bool active() const { return foreground; }
     bool failed() const { return failure; }
-    qint64 processId() const { return process.processId(); }
+    qint64 processId() const { return process ? process->processId() : 0; }
 signals:
     void updated();
     void sourceLocation(const QString &file, int oneBasedLine, int column, const QString &word);
 private:
+    void createProcess();
+    void resetEngine();
     void sendSource(QJsonArray command);
     void message(const QJsonArray &message);
     void announce(const QString &path, const QString &editorPath = QString());
@@ -48,7 +60,12 @@ private:
     Buffers buffers;
     QMap<QString, QSet<QString>> aliases;
     QMap<QString, QString> editorPaths, inputAliases;
-    TexpressoProcess process;
+    std::unique_ptr<TexpressoProcess> process;
+    QStringList auxiliaryDirectories, previousAuxiliaryDirectories;
+    int externalBuildDepth = 0;
+    bool externalBuildSucceeded = true;
+    bool automaticReruns = true;
+    bool suppressRestartSync = false; // Retain view until the next editor mutation.
     QFileSystemWatcher watcher;
     QTimer rescanTimer;
     QStringList pendingDependencies;

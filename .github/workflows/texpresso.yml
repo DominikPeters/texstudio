@@ -23,7 +23,7 @@ jobs:
             libsdl2-dev libmupdf-dev libmujs-dev libfreetype-dev libgumbo-dev \
             libjbig2dec0-dev libjpeg-dev libopenjp2-7-dev libfontconfig-dev \
             libharfbuzz-dev libgraphite2-dev libicu-dev libpng-dev \
-            libleptonica-dev libtesseract-dev texlive-xetex
+            libleptonica-dev libtesseract-dev texlive-xetex texlive-bibtex-extra biber
       - name: Check native tooling and build bundled engine
         run: |
           python3 -m unittest discover -s native/tests

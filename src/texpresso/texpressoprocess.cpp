@@ -71,7 +71,10 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
             emit failed(tr("The bundled TeXpresso engine does not support PNG preview protocol 1.")); return;
         }
         child.setProgram(program);
-        child.setArguments({"-texlive", "-headless", "-json", "-lines", rootFile});
+        QStringList arguments = {"-texlive", "-headless", "-json", "-lines"};
+        for (const auto &directory : inclusionDirectories) arguments << "-I" << directory;
+        arguments << rootFile;
+        child.setArguments(arguments);
         child.setWorkingDirectory(QFileInfo(rootFile).absolutePath());
         child.setProcessEnvironment(texliveEnvironment());
         connect(&child, &QProcess::started, this, [this, features] {
@@ -110,9 +113,9 @@ TexpressoProcess::~TexpressoProcess()
     probe.kill(); probe.waitForFinished(1000);
     killGroup(); child.kill(); child.waitForFinished(1000);
 }
-void TexpressoProcess::start(const QString &engine, const QString &root)
+void TexpressoProcess::start(const QString &engine, const QString &root, const QStringList &directories)
 {
-    program = engine; rootFile = root;
+    program = engine; rootFile = root; inclusionDirectories = directories;
     const auto env = texliveEnvironment();
     if (!QFileInfo(engine).isExecutable()) { emit failed(tr("The bundled TeXpresso engine is missing. Reinstall this application.")); return; }
     if (QStandardPaths::findExecutable("kpsewhich", env.value("PATH").split(QDir::listSeparator())).isEmpty()) {

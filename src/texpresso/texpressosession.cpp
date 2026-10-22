@@ -14,37 +14,23 @@ QString TexpressoSession::absolute(const QString &path) const
     return QDir::cleanPath(QFileInfo(path).isAbsolute() ? path : QDir(QFileInfo(rootFile).absolutePath()).absoluteFilePath(path));
 }
 TexpressoSession::TexpressoSession(const QString &root, const QString &engine, const Buffers &initial, QObject *parent)
-    : QObject(parent), preview(this), rootFile(identity(root)), engineFile(engine), buffers(initial), process(this)
+    : QObject(parent), preview(this), rootFile(identity(root)), engineFile(engine), buffers(initial)
 {
     status = tr("Starting live preview…");
     syncFile = rootFile;
     aliases[identity(root)].insert(rootFile);
     rescanTimer.setSingleShot(true); rescanTimer.setInterval(200);
-    connect(&process, &TexpressoProcess::ready, this, [this](const QJsonObject &) {
-        ready = true;
-        // Pause stepping while priming the editor overlays. Input remains live.
-        process.send({"pause"});
-        // Like the extension, attach included buffers when the engine announces
-        // them; eagerly opening unrelated files causes unnecessary invalidation.
-        if (buffers.contains(identity(rootFile))) sendSource({"open", rootFile, buffers.value(identity(rootFile))});
-        applyPause(); emit updated();
-    });
-    connect(&process, &TexpressoProcess::message, this, &TexpressoSession::message);
-    connect(&process, &TexpressoProcess::image, &preview, &TexpressoPreview::receive);
-    connect(&process, &TexpressoProcess::diagnostic, this, [this](const QString &text) {
-        engineOutput = (engineOutput + text).right(64000);
-    });
-    connect(&process, &TexpressoProcess::failed, this, &TexpressoSession::error);
-    connect(&preview, &TexpressoPreview::command, &process, &TexpressoProcess::send);
     connect(&preview, &TexpressoPreview::failed, this, [this](const QString &reason) { previewError = reason; emit updated(); });
     connect(&preview, &TexpressoPreview::updated, this, [this] {
         if (preview.valid()) previewError.clear();
         emit updated();
     });
     connect(&watcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
+        if (externalBuildRunning()) return;
         pendingDependencies.append(path); rescanTimer.start();
     });
     connect(&rescanTimer, &QTimer::timeout, this, [this] {
+        if (externalBuildRunning()) { pendingDependencies.clear(); return; }
         bool changed = false;
         for (const auto &path : pendingDependencies) {
             if (!buffers.contains(identity(path)) && !writtenFiles.contains(identity(path))) changed = true;
@@ -54,30 +40,121 @@ TexpressoSession::TexpressoSession(const QString &root, const QString &engine, c
         if (changed) sendSource({"rescan"});
     });
 }
+void TexpressoSession::createProcess()
+{
+    process = std::make_unique<TexpressoProcess>();
+    connect(process.get(), &TexpressoProcess::ready, this, [this](const QJsonObject &features) {
+        preview.setCapabilities(features);
+        ready = true;
+        // Pause stepping while priming the editor overlays. Input remains live.
+        process->send({"pause"});
+        // Like the extension, attach included buffers when the engine announces
+        // them; eagerly opening unrelated files causes unnecessary invalidation.
+        if (buffers.contains(identity(rootFile))) sendSource({"open", rootFile, buffers.value(identity(rootFile))});
+        process->send({"rerun", automaticReruns});
+        // A new child starts with sequence zero; acknowledge the retained
+        // preview generation even when the root has no editor overlay.
+        process->send({"preview-barrier", double(preview.sequence())});
+        applyPause(); emit updated();
+    });
+    connect(process.get(), &TexpressoProcess::message, this, &TexpressoSession::message);
+    connect(process.get(), &TexpressoProcess::image, &preview, &TexpressoPreview::receive);
+    connect(process.get(), &TexpressoProcess::diagnostic, this, [this](const QString &text) {
+        engineOutput = (engineOutput + text).right(64000);
+    });
+    connect(process.get(), &TexpressoProcess::failed, this, &TexpressoSession::error);
+    connect(&preview, &TexpressoPreview::command, process.get(), &TexpressoProcess::send);
+}
 TexpressoSession::~TexpressoSession()
 {
-    // Draining the process during its destruction can emit buffered output.
-    // Disconnect before the session's buffers and other members are destroyed.
-    disconnect(&process, nullptr, this, nullptr);
-    disconnect(&process, nullptr, &preview, nullptr);
-    process.stop();
+    if (process) {
+        disconnect(process.get(), nullptr, this, nullptr);
+        disconnect(process.get(), nullptr, &preview, nullptr);
+        process.reset(); // Reap the entire process group before destroying members.
+    }
 }
-void TexpressoSession::start() { process.start(engineFile, rootFile); }
+void TexpressoSession::start()
+{
+    if (process || userStopped || externalBuildRunning()) return;
+    createProcess(); process->start(engineFile, rootFile, auxiliaryDirectories);
+}
+void TexpressoSession::resetEngine()
+{
+    ready = false; resumePending = false;
+    preview.setActive(false);
+    preview.sourceChanged(preview.sequence() + 1);
+    if (process) {
+        disconnect(process.get(), nullptr, this, nullptr);
+        disconnect(process.get(), nullptr, &preview, nullptr);
+        process.reset();
+    }
+    if (!watcher.files().isEmpty()) watcher.removePaths(watcher.files());
+    rescanTimer.stop(); pendingDependencies.clear(); writtenFiles.clear();
+    aliases.clear(); aliases[identity(rootFile)].insert(rootFile);
+    editorPaths.clear(); inputAliases.clear(); acknowledgedSource = 0;
+    outputLines.clear(); logLines.clear(); compilerOutput.clear(); engineOutput.clear();
+    previewError.clear(); failure = false; syncAfterCompile = false;
+    suppressRestartSync = true;
+}
+void TexpressoSession::restart()
+{
+    userStopped = false;
+    resetEngine(); start(); applyPause();
+}
+void TexpressoSession::setAutoRerun(bool enabled)
+{
+    automaticReruns = enabled;
+    if (ready && process) process->send({"rerun", enabled});
+    emit updated();
+}
+void TexpressoSession::rerunOnce()
+{
+    if (foreground && !userPaused && !userStopped && !externalBuildRunning()) sendSource({"rerun-once"});
+}
+void TexpressoSession::beginExternalBuild(const QStringList &directories)
+{
+    if (externalBuildDepth++ == 0) {
+        previousAuxiliaryDirectories = auxiliaryDirectories;
+        auxiliaryDirectories.clear();
+        externalBuildSucceeded = true;
+        pendingDependencies.clear(); rescanTimer.stop();
+        applyPause();
+    }
+    if (!directories.isEmpty()) {
+        for (const auto &directory : directories) {
+            const auto path = absolute(directory);
+            if (!auxiliaryDirectories.contains(path)) auxiliaryDirectories.append(path);
+        }
+    }
+}
+void TexpressoSession::endExternalBuild(bool success)
+{
+    if (!externalBuildDepth) return;
+    externalBuildSucceeded &= success;
+    if (--externalBuildDepth) return;
+    if (!externalBuildSucceeded) auxiliaryDirectories = previousAuxiliaryDirectories;
+    if (externalBuildSucceeded && !userStopped) {
+        resetEngine(); start();
+    } else if (!process && !userStopped) start();
+    // A failed build keeps the existing process and overlays. The engine may
+    // still observe disk changes through its own periodic filesystem scan.
+    applyPause();
+}
 void TexpressoSession::error(const QString &reason)
 {
     if (userStopped || failure) return;
     failure = true; ready = false; status = reason;
-    preview.setActive(false); process.stop(); emit updated();
+    preview.setActive(false); if (process) process->stop(); emit updated();
 }
 void TexpressoSession::sendSource(QJsonArray command)
 {
     if (!ready || failure || userStopped) return;
     previewError.clear();
-    process.send(command);
-    syncAfterCompile = true;
+    process->send(command);
+    syncAfterCompile = !suppressRestartSync;
     const auto sequence = preview.sequence() + 1;
     preview.sourceChanged(sequence);
-    process.send({"preview-barrier", double(sequence)});
+    process->send({"preview-barrier", double(sequence)});
 }
 void TexpressoSession::setActive(bool active)
 {
@@ -87,38 +164,41 @@ void TexpressoSession::setActive(bool active)
 void TexpressoSession::setPaused(bool paused) { userPaused = paused; applyPause(); }
 void TexpressoSession::applyPause()
 {
-    const bool run = foreground && !userPaused && !userStopped && !failure;
+    const bool run = foreground && !userPaused && !userStopped && !failure && !externalBuildRunning();
     preview.setActive(run);
     if (ready) {
         // Let the engine commit edits received while paused before stepping it.
         // A resume in the same stdin transaction can advance the old snapshot.
         resumePending = run && acknowledgedSource < preview.sequence();
         if (!run || !resumePending) {
-            process.send({run ? "resume" : "pause"});
+            process->send({run ? "resume" : "pause"});
         }
     }
-    if (!failure && !userStopped) status = !foreground ? tr("Project inactive") : userPaused ? tr("Compilation paused") : tr("Live preview");
+    if (!failure && !userStopped) status = externalBuildRunning() ? tr("External build running…") : !foreground ? tr("Project inactive") : userPaused ? tr("Compilation paused") : tr("Live preview");
     emit updated();
 }
 void TexpressoSession::stop()
 {
     userStopped = true; ready = false; status = tr("Live preview stopped");
-    preview.setActive(false); process.stop(); emit updated();
+    preview.setActive(false); if (process) process->stop(); emit updated();
 }
 void TexpressoSession::openBuffer(const QString &path, const QString &text)
 {
+    suppressRestartSync = false;
     const auto key = identity(path); buffers[key] = text;
     for (const auto &alias : aliases.value(key)) sendSource({"open", alias, text});
 }
 void TexpressoSession::replaceBuffer(const QString &path, const QString &text) { openBuffer(path, text); }
 void TexpressoSession::changeBuffer(const QString &path, int sl, int sc, int el, int ec, const QString &text, const QString &currentText)
 {
+    suppressRestartSync = false;
     const auto key = identity(path); buffers[key] = currentText;
     if (aliases.contains(key)) { syncFile = path; syncLine = sl; }
     for (const auto &alias : aliases.value(key)) sendSource({"change-range", alias, sl, sc, el, ec, text});
 }
 void TexpressoSession::closeBuffer(const QString &path)
 {
+    suppressRestartSync = false;
     const auto key = identity(path); buffers.remove(key);
     for (const auto &alias : aliases.value(key)) sendSource({"close", alias});
 }
@@ -138,9 +218,9 @@ void TexpressoSession::message(const QJsonArray &m)
     const auto verb = m[0].toString();
     if (verb == "preview-state" && m.size() == 6) {
         acknowledgedSource = std::max(acknowledgedSource, qint64(m[2].toDouble()));
-        if (resumePending && acknowledgedSource == preview.sequence() && foreground && !userPaused && !userStopped) {
-            resumePending = false; process.send({"resume"});
-            if (followCursor) syncForward(syncFile, syncLine);
+        if (resumePending && acknowledgedSource == preview.sequence() && foreground && !userPaused && !userStopped && !externalBuildRunning()) {
+            resumePending = false; process->send({"resume"});
+            if (followCursor && !suppressRestartSync) syncForward(syncFile, syncLine);
         }
     } else if (verb == "input-file" && m.size() == 3) {
         const auto logical = absolute(m[2].toString());
@@ -179,9 +259,9 @@ void TexpressoSession::message(const QJsonArray &m)
     } else if (verb == "flush") {
         compilerOutput = outputLines.join('\n') + '\n' + logLines.join('\n'); emit updated();
         // Match the extension's automatic source synchronization after a pass.
-        if (syncAfterCompile && acknowledgedSource == preview.sequence() && foreground && !userPaused) {
+        if (syncAfterCompile && acknowledgedSource == preview.sequence() && foreground && !userPaused && !externalBuildRunning()) {
             syncAfterCompile = false;
-            if (followCursor) syncForward(syncFile, syncLine);
+            if (followCursor && !suppressRestartSync) syncForward(syncFile, syncLine);
         }
     }
 }

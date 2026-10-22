@@ -18,6 +18,7 @@ bool TexpressoProtocol::validImage(const QJsonObject &h)
     if (!w || !height || w > 8192 || height > 8192 || w * height > 4000000
         || h["byteLength"].toInt() > 16 * 1024 * 1024) return false;
     if (h["mime"] != "image/png" && h["mime"] != "image/svg+xml") return false;
+    if (h.contains("rasterId") && (!count(h["rasterId"]) || h["rasterId"].toInt() < 1)) return false;
     const auto bounds = h["bounds"].toArray();
     if (bounds.size() != 4) return false;
     for (const auto &v : bounds)

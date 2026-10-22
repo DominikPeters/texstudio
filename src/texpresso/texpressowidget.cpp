@@ -22,9 +22,15 @@ TexpressoCanvas::TexpressoCanvas(PDFDocumentConfig *config, QScrollArea *area)
     setFocusPolicy(Qt::StrongFocus);
     magnifier = new PDFMagnifier(this, 96, config,
         [this](int, QObject *, qreal resolution, const QRect &region) {
-            // Until engine region rendering is connected, magnify the current
-            // frame. The same lens can later consume a sharper engine region.
             if (region.isEmpty() || qint64(region.width()) * region.height() > 16000000) return QPixmap();
+            lensRegion = region; lensResolution = resolution;
+            if (preview) {
+                const qreal factor = resolution / 72;
+                const QRectF bounds(pageBounds.topLeft() + QPointF(region.topLeft()) / factor, QSizeF(region.size()) / factor);
+                // Return the enlarged page immediately. A native cropped render
+                // replaces only the lens once its latest request finishes.
+                preview->requestRegion(bounds, qRound(bounds.intersected(pageBounds).width() * factor), ++lensToken);
+            }
             QPixmap result(region.size()); result.fill(Qt::white);
             QPainter painter(&result); painter.setRenderHint(QPainter::SmoothPixmapTransform);
             painter.drawImage(QRectF(-region.x(), -region.y(), pageBounds.width() * resolution / 72,
@@ -41,7 +47,25 @@ void TexpressoCanvas::setTool(int value)
 }
 void TexpressoCanvas::resetTools()
 {
-    dragging = false; magnifier->hide(); setTool(tool);
+    ++lensToken;
+    if (preview) preview->cancelRegion();
+    dragging = false; magnifier->hide(); magnifier->invalidate(); setTool(tool);
+}
+void TexpressoCanvas::setPreview(TexpressoPreview *value)
+{
+    if (preview == value) return;
+    resetTools(); disconnect(regionConnection); preview = value;
+    if (!preview) return;
+    regionConnection = connect(preview, &TexpressoPreview::regionReady, this,
+        [this](qint64 token, const QImage &image, const QRectF &bounds) {
+            if (token != lensToken || !fresh || !magnifier->isVisible() || lensRegion.isEmpty()) return;
+            QPixmap detail(lensRegion.size()); detail.fill(Qt::white);
+            QPainter painter(&detail); painter.setRenderHint(QPainter::SmoothPixmapTransform);
+            const qreal factor = lensResolution / 72;
+            painter.drawImage(QRectF((bounds.topLeft() - pageBounds.topLeft()) * factor - QPointF(lensRegion.topLeft()),
+                bounds.size() * factor), image);
+            painter.end(); magnifier->setImage(detail, 0);
+        });
 }
 void TexpressoCanvas::paintEvent(QPaintEvent *)
 {
@@ -140,6 +164,17 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     auto sync = new QToolButton(this); sync->setText(tr("Sync")); sync->setToolTip(tr("Show the editor cursor in the preview")); controls->addWidget(sync);
     auto follow = new QToolButton(this); follow->setDefaultAction(actions["followCursor"]); controls->addWidget(follow);
     controls->addStretch(); layout->addLayout(controls);
+    auto reruns = new QHBoxLayout;
+    auto autoRerun = new QAction(tr("Automatic reruns"), this);
+    autoRerun->setCheckable(true); autoRerun->setChecked(true);
+    autoRerun->setToolTip(tr("Run additional TeX passes after editing pauses to settle references and auxiliary files"));
+    actions.insert("autoRerun", autoRerun);
+    auto autoButton = new QToolButton(this); autoButton->setDefaultAction(autoRerun); reruns->addWidget(autoButton);
+    auto rerunOnce = new QAction(tr("Rerun Once"), this); actions.insert("rerunOnce", rerunOnce);
+    auto onceButton = new QToolButton(this); onceButton->setDefaultAction(rerunOnce); reruns->addWidget(onceButton);
+    reruns->addStretch(); layout->addLayout(reruns);
+    connect(autoRerun, &QAction::toggled, this, [this](bool enabled) { if (shown) shown->setAutoRerun(enabled); });
+    connect(rerunOnce, &QAction::triggered, this, [this] { if (shown) shown->rerunOnce(); });
     status = new QLabel(this); status->setWordWrap(true); layout->addWidget(status);
     area = new QScrollArea(this); area->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     area->setWidgetResizable(false); area->setBackgroundRole(QPalette::Dark); area->setFrameStyle(QFrame::NoFrame);
@@ -165,7 +200,7 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
         // Invalidate interaction immediately, but merge status/frame/layout
         // notifications from the same protocol batch into one GUI update.
         auto session = this->manager->current();
-        if (session != shown || !session || !session->preview.valid() || session->userStopped || session->failed()) {
+        if (session != shown || !session || !session->preview.valid() || session->userStopped || session->failed() || session->externalBuildRunning()) {
             canvas->fresh = false; canvas->resetTools();
         }
         if (!refreshTimer.isActive()) refreshTimer.start();
@@ -228,6 +263,7 @@ void TexpressoWidget::refresh()
     auto session = manager->current();
     const bool switched = session != shown;
     shown = session;
+    canvas->setPreview(session ? &session->preview : nullptr);
     if (switched) canvas->resetTools();
     const QFileInfo root(session ? session->root() : QString());
     project->setText(session ? tr("Live — %1 / %2").arg(root.dir().dirName(), root.fileName()) : tr("Live preview"));
@@ -242,6 +278,9 @@ void TexpressoWidget::refresh()
     canvas->setTool(config->editTool);
     actions[config->editTool == 2 ? "scroll" : "magnify"]->setChecked(true);
     if (session) {
+        { const QSignalBlocker blocker(actions["autoRerun"]); actions["autoRerun"]->setChecked(session->autoRerun()); }
+        actions["autoRerun"]->setEnabled(!session->userStopped && !session->failed());
+        actions["rerunOnce"]->setEnabled(!session->userStopped && !session->userPaused && !session->failed() && !session->externalBuildRunning());
         auto &preview = session->preview;
         pages.validator->setTop(preview.complete() ? std::max(1, preview.pageCount()) : 99999);
         if (!pages.number->hasFocus() || switched) pages.number->setText(QString::number(preview.page() + 1));
@@ -257,14 +296,15 @@ void TexpressoWidget::refresh()
 #else
         const QString liveHint = tr("Live preview · Ctrl-click to open source");
 #endif
-        status->setText(session->failed() || session->userStopped || session->userPaused ? session->status
+        status->setText(session->failed() || session->userStopped || session->userPaused || session->externalBuildRunning() ? session->status
             : !session->previewError.isEmpty() ? session->previewError
             : preview.valid() ? liveHint : tr("Updating preview…"));
         const bool changed = canvas->pixels.cacheKey() != preview.image().cacheKey()
             || shownInvert != config->invertColors || shownGray != config->grayscale;
         if (changed) { canvas->resetTools(); canvas->invalidateMagnifier(); }
         shownInvert = config->invertColors; shownGray = config->grayscale;
-        canvas->pixels = preview.image(); canvas->pageBounds = preview.bounds(); canvas->fresh = preview.valid() && !session->userStopped && !session->failed();
+        canvas->pixels = preview.image(); canvas->pageBounds = preview.bounds();
+        canvas->fresh = preview.valid() && !session->userStopped && !session->failed() && !session->externalBuildRunning();
         if (!canvas->fresh) canvas->resetTools();
         actions["gotoSource"]->setEnabled(canvas->fresh);
         if (switched) {

@@ -16,6 +16,9 @@ public:
     void closeBuffer(const QString &path);
     void retainProjects(const QSet<QString> &roots);
     void restart();
+    void beginExternalBuild(const QString &root, const QStringList &auxiliaryDirectories = {});
+    void endExternalBuild(const QString &root, bool success);
+    QStringList auxiliaryDirectories(const QString &root) const;
     TexpressoSession *current() const { return selected; }
     TexpressoSession *session(const QString &root) const { return sessions.value(TexpressoSession::identity(root)); }
     int sessionCount() const { return sessions.size(); }
@@ -28,5 +31,8 @@ private:
     TexpressoSession::Buffers buffers;
     QMap<QString, TexpressoSession *> sessions;
     TexpressoSession *selected = nullptr;
+    struct ExternalBuild { int depth = 0; bool success = true; QStringList auxiliaryDirectories; };
+    QMap<QString, ExternalBuild> externalBuilds;
+    QMap<QString, QStringList> lastAuxiliaryDirectories;
 };
 #endif

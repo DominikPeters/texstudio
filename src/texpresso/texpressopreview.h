@@ -16,6 +16,9 @@ public:
     void sourceChanged(qint64 sequence);
     void message(const QJsonArray &message);
     void receive(const QJsonObject &header, const QByteArray &bytes);
+    void setCapabilities(const QJsonObject &capabilities);
+    void requestRegion(const QRectF &bounds, int width, qint64 token);
+    void cancelRegion();
     void setActive(bool active);
     void setPage(int page);
     void setWidth(int width);
@@ -37,8 +40,10 @@ signals:
     void updated();
     void failed(const QString &reason);
     void reveal(const QPointF &point);
+    void regionReady(qint64 token, const QImage &image, const QRectF &bounds);
 private:
-    struct Frame { QJsonObject header; QByteArray bytes; };
+    struct Frame { QJsonObject header; QByteArray bytes; QImage base; bool region; qint64 token; };
+    struct Region { QRectF bounds; int width; qint64 token; };
     void request();
     void decode(Frame frame);
     bool matches(const QJsonObject &header) const;
@@ -47,6 +52,7 @@ private:
     void cachePage();
     bool restorePage();
     void finishInverse();
+    void retryFullFrame();
     QImage pixels;
     QRectF pageBounds;
     qint64 sourceSequence = 0, engineRevision = -1, nextRequest = 0, inFlight = 0;
@@ -58,5 +64,11 @@ private:
     qint64 cacheBytes = 0;
     bool needsNativePage = false;
     std::optional<QPointF> pendingInverse;
+    bool supportsRegions = false, supportsPatches = false, renderingRegion = false;
+    std::optional<Region> pendingRegion;
+    qint64 regionToken = -1, flightRegionToken = -1, rasterId = 0;
+    int rasterPage = -1;
+    QRectF rasterBounds;
+    QSize rasterSize;
 };
 #endif
