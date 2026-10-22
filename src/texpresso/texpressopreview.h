@@ -9,6 +9,7 @@
 #include <QList>
 #include <QSet>
 #include <QTimer>
+#include <QUrl>
 
 class TexpressoPreview : public QObject
 {
@@ -31,6 +32,8 @@ public:
     QImage pageImage(int page) const;
     QRectF boundsForPage(int page) const;
     bool pageValid(int page) const;
+    QJsonObject annotationsForPage(int page) const;
+    void activateLink(int page, int index, qint64 revision, qint64 sequence);
     bool busy() const;
     void setPreparationPending(bool pending);
     qint64 nextRequestId() { return ++nextRequest; }
@@ -53,17 +56,21 @@ signals:
     void failed(const QString &reason);
     void reveal(const QPointF &point);
     void regionReady(qint64 token, const QImage &image, const QRectF &bounds);
+    void externalLinkRequested(const QUrl &url);
 private:
     friend class RerunTest;
+    friend class LinksTest;
     struct Frame { QJsonObject header; QByteArray bytes; QImage base; bool region; qint64 token; bool background = false; };
     struct Region { QRectF bounds; int width; qint64 token; };
     void request();
     void decode(Frame frame);
     bool matches(const QJsonObject &header) const;
-    struct CachedPage { int page, width; QImage image; QRectF bounds; };
+    struct CachedPage { int page, width; QImage image; QRectF bounds; QJsonObject annotations; };
     void clearCache();
     void cachePage();
-    void storePage(int page, int width, const QImage &image, const QRectF &bounds);
+    void storePage(int page, int width, const QImage &image, const QRectF &bounds, const QJsonObject &annotations = {});
+    void cancelDestination(bool notifyEngine = true);
+    void finishDestination();
     void interruptBackground();
     void schedulePrefetch();
     bool restorePage();
@@ -71,6 +78,10 @@ private:
     void retryFullFrame();
     QImage pixels;
     QRectF pageBounds;
+    QJsonObject pageAnnotations;
+    struct Destination { QString name; qint64 revision, sequence; int page = -1; };
+    std::optional<Destination> destination;
+    bool settingDestinationPage = false;
     qint64 sourceSequence = 0, engineRevision = -1, nextRequest = 0, inFlight = 0;
     int currentPage = 0, count = 0, pixelWidth = 1200;
     bool active = false, finished = false, dirty = true, fresh = false, decoding = false;
@@ -80,8 +91,8 @@ private:
     qint64 cacheBytes = 0;
     QList<int> visiblePages;
     QSet<int> prefetched;
-    QTimer prefetchTimer, gestureTimer, forwardTimer;
-    bool supportsBackground = false, renderingBackground = false, gestureActive = false, preparationPending = false;
+    QTimer prefetchTimer, gestureTimer, forwardTimer, destinationTimer;
+    bool supportsLinks = false, supportsBackground = false, renderingBackground = false, gestureActive = false, preparationPending = false;
     bool prefetchReady = false, pumping = false;
     int flightPage = 0, flightWidth = 1200, frontierBudget = 1;
     bool needsNativePage = false;

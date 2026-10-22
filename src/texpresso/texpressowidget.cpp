@@ -1,4 +1,5 @@
 #include "texpressowidget.h"
+#include "ViewerLinks.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPainter>
@@ -20,6 +21,7 @@ TexpressoCanvas::TexpressoCanvas(PDFDocumentConfig *config, QScrollArea *area)
     : config(config), area(area)
 {
     setFocusPolicy(Qt::StrongFocus);
+    setMouseTracking(true);
     magnifier = new PDFMagnifier(this, 96, config,
         [this](int, QObject *, qreal resolution, const QRect &region) {
             if (region.isEmpty() || qint64(region.width()) * region.height() > 16000000) return QPixmap();
@@ -43,13 +45,44 @@ TexpressoCanvas::TexpressoCanvas(PDFDocumentConfig *config, QScrollArea *area)
 void TexpressoCanvas::setTool(int value)
 {
     tool = value == 2 ? 2 : 1;
-    setCursor(tool == 2 ? Qt::OpenHandCursor : Qt::CrossCursor);
+    setToolTip(QString()); setCursor(tool == 2 ? Qt::OpenHandCursor : Qt::CrossCursor);
+    if (underMouse()) updateLinkCursor(mapFromGlobal(QCursor::pos()), QApplication::keyboardModifiers());
+}
+void TexpressoCanvas::setAnnotations(int page, qint64 revision, qint64 sequence, const QJsonObject &value)
+{
+    if (page == annotationPage && revision == annotationRevision && sequence == annotationSequence && annotations == value) return;
+    resetTools();
+    annotationPage = page; annotationRevision = revision; annotationSequence = sequence; annotations = value;
+    if (underMouse()) updateLinkCursor(mapFromGlobal(QCursor::pos()), QApplication::keyboardModifiers());
+}
+int TexpressoCanvas::linkAt(const QPoint &point) const
+{
+    if (!fresh || pixels.isNull() || annotationPage < 0 || scale <= 0 || !rect().contains(point)) return -1;
+    const QPointF pagePoint = pageBounds.topLeft() + QPointF(point) / scale;
+    const auto links = annotations.value("links").toArray();
+    for (int i = 0; i < links.size(); ++i) {
+        const auto link = links[i].toObject();
+        const auto bounds = link.value("bounds").toArray();
+        if (bounds.size() != 4) continue;
+        const QRectF rectangle(QPointF(bounds[0].toDouble(), bounds[1].toDouble()), QPointF(bounds[2].toDouble(), bounds[3].toDouble()));
+        if (!rectangle.normalized().contains(pagePoint)) continue;
+        const auto uri = link.value("uri").toString();
+        if ((uri.startsWith('#') && uri.size() > 1) || ViewerLinks::externalUrl(uri)) return i;
+    }
+    return -1;
+}
+void TexpressoCanvas::updateLinkCursor(const QPoint &point, Qt::KeyboardModifiers modifiers)
+{
+    const int link = modifiers == Qt::NoModifier ? linkAt(point) : -1;
+    setToolTip(link < 0 ? QString() : annotations.value("links").toArray()[link].toObject().value("uri").toString());
+    if (!dragging) setCursor(link < 0 ? (tool == 2 ? Qt::OpenHandCursor : Qt::CrossCursor) : Qt::PointingHandCursor);
 }
 void TexpressoCanvas::resetTools()
 {
     ++lensToken;
     if (preview) preview->cancelRegion();
-    interactionActive = false; dragging = false; magnifier->hide(); magnifier->invalidate(); setTool(tool);
+    interactionActive = false; dragging = false; pressedLink = -1; linkDragged = false;
+    setToolTip(QString()); magnifier->hide(); magnifier->invalidate(); setTool(tool);
 }
 void TexpressoCanvas::setPreview(TexpressoPreview *value)
 {
@@ -100,28 +133,46 @@ void TexpressoCanvas::magnify(const QPoint &point)
 void TexpressoCanvas::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton) return;
-    interactionActive = true; emit activated();
+    linkGesture = false;
+    interactionActive = true;
     setFocus(); pressedModifiers = event->modifiers();
-    if (pressedModifiers & (Qt::ControlModifier | Qt::ShiftModifier | Qt::AltModifier)) return;
+    if (pressedModifiers == Qt::NoModifier && (pressedLink = linkAt(event->pos())) >= 0) {
+        linkGesture = true; linkPressPosition = event->pos(); linkDragged = false; event->accept(); return;
+    }
+    if (pressedModifiers & (Qt::ControlModifier | Qt::MetaModifier | Qt::ShiftModifier | Qt::AltModifier)) return;
+    emit activated();
     if (tool == 2) { dragging = true; dragPosition = event->globalPos(); setCursor(Qt::ClosedHandCursor); }
     else magnify(event->pos());
     event->accept();
 }
 void TexpressoCanvas::mouseMoveEvent(QMouseEvent *event)
 {
+    if (pressedLink >= 0) {
+        if ((event->pos() - linkPressPosition).manhattanLength() >= QApplication::startDragDistance()) linkDragged = true;
+        updateLinkCursor(event->pos(), event->modifiers());
+        event->accept(); return;
+    }
     if (dragging) {
         const QPoint delta = event->globalPos() - dragPosition; dragPosition = event->globalPos();
         area->horizontalScrollBar()->setValue(area->horizontalScrollBar()->value() - delta.x());
         area->verticalScrollBar()->setValue(area->verticalScrollBar()->value() - delta.y());
     } else if (magnifier->isVisible()) magnify(event->pos());
+    else updateLinkCursor(event->pos(), event->modifiers());
     event->accept();
 }
 void TexpressoCanvas::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton) return;
+    const int link = pressedLink; const bool wasLinkGesture = linkGesture;
+    const bool followLink = link >= 0 && !linkDragged && fresh && event->modifiers() == Qt::NoModifier && linkAt(event->pos()) == link;
+    const int page = annotationPage; const qint64 revision = annotationRevision, sequence = annotationSequence;
     interactionActive = false;
     resetTools();
-    if (fresh && ViewerControls::isSyncClick(pressedModifiers) && ViewerControls::isSyncClick(event->modifiers())) {
+    linkGesture = false;
+    if (followLink) emit linkActivated(page, link, revision, sequence);
+    else if (wasLinkGesture) { /* A cancelled link gesture never turns into a tool gesture. */ }
+    else if (fresh && (ViewerControls::isSyncClick(pressedModifiers) || ((pressedModifiers & Qt::MetaModifier) && !(pressedModifiers & Qt::ShiftModifier)))
+        && (ViewerControls::isSyncClick(event->modifiers()) || ((event->modifiers() & Qt::MetaModifier) && !(event->modifiers() & Qt::ShiftModifier)))) {
         const auto point = event->pos();
         emit sourceClicked(QPointF(point.x() / scale + pageBounds.left(), point.y() / scale + pageBounds.top()));
     } else if ((pressedModifiers & Qt::ControlModifier) && (pressedModifiers & Qt::ShiftModifier)
@@ -133,12 +184,17 @@ void TexpressoCanvas::mouseReleaseEvent(QMouseEvent *event)
     } else if (tool == 1 && (event->modifiers() & (Qt::ShiftModifier | Qt::AltModifier))) {
         emit zoomRequested(event->modifiers() & Qt::AltModifier ? -1 : 1, event->pos());
     }
+    updateLinkCursor(event->pos(), event->modifiers());
     emit interactionFinished();
     event->accept();
 }
 void TexpressoCanvas::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::NoModifier) magnify(event->pos());
+    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::NoModifier && linkAt(event->pos()) < 0) magnify(event->pos());
+}
+void TexpressoCanvas::leaveEvent(QEvent *event)
+{
+    setToolTip(QString()); if (!dragging) setCursor(tool == 2 ? Qt::OpenHandCursor : Qt::CrossCursor); QWidget::leaveEvent(event);
 }
 void TexpressoCanvas::wheelEvent(QWheelEvent *event)
 {
@@ -282,7 +338,12 @@ void TexpressoWidget::refresh()
     auto session = manager->current();
     const bool switched = session != shown;
     shown = session;
-    if (switched) { knownBounds.clear(); extentPages = 1; viewportPage = session ? session->preview.page() : 0; }
+    if (switched) {
+        knownBounds.clear(); extentPages = 1; viewportPage = session ? session->preview.page() : 0;
+        disconnect(externalLinkConnection);
+        if (session) externalLinkConnection = connect(&session->preview, &TexpressoPreview::externalLinkRequested,
+            this, [this](const QUrl &url) { ViewerLinks::openUrl(url, this); });
+    }
     canvas->setPreview(session ? &session->preview : nullptr);
     if (switched) canvas->resetTools();
     const QFileInfo root(session ? session->root() : QString());
@@ -330,12 +391,21 @@ void TexpressoWidget::refresh()
         shownInvert = config->invertColors; shownGray = config->grayscale;
         canvas->pixels = preview.image(); canvas->pageBounds = preview.bounds();
         canvas->fresh = preview.valid() && !session->userStopped && !session->failed() && !session->externalBuildRunning();
+        canvas->setAnnotations(preview.page(), preview.revision(), preview.sequence(), preview.annotationsForPage(preview.page()));
         if (!canvas->fresh) canvas->resetTools();
         actions["gotoSource"]->setEnabled(canvas->fresh);
         if (switched) {
             disconnect(revealConnection);
             revealConnection = connect(&preview, &TexpressoPreview::reveal, this, [this, session](const QPointF &point) {
                 if (shown != session) return;
+                // Rendering publishes the frame before emitting reveal, while
+                // ordinary widget refreshes are coalesced into the next event
+                // loop. Use the destination frame's geometry immediately.
+                auto &preview = session->preview;
+                canvas->pixels = preview.image(); canvas->pageBounds = preview.bounds();
+                canvas->fresh = preview.valid() && !session->userStopped && !session->failed() && !session->externalBuildRunning();
+                canvas->setAnnotations(preview.page(), preview.revision(), preview.sequence(), preview.annotationsForPage(preview.page()));
+                canvas->invalidateMagnifier(); canvas->update();
                 showPage(session->preview.page());
                 area->ensureVisible(canvas->x() + qRound((point.x() - canvas->pageBounds.left()) * canvas->scale),
                     canvas->y() + qRound((point.y() - canvas->pageBounds.top()) * canvas->scale), 40, 60);
@@ -351,8 +421,8 @@ void TexpressoWidget::refresh()
     } else {
         status->setText(tr("Open a saved LaTeX project to start live preview."));
         status->setToolTip(QString());
-        canvas->pixels = {}; canvas->fresh = false; canvas->hide();
-        for (auto page : extraCanvases) { page->hide(); page->pixels = {}; page->fresh = false; page->setPreview(nullptr); }
+        canvas->pixels = {}; canvas->fresh = false; canvas->setAnnotations(-1, -1, -1, {}); canvas->hide();
+        for (auto page : extraCanvases) { page->hide(); page->pixels = {}; page->fresh = false; page->setPreview(nullptr); page->setAnnotations(-1, -1, -1, {}); }
         documentCanvas->resize(1, 1); pages.count->clear();
     }
     updating = false;
@@ -360,6 +430,9 @@ void TexpressoWidget::refresh()
 }
 void TexpressoWidget::connectCanvas(TexpressoCanvas *pageCanvas)
 {
+    connect(pageCanvas, &TexpressoCanvas::linkActivated, this, [this](int page, int index, qint64 revision, qint64 sequence) {
+        if (shown) shown->preview.activateLink(page, index, revision, sequence);
+    });
     connect(pageCanvas, &TexpressoCanvas::interactionFinished, this, [this] { if (!refreshTimer.isActive()) refreshTimer.start(); });
     pageCanvas->setContextMenuPolicy(Qt::ActionsContextMenu);
     for (const auto &id : {"magnify", "scroll", "zoomIn", "zoomOut", "gotoSource"}) pageCanvas->addAction(actions[id]);
@@ -487,9 +560,10 @@ void TexpressoWidget::updateViewport(bool gesture)
             knownBounds.insert(page, extra->pageBounds); geometryChanged = true;
         }
         extra->fresh = preview.pageValid(page) && !shown->failed() && !shown->userStopped && !shown->externalBuildRunning();
+        extra->setAnnotations(page, preview.revision(), preview.sequence(), preview.annotationsForPage(page));
         extra->setTool(config->editTool); extra->setGeometry(pageRects[page]); extra->show(); extra->update();
     }
-    for (; slot < extraCanvases.size(); ++slot) { extraCanvases[slot]->hide(); extraCanvases[slot]->pixels = {}; extraCanvases[slot]->fresh = false; extraCanvases[slot]->resetTools(); }
+    for (; slot < extraCanvases.size(); ++slot) { extraCanvases[slot]->hide(); extraCanvases[slot]->pixels = {}; extraCanvases[slot]->fresh = false; extraCanvases[slot]->resetTools(); extraCanvases[slot]->setAnnotations(-1, -1, -1, {}); }
     if (geometryChanged && !refreshTimer.isActive()) refreshTimer.start();
 }
 void TexpressoWidget::resizeEvent(QResizeEvent *event) { QWidget::resizeEvent(event); layoutPage(); }

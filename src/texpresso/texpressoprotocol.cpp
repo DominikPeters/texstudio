@@ -8,10 +8,39 @@ bool count(const QJsonValue &v) {
     const double n = v.toDouble(-1);
     return v.isDouble() && n >= 0 && n <= 2147483647 && std::floor(n) == n;
 }
+bool coordinate(const QJsonValue &v) {
+    return v.isDouble() && std::isfinite(v.toDouble()) && std::abs(v.toDouble()) < 1e9;
+}
+bool name(const QJsonValue &v) {
+    if (!v.isString() || v.toString().isEmpty() || v.toString().size() > 4096) return false;
+    for (const auto c : v.toString()) if (c.unicode() < 32 || c.unicode() == 127) return false;
+    return true;
+}
+bool annotations(const QJsonValue &v) {
+    if (!v.isObject()) return false;
+    const auto object = v.toObject();
+    if (!object["links"].isArray() || !object["destinations"].isArray()) return false;
+    const auto links = object["links"].toArray(), destinations = object["destinations"].toArray();
+    if (links.size() > 4096 || destinations.size() > 4096) return false;
+    for (const auto &link : links) {
+        if (!link.isObject()) return false;
+        const auto l = link.toObject(); const auto b = l["bounds"].toArray();
+        if (b.size() != 4 || !name(l["uri"])) return false;
+        for (const auto &c : b) if (!coordinate(c)) return false;
+        if (b[2].toDouble() <= b[0].toDouble() || b[3].toDouble() <= b[1].toDouble()) return false;
+    }
+    for (const auto &dest : destinations) {
+        if (!dest.isObject()) return false;
+        const auto d = dest.toObject();
+        if (!name(d["name"]) || !coordinate(d["x"]) || !coordinate(d["y"])) return false;
+    }
+    return true;
+}
 }
 
 bool TexpressoProtocol::validImage(const QJsonObject &h)
 {
+    if (h.contains("annotations") && !annotations(h["annotations"])) return false;
     for (const char *key : {"requestId", "revision", "sequence", "page", "width", "height", "byteLength"})
         if (!count(h.value(QLatin1String(key)))) return false;
     const qint64 w = h["width"].toInt(), height = h["height"].toInt();

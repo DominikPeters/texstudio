@@ -22,6 +22,7 @@
 #ifndef NO_POPPLER_PREVIEW
 #include "PDFDocument.h"
 #include "ViewerControls.h"
+#include "ViewerLinks.h"
 #include "PDFDocks.h"
 //#include "FindDialog.h"
 
@@ -1161,8 +1162,7 @@ void PDFWidget::doLink(const QSharedPointer<Poppler::Link> link)
 				url = QUrl::fromLocalFile(fi.absoluteFilePath());
 			}
 		}
-		if (!QDesktopServices::openUrl(url))
-			QMessageBox::warning(this, tr("Error"), tr("Could not open link:") + "\n" + url.toString());
+		ViewerLinks::openUrl(url, this);
 	}
 	break;
 	// unsupported link types:

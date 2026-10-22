@@ -23,12 +23,14 @@ public:
     void setTool(int tool);
     void resetTools();
     void setPreview(TexpressoPreview *preview);
+    void setAnnotations(int page, qint64 revision, qint64 sequence, const QJsonObject &annotations);
     void invalidateMagnifier() { magnifier->invalidate(); }
 signals:
     void sourceClicked(const QPointF &point);
     void activated();
     void interactionFinished();
     void zoomRequested(int direction, const QPoint &anchor);
+    void linkActivated(int page, int index, qint64 revision, qint64 sequence);
 protected:
     void paintEvent(QPaintEvent *) override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -36,7 +38,10 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 private:
+    int linkAt(const QPoint &point) const;
+    void updateLinkCursor(const QPoint &point, Qt::KeyboardModifiers modifiers);
     void magnify(const QPoint &point);
     PDFDocumentConfig *config;
     QScrollArea *area;
@@ -53,6 +58,11 @@ private:
     QPixmap convertedPixels;
     qint64 convertedKey = 0;
     bool convertedInvert = false, convertedGray = false;
+    QJsonObject annotations;
+    int annotationPage = -1, pressedLink = -1;
+    qint64 annotationRevision = -1, annotationSequence = -1;
+    QPoint linkPressPosition;
+    bool linkDragged = false, linkGesture = false;
 };
 
 class TexpressoWidget : public QWidget
@@ -85,6 +95,7 @@ private:
     ViewerControls::ZoomControls zoomControls;
     QPointer<TexpressoSession> shown;
     QMetaObject::Connection revealConnection;
+    QMetaObject::Connection externalLinkConnection;
     TexpressoCanvas *canvas;
     QWidget *documentCanvas;
     QList<TexpressoCanvas *> extraCanvases;

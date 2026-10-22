@@ -288,6 +288,37 @@ passed). Qt's preparation cancellation, subsequent editing and source-navigation
 checks pass. Keep checkpoint reuse best effort rather than guaranteeing it under
 load.
 
+## Hyperref links
+
+Live pages use the engine's existing link rectangles and named destinations.
+A plain click follows an internal link or opens an HTTP, HTTPS or email link;
+hover shows its target and the pointing-hand cursor. Ctrl/Command-click still
+uses SyncTeX, and modified zoom gestures keep their existing behavior. Links
+work on secondary continuous pages and when returning to cached pages.
+
+Internal links ask the engine to locate a named destination, compiling far enough
+to discover a target that has not been reached yet. The client loads or restores
+that page, then reveals its actual destination coordinates. Manual navigation,
+source changes and a bounded wait cancel the pending jump; a same-sequence source
+barrier also clears abandoned native destination demand. Queued viewport layout
+updates cannot override an explicit link navigation.
+
+Annotation metadata belongs to the same revision, source sequence, page and width
+as its image. It travels with cache entries and background exports, and is
+replaced even by a zero-byte PNG patch. Stale images and gestures interrupted by
+an edit, page recycling or dragging cannot follow links. Region exports for the
+magnifier do not replace page annotations.
+
+The live client follows the extension's external-URI policy (HTTP, HTTPS and
+mailto). External opening and failure dialogs are shared with the saved-PDF
+viewer through `ViewerLinks`; that viewer retains its existing local-file URL
+resolution and supported actions. No engine update is needed for this port.
+
+Validation includes real hyperref TOC entries, references, citations, wrapped email
+links, lazy destinations, missing targets, cached and secondary-page clicks,
+source synchronization, stale-link suppression and geometry updated at reveal.
+URI-dispatch tests intercept desktop URL handlers rather than launching browsers.
+
 ## Remaining work
 
 - Measured Qt SVG/adaptive rendering.
