@@ -6,6 +6,7 @@ import os
 import platform
 import re
 import shutil
+import subprocess
 from pathlib import Path
 from common import NATIVE, export_source, pinned_engine, run, sha256
 
@@ -61,7 +62,6 @@ def main():
     for soname, source in mapping.items():
         shutil.copy2(source, destination / 'lib' / soname)
         # On Debian/Ubuntu the package copyright file includes license notices.
-        import subprocess
         owners = subprocess.run(['dpkg-query', '-S', str(source)], capture_output=True, text=True)
         if owners.returncode:
             owners = subprocess.run(['dpkg-query', '-S', '*/' + source.name], capture_output=True, text=True)
@@ -73,6 +73,11 @@ def main():
             if copyright_file.is_file():
                 shutil.copyfile(copyright_file, notices / (package.replace(':', '-') + '-copyright'))
                 packages.add(package)
+    # MuPDF is statically linked by the distro development package.
+    for package in ('libmupdf-dev', 'libmujs-dev', 'libgumbo-dev'):
+        copyright_file = Path('/usr/share/doc') / package / 'copyright'
+        if copyright_file.is_file():
+            shutil.copyfile(copyright_file, notices / (package + '-copyright'))
     for relative in ('bin', 'lib'):
         for binary in (destination / relative).iterdir():
             run(['patchelf', '--set-rpath', '$ORIGIN/../lib' if relative == 'bin' else '$ORIGIN', binary])

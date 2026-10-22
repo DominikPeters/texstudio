@@ -1,5 +1,10 @@
 # A developer supplies a complete engine bundle; users receive it inside the app.
-option(TEXSTUDIO_ENABLE_TEXPRESSO "Bundle TeXpresso and enable live preview" ON)
+if(APPLE OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(_txp_default ON)
+else()
+    set(_txp_default OFF)
+endif()
+option(TEXSTUDIO_ENABLE_TEXPRESSO "Bundle TeXpresso and enable live preview" ${_txp_default})
 if(NOT TEXSTUDIO_ENABLE_TEXPRESSO)
     return()
 endif()

@@ -1,4 +1,6 @@
-name: CD
+# Inherited upstream packaging checks omit live preview. The TeXpresso workflow
+# builds and tests the bundled fork; these are not live-preview release artifacts.
+name: Upstream compatibility builds
 on:
   - push
   - pull_request
@@ -51,7 +53,7 @@ jobs:
           sed -i ../win.rc -Ee "s/0,[0,]+/$(tr <<<"$TXS_VERSION" . ,),0/"
           sed -i ../win.rc -e "s/git[\]0/$VERSION_NAME/"
           # qmake-qt6 texstudio.pro CONFIG-=debug MXE=1 BUILD_ADWAITA=1 STRIP=1
-          cmake .. -Wno-dev -DTEXSTUDIO_ENABLE_CPP23_CRASH_HANDLER=ON
+          cmake .. -DTEXSTUDIO_ENABLE_TEXPRESSO=OFF -Wno-dev -DTEXSTUDIO_ENABLE_CPP23_CRASH_HANDLER=ON
           # work-around strange git behaviour on msys2
           . ../git_revision.sh
           mkdir signed-artifacts
@@ -227,7 +229,7 @@ jobs:
           sed -i ../win.rc -Ee "s/0,[0,]+/$(tr <<<"$TXS_VERSION" . ,),0/"
           sed -i ../win.rc -e "s/git[\]0/$VERSION_NAME/"
           # qmake-qt6 texstudio.pro CONFIG-=debug MXE=1 BUILD_ADWAITA=1 STRIP=1
-          cmake .. -Wno-dev -DTEXSTUDIO_ENABLE_CRASH_HANDLER=OFF -DCMAKE_BUILD_TYPE=Release
+          cmake .. -DTEXSTUDIO_ENABLE_TEXPRESSO=OFF -Wno-dev -DTEXSTUDIO_ENABLE_CRASH_HANDLER=OFF -DCMAKE_BUILD_TYPE=Release
           # work-around strange git behaviour on msys2
           . ../git_revision.sh
           mkdir signed-artifacts
@@ -386,7 +388,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_INSTALL_PREFIX=appdir/usr .. -Wno-dev
+          cmake -DTEXSTUDIO_ENABLE_TEXPRESSO=OFF -DCMAKE_INSTALL_PREFIX=appdir/usr .. -Wno-dev
 
       - name: Build
         run: |
@@ -468,7 +470,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          /usr/local/QtBase-${{ env.OSX_QT_VERSION }}-Darwin/bin/qt-cmake .. -G Ninja
+          /usr/local/QtBase-${{ env.OSX_QT_VERSION }}-Darwin/bin/qt-cmake .. -DTEXSTUDIO_ENABLE_TEXPRESSO=OFF -G Ninja
 
       - name: Build
         run: |
@@ -568,7 +570,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          /usr/local/QtBase-${{ env.OSX_QT_VERSION }}-Darwin/bin/qt-cmake .. -G Ninja
+          /usr/local/QtBase-${{ env.OSX_QT_VERSION }}-Darwin/bin/qt-cmake .. -DTEXSTUDIO_ENABLE_TEXPRESSO=OFF -G Ninja
 
       - name: Build
         run: |

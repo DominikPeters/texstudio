@@ -41,3 +41,9 @@ the app and installing it. This is a build input, never an end-user preference.
 `-DTEXSTUDIO_ENABLE_TEXPRESSO=OFF` builds the original editor without live preview.
 
 Validate native tooling with `python3 -m unittest discover -s native/tests`.
+
+The Linux builder currently follows the extension's Ubuntu build approach with
+system MuPDF/ICU development libraries, recording the runtime library hashes and
+glibc baseline. The compact pinned MuPDF/ICU profiles apply to the macOS builder.
+The live-preview workflow validates Linux bundles and their installation; the
+inherited upstream compatibility workflows disable live preview explicitly.
