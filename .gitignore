@@ -33,3 +33,8 @@ symbols-ng/gesymb-ng.o
 CMakeLists.txt.user
 # personal files
 js_*
+
+# Bundled engine build outputs
+native/.bundles/
+native/.work/
+__pycache__/

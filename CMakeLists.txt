@@ -43,6 +43,7 @@ else()
 endif()
 include(cmake/project_version.cmake)
 include(GNUInstallDirs)
+include(cmake/TexpressoBundle.cmake)
 
 if(MSVC)
 	set(ADDITIONAL_DEFINITIONS ${ADDITIONAL_DEFINITIONS} -D_CRT_SECURE_NO_WARNINGS -D_UNICODE -DUNICODE)
@@ -492,6 +493,9 @@ endif()
 ## installation
 
 install(TARGETS texstudio DESTINATION ${CMAKE_INSTALL_BINDIR})
+if(TEXSTUDIO_ENABLE_TEXPRESSO)
+    texstudio_bundle_texpresso()
+endif()
 
 if(UNIX AND NOT APPLE AND NOT HAIKU)
         option(APPDATA "Install appdata" ON)
