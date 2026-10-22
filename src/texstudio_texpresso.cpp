@@ -50,7 +50,12 @@ void Texstudio::setupTexpresso()
     connect(texpressoWidget, &TexpressoWidget::followCursorChanged, this, [this](bool enabled) {
         configManager.pdfDocumentConfig->followFromCursor = enabled;
         updateTexpresso();
-        if (enabled && currentEditor()) syncPDFViewer(currentEditor()->cursor(), false);
+        if (enabled && currentEditor()) {
+            const auto cursor = currentEditor()->cursor();
+            if (auto document = qobject_cast<LatexDocument *>(cursor.document()))
+                if (auto session = texpressoManager->current())
+                    session->syncForward(document->getFileName(), cursor.lineNumber(), true, cursor.columnNumber());
+        }
     });
     connect(texpressoWidget, &TexpressoWidget::toolChanged, this, [this](int tool) { configManager.pdfDocumentConfig->editTool = tool; });
     mainHSplitter->addWidget(texpressoWidget); texpressoWidget->hide();
@@ -170,8 +175,10 @@ void Texstudio::updateTexpresso()
         if (auto editor = currentEditor()) {
             const auto cursor = editor->cursor();
             const auto start = cursor.hasSelection() ? cursor.selectionStart() : cursor;
-            if (auto document = qobject_cast<LatexDocument *>(cursor.document()))
+            if (auto document = qobject_cast<LatexDocument *>(cursor.document())) {
                 session->prepareEdit(document->getFileName(), start.lineNumber(), start.columnNumber());
+                session->syncForward(document->getFileName(), cursor.lineNumber(), false, cursor.columnNumber());
+            }
         }
     }
     texpressoWidget->refresh();
@@ -187,7 +194,7 @@ bool Texstudio::syncTexpressoViewer(const QDocumentCursor &cursor, bool inForegr
     auto root = documents.getRootDocumentForDoc(document);
     if (!root || TexpressoSession::identity(root->getFileName()) != session->root()) return false;
     session->followCursor = configManager.pdfDocumentConfig->followFromCursor;
-    if (inForeground || session->followCursor) session->syncForward(document->getFileName(), cursor.lineNumber());
+    session->syncForward(document->getFileName(), cursor.lineNumber(), inForeground, cursor.columnNumber());
     if (inForeground) texpressoWidget->setFocus();
     return true;
 }

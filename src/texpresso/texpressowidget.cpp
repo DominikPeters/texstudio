@@ -279,13 +279,13 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
         if (!refreshTimer.isActive()) refreshTimer.start();
     });
     const auto navigate = [this](const QString &id, const std::function<int(TexpressoPreview &)> &target) {
-        connect(actions[id], &QAction::triggered, this, [this, target] { if (shown) { shown->preview.setPage(target(shown->preview)); showPage(shown->preview.page()); } });
+        connect(actions[id], &QAction::triggered, this, [this, target] { if (shown) { shown->preview.navigateTo(target(shown->preview)); showPage(shown->preview.page()); } });
     };
     navigate("firstPage", [](TexpressoPreview &) { return 0; });
     navigate("previous", [](TexpressoPreview &p) { return p.page() - 1; });
     navigate("next", [](TexpressoPreview &p) { return p.page() + 1; });
     navigate("last", [](TexpressoPreview &p) { return p.pageCount() - 1; });
-    connect(pages.number, &QLineEdit::returnPressed, this, [this] { if (shown) { shown->preview.setPage(pages.number->text().toInt() - 1); showPage(shown->preview.page()); } });
+    connect(pages.number, &QLineEdit::returnPressed, this, [this] { if (shown) { shown->preview.navigateTo(pages.number->text().toInt() - 1); showPage(shown->preview.page()); } });
     connect(actions["actualSize"], &QAction::triggered, this, [this] { setZoom(1); });
     connect(actions["fitToWidth"], &QAction::triggered, this, [this] { setZoom(0); });
     connect(actions["fitToWindow"], &QAction::triggered, this, [this] { setZoom(-1); });
@@ -398,21 +398,14 @@ void TexpressoWidget::refresh()
             disconnect(revealConnection);
             revealConnection = connect(&preview, &TexpressoPreview::reveal, this, [this, session](const QPointF &point) {
                 if (shown != session) return;
-                // Rendering publishes the frame before emitting reveal, while
-                // ordinary widget refreshes are coalesced into the next event
-                // loop. Use the destination frame's geometry immediately.
-                auto &preview = session->preview;
-                canvas->pixels = preview.image(); canvas->pageBounds = preview.bounds();
-                canvas->fresh = preview.valid() && !session->userStopped && !session->failed() && !session->externalBuildRunning();
-                canvas->setAnnotations(preview.page(), preview.revision(), preview.sequence(), preview.annotationsForPage(preview.page()));
-                canvas->invalidateMagnifier(); canvas->update();
-                showPage(session->preview.page());
-                area->ensureVisible(canvas->x() + qRound((point.x() - canvas->pageBounds.left()) * canvas->scale),
-                    canvas->y() + qRound((point.y() - canvas->pageBounds.top()) * canvas->scale), 40, 60);
+                revealPoint(point, session->preview.revealingSource());
             });
         }
         layoutPage();
-        if (!switched && viewportPage != preview.page()) showPage(preview.page());
+        if (!switched && viewportPage != preview.page() && !preview.followingSource()) {
+            const QRect viewport(documentCanvas->mapFrom(area->viewport(), QPoint()), area->viewport()->size());
+            if (preview.page() >= pageRects.size() || !pageRects[preview.page()].intersects(viewport)) showPage(preview.page());
+        }
         if (changed) canvas->update();
         if (switched) {
             area->horizontalScrollBar()->setValue(preview.scroll.x());
@@ -440,7 +433,7 @@ void TexpressoWidget::connectCanvas(TexpressoCanvas *pageCanvas)
         if (!shown) return;
         const int page = pageCanvas->property("texpressoPage").toInt();
         viewportPage = page;
-        const auto scroll = shown->preview.scroll; shown->preview.setPage(page); shown->preview.scroll = scroll;
+        const auto scroll = shown->preview.scroll; shown->preview.navigateTo(page); shown->preview.scroll = scroll;
     });
     connect(pageCanvas, &TexpressoCanvas::sourceClicked, this, [this, pageCanvas](const QPointF &point) {
         if (!shown) return;
@@ -460,6 +453,42 @@ void TexpressoWidget::showPage(int page)
     const QRect bounds = page < pageRects.size() ? pageRects[page] : QRect();
     if (!bounds.isEmpty()) area->verticalScrollBar()->setValue(bounds.top());
     updating = before;
+    if (!updating) updateViewport();
+}
+void TexpressoWidget::revealPoint(const QPointF &point, bool source)
+{
+    if (!shown || !shown->preview.valid() || shown->userStopped || shown->failed() || shown->externalBuildRunning()
+        || !std::isfinite(point.x()) || !std::isfinite(point.y())) return;
+    auto &preview = shown->preview;
+    const bool before = updating; updating = true;
+    // The controller publishes the destination frame before revealing it; the
+    // coalesced refresh may still hold another page's pixels and dimensions.
+    canvas->resetTools();
+    canvas->pixels = preview.image(); canvas->pageBounds = preview.bounds(); canvas->fresh = true;
+    canvas->setAnnotations(preview.page(), preview.revision(), preview.sequence(), preview.annotationsForPage(preview.page()));
+    canvas->invalidateMagnifier();
+    layoutPage(); viewportPage = preview.page();
+    const QPointF target = QPointF(canvas->pos()) + (point - canvas->pageBounds.topLeft()) * canvas->scale;
+    if (source) {
+        // Match the extension's comfortable region and small hysteresis band.
+        // Each axis is independent, so following a line does not disturb an
+        // already-visible horizontal position.
+        const auto revealAxis = [](QScrollBar *bar, qreal value, int size) {
+            const qreal margin = std::min(48.0, size * .1);
+            const qreal start = bar->value();
+            if (value >= start + margin - 4 && value <= start + size - margin + 4) return;
+            const int centered = std::clamp(qRound(value - size / 2.0), bar->minimum(), bar->maximum());
+            if (std::abs(centered - bar->value()) > 4) bar->setValue(centered);
+        };
+        revealAxis(area->horizontalScrollBar(), target.x(), area->viewport()->width());
+        revealAxis(area->verticalScrollBar(), target.y(), area->viewport()->height());
+    } else {
+        // An explicit hyperlink keeps the ordinary destination navigation.
+        if (preview.page() < pageRects.size()) area->verticalScrollBar()->setValue(pageRects[preview.page()].top());
+        area->ensureVisible(qRound(target.x()), qRound(target.y()), 40, 60);
+    }
+    preview.scroll = {area->horizontalScrollBar()->value(), area->verticalScrollBar()->value()};
+    canvas->update(); updating = before;
     if (!updating) updateViewport();
 }
 void TexpressoWidget::setZoom(qreal value, const QPoint &anchor)

@@ -3,6 +3,7 @@
 #include "texpressoprocess.h"
 #include "texpressopreview.h"
 #include "texpressoprewarm.h"
+#include "texpressosourcefollow.h"
 #include <QMap>
 #include <QSet>
 #include <QFileSystemWatcher>
@@ -35,7 +36,7 @@ public:
     void replaceBuffer(const QString &path, const QString &text);
     void changeBuffer(const QString &path, int startLine, int startColumn, int endLine, int endColumn, const QString &text, const QString &currentText);
     void closeBuffer(const QString &path);
-    void syncForward(const QString &path, int line);
+    void syncForward(const QString &path, int line, bool explicitRequest = true, int column = 0);
     void prepareEdit(const QString &path, int line, int column);
     TexpressoPreview preview;
     QString status;
@@ -61,6 +62,7 @@ private:
     friend class RerunTest;
     friend class TexpressoDiagnosticsTest;
     friend class TexpressoPrewarmTest;
+    friend class TexpressoSourceFollowTest;
     void refreshPrewarmContext();
     void refreshCompilerOutput();
     void createProcess();
@@ -74,6 +76,7 @@ private:
     Buffers buffers;
     QMap<QString, quint64> bufferVersions;
     TexpressoPrewarm prewarm;
+    TexpressoSourceFollow sourceFollow;
     bool supportsPreparation = false;
     QString preparationPath;
     int preparationLine = 0, preparationColumn = 0;
@@ -97,9 +100,8 @@ private:
     qint64 acknowledgedSource = 0;
     qint64 compilerLogSequence = -1;
     bool resumePending = false;
-    bool syncAfterCompile = false;
     QString syncFile;
-    int syncLine = 0;
+    int syncLine = 0, syncColumn = 0;
     void error(const QString &reason);
 };
 #endif

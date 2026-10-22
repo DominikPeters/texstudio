@@ -32,6 +32,7 @@ TexpressoSession::TexpressoSession(const QString &root, const QString &engine, c
     connect(&prewarm, &TexpressoPrewarm::started, &preview, &TexpressoPreview::invalidateNativePage);
     connect(&preview, &TexpressoPreview::activityChanged, this, &TexpressoSession::refreshPrewarmContext);
     connect(&preview, &TexpressoPreview::interactionStarted, &prewarm, [this] { prewarm.interrupt(); });
+    connect(&preview, &TexpressoPreview::manualNavigated, this, [this] { sourceFollow.suspend(); });
     connect(&preview, &TexpressoPreview::failed, this, [this](const QString &reason) { previewError = reason; emit updated(); });
     connect(&preview, &TexpressoPreview::updated, this, [this] {
         if (preview.valid()) previewError.clear();
@@ -101,6 +102,7 @@ void TexpressoSession::start()
 }
 void TexpressoSession::resetEngine()
 {
+    sourceFollow.invalidate();
     ready = false; resumePending = false;
     preview.setActive(false);
     prewarm.setContext({}); prewarm.reset();
@@ -119,7 +121,7 @@ void TexpressoSession::resetEngine()
     outputLines.clear(); logLines.clear(); compilerOutput.clear(); engineOutput.clear();
     compilerLogSequence = -1; compilerLog.clear();
     previewError.clear(); compilerError.clear(); compilerWarning.clear();
-    failure = false; syncAfterCompile = false;
+    failure = false;
     emit outputUpdated();
     suppressRestartSync = true;
 }
@@ -136,7 +138,10 @@ void TexpressoSession::setAutoRerun(bool enabled)
 }
 void TexpressoSession::rerunOnce()
 {
-    if (foreground && !userPaused && !userStopped && !externalBuildRunning()) sendSource({"rerun-once"});
+    if (foreground && !userPaused && !userStopped && !externalBuildRunning()) {
+        sourceFollow.invalidate();
+        sendSource({"rerun-once"});
+    }
 }
 void TexpressoSession::beginExternalBuild(const QStringList &directories)
 {
@@ -179,7 +184,6 @@ void TexpressoSession::sendSource(QJsonArray command)
     prewarm.interrupt();
     previewError.clear();
     process->send(command);
-    syncAfterCompile = !suppressRestartSync;
     const auto sequence = preview.sequence() + 1;
     preview.sourceChanged(sequence);
     process->send({"preview-barrier", double(sequence)});
@@ -225,7 +229,6 @@ void TexpressoSession::changeBuffer(const QString &path, int sl, int sc, int el,
 {
     suppressRestartSync = false;
     const auto key = identity(path); buffers[key] = currentText; ++bufferVersions[key];
-    if (aliases.contains(key)) { syncFile = path; syncLine = sl; }
     for (const auto &alias : aliases.value(key)) sendSource({"change-range", alias, sl, sc, el, ec, text});
     if (key == preparationPath) prepareEdit(key, preparationLine, preparationColumn);
 }
@@ -256,7 +259,7 @@ void TexpressoSession::message(const QJsonArray &m)
         acknowledgedSource = std::max(acknowledgedSource, qint64(m[2].toDouble()));
         if (resumePending && acknowledgedSource == preview.sequence() && foreground && !userPaused && !userStopped && !externalBuildRunning()) {
             resumePending = false; process->send({"resume"});
-            if (followCursor && !suppressRestartSync) syncForward(syncFile, syncLine);
+            syncForward(syncFile, syncLine, false, syncColumn);
         }
     } else if (verb == "input-file" && m.size() == 3) {
         const auto logical = absolute(m[2].toString());
@@ -301,10 +304,8 @@ void TexpressoSession::message(const QJsonArray &m)
         if (compilerOutputTimer.isActive()) refreshCompilerOutput();
         emit updated();
         // Match the extension's automatic source synchronization after a pass.
-        if (syncAfterCompile && acknowledgedSource == preview.sequence() && foreground && !userPaused && !externalBuildRunning()) {
-            syncAfterCompile = false;
-            if (followCursor && !suppressRestartSync) syncForward(syncFile, syncLine);
-        }
+        if (acknowledgedSource == preview.sequence() && foreground && !userPaused && !externalBuildRunning())
+            syncForward(syncFile, syncLine, false, syncColumn);
     }
 }
 void TexpressoSession::refreshCompilerOutput()
@@ -350,7 +351,7 @@ void TexpressoSession::refreshCompilerOutput()
 void TexpressoSession::refreshPrewarmContext()
 {
     prewarm.setContext({ready && supportsPreparation && foreground && !userPaused && !userStopped
-        && !failure && !externalBuildRunning(), preview.valid() && !preview.busy(),
+        && !failure && !externalBuildRunning(), preview.valid() && !preview.busy() && !preview.followingSource(),
         preview.revision(), preview.sequence()});
 }
 void TexpressoSession::prepareEdit(const QString &path, int line, int column)
@@ -382,11 +383,16 @@ void TexpressoSession::prepareEdit(const QString &path, int line, int column)
     });
     refreshPrewarmContext();
 }
-void TexpressoSession::syncForward(const QString &path, int line)
+void TexpressoSession::syncForward(const QString &path, int line, bool explicitRequest, int column)
 {
-    const auto known = aliases.value(identity(path));
-    if (!known.isEmpty()) {
-        syncFile = path; syncLine = line;
-        preview.forward(inputAliases.value(identity(path), *known.cbegin()), line);
-    }
+    const auto key = identity(path);
+    syncFile = key; syncLine = line; syncColumn = column;
+    if (explicitRequest) suppressRestartSync = false;
+    if (!ready || !foreground || userPaused || userStopped || failure || externalBuildRunning()
+        || (!explicitRequest && (!followCursor || suppressRestartSync))) return;
+    const auto known = aliases.value(key);
+    if (known.isEmpty()) return;
+    if (!sourceFollow.request({key, bufferVersions.value(key), line, column,
+        preview.sequence(), preview.revision()}, explicitRequest)) return;
+    preview.forward(inputAliases.value(key, *known.cbegin()), line);
 }

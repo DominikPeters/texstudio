@@ -1,0 +1,2995 @@
+[
+  {
+    "id": "early-prose-math",
+    "anchor": "early",
+    "intervalMs": 100,
+    "expectedText": "\nThe changing estimate now includes a second observation: every new term has a source location, and a line can move without changing its meaning.\n\\[\n E_n(x)=\\sum_{j=1}^{n}\\frac{x^j}{j^2},\\qquad 0\\leq x\\leq 1.\n\\]\n",
+    "finalValid": true,
+    "inputs": [
+      {
+        "anchor": "early",
+        "text": "\n"
+      },
+      {
+        "anchor": "early",
+        "text": "T"
+      },
+      {
+        "anchor": "early",
+        "text": "h"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "c"
+      },
+      {
+        "anchor": "early",
+        "text": "h"
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "g"
+      },
+      {
+        "anchor": "early",
+        "text": "i"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "g"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": "s"
+      },
+      {
+        "anchor": "early",
+        "text": "t"
+      },
+      {
+        "anchor": "early",
+        "text": "i"
+      },
+      {
+        "anchor": "early",
+        "text": "m"
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": "t"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "o"
+      },
+      {
+        "anchor": "early",
+        "text": "w"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "i"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "c"
+      },
+      {
+        "anchor": "early",
+        "text": "l"
+      },
+      {
+        "anchor": "early",
+        "text": "u"
+      },
+      {
+        "anchor": "early",
+        "text": "d"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": "s"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "s"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": "c"
+      },
+      {
+        "anchor": "early",
+        "text": "o"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "d"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "o"
+      },
+      {
+        "anchor": "early",
+        "text": "b"
+      },
+      {
+        "anchor": "early",
+        "text": "s"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": "r"
+      },
+      {
+        "anchor": "early",
+        "text": "v"
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": "t"
+      },
+      {
+        "anchor": "early",
+        "text": "i"
+      },
+      {
+        "anchor": "early",
+        "text": "o"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": ":"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": "v"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": "r"
+      },
+      {
+        "anchor": "early",
+        "text": "y"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": "w"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "t"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": "r"
+      },
+      {
+        "anchor": "early",
+        "text": "m"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "h"
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": "s"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "s"
+      },
+      {
+        "anchor": "early",
+        "text": "o"
+      },
+      {
+        "anchor": "early",
+        "text": "u"
+      },
+      {
+        "anchor": "early",
+        "text": "r"
+      },
+      {
+        "anchor": "early",
+        "text": "c"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "l"
+      },
+      {
+        "anchor": "early",
+        "text": "o"
+      },
+      {
+        "anchor": "early",
+        "text": "c"
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": "t"
+      },
+      {
+        "anchor": "early",
+        "text": "i"
+      },
+      {
+        "anchor": "early",
+        "text": "o"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": ","
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "d"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "l"
+      },
+      {
+        "anchor": "early",
+        "text": "i"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "c"
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "m"
+      },
+      {
+        "anchor": "early",
+        "text": "o"
+      },
+      {
+        "anchor": "early",
+        "text": "v"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "w"
+      },
+      {
+        "anchor": "early",
+        "text": "i"
+      },
+      {
+        "anchor": "early",
+        "text": "t"
+      },
+      {
+        "anchor": "early",
+        "text": "h"
+      },
+      {
+        "anchor": "early",
+        "text": "o"
+      },
+      {
+        "anchor": "early",
+        "text": "u"
+      },
+      {
+        "anchor": "early",
+        "text": "t"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "c"
+      },
+      {
+        "anchor": "early",
+        "text": "h"
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "g"
+      },
+      {
+        "anchor": "early",
+        "text": "i"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "g"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "i"
+      },
+      {
+        "anchor": "early",
+        "text": "t"
+      },
+      {
+        "anchor": "early",
+        "text": "s"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "m"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "i"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "g"
+      },
+      {
+        "anchor": "early",
+        "text": "."
+      },
+      {
+        "anchor": "early",
+        "text": "\n"
+      },
+      {
+        "anchor": "early",
+        "text": "\\"
+      },
+      {
+        "anchor": "early",
+        "text": "["
+      },
+      {
+        "anchor": "early",
+        "text": "\n"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "E"
+      },
+      {
+        "anchor": "early",
+        "text": "_"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "("
+      },
+      {
+        "anchor": "early",
+        "text": "x"
+      },
+      {
+        "anchor": "early",
+        "text": ")"
+      },
+      {
+        "anchor": "early",
+        "text": "="
+      },
+      {
+        "anchor": "early",
+        "text": "\\"
+      },
+      {
+        "anchor": "early",
+        "text": "s"
+      },
+      {
+        "anchor": "early",
+        "text": "u"
+      },
+      {
+        "anchor": "early",
+        "text": "m"
+      },
+      {
+        "anchor": "early",
+        "text": "_"
+      },
+      {
+        "anchor": "early",
+        "text": "{"
+      },
+      {
+        "anchor": "early",
+        "text": "j"
+      },
+      {
+        "anchor": "early",
+        "text": "="
+      },
+      {
+        "anchor": "early",
+        "text": "1"
+      },
+      {
+        "anchor": "early",
+        "text": "}"
+      },
+      {
+        "anchor": "early",
+        "text": "^"
+      },
+      {
+        "anchor": "early",
+        "text": "{"
+      },
+      {
+        "anchor": "early",
+        "text": "n"
+      },
+      {
+        "anchor": "early",
+        "text": "}"
+      },
+      {
+        "anchor": "early",
+        "text": "\\"
+      },
+      {
+        "anchor": "early",
+        "text": "f"
+      },
+      {
+        "anchor": "early",
+        "text": "r"
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": "c"
+      },
+      {
+        "anchor": "early",
+        "text": "{"
+      },
+      {
+        "anchor": "early",
+        "text": "x"
+      },
+      {
+        "anchor": "early",
+        "text": "^"
+      },
+      {
+        "anchor": "early",
+        "text": "j"
+      },
+      {
+        "anchor": "early",
+        "text": "}"
+      },
+      {
+        "anchor": "early",
+        "text": "{"
+      },
+      {
+        "anchor": "early",
+        "text": "j"
+      },
+      {
+        "anchor": "early",
+        "text": "^"
+      },
+      {
+        "anchor": "early",
+        "text": "2"
+      },
+      {
+        "anchor": "early",
+        "text": "}"
+      },
+      {
+        "anchor": "early",
+        "text": ","
+      },
+      {
+        "anchor": "early",
+        "text": "\\"
+      },
+      {
+        "anchor": "early",
+        "text": "q"
+      },
+      {
+        "anchor": "early",
+        "text": "q"
+      },
+      {
+        "anchor": "early",
+        "text": "u"
+      },
+      {
+        "anchor": "early",
+        "text": "a"
+      },
+      {
+        "anchor": "early",
+        "text": "d"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "0"
+      },
+      {
+        "anchor": "early",
+        "text": "\\"
+      },
+      {
+        "anchor": "early",
+        "text": "l"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": "q"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "x"
+      },
+      {
+        "anchor": "early",
+        "text": "\\"
+      },
+      {
+        "anchor": "early",
+        "text": "l"
+      },
+      {
+        "anchor": "early",
+        "text": "e"
+      },
+      {
+        "anchor": "early",
+        "text": "q"
+      },
+      {
+        "anchor": "early",
+        "text": " "
+      },
+      {
+        "anchor": "early",
+        "text": "1"
+      },
+      {
+        "anchor": "early",
+        "text": "."
+      },
+      {
+        "anchor": "early",
+        "text": "\n"
+      },
+      {
+        "anchor": "early",
+        "text": "\\"
+      },
+      {
+        "anchor": "early",
+        "text": "]"
+      },
+      {
+        "anchor": "early",
+        "text": "\n"
+      }
+    ],
+    "navigation": [
+      {
+        "afterInput": 60,
+        "action": "away",
+        "anchor": "late"
+      },
+      {
+        "afterInput": 130,
+        "action": "back",
+        "anchor": "early"
+      }
+    ]
+  },
+  {
+    "id": "middle-section-theorem",
+    "anchor": "middle",
+    "intervalMs": 100,
+    "expectedText": "\n\\subsection{A statement inserted during live editing}\n\\begin{theorem}\nFor $0<x<1$, the finite sum is at most $x/(1-x)$. Its source and preview must remain associated during reflow.\n\\end{theorem}\n\\begin{proof}\nCompare the summands with a geometric series and sum the bounds.\n\\end{proof}\n",
+    "finalValid": true,
+    "inputs": [
+      {
+        "anchor": "middle",
+        "text": "\n"
+      },
+      {
+        "anchor": "middle",
+        "text": "\\"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "u"
+      },
+      {
+        "anchor": "middle",
+        "text": "b"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "c"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "{"
+      },
+      {
+        "anchor": "middle",
+        "text": "A"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "a"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "d"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "d"
+      },
+      {
+        "anchor": "middle",
+        "text": "u"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "g"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "l"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "v"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "d"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "g"
+      },
+      {
+        "anchor": "middle",
+        "text": "}"
+      },
+      {
+        "anchor": "middle",
+        "text": "\n"
+      },
+      {
+        "anchor": "middle",
+        "text": "\\"
+      },
+      {
+        "anchor": "middle",
+        "text": "b"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "g"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "{"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "h"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": "}"
+      },
+      {
+        "anchor": "middle",
+        "text": "\n"
+      },
+      {
+        "anchor": "middle",
+        "text": "F"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "$"
+      },
+      {
+        "anchor": "middle",
+        "text": "0"
+      },
+      {
+        "anchor": "middle",
+        "text": "<"
+      },
+      {
+        "anchor": "middle",
+        "text": "x"
+      },
+      {
+        "anchor": "middle",
+        "text": "<"
+      },
+      {
+        "anchor": "middle",
+        "text": "1"
+      },
+      {
+        "anchor": "middle",
+        "text": "$"
+      },
+      {
+        "anchor": "middle",
+        "text": ","
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "h"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "f"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "u"
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "a"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "$"
+      },
+      {
+        "anchor": "middle",
+        "text": "x"
+      },
+      {
+        "anchor": "middle",
+        "text": "/"
+      },
+      {
+        "anchor": "middle",
+        "text": "("
+      },
+      {
+        "anchor": "middle",
+        "text": "1"
+      },
+      {
+        "anchor": "middle",
+        "text": "-"
+      },
+      {
+        "anchor": "middle",
+        "text": "x"
+      },
+      {
+        "anchor": "middle",
+        "text": ")"
+      },
+      {
+        "anchor": "middle",
+        "text": "$"
+      },
+      {
+        "anchor": "middle",
+        "text": "."
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "I"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "u"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "c"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "a"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "d"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "p"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "v"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "w"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": "u"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": "a"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "a"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "c"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "a"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "d"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "d"
+      },
+      {
+        "anchor": "middle",
+        "text": "u"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "g"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "f"
+      },
+      {
+        "anchor": "middle",
+        "text": "l"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "w"
+      },
+      {
+        "anchor": "middle",
+        "text": "."
+      },
+      {
+        "anchor": "middle",
+        "text": "\n"
+      },
+      {
+        "anchor": "middle",
+        "text": "\\"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "d"
+      },
+      {
+        "anchor": "middle",
+        "text": "{"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "h"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": "}"
+      },
+      {
+        "anchor": "middle",
+        "text": "\n"
+      },
+      {
+        "anchor": "middle",
+        "text": "\\"
+      },
+      {
+        "anchor": "middle",
+        "text": "b"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "g"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "{"
+      },
+      {
+        "anchor": "middle",
+        "text": "p"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "f"
+      },
+      {
+        "anchor": "middle",
+        "text": "}"
+      },
+      {
+        "anchor": "middle",
+        "text": "\n"
+      },
+      {
+        "anchor": "middle",
+        "text": "C"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": "p"
+      },
+      {
+        "anchor": "middle",
+        "text": "a"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "h"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "u"
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": "a"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "d"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "w"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "h"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "a"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "g"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "c"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "i"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "a"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "d"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "u"
+      },
+      {
+        "anchor": "middle",
+        "text": "m"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "t"
+      },
+      {
+        "anchor": "middle",
+        "text": "h"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": " "
+      },
+      {
+        "anchor": "middle",
+        "text": "b"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "u"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "d"
+      },
+      {
+        "anchor": "middle",
+        "text": "s"
+      },
+      {
+        "anchor": "middle",
+        "text": "."
+      },
+      {
+        "anchor": "middle",
+        "text": "\n"
+      },
+      {
+        "anchor": "middle",
+        "text": "\\"
+      },
+      {
+        "anchor": "middle",
+        "text": "e"
+      },
+      {
+        "anchor": "middle",
+        "text": "n"
+      },
+      {
+        "anchor": "middle",
+        "text": "d"
+      },
+      {
+        "anchor": "middle",
+        "text": "{"
+      },
+      {
+        "anchor": "middle",
+        "text": "p"
+      },
+      {
+        "anchor": "middle",
+        "text": "r"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "o"
+      },
+      {
+        "anchor": "middle",
+        "text": "f"
+      },
+      {
+        "anchor": "middle",
+        "text": "}"
+      },
+      {
+        "anchor": "middle",
+        "text": "\n"
+      }
+    ],
+    "navigation": []
+  },
+  {
+    "id": "late-proof-prose",
+    "anchor": "late",
+    "intervalMs": 100,
+    "expectedText": "\nThe final argument must also update while earlier sections are visible elsewhere. We keep a uniform bound, explain the dependence on the parameter, and verify the conclusion after the paragraph has crossed its old page boundary.\n",
+    "finalValid": true,
+    "inputs": [
+      {
+        "anchor": "late",
+        "text": "\n"
+      },
+      {
+        "anchor": "late",
+        "text": "T"
+      },
+      {
+        "anchor": "late",
+        "text": "h"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "f"
+      },
+      {
+        "anchor": "late",
+        "text": "i"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "l"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": "g"
+      },
+      {
+        "anchor": "late",
+        "text": "u"
+      },
+      {
+        "anchor": "late",
+        "text": "m"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": "t"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "m"
+      },
+      {
+        "anchor": "late",
+        "text": "u"
+      },
+      {
+        "anchor": "late",
+        "text": "s"
+      },
+      {
+        "anchor": "late",
+        "text": "t"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "l"
+      },
+      {
+        "anchor": "late",
+        "text": "s"
+      },
+      {
+        "anchor": "late",
+        "text": "o"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "u"
+      },
+      {
+        "anchor": "late",
+        "text": "p"
+      },
+      {
+        "anchor": "late",
+        "text": "d"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "t"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "w"
+      },
+      {
+        "anchor": "late",
+        "text": "h"
+      },
+      {
+        "anchor": "late",
+        "text": "i"
+      },
+      {
+        "anchor": "late",
+        "text": "l"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": "l"
+      },
+      {
+        "anchor": "late",
+        "text": "i"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "s"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "c"
+      },
+      {
+        "anchor": "late",
+        "text": "t"
+      },
+      {
+        "anchor": "late",
+        "text": "i"
+      },
+      {
+        "anchor": "late",
+        "text": "o"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": "s"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "v"
+      },
+      {
+        "anchor": "late",
+        "text": "i"
+      },
+      {
+        "anchor": "late",
+        "text": "s"
+      },
+      {
+        "anchor": "late",
+        "text": "i"
+      },
+      {
+        "anchor": "late",
+        "text": "b"
+      },
+      {
+        "anchor": "late",
+        "text": "l"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "l"
+      },
+      {
+        "anchor": "late",
+        "text": "s"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "w"
+      },
+      {
+        "anchor": "late",
+        "text": "h"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "."
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "W"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "k"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "p"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "u"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": "i"
+      },
+      {
+        "anchor": "late",
+        "text": "f"
+      },
+      {
+        "anchor": "late",
+        "text": "o"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": "m"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "b"
+      },
+      {
+        "anchor": "late",
+        "text": "o"
+      },
+      {
+        "anchor": "late",
+        "text": "u"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": "d"
+      },
+      {
+        "anchor": "late",
+        "text": ","
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "x"
+      },
+      {
+        "anchor": "late",
+        "text": "p"
+      },
+      {
+        "anchor": "late",
+        "text": "l"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "i"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "t"
+      },
+      {
+        "anchor": "late",
+        "text": "h"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "d"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "p"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": "d"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": "c"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "o"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "t"
+      },
+      {
+        "anchor": "late",
+        "text": "h"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "p"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "m"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "t"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": ","
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": "d"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "v"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": "i"
+      },
+      {
+        "anchor": "late",
+        "text": "f"
+      },
+      {
+        "anchor": "late",
+        "text": "y"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "t"
+      },
+      {
+        "anchor": "late",
+        "text": "h"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "c"
+      },
+      {
+        "anchor": "late",
+        "text": "o"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": "c"
+      },
+      {
+        "anchor": "late",
+        "text": "l"
+      },
+      {
+        "anchor": "late",
+        "text": "u"
+      },
+      {
+        "anchor": "late",
+        "text": "s"
+      },
+      {
+        "anchor": "late",
+        "text": "i"
+      },
+      {
+        "anchor": "late",
+        "text": "o"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "f"
+      },
+      {
+        "anchor": "late",
+        "text": "t"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "t"
+      },
+      {
+        "anchor": "late",
+        "text": "h"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "p"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "g"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "p"
+      },
+      {
+        "anchor": "late",
+        "text": "h"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "h"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "s"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "c"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": "o"
+      },
+      {
+        "anchor": "late",
+        "text": "s"
+      },
+      {
+        "anchor": "late",
+        "text": "s"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": "d"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "i"
+      },
+      {
+        "anchor": "late",
+        "text": "t"
+      },
+      {
+        "anchor": "late",
+        "text": "s"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "o"
+      },
+      {
+        "anchor": "late",
+        "text": "l"
+      },
+      {
+        "anchor": "late",
+        "text": "d"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "p"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "g"
+      },
+      {
+        "anchor": "late",
+        "text": "e"
+      },
+      {
+        "anchor": "late",
+        "text": " "
+      },
+      {
+        "anchor": "late",
+        "text": "b"
+      },
+      {
+        "anchor": "late",
+        "text": "o"
+      },
+      {
+        "anchor": "late",
+        "text": "u"
+      },
+      {
+        "anchor": "late",
+        "text": "n"
+      },
+      {
+        "anchor": "late",
+        "text": "d"
+      },
+      {
+        "anchor": "late",
+        "text": "a"
+      },
+      {
+        "anchor": "late",
+        "text": "r"
+      },
+      {
+        "anchor": "late",
+        "text": "y"
+      },
+      {
+        "anchor": "late",
+        "text": "."
+      },
+      {
+        "anchor": "late",
+        "text": "\n"
+      }
+    ],
+    "navigation": []
+  },
+  {
+    "id": "paste-incomplete-repair",
+    "anchor": "middle",
+    "intervalMs": 350,
+    "finalValid": true,
+    "expectedText": "\n\\subsection{A pasted calculation}\n\\begin{align*}\n Q_m &= \\sum_{j=1}^{m} j^2\n &= \\frac{m(m+1)(2m+1)}{6}.\n\\end{align*}\n",
+    "inputs": [
+      {
+        "anchor": "middle",
+        "text": "\n\\subsection{A pasted calculation}\n\\begin{align*}\n Q_m &= \\sum_{j=1}^{m} j^2\n",
+        "temporarilyIncomplete": true
+      },
+      {
+        "anchor": "middle",
+        "text": " &= \\frac{m(m+1)(2m+1)}{6}.\n\\end{align*}\n",
+        "repair": true
+      }
+    ],
+    "navigation": []
+  },
+  {
+    "id": "undo-pasted-block",
+    "anchor": "middle",
+    "intervalMs": 100,
+    "finalValid": true,
+    "expectedText": "",
+    "inputs": [
+      {
+        "anchor": "middle",
+        "deleteBefore": "\n\\subsection{A pasted calculation}\n\\begin{align*}\n Q_m &= \\sum_{j=1}^{m} j^2\n &= \\frac{m(m+1)(2m+1)}{6}.\n\\end{align*}\n",
+        "text": "",
+        "undo": true
+      }
+    ],
+    "navigation": []
+  }
+]

@@ -1,0 +1,166 @@
+{
+  "date": "2026-10-22",
+  "platform": "macOS arm64",
+  "engineRevision": "1db981816cae439dab27e3e6a22375f06657e6ef",
+  "extensionReference": "d175622858218bc15cad15c34b4587d2db54405b",
+  "method": "Production Qt sessions; fixed 100 ms finite input schedules; separate two-pass XeLaTeX build, standalone SyncTeX and Poppler text ownership. Correctness evidence, not Qt UI latency measurements.",
+  "runs": [
+    {
+      "passed": true,
+      "targetPages": 30,
+      "elapsedMs": 78469,
+      "phases": [
+        {
+          "elapsedMs": 21166,
+          "id": "early-prose-math",
+          "inputs": 212,
+          "page": 1,
+          "sequence": 213
+        },
+        {
+          "elapsedMs": 28652,
+          "id": "middle-section-theorem",
+          "inputs": 287,
+          "page": 15,
+          "sequence": 500
+        },
+        {
+          "elapsedMs": 22951,
+          "id": "late-proof-prose",
+          "inputs": 230,
+          "page": 29,
+          "sequence": 730
+        },
+        {
+          "elapsedMs": 423,
+          "id": "paste-incomplete-repair",
+          "inputs": 2,
+          "page": 15,
+          "sequence": 732
+        },
+        {
+          "elapsedMs": 289,
+          "id": "undo-pasted-block",
+          "inputs": 1,
+          "page": 15,
+          "sequence": 733
+        }
+      ],
+      "probes": [
+        {
+          "anchor": "early",
+          "line1": 41,
+          "livePage": 0,
+          "revision": 1459,
+          "sequence": 733,
+          "synctexPages": [
+            0
+          ],
+          "textPage": 0
+        },
+        {
+          "anchor": "middle",
+          "line1": 531,
+          "livePage": 15,
+          "revision": 1459,
+          "sequence": 733,
+          "synctexPages": [
+            15
+          ],
+          "textPage": 15
+        },
+        {
+          "anchor": "late",
+          "line1": 993,
+          "livePage": 29,
+          "revision": 1459,
+          "sequence": 733,
+          "synctexPages": [
+            29
+          ],
+          "textPage": 29
+        }
+      ],
+      "sourceSha256": "33b1d23274c5396552f34b0ad6c2e047296d518bf95e5afe97d21ae79d860376"
+    },
+    {
+      "passed": true,
+      "targetPages": 100,
+      "elapsedMs": 82359,
+      "phases": [
+        {
+          "elapsedMs": 21149,
+          "id": "early-prose-math",
+          "inputs": 212,
+          "page": 1,
+          "sequence": 213
+        },
+        {
+          "elapsedMs": 28663,
+          "id": "middle-section-theorem",
+          "inputs": 287,
+          "page": 49,
+          "sequence": 500
+        },
+        {
+          "elapsedMs": 22959,
+          "id": "late-proof-prose",
+          "inputs": 230,
+          "page": 98,
+          "sequence": 730
+        },
+        {
+          "elapsedMs": 395,
+          "id": "paste-incomplete-repair",
+          "inputs": 2,
+          "page": 49,
+          "sequence": 732
+        },
+        {
+          "elapsedMs": 571,
+          "id": "undo-pasted-block",
+          "inputs": 1,
+          "page": 49,
+          "sequence": 733
+        }
+      ],
+      "probes": [
+        {
+          "anchor": "early",
+          "line1": 41,
+          "livePage": 0,
+          "revision": 1457,
+          "sequence": 733,
+          "synctexPages": [
+            0
+          ],
+          "textPage": 0
+        },
+        {
+          "anchor": "middle",
+          "line1": 1661,
+          "livePage": 49,
+          "revision": 1457,
+          "sequence": 733,
+          "synctexPages": [
+            49
+          ],
+          "textPage": 49
+        },
+        {
+          "anchor": "late",
+          "line1": 3284,
+          "livePage": 98,
+          "revision": 1457,
+          "sequence": 733,
+          "synctexPages": [
+            98
+          ],
+          "textPage": 98
+        }
+      ],
+      "sourceSha256": "beb61a04188f60c0cca87f84f81f8284a991e1ac8de3fe8809807bc729300b81",
+      "engineSha256": "ee3932159d32f87ac74b92a2af5f2589205b24e73a837e548f7beae78a9a129b"
+    }
+  ]
+}

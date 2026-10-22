@@ -14,7 +14,7 @@ add_library(texpresso-client STATIC
     texpressoprotocol.cpp texpressoprotocol.h
     texpressoprocess.cpp texpressoprocess.h
     texpressopreview.cpp texpressopreview.h
-    texpressosession.cpp texpressosession.h
+    texpressosession.cpp texpressosession.h texpressosourcefollow.h
     texpressomanager.cpp texpressomanager.h
     texpressoprewarm.cpp texpressoprewarm.h
     texpressowidget.cpp texpressowidget.h)
@@ -70,6 +70,17 @@ if(TEXSTUDIO_TEXPRESSO_TESTS)
     target_link_libraries(texpresso-link-actions-tests PRIVATE texpresso-client Qt${QT_VERSION_MAJOR}::Test)
     add_test(NAME texpresso-link-actions COMMAND texpresso-link-actions-tests)
     set_tests_properties(texpresso-link-actions PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+    foreach(_test source-follow source-routing source-viewport sustained)
+        string(REPLACE "-" "_" _source "${_test}")
+        if(_test STREQUAL "sustained")
+            set(_source sustained_editing)
+        endif()
+        add_executable(texpresso-${_test}-tests tests/${_source}_test.cpp)
+        target_link_libraries(texpresso-${_test}-tests PRIVATE texpresso-client Qt${QT_VERSION_MAJOR}::Test)
+        add_test(NAME texpresso-${_test} COMMAND texpresso-${_test}-tests)
+        set_tests_properties(texpresso-${_test} PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 600)
+    endforeach()
+    target_compile_definitions(texpresso-sustained-tests PRIVATE TEXPRESSO_SUSTAINED_FIXTURES="${CMAKE_CURRENT_SOURCE_DIR}/tests/sustained")
     set_tests_properties(texpresso-client PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()
 option(TEXSTUDIO_TEXPRESSO_BENCHMARKS "Build opt-in live preview benchmarks" OFF)

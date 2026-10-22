@@ -27,7 +27,14 @@ TexpressoPreview::TexpressoPreview(QObject *parent) : QObject(parent)
         request();
     });
     forwardTimer.setSingleShot(true); forwardTimer.setInterval(2000);
-    connect(&forwardTimer, &QTimer::timeout, this, [this] { waitingForward = false; emit activityChanged(); schedulePrefetch(); });
+    connect(&forwardTimer, &QTimer::timeout, this, [this] {
+        waitingForward = false;
+        // Definitions-only inputs and missing source records can finish without
+        // a forward reply. Release speculation once this pass is known complete,
+        // while keeping late valid replies eligible until manual navigation.
+        if (finished && stateRevision >= 0 && stateRevision == engineRevision) nativeForwardPending = false;
+        emit activityChanged(); request(); schedulePrefetch();
+    });
     prefetchTimer.setSingleShot(true); prefetchTimer.setInterval(150);
     connect(&prefetchTimer, &QTimer::timeout, this, [this] { prefetchReady = true; request(); });
     gestureTimer.setSingleShot(true); gestureTimer.setInterval(150);
@@ -38,7 +45,7 @@ TexpressoPreview::TexpressoPreview(QObject *parent) : QObject(parent)
 bool TexpressoPreview::busy() const
 {
     if (!active) return false;
-    if (destination || gestureActive || (inFlight && (!renderingBackground || visiblePages.contains(flightPage))) || dirty || pendingRegion || pendingInverse || waitingForward) return true;
+    if (sourceTarget || destination || gestureActive || (inFlight && (!renderingBackground || visiblePages.contains(flightPage))) || dirty || pendingRegion || pendingInverse || waitingForward) return true;
     for (int page : visiblePages) if (!pageValid(page) && !prefetched.contains(page)) return true;
     return false;
 }
@@ -86,6 +93,7 @@ void TexpressoPreview::activateLink(int page, int index, qint64 revision, qint64
     const auto links = annotationsForPage(page)["links"].toArray();
     if (index >= links.size()) return;
     const auto uri = links[index].toObject()["uri"].toString();
+    cancelForward(page);
     if (!uri.startsWith('#')) {
         const auto url = ViewerLinks::externalUrl(uri);
         if (url) { cancelDestination(); emit interactionStarted(); emit externalLinkRequested(*url); }
@@ -127,9 +135,10 @@ void TexpressoPreview::finishDestination()
 }
 void TexpressoPreview::setViewportPages(const QList<int> &visible, bool gesture)
 {
-    if (gesture) cancelDestination();
     QList<int> next;
-    for (int page : visible) if (page >= 0 && (!finished || page < count) && !next.contains(page) && next.size() < 16) next.append(page);
+    for (int page : visible) if (page >= 0 && page <= 100000 && (!finished || page < count) && !next.contains(page) && next.size() < 16) next.append(page);
+    if (!visible.isEmpty() && next.isEmpty()) return;
+    if (gesture) { cancelDestination(); cancelForward(next.isEmpty() ? currentPage : next.first()); }
     if (next == visiblePages && !gesture) return;
     if (gesture) {
         emit interactionStarted(); gestureActive = true; gestureTimer.start();
@@ -138,7 +147,7 @@ void TexpressoPreview::setViewportPages(const QList<int> &visible, bool gesture)
     visiblePages = next;
     // Layout refreshes can still describe the old viewport while a link is
     // resolving. Only a user gesture may replace that explicit navigation.
-    if (!next.isEmpty() && currentPage != next.first() && !destination) {
+    if (!next.isEmpty() && currentPage != next.first() && !destination && !followingSource() && (gesture || !next.contains(currentPage))) {
         const auto position = scroll; setPage(next.first()); scroll = position;
     }
     interruptBackground(); request(); emit activityChanged(); schedulePrefetch();
@@ -179,9 +188,9 @@ void TexpressoPreview::sourceChanged(qint64 sequence)
     cancelDestination(false);
     emit interactionStarted();
     prefetched.clear(); frontierBudget = 1; prefetchReady = false; prefetchTimer.stop();
-    sourceSequence = sequence; engineRevision = -1;
+    sourceSequence = sequence; engineRevision = stateRevision = -1;
     dirty = true; fresh = false; inFlight = 0; pending.reset();
-    waitingForward = false; forwardTimer.stop();
+    waitingForward = false; nativeForwardPending = false; sourceFollowing = false; sourceTarget.reset(); forwardTimer.stop();
     cancelRegion();
     clearCache();
     emit updated();
@@ -197,7 +206,6 @@ void TexpressoPreview::setActive(bool enabled)
 void TexpressoPreview::setPage(int page)
 {
     if (!settingDestinationPage) cancelDestination();
-    waitingForward = false; forwardTimer.stop();
     pendingInverse.reset();
     const int maximum = finished ? std::max(0, count - 1) : 100000;
     page = std::clamp(page, 0, maximum);
@@ -221,10 +229,12 @@ void TexpressoPreview::message(const QJsonArray &m)
     const auto verb = m[0].toString();
     if (verb == "preview-state" && m.size() == 6 && m[2].toDouble() == sourceSequence) {
         const auto revision = qint64(m[1].toDouble());
-        if (revision != engineRevision) { cancelDestination(false); inFlight = 0; dirty = true; fresh = false; cancelRegion(); clearCache(); }
-        engineRevision = revision;
+        if (revision < engineRevision) return;
+        if (revision != engineRevision) { sourceTarget.reset(); cancelDestination(false); inFlight = 0; dirty = true; fresh = false; cancelRegion(); clearCache(); }
+        engineRevision = stateRevision = revision;
         if (m[5].toInt() != currentPage) needsNativePage = true;
         count = std::max(0, m[3].toInt()); finished = m[4].toBool();
+        if (finished && !forwardTimer.isActive()) nativeForwardPending = false;
         if (destination) destinationTimer.start();
         if (finished && count && currentPage >= count) setPage(count - 1);
         // No render request is sent for a terminal zero-page document. Report
@@ -236,7 +246,9 @@ void TexpressoPreview::message(const QJsonArray &m)
         }
         emit updated(); request();
     } else if (verb == "preview-invalidated" && m.size() == 3 && m[2].toDouble() == sourceSequence) {
+        if (qint64(m[1].toDouble()) < engineRevision) return;
         cancelDestination(false);
+        sourceTarget.reset();
         clearCache();
         cancelRegion();
         engineRevision = qint64(m[1].toDouble()); dirty = true; fresh = false; inFlight = 0;
@@ -263,8 +275,12 @@ void TexpressoPreview::message(const QJsonArray &m)
             setPage(int(target));
             finishDestination(); request();
         }
-    } else if (verb == "preview-forward" && waitingForward && m.size() == 6 && m[1].toDouble() == engineRevision && m[2].toDouble() == sourceSequence) {
-        setPage(m[3].toInt()); emit reveal(QPointF(m[4].toDouble(), m[5].toDouble()));
+    } else if (verb == "preview-forward" && sourceFollowing && m.size() == 6 && m[1].toDouble() == engineRevision && m[2].toDouble() == sourceSequence) {
+        const int page = m[3].toInt(-1);
+        if (page < 0 || page > 100000 || !std::isfinite(m[4].toDouble()) || !std::isfinite(m[5].toDouble())) return;
+        sourceTarget = SourceTarget{engineRevision, sourceSequence, page, {m[4].toDouble(), m[5].toDouble()}};
+        waitingForward = false; nativeForwardPending = false; forwardTimer.stop();
+        setPage(page); finishForward(); request();
     }
 }
 void TexpressoPreview::request()
@@ -274,7 +290,7 @@ void TexpressoPreview::request()
     if ((!active && !pendingInverse) || inFlight || engineRevision < 0 || (finished && !count)) { emit activityChanged(); return; }
     if (destination && destination->page < 0) { emit activityChanged(); return; }
     if (dirty && !pendingInverse) restorePage();
-    finishDestination();
+    finishDestination(); finishForward();
     renderingBackground = false; flightPage = currentPage; flightWidth = pixelWidth;
     if (dirty) {
         emit interactionStarted();
@@ -288,7 +304,7 @@ void TexpressoPreview::request()
         const auto b = region.bounds;
         emit command({"preview-region", double(inFlight), currentPage, region.width, double(engineRevision), double(sourceSequence),
             b.left(), b.top(), b.right(), b.bottom()});
-    } else if (supportsBackground && !preparationPending && !destination) {
+    } else if (supportsBackground && !preparationPending && !destination && !followingSource()) {
         int target = -1;
         // Visible pages precede speculative neighbors. Never let an idle
         // frontier request recursively compile the entire document.
@@ -360,7 +376,7 @@ void TexpressoPreview::decode(Frame frame)
                 rasterId = supportsPatches ? qint64(header["rasterId"].toDouble()) : 0;
                 rasterPage = currentPage; rasterBounds = pageBounds; rasterSize = pixels.size();
                 needsNativePage = false; fresh = true; cachePage();
-                finishInverse(); emit updated(); finishDestination();
+                finishInverse(); emit updated(); finishDestination(); finishForward();
             }
         }
         if (pending) {
@@ -400,7 +416,7 @@ void TexpressoPreview::retryFullFrame()
 void TexpressoPreview::inverse(const QPointF &point)
 {
     if (!fresh) return;
-    cancelDestination();
+    cancelDestination(); cancelForward(currentPage);
     emit interactionStarted(); interruptBackground();
     cancelRegion();
     pendingInverse = point;
@@ -470,7 +486,40 @@ void TexpressoPreview::forward(const QString &path, int zeroBasedLine)
         cancelDestination();
         // Forward search can move the native viewer before its reply arrives.
         emit interactionStarted(); interruptBackground();
+        sourceTarget.reset(); sourceFollowing = true; nativeForwardPending = true;
         needsNativePage = true; waitingForward = true; forwardTimer.start();
         emit command({"synctex-forward", path, zeroBasedLine + 1});
     }
+}
+
+void TexpressoPreview::finishForward()
+{
+    if (!sourceTarget || !fresh || sourceTarget->page != currentPage) return;
+    const auto target = *sourceTarget;
+    sourceTarget.reset();
+    if (target.revision != engineRevision || target.sequence != sourceSequence) return;
+    QScopedValueRollback<bool> guard(sourceReveal, true);
+    emit reveal(target.point);
+}
+void TexpressoPreview::cancelForward(int page)
+{
+    emit manualNavigated();
+    sourceTarget.reset(); waitingForward = false; nativeForwardPending = false; forwardTimer.stop();
+    if (!sourceFollowing) return;
+    sourceFollowing = false;
+    // Cancel-all also retires a native foreground export without a reply.
+    // Release its client credit before requesting the user's selected page.
+    emit interactionStarted();
+    emit command({"preview-cancel", 0, page});
+    if (inFlight && !renderingBackground && !renderingRegion) dirty = true;
+    if (renderingBackground) prefetched.remove(flightPage);
+    inFlight = 0; pending.reset(); renderingBackground = false;
+    cancelRegion(); needsNativePage = true;
+    emit activityChanged();
+}
+void TexpressoPreview::navigateTo(int page)
+{
+    page = std::clamp(page, 0, finished ? std::max(0, count - 1) : 100000);
+    cancelForward(page);
+    setPage(page); request();
 }

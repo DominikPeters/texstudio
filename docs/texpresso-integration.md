@@ -321,6 +321,47 @@ URI-dispatch tests intercept desktop URL handlers rather than launching browsers
 All ten client suites now pass (101 Qt checks), as do the application's 1,613
 checks, including its real Biber workflow. This validation ran on macOS.
 
+## Source-follow routing and viewport stability
+
+The engine pin now includes the extension's authoritative source-record routing
+(`3fbbd75`) plus both native rerun fixes. A new source barrier cancels the prior
+source search; manual preview navigation cancels pending native source demand
+and releases any foreground export credit retired without a reply. Older engine
+revisions cannot invalidate a newer frame. Searches without a matching typeset
+record release idle rendering once the current pass is known complete; slow
+search replies remain eligible until the user replaces that navigation.
+
+Each Qt session retains the editor's active caret independently from the changed
+range and the selection start used for preparation. Automatic following deduplicates
+identical document/version/line/source-sequence/revision intents before sending,
+so compiler flushes cannot create a search feedback loop. Manual page navigation,
+scrolling and links hold the preview until the source selection or document version
+changes, or an explicit source-sync command resumes following. Horizontal caret
+motion updates that hold identity without resending an otherwise identical
+line-based query. Engine recovery preserves the manual hold.
+
+Source coordinates are revealed only after the destination frame is fresh.
+The viewport follows the extension's comfortable region: up to 48 pixels, or ten
+percent of the viewport, with four pixels of hysteresis. An already visible target
+leaves each comfortable axis unchanged; an outside target centers only that axis.
+Links retain their explicit destination navigation. Coalesced layout updates and
+programmatic scrolling cannot turn a pending source reveal into manual navigation.
+
+The sustained-editing corpus is frozen from extension `d175622`, with attribution
+and regeneration instructions in `src/texpresso/tests/sustained/README.md`.
+The opt-in Qt session test drives finite 100 ms early/middle/late edit streams on
+naturally flowing 30/100-page documents, including manual navigation, an incomplete
+paste, repair and undo. It then compares the live owning page against independent
+XeLaTeX/standalone SyncTeX and unique text extracted from the clean PDF. The Linux
+workflow runs both sizes and retains diagnostic artifacts on failure. This tests
+routing correctness, rather than establishing Qt interface latency benchmarks.
+
+Both document sizes pass locally: 732 mutations each, one retained engine process,
+and matching early/middle/late owning pages from the independent oracle. The
+30-page fixture ends at 31 pages (zero-based owners 0/15/29); the 100-page fixture
+ends at 100 pages (owners 0/49/98). Compact provenance and results are recorded in
+`docs/texpresso-source-follow-validation-2026-10-22.json`.
+
 ## Remaining work
 
 - Measured Qt SVG/adaptive rendering.

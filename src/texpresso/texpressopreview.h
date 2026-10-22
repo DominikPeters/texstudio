@@ -24,6 +24,9 @@ public:
     void cancelRegion();
     void setActive(bool active);
     void setPage(int page);
+    void navigateTo(int page);
+    bool followingSource() const { return nativeForwardPending || sourceTarget.has_value() || sourceReveal; }
+    bool revealingSource() const { return sourceReveal; }
     void setWidth(int width);
     void inverse(const QPointF &point);
     void forward(const QString &path, int zeroBasedLine);
@@ -51,6 +54,7 @@ public:
 signals:
     void command(const QJsonArray &command);
     void interactionStarted();
+    void manualNavigated();
     void activityChanged();
     void updated();
     void failed(const QString &reason);
@@ -71,6 +75,8 @@ private:
     void storePage(int page, int width, const QImage &image, const QRectF &bounds, const QJsonObject &annotations = {});
     void cancelDestination(bool notifyEngine = true);
     void finishDestination();
+    void finishForward();
+    void cancelForward(int page);
     void interruptBackground();
     void schedulePrefetch();
     bool restorePage();
@@ -82,10 +88,12 @@ private:
     struct Destination { QString name; qint64 revision, sequence; int page = -1; };
     std::optional<Destination> destination;
     bool settingDestinationPage = false;
-    qint64 sourceSequence = 0, engineRevision = -1, nextRequest = 0, inFlight = 0;
+    qint64 sourceSequence = 0, engineRevision = -1, stateRevision = -1, nextRequest = 0, inFlight = 0;
     int currentPage = 0, count = 0, pixelWidth = 1200;
     bool active = false, finished = false, dirty = true, fresh = false, decoding = false;
-    bool waitingForward = false;
+    struct SourceTarget { qint64 revision, sequence; int page; QPointF point; };
+    std::optional<SourceTarget> sourceTarget;
+    bool waitingForward = false, sourceFollowing = false, sourceReveal = false, nativeForwardPending = false;
     std::optional<Frame> pending;
     QList<CachedPage> pages; // LRU, four entries normally, up to sixteen for zoomed-out visible pages / 32 MiB.
     qint64 cacheBytes = 0;

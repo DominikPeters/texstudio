@@ -140,6 +140,10 @@ void LinksUiTest::realContinuousSecondaryPage()
     QTRY_VERIFY_WITH_TIMEOUT(!sources.isEmpty(), 15000);
     QCOMPARE(QFileInfo(sources.last()[0].toString()).canonicalFilePath(), QFileInfo(root).canonicalFilePath());
     QCOMPARE(openedUrls.size(), 1);
+    // Source lookup keeps the clicked page active while it remains visible.
+    // Restore the first page so the next link still exercises a neighbor
+    // canvas independently of the stale active-canvas geometry below.
+    session->preview.navigateTo(0);
     QTRY_VERIFY_WITH_TIMEOUT(findSecondary(), 15000);
     auto activeCanvas = widget.findChild<TexpressoCanvas *>("texpressoActivePage"); QVERIFY(activeCanvas);
     bool geometryReadyAtReveal = false;

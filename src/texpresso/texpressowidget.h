@@ -83,10 +83,12 @@ signals:
 protected:
     void resizeEvent(QResizeEvent *event) override;
 private:
+    friend class SourceViewportTest;
     void layoutPage();
     void updateViewport(bool gesture = false);
     void connectCanvas(TexpressoCanvas *pageCanvas);
     void showPage(int page);
+    void revealPoint(const QPointF &point, bool source);
     void setZoom(qreal value, const QPoint &anchor = QPoint(-1, -1));
     TexpressoManager *manager;
     PDFDocumentConfig *config;

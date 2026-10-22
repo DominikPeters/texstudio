@@ -8,7 +8,7 @@ permissions:
 jobs:
   linux:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,7 +23,8 @@ jobs:
             libsdl2-dev libmupdf-dev libmujs-dev libfreetype-dev libgumbo-dev \
             libjbig2dec0-dev libjpeg-dev libopenjp2-7-dev libfontconfig-dev \
             libharfbuzz-dev libgraphite2-dev libicu-dev libpng-dev \
-            libleptonica-dev libtesseract-dev texlive-xetex texlive-bibtex-extra biber
+            libleptonica-dev libtesseract-dev texlive-xetex texlive-bibtex-extra biber \
+            texlive-latex-extra texlive-pictures poppler-utils
       - name: Check native tooling and build bundled engine
         run: |
           python3 -m unittest discover -s native/tests
@@ -37,6 +38,14 @@ jobs:
           cmake --build build-client -j2
           TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso" \
             ctest --test-dir build-client --output-on-failure
+      - name: Exercise sustained source following on natural 30/100-page documents
+        env:
+          QT_QPA_PLATFORM: offscreen
+          TEXPRESSO_TEST_SUSTAINED: "1"
+          TEXPRESSO_SUSTAINED_ARTIFACTS: ${{ github.workspace }}/build-client/sustained-results
+        run: |
+          TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso" \
+            ctest --test-dir build-client -R '^texpresso-sustained$' --output-on-failure
       - name: Build and install application with engine runtime
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
@@ -52,5 +61,6 @@ jobs:
           name: linux-live-preview-diagnostics
           path: |
             build-client/Testing/Temporary/
+            build-client/sustained-results/
             build/CMakeFiles/CMakeConfigureLog.yaml
           if-no-files-found: ignore

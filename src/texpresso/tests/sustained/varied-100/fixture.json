@@ -1,0 +1,43 @@
+{
+  "id": "varied-100",
+  "targetPages": 100,
+  "units": 145,
+  "anchors": {
+    "early": {
+      "unit": 1,
+      "offset": 2301,
+      "utf16Offset": 2301,
+      "byteOffset": 2308,
+      "line": 41,
+      "column": 0,
+      "line1": 42,
+      "visibleLine": 40,
+      "visibleLine1": 41,
+      "destination": "varied:early"
+    },
+    "middle": {
+      "unit": 72,
+      "offset": 102285,
+      "utf16Offset": 102285,
+      "byteOffset": 102292,
+      "line": 1656,
+      "column": 0,
+      "line1": 1657,
+      "visibleLine": 1655,
+      "visibleLine1": 1656,
+      "destination": "varied:middle"
+    },
+    "late": {
+      "unit": 143,
+      "offset": 202546,
+      "utf16Offset": 202546,
+      "byteOffset": 202553,
+      "line": 3271,
+      "column": 0,
+      "line1": 3272,
+      "visibleLine": 3270,
+      "visibleLine1": 3271,
+      "destination": "varied:late"
+    }
+  }
+}
