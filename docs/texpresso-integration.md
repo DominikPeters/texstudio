@@ -392,6 +392,11 @@ also checks that the same engine process handles all of these changes. The
 extension's three auxiliary-state regressions pass against the bundled engine.
 All 14 client suites pass (145 checks, with the two long-document rows skipped
 in this run). No production Qt client changes are needed for this update.
+The application also passes all 1,613 checks with the new bundled engine,
+including the real bibliography workflow. Bundle hashes and clean-environment
+startup validate after installation. The isolated development app now uses the
+`09f0351` engine; its existing `06e93971b` client executable and settings are
+retained. An already running preview needs a restart to load the new engine.
 
 ## Remaining work
 
