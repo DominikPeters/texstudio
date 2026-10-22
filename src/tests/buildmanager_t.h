@@ -177,6 +177,132 @@ private slots:
 		QEQUAL(stdErr, expectedStdErr);
 	}
 
+    void auxiliaryBuildDirectories() {
+        const QString previous = BuildManager::additionalLogPaths;
+        BuildManager::additionalLogPaths.clear();
+        ExpandedCommands commands;
+        commands.commands.append(CommandToRun("xelatex -output-directory=\"build output\" main.tex"));
+        commands.commands.append(CommandToRun("latexmk -outdir obsolete -outdir 'new output' -auxdir auxiliary main.tex"));
+        commands.commands.append(CommandToRun("biber --output-directory bibliography main"));
+        commands.commands.append(CommandToRun("viewer -output-directory ignored main.pdf"));
+        const auto result = BuildManager::auxiliaryDirectories(commands, QFileInfo("/project/main.tex"));
+        BuildManager::additionalLogPaths = previous;
+        QCOMPARE(result, QStringList({"/project/build output", "/project/auxiliary", "/project/new output", "/project/bibliography"}));
+    }
+
+    void buildSequenceLifecycle_data() {
+        QTest::addColumn<bool>("asynchronous");
+        QTest::addColumn<QString>("first");
+        QTest::addColumn<QString>("last");
+        QTest::addColumn<bool>("success");
+#ifndef Q_OS_WIN
+        for (const bool async : {false, true}) {
+            const QByteArray prefix = async ? "async-" : "sync-";
+            QTest::newRow((prefix + "success").constData()) << async << "/usr/bin/true" << "/usr/bin/true" << true;
+            QTest::newRow((prefix + "failure-before-final-success").constData()) << async << "/usr/bin/false" << "/usr/bin/true" << false;
+            QTest::newRow((prefix + "failed-start").constData()) << async << "/texstudio/no-such-command" << "/usr/bin/true" << false;
+        }
+#endif
+    }
+
+    void buildSequenceLifecycle() {
+        QFETCH(bool, asynchronous);
+        QFETCH(QString, first);
+        QFETCH(QString, last);
+        QFETCH(bool, success);
+        BuildManager manager;
+        manager.maxExpandingNestingDeep = 64;
+        connect(&manager, &BuildManager::commandLineRequested, this,
+                [&](const QString &id, QString *command, bool *) {
+            if (id == "bibtex") *command = first;
+            if (id == "biber") *command = last;
+        });
+        QSignalSpy started(&manager, &BuildManager::buildSequenceStarted);
+        QSignalSpy finished(&manager, &BuildManager::buildSequenceFinished);
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const QFileInfo root(directory.filePath("main.tex"));
+        const QString recipe = BuildManager::CMD_BIBTEX + " | " + BuildManager::CMD_BIBER;
+        if (asynchronous) QVERIFY(manager.runCommandAsync(recipe, root));
+        else QCOMPARE(manager.runCommand(recipe, root), success);
+        QTRY_COMPARE(finished.size(), 1);
+        QCOMPARE(started.size(), 1);
+        QCOMPARE(started.first().at(0).toString(), root.absoluteFilePath());
+        QVERIFY(!started.first().at(2).toBool()); // Bibliography-only recipes inherit known directories.
+        QCOMPARE(finished.first().at(0).toString(), root.absoluteFilePath());
+        QCOMPARE(finished.first().at(1).toBool(), success);
+        QVERIFY(!manager.busyRunningCommands());
+    }
+
+    void cancelledBuildCannotFinishAnotherRoot() {
+#ifdef Q_OS_WIN
+        QSKIP("Uses POSIX sleep for a controllable compiler process");
+#else
+        BuildManager manager;
+        manager.maxExpandingNestingDeep = 64;
+        QString command = "/bin/sleep 20";
+        connect(&manager, &BuildManager::commandLineRequested, this,
+                [&](const QString &id, QString *result, bool *) {
+            if (id == "bibtex") *result = command;
+        });
+        QSignalSpy finished(&manager, &BuildManager::buildSequenceFinished);
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const QFileInfo first(directory.filePath("first.tex"));
+        const QFileInfo second(directory.filePath("second.tex"));
+        QVERIFY(manager.runCommandAsync(BuildManager::CMD_BIBTEX, first));
+        manager.killCurrentProcess();
+        QCOMPARE(finished.size(), 1);
+        QCOMPARE(finished.first().at(0).toString(), first.absoluteFilePath());
+        QVERIFY(!finished.first().at(1).toBool());
+        command = "/bin/sleep 0.1";
+        QVERIFY(manager.runCommandAsync(BuildManager::CMD_BIBTEX, second));
+        QTRY_COMPARE(finished.size(), 2);
+        QCOMPARE(finished.last().at(0).toString(), second.absoluteFilePath());
+        QVERIFY(finished.last().at(1).toBool());
+        QVERIFY(!manager.busyRunningCommands());
+#endif
+    }
+
+    void automaticBibliographyRerunsFinishAsOneRecipe() {
+#ifdef Q_OS_WIN
+        QSKIP("Uses POSIX mock compiler commands");
+#else
+        BuildManager manager;
+        manager.maxExpandingNestingDeep = 64;
+        auto commands = bm->getAllCommands();
+        commands["xelatex"].commandLine = "/bin/sh -c \"exit 0\"";
+        commands["xelatex"].rerunCompiler = true;
+        commands["bibtex"].commandLine = "/usr/bin/true";
+        commands["bibliography"].commandLine = BuildManager::CMD_BIBTEX;
+        manager.setAllCommands(commands, {});
+        int compilerPasses = 0;
+        int bibliographyPasses = 0;
+        connect(&manager, &BuildManager::latexCompiled, this, [&](LatexCompileResult *result) {
+            ++compilerPasses;
+            *result = compilerPasses == 1 ? LCR_RERUN_WITH_BIBLIOGRAPHY :
+                      compilerPasses == 2 ? LCR_RERUN : LCR_NORMAL;
+        });
+        connect(&manager, &BuildManager::beginRunningSubCommand, this,
+                [&](ProcessX *, const QString &, const QString &subcommand, const RunCommandFlags &) {
+            if (subcommand == "bibtex") ++bibliographyPasses;
+        });
+        QSignalSpy started(&manager, &BuildManager::buildSequenceStarted);
+        QSignalSpy finished(&manager, &BuildManager::buildSequenceFinished);
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const QFileInfo root(directory.filePath("main.tex"));
+        QVERIFY(manager.runCommandAsync(BuildManager::CMD_XELATEX, root));
+        QTRY_COMPARE(finished.size(), 1);
+        QCOMPARE(started.size(), 1);
+        QCOMPARE(compilerPasses, 3);
+        QVERIFY(started.first().at(2).toBool()); // Compiler recipes authoritatively reset directories.
+        QCOMPARE(bibliographyPasses, 1);
+        QVERIFY(finished.first().at(1).toBool());
+        QVERIFY(!manager.busyRunningCommands());
+#endif
+    }
+
 public slots:
 	void commandLineRequested(const QString& cmdId, QString* result){
 		if (cmdId == "mocka") *result = "coffee";

@@ -132,6 +132,7 @@ public:
 	static QFileInfo parseExtendedSelectFile(QString &command, const QFileInfo &mainFile, const QFileInfo &currentFile);
 	static QString extractOutputRedirection(const QString &commandLine, QString &stdOut, QString &stdErr);
 	ExpandedCommands expandCommandLine(const QString &str, ExpandingOptions &expandingOptions);
+    static QStringList auxiliaryDirectories(const ExpandedCommands &commands, const QFileInfo &mainFile);
     RunCommandFlags getSingleCommandFlags(QString &command) const;
 	bool hasCommandLine(const QString &program);
 
@@ -150,6 +151,8 @@ public slots:
 	Q_INVOKABLE void killCurrentProcess();
 private:
 	bool checkExpandedCommands(const ExpandedCommands &expandedCommands);
+    bool beginBuildSequence(const ExpandedCommands &commands, const QFileInfo &mainFile);
+    void finishBuildSequenceAsync(bool success);
     bool runCommandInternal(const ExpandedCommands &expandedCommands, const QFileInfo &mainFile, QString *buffer = nullptr, QTextCodec *codecForBuffer = nullptr, QString *errorMsg = nullptr);
     void runCommandInternalAsync(const ExpandedCommands &expandedCommands, const QFileInfo &mainFile, QString *buffer = nullptr, QString *errorMsg = nullptr, QObject *returnObject = nullptr, const char * returnCmd = nullptr);
 
@@ -159,6 +162,8 @@ private:
     QString *m_buffer, *m_errorMsg;
     QObject *m_returnCmdObj;
     const char *m_returnCmd;
+    bool m_buildSequenceActive = false;
+    bool m_sequenceSuccessful = true;
 public:
 	//creates a process object with the given command line (after it is changed by an implcit call to parseExtendedCommandLine)
 	//ProcessX* newProcess(const QString &unparsedCommandLine, const QString &mainFile, const QString &currentFile, int currentLine=0, bool singleInstance = false);
@@ -214,6 +219,9 @@ private:
 	bool testAndRunInternalCommand(const QString &cmd, const QFileInfo &mainFile);
     bool testAndRunInternalCommandAsync(const QString &cmd, const QFileInfo &mainFile);
 signals:
+	// These cover the complete recipe, including automatic TeX/bibliography reruns.
+    void buildSequenceStarted(const QString &root, const QStringList &auxiliaryDirectories, bool compilerSequence);
+    void buildSequenceFinished(const QString &root, bool success);
 	void processNotification(const QString &message);
     void clearLogs();
 	void previewAvailable(const QString &filename, const PreviewSource &source);

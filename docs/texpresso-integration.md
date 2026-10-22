@@ -30,8 +30,8 @@ project session.
 Initial acceptance: install the bundled application, open two multi-file
 projects, edit unsaved included text (including Unicode and undo), switch tabs,
 and recover each project's correct preview without restarts or path setup.
-Then extend dependency watching/diagnostics, SyncTeX, regions/patches, packaging
-checks, and finally scrolling/SVG using the extension as the behavioral reference.
+Then extend dependency watching/diagnostics, packaging checks, and finally
+scrolling/SVG using the extension as the behavioral reference.
 
 ## Shared viewer components
 
@@ -46,10 +46,10 @@ until the engine provides their data.
 
 `ViewerTools.*` contains the existing PDF magnifier and laser-pointer painting,
 without Poppler dependencies. The magnifier accepts a renderer callback:
-Poppler supplies its usual detailed region; the live adapter currently supplies
-an enlarged crop of its PNG frame, bounded to the lens neighborhood on large
-and high-DPI displays. Engine region rendering can replace that
-callback without adding another magnifier implementation. Both viewers use
+Poppler supplies its usual detailed region; the live adapter supplies an
+immediate crop of its PNG frame while requesting detailed region pixels from
+the engine. Region results update the same magnifier without replacing the
+page image. Both viewers use
 the same magnifier appearance, size, color conversion and zoom preferences.
 
 Both inverse-sync paths call `Texstudio::syncFromPreview`, sharing file opening,
@@ -76,8 +76,9 @@ and edits suppressed by collaboration signals reconcile afterward. Shared
 buffers update every subscribed session. Explicit Pause/Stop survives tab
 switching. Page, zoom, scroll and the last image are stored per session.
 
-The first renderer uses bounded full-page PNG frames and one decode worker per
-session, discarding outdated frames after source/page changes. Failed TeX passes
+The renderer uses bounded PNG frames and incremental PNG patches, with detailed
+regions for the magnifier and one decode worker per session. It discards
+outdated frames after source/page changes. Failed TeX passes
 keep old pixels visible with their source interactions disabled, then recover
 when the source is corrected. Source synchronization uses current buffers and
 converts between zero-based editor lines and one-based SyncTeX lines.
@@ -122,14 +123,70 @@ application with both executables. It needs its first CI run; Linux execution
 was unavailable on the development host. Inherited CI/CD jobs explicitly build
 upstream compatibility configurations without live preview.
 
+## Compiler passes and normal builds
+
+Automatic TeX reruns are enabled for new live sessions. The panel also offers
+an Automatic Reruns toggle and Rerun Once. These use the shared engine's
+auxiliary convergence mechanism: finishing passes feed generated auxiliary
+contents back into compilation until their bytes stabilize. Automatic passes
+wait for 500 ms of idle time and are limited to five finishing passes per edit.
+Inactive, paused and stopped projects do not request manual reruns.
+
+Bibliography and index programs remain part of TeXstudio's normal build
+recipes. BuildManager reports the beginning and result of the entire recipe,
+including automatic bibliography and TeX reruns. The live adapter captures the
+build's root, pauses that project's live compilation, and suppresses its Qt
+dependency callbacks during the build. After success it restarts the engine
+to clear cached missing files and consume newly created `.aux`/`.bbl` inputs.
+The session, open-buffer overlays, page, zoom, scroll and explicit pause/stop
+state survive; switching tabs cannot refresh a different project. A failed or
+cancelled recipe resumes the existing engine without forcing a restart. The
+engine's own filesystem polling can still observe files left by a failed build;
+pause does not provide filesystem snapshot isolation.
+
+Live startup searches auxiliary directories inferred from expanded compiler,
+latexmk and bibliography commands, together with TeXstudio's configured log
+search directories. Standalone bibliography commands inherit a project's last
+successful directories when none are explicit. A new compiler recipe replaces
+that selection. Paths hidden in an opaque wrapper or `.latexmkrc` must be
+listed in TeXstudio's additional log search paths. The shared engine searches
+beside the source before its additional directories: remove obsolete duplicate
+auxiliary files beside the source when moving a project to a separate output
+directory.
+
+## Incremental raster updates and magnifier detail
+
+Clients with `pngPatches` support receive a full PNG base followed by cropped
+patches when a sufficiently small part of the page changes. Patches must name
+the retained base and match its page, dimensions and bounds; a mismatch or
+failed patch decode requests a full frame. A metadata-only patch reuses the
+same image without decoding or copying pixels. Source changes discard page
+caches while retaining the displayed raster as a possible patch base; the
+engine still validates that base before choosing a patch.
+
+The magnifier requests clipped native regions at its own resolution, with one
+in-flight image export and only the latest pending lens position. It displays
+an enlarged page crop immediately, then replaces that crop with detailed
+pixels. Region replies never replace the page image or patch base, and stale
+source, revision, request, page and lens tokens are rejected. Unsupported
+engines retain full PNG frames and the immediate crop fallback.
+
+The current macOS verification passes all three live-client suites (33 Qt test
+cases), including real BibTeX and Biber builds in both root and separate output
+directories, initially missing and changed bibliographies, executed TOC entries,
+forward-reference convergence and project lifecycle cases. The rendering suite
+also passes at 2× display scale. The complete application's automatic test run
+passes, including all 64 BuildManager cases and the new recipe lifecycle tests.
+Linux CI installs Biber and the bibliography packages so those tests run there
+as well; Linux runtime verification still requires a CI run.
+
 ## Remaining work
 
 - Continuous page scrolling, following the extension's implementation.
-- Engine region detail for the shared magnifier, PNG patches and measured Qt
-  SVG/adaptive rendering.
+- Measured Qt SVG/adaptive rendering.
 - Full dependency reconciliation (missing/deleted files, external include
   directories), source renames, bounded idle-session eviction and memory budgets.
-- Integrated log diagnostics, rerun controls and coordinated final-build refresh.
+- Integrated log diagnostics and auxiliary-directory precedence in the engine.
 - Automated editor interaction tests and Linux runtime verification in CI.
 - macOS/Linux release packaging with complete Qt deployment, release signing,
   notarization and clean-machine checks. Existing macOS engine signing tools are

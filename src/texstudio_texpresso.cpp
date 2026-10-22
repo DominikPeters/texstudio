@@ -18,6 +18,19 @@ QString bufferText(LatexDocument *document) { return document->textLines().join(
 void Texstudio::setupTexpresso()
 {
     texpressoManager = new TexpressoManager(this);
+    // BuildManager captures the root before launching the recipe, so switching
+    // editor tabs while LaTeX/BibTeX/Biber run cannot refresh another project.
+    connect(&buildManager, &BuildManager::buildSequenceStarted, texpressoManager,
+            [this](const QString &root, QStringList directories, bool compilerSequence) {
+        // A standalone bibliography tool may omit the compiler's output path.
+        // A compiler recipe is authoritative, including returning to root output.
+        if (directories.isEmpty() && !compilerSequence) directories = texpressoManager->auxiliaryDirectories(root);
+        texpressoManager->beginExternalBuild(root, directories);
+    });
+    connect(&buildManager, &BuildManager::buildSequenceFinished, texpressoManager,
+            [this](const QString &root, bool success) {
+        texpressoManager->endExternalBuild(root, success);
+    });
     auto previewConfig = configManager.pdfDocumentConfig;
     configManager.registerOption("Preview/EditTool", &previewConfig->editTool, 1);
     configManager.registerOption("Preview/Scrolling Follows Cursor", &previewConfig->followFromCursor, false);

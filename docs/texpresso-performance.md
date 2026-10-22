@@ -90,3 +90,43 @@ Next useful measurements are edit-to-visible-frame latency in large multi-file
 projects and remaining native rendering/PNG costs on cache misses. Full-buffer
 serialization in the editor adapter is also a candidate for a separate measured
 pass; this change leaves its reconciliation behavior intact.
+
+## PNG patches and magnifier regions
+
+The next client pass uses the same `5d906d6` engine's PNG patch and region
+protocols. A real-engine regression fixture renders a page containing thirteen
+lines of text at the default 1200-pixel width, changes one digit, then appends
+source whitespace that does not change its appearance. On the development
+macOS host, its encoded image bodies were:
+
+| Update | Encoded PNG body |
+| --- | ---: |
+| Initial full page | 20,305 bytes |
+| Single-digit edit | 210 bytes |
+| Visually unchanged edit | 0 bytes |
+
+The small edit transfers 98.97% fewer image bytes in this fixture. This measures
+image body size, excluding JSON metadata; it is not an edit latency or compiler
+speed claim. The engine still draws the new raster before comparing pixels,
+and large changes can correctly return a full frame. Qt decodes only the patch
+PNG and composes it against the validated base in its image worker. Empty
+patches preserve the existing image without a decode or pixel copy.
+
+The same fixture requests a 600×300 native region around text and verifies its
+pixels differ from an enlarged crop of the full-page raster. Detail arrives
+asynchronously and updates the shared PDF magnifier, while its immediate crop
+keeps dragging responsive. Only the latest pending lens position is retained.
+The rendering checks also cover malformed bases and geometry, keyframe
+recovery, stale source/lens replies, color conversion, fallback capabilities,
+and interaction suppression during external builds.
+
+Run these checks with the bundled engine:
+
+```
+QT_QPA_PLATFORM=offscreen \
+TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/darwin-arm64/bin/texpresso" \
+  ./build-texpresso/texpresso-rendering-tests
+```
+
+Use the appropriate Linux bundle path on Linux. The engine revision remains
+shared with the extension; these changes require no engine modifications.
