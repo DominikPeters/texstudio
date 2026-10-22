@@ -272,7 +272,7 @@ Preparation is best effort; a cancelled checkpoint may fall back to foreground
 replay. Skipped checkpoints retry only after foreground progress. Preparation invalidates
 the assumed native SyncTeX page, so inverse search restores its actual page first.
 
-The current macOS validation passes seven live-client suites (63 Qt cases),
+The scrolling and cursor-preparation pass validated seven live-client suites (63 Qt cases),
 including real scrolling at thumbnail zoom, engine-only rerun invalidation,
 Unicode cursor preparation, cancellation, watchdogs and both SyncTeX directions.
 Five additional complete rerun-suite passes cover rapid reruns and error repair.
@@ -318,6 +318,8 @@ Validation includes real hyperref TOC entries, references, citations, wrapped em
 links, lazy destinations, missing targets, cached and secondary-page clicks,
 source synchronization, stale-link suppression and geometry updated at reveal.
 URI-dispatch tests intercept desktop URL handlers rather than launching browsers.
+All ten client suites now pass (101 Qt checks), as do the application's 1,613
+checks, including its real Biber workflow. This validation ran on macOS.
 
 ## Remaining work
 
