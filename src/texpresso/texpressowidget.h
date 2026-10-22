@@ -87,6 +87,7 @@ private:
     void layoutPage();
     void updateViewport(bool gesture = false);
     void connectCanvas(TexpressoCanvas *pageCanvas);
+    void updateCanvas(TexpressoCanvas *pageCanvas, int page);
     void showPage(int page);
     void revealPoint(const QPointF &point, bool source);
     void setZoom(qreal value, const QPoint &anchor = QPoint(-1, -1));

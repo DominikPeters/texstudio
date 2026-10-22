@@ -64,14 +64,17 @@ void TexpressoPreview::interruptBackground()
 }
 QImage TexpressoPreview::pageImage(int page) const
 {
-    if (page == currentPage) return pixels;
+    if (page == currentPage && fresh) return pixels;
     for (const auto &cached : pages) if (cached.page == page && cached.width == pixelWidth) return cached.image;
-    return {};
+    // The retained foreground frame can outlive its cache entry, but it still
+    // belongs to the page that produced it, even after selection moves ahead.
+    return page == displayedPage ? pixels : QImage();
 }
 QRectF TexpressoPreview::boundsForPage(int page) const
 {
-    if (page == currentPage) return pageBounds;
+    if (page == currentPage && fresh) return pageBounds;
     for (const auto &cached : pages) if (cached.page == page) return cached.bounds;
+    if (page == displayedPage) return pageBounds;
     return pageBounds.isEmpty() ? QRectF(0, 0, 595, 842) : pageBounds;
 }
 bool TexpressoPreview::pageValid(int page) const
@@ -150,7 +153,11 @@ void TexpressoPreview::setViewportPages(const QList<int> &visible, bool gesture)
     if (!next.isEmpty() && currentPage != next.first() && !destination && !followingSource() && (gesture || !next.contains(currentPage))) {
         const auto position = scroll; setPage(next.first()); scroll = position;
     }
-    interruptBackground(); request(); emit activityChanged(); schedulePrefetch();
+    // A scrollbar produces many updates while the same neighbor remains on
+    // screen. Cancelling its export on every tick can keep it white throughout
+    // an entire gesture. Only obsolete speculative work needs to yield here.
+    if (renderingBackground && !visiblePages.contains(flightPage)) interruptBackground();
+    request(); emit activityChanged(); schedulePrefetch();
 }
 void TexpressoPreview::schedulePrefetch()
 {
@@ -370,7 +377,7 @@ void TexpressoPreview::decode(Frame frame)
             } else if (image.isNull() && header.contains("patch")) retryFullFrame();
             else if (image.isNull()) emit failed(tr("Cannot decode TeXpresso preview image."));
             else {
-                pixels = image;
+                pixels = image; displayedPage = currentPage;
                 pageBounds = frameBounds(header);
                 pageAnnotations = header["annotations"].toObject();
                 rasterId = supportsPatches ? qint64(header["rasterId"].toDouble()) : 0;
@@ -472,7 +479,7 @@ bool TexpressoPreview::restorePage()
     for (int i = 0; i < pages.size(); ++i) {
         if (pages[i].page != currentPage || pages[i].width != pixelWidth) continue;
         const auto cached = pages.takeAt(i); pages.append(cached);
-        pixels = cached.image; pageBounds = cached.bounds;
+        pixels = cached.image; displayedPage = currentPage; pageBounds = cached.bounds;
         pageAnnotations = cached.annotations;
         rasterId = 0;
         dirty = false; fresh = true; needsNativePage = true;

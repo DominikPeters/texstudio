@@ -89,7 +89,7 @@ private:
     std::optional<Destination> destination;
     bool settingDestinationPage = false;
     qint64 sourceSequence = 0, engineRevision = -1, stateRevision = -1, nextRequest = 0, inFlight = 0;
-    int currentPage = 0, count = 0, pixelWidth = 1200;
+    int currentPage = 0, displayedPage = -1, count = 0, pixelWidth = 1200;
     bool active = false, finished = false, dirty = true, fresh = false, decoding = false;
     struct SourceTarget { qint64 revision, sequence; int page; QPointF point; };
     std::optional<SourceTarget> sourceTarget;

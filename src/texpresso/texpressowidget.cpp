@@ -340,6 +340,8 @@ void TexpressoWidget::refresh()
     shown = session;
     if (switched) {
         knownBounds.clear(); extentPages = 1; viewportPage = session ? session->preview.page() : 0;
+        canvas->pixels = {}; canvas->setProperty("texpressoPage", -1);
+        for (auto page : extraCanvases) { page->hide(); page->pixels = {}; page->setProperty("texpressoPage", -1); }
         disconnect(externalLinkConnection);
         if (session) externalLinkConnection = connect(&session->preview, &TexpressoPreview::externalLinkRequested,
             this, [this](const QUrl &url) { ViewerLinks::openUrl(url, this); });
@@ -385,14 +387,8 @@ void TexpressoWidget::refresh()
             : !session->compilerWarning.isEmpty() ? session->compilerWarning
             : preview.valid() ? liveHint : tr("Updating preview…"));
         status->setToolTip(QStringList{session->compilerError, session->compilerWarning, session->previewError}.join('\n').trimmed());
-        const bool changed = canvas->pixels.cacheKey() != preview.image().cacheKey()
-            || shownInvert != config->invertColors || shownGray != config->grayscale;
-        if (changed) { canvas->resetTools(); canvas->invalidateMagnifier(); }
+        updateCanvas(canvas, preview.page());
         shownInvert = config->invertColors; shownGray = config->grayscale;
-        canvas->pixels = preview.image(); canvas->pageBounds = preview.bounds();
-        canvas->fresh = preview.valid() && !session->userStopped && !session->failed() && !session->externalBuildRunning();
-        canvas->setAnnotations(preview.page(), preview.revision(), preview.sequence(), preview.annotationsForPage(preview.page()));
-        if (!canvas->fresh) canvas->resetTools();
         actions["gotoSource"]->setEnabled(canvas->fresh);
         if (switched) {
             disconnect(revealConnection);
@@ -406,7 +402,6 @@ void TexpressoWidget::refresh()
             const QRect viewport(documentCanvas->mapFrom(area->viewport(), QPoint()), area->viewport()->size());
             if (preview.page() >= pageRects.size() || !pageRects[preview.page()].intersects(viewport)) showPage(preview.page());
         }
-        if (changed) canvas->update();
         if (switched) {
             area->horizontalScrollBar()->setValue(preview.scroll.x());
             area->verticalScrollBar()->setValue(preview.scroll.y());
@@ -420,6 +415,33 @@ void TexpressoWidget::refresh()
     }
     updating = false;
     if (shown) updateViewport();
+}
+void TexpressoWidget::updateCanvas(TexpressoCanvas *pageCanvas, int page)
+{
+    auto &preview = shown->preview;
+    QImage image = preview.pageImage(page);
+    QRectF bounds = preview.boundsForPage(page);
+    const bool samePage = pageCanvas->property("texpressoPage").isValid()
+        && pageCanvas->property("texpressoPage").toInt() == page;
+    // Invalidating a revision or changing raster width must disable interaction
+    // immediately, but keep the last pixels for this page until its replacement
+    // arrives. Never carry pixels over to a different page or project.
+    if (image.isNull() && samePage) { image = pageCanvas->pixels; bounds = pageCanvas->pageBounds; }
+    if (image.isNull()) {
+        for (auto other : extraCanvases) {
+            if (other->property("texpressoPage").toInt() != page || other->pixels.isNull()) continue;
+            image = other->pixels; bounds = other->pageBounds; break;
+        }
+    }
+    const bool changed = pageCanvas->pixels.cacheKey() != image.cacheKey()
+        || shownInvert != config->invertColors || shownGray != config->grayscale;
+    if (changed || !samePage) { pageCanvas->resetTools(); pageCanvas->invalidateMagnifier(); }
+    pageCanvas->pixels = image; pageCanvas->pageBounds = bounds;
+    pageCanvas->setProperty("texpressoPage", page);
+    pageCanvas->fresh = preview.pageValid(page) && !shown->userStopped && !shown->failed() && !shown->externalBuildRunning();
+    pageCanvas->setAnnotations(page, preview.revision(), preview.sequence(), preview.annotationsForPage(page));
+    if (!pageCanvas->fresh) pageCanvas->resetTools();
+    if (changed) pageCanvas->update();
 }
 void TexpressoWidget::connectCanvas(TexpressoCanvas *pageCanvas)
 {
@@ -449,6 +471,7 @@ void TexpressoWidget::showPage(int page)
 {
     if (!shown) return;
     const bool before = updating; updating = true;
+    updateCanvas(canvas, shown->preview.page());
     layoutPage(); viewportPage = page;
     const QRect bounds = page < pageRects.size() ? pageRects[page] : QRect();
     if (!bounds.isEmpty()) area->verticalScrollBar()->setValue(bounds.top());
@@ -511,9 +534,9 @@ void TexpressoWidget::setZoom(qreal value, const QPoint &anchor)
 }
 void TexpressoWidget::layoutPage()
 {
-    if (!shown || canvas->pixels.isNull() || canvas->pageBounds.isEmpty()) { canvas->hide(); return; }
+    if (!shown || canvas->pageBounds.isEmpty()) { canvas->hide(); return; }
     auto &preview = shown->preview;
-    knownBounds.insert(preview.page(), preview.bounds());
+    if (preview.pageValid(preview.page())) knownBounds.insert(preview.page(), canvas->pageBounds);
     const auto bounds = canvas->pageBounds;
     const double widthScale = std::max(0.05, (area->viewport()->width() - 16.0) / bounds.width());
     canvas->scale = preview.zoom == 0 ? widthScale : preview.zoom < 0
@@ -572,8 +595,16 @@ void TexpressoWidget::updateViewport(bool gesture)
     if (visible.isEmpty()) visible.append(primary);
     visible.removeAll(primary); visible.prepend(primary);
     viewportPage = primary;
+    const int previousPage = canvas->property("texpressoPage").toInt();
+    const QImage previousPixels = canvas->pixels;
+    const QRectF previousBounds = canvas->pageBounds;
     if (continuous) preview.setViewportPages(visible, gesture);
     else preview.setViewportPages({preview.page()}, gesture);
+    // The controller may select a new primary page synchronously. Move its
+    // pixels and geometry together, before returning to the event loop.
+    updateCanvas(canvas, preview.page());
+    if (preview.page() < pageRects.size()) canvas->setGeometry(pageRects[preview.page()]);
+    canvas->show();
     int slot = 0; bool geometryChanged = false;
     const QList<int> ordered = continuous ? visible : QList<int>{};
     for (int page : ordered) {
@@ -582,14 +613,20 @@ void TexpressoWidget::updateViewport(bool gesture)
             auto extra = new TexpressoCanvas(config, area); extra->setParent(documentCanvas); extra->setObjectName("texpressoNeighborPage");
             connectCanvas(extra); extraCanvases.append(extra);
         }
+        // Keep a canvas attached to its page while it remains visible. Slots
+        // otherwise swap at a page boundary and discard useful stale pixels.
+        for (int i = slot; i < extraCanvases.size(); ++i) {
+            if (extraCanvases[i]->property("texpressoPage").toInt() == page) { extraCanvases.swapItemsAt(slot, i); break; }
+        }
         auto extra = extraCanvases[slot++];
-        extra->setPreview(&preview); extra->setProperty("texpressoPage", page); extra->scale = canvas->scale;
-        extra->pixels = preview.pageImage(page); extra->pageBounds = preview.boundsForPage(page);
+        extra->setPreview(&preview); extra->scale = canvas->scale;
+        if (page == previousPage && preview.pageImage(page).isNull()) {
+            extra->pixels = previousPixels; extra->pageBounds = previousBounds; extra->setProperty("texpressoPage", page);
+        }
+        updateCanvas(extra, page);
         if (preview.pageValid(page) && knownBounds.value(page) != extra->pageBounds) {
             knownBounds.insert(page, extra->pageBounds); geometryChanged = true;
         }
-        extra->fresh = preview.pageValid(page) && !shown->failed() && !shown->userStopped && !shown->externalBuildRunning();
-        extra->setAnnotations(page, preview.revision(), preview.sequence(), preview.annotationsForPage(page));
         extra->setTool(config->editTool); extra->setGeometry(pageRects[page]); extra->show(); extra->update();
     }
     for (; slot < extraCanvases.size(); ++slot) { extraCanvases[slot]->hide(); extraCanvases[slot]->pixels = {}; extraCanvases[slot]->fresh = false; extraCanvases[slot]->resetTools(); extraCanvases[slot]->setAnnotations(-1, -1, -1, {}); }

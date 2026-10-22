@@ -17,6 +17,7 @@ private slots:
     void secondVisiblePageDoesNotJumpToItsTop();
     void currentFrameGeometryAndStaleTargets();
     void explicitLinkKeepsDestinationNavigation();
+    void scrollingHandoffRetainsVisiblePixels();
 private:
     void frame(int page = 0, QRectF bounds = QRectF(0, 0, 2000, 1200));
     QPoint scroll() const;
@@ -51,7 +52,7 @@ void SourceViewportTest::frame(int page, QRectF bounds)
         QVERIFY(!commands.isEmpty());
         const auto request = commands.last()[0].toJsonArray();
         QCOMPARE(request[0].toString(), QString("preview-render"));
-        QImage image(16, 24, QImage::Format_RGB32); image.fill(Qt::white);
+        QImage image(16, 24, QImage::Format_RGB32); image.fill(page == 0 ? Qt::red : Qt::blue);
         QByteArray png; QBuffer buffer(&png); QVERIFY(buffer.open(QIODevice::WriteOnly)); QVERIFY(image.save(&buffer, "PNG"));
         preview.receive({{"requestId", request[1]}, {"revision", request[4]}, {"sequence", request[5]},
             {"page", page}, {"width", image.width()}, {"height", image.height()},
@@ -143,6 +144,43 @@ void SourceViewportTest::explicitLinkKeepsDestinationNavigation()
     QVERIFY(scroll().y() != before.y());
     const auto target = widget->canvas->mapTo(widget->area->viewport(), QPoint(400, 450));
     QVERIFY(widget->area->viewport()->rect().contains(target));
+}
+void SourceViewportTest::scrollingHandoffRetainsVisiblePixels()
+{
+    frame(1); frame(0);
+    const auto boundary = widget->pageRects[1].top();
+    const auto viewport = widget->area->viewport()->height();
+    setScroll({250, boundary - viewport / 3});
+    widget->updateViewport(true); widget->refreshTimer.stop();
+    QCOMPARE(session->preview.page(), 1);
+    QCOMPARE(widget->canvas->property("texpressoPage").toInt(), 1);
+    QCOMPARE(widget->canvas->geometry(), widget->pageRects[1]);
+    QCOMPARE(widget->canvas->pixels.pixelColor(0, 0), QColor(Qt::blue));
+    const auto visiblePage = [&](int page) -> TexpressoCanvas * {
+        for (auto item : widget->extraCanvases)
+            if (item->isVisible() && item->property("texpressoPage").toInt() == page) return item;
+        return nullptr;
+    };
+    auto previous = visiblePage(0); QVERIFY(previous);
+    QCOMPARE(previous->pixels.pixelColor(0, 0), QColor(Qt::red));
+    // A rerun discards validated cache entries, while both pages are still on
+    // screen. Keep their own last pixels with links and source clicks disabled.
+    session->preview.message({"preview-invalidated", 2, 0});
+    widget->updateViewport(); widget->refreshTimer.stop();
+    previous = visiblePage(0); QVERIFY(previous);
+    QCOMPARE(previous->pixels.pixelColor(0, 0), QColor(Qt::red)); QVERIFY(!previous->fresh);
+    QVERIFY(!widget->canvas->fresh);
+    QCOMPARE(previous->grab().toImage().pixelColor(0, 0), QColor(Qt::red));
+    // Reverse direction before the replacement frame arrives. The stale red
+    // page must transfer from its neighbor canvas to the active one atomically.
+    setScroll({250, boundary - viewport * 2 / 3});
+    widget->updateViewport(true); widget->refreshTimer.stop();
+    QCOMPARE(session->preview.page(), 0);
+    QCOMPARE(widget->canvas->property("texpressoPage").toInt(), 0);
+    QCOMPARE(widget->canvas->geometry(), widget->pageRects[0]);
+    QCOMPARE(widget->canvas->pixels.pixelColor(0, 0), QColor(Qt::red));
+    const auto next = visiblePage(1); QVERIFY(next);
+    QCOMPARE(next->pixels.pixelColor(0, 0), QColor(Qt::blue)); QVERIFY(!next->fresh);
 }
 QTEST_MAIN(SourceViewportTest)
 #include "source_viewport_test.moc"

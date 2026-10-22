@@ -14,6 +14,8 @@ class ScrollingTest : public QObject
 private slots:
     void backgroundPriorityAndFences();
     void frontierDoesNotRunAway();
+    void visibleExportsSurviveScrollTicks();
+    void retainedPixelsKeepTheirPageIdentity();
     void engineOnlyRerunRefreshesVisiblePages();
     void realContinuousViewer();
 };
@@ -55,6 +57,47 @@ void ScrollingTest::backgroundPriorityAndFences()
     deliver(preview, last(commands), Qt::green); QTRY_VERIFY(preview.pageValid(2));
     preview.sourceChanged(1); deliver(preview, old, Qt::green); QTest::qWait(20); QVERIFY(!preview.pageValid(old[2].toInt()));
     QVERIFY(!preview.valid());
+}
+void ScrollingTest::visibleExportsSurviveScrollTicks()
+{
+    TexpressoPreview preview; QSignalSpy commands(&preview, &TexpressoPreview::command);
+    preview.setCapabilities({{"backgroundRendering", true}}); preview.setActive(true);
+    preview.message({"preview-state", 1, 0, 3, true, 0});
+    deliver(preview, last(commands), Qt::red); QTRY_VERIFY(preview.valid());
+    preview.setViewportPages({0, 1}, true);
+    const auto request = last(commands);
+    QCOMPARE(request[0].toString(), QString("preview-background"));
+    const int sent = commands.size();
+    // Trackpad ticks arrive faster than an export. A page that remains visible
+    // must be allowed to finish instead of being cancelled on every tick.
+    for (int tick = 0; tick < 20; ++tick) preview.setViewportPages({0, 1}, true);
+    QCOMPARE(commands.size(), sent);
+    deliver(preview, request, Qt::blue); QTRY_VERIFY(preview.pageValid(1));
+    QCOMPARE(preview.pageImage(1).pixelColor(0, 0), QColor(Qt::blue));
+    preview.setViewportPages({0, 2}, true);
+    QCOMPARE(last(commands)[0].toString(), QString("preview-background"));
+    const auto obsolete = last(commands);
+    preview.setViewportPages({0}, true);
+    QCOMPARE(last(commands)[0].toString(), QString("preview-cancel"));
+    QCOMPARE(last(commands)[1], obsolete[1]);
+}
+void ScrollingTest::retainedPixelsKeepTheirPageIdentity()
+{
+    TexpressoPreview preview; QSignalSpy commands(&preview, &TexpressoPreview::command);
+    preview.setActive(true); preview.message({"preview-state", 1, 0, 3, true, 0});
+    deliver(preview, last(commands), Qt::red); QTRY_VERIFY(preview.valid());
+    preview.setPage(1);
+    QVERIFY(!preview.valid());
+    QVERIFY(preview.pageImage(1).isNull());
+    QCOMPARE(preview.pageImage(0).pixelColor(0, 0), QColor(Qt::red));
+    deliver(preview, last(commands), Qt::blue); QTRY_VERIFY(preview.valid());
+    QCOMPARE(preview.pageImage(1).pixelColor(0, 0), QColor(Qt::blue));
+    preview.sourceChanged(1);
+    QCOMPARE(preview.pageImage(1).pixelColor(0, 0), QColor(Qt::blue));
+    QVERIFY(!preview.pageValid(1));
+    preview.setPage(2);
+    QVERIFY(preview.pageImage(2).isNull());
+    QCOMPARE(preview.pageImage(1).pixelColor(0, 0), QColor(Qt::blue));
 }
 void ScrollingTest::frontierDoesNotRunAway()
 {
