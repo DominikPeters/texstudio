@@ -10,6 +10,7 @@ class CompilerTest : public QObject
     Q_OBJECT
 private slots:
     void convergence();
+    void referencesSurviveEditingRollbacks();
     void bibliography_data();
     void bibliography();
     void buildState();
@@ -56,6 +57,56 @@ void CompilerTest::convergence()
     live->rerunOnce();
     QTRY_VERIFY_WITH_TIMEOUT(live->engineOutput.contains("on-demand: finishing pass"), 15000);
     QTRY_VERIFY_WITH_TIMEOUT(live->compilerOutput.contains("FORWARD-REF:7"), 15000);
+}
+// Mirrors the extension's reference-retention regression (f942cd0).
+void CompilerTest::referencesSurviveEditingRollbacks()
+{
+    if (engine().isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for compiler integration tests");
+    QTemporaryDir temp; QVERIFY(temp.isValid()); const auto root = temp.filePath("main.tex");
+    QString source = "\\documentclass{article}\n\\newcommand{\\Unused}{A}\n\\begin{document}\n"
+        "See Section~\\ref{target}.\\par\n\\newpage\n\\section{Target}\\label{target}\nSome editable text.\n\\end{document}\n";
+    writeFile(root, source);
+    TexpressoManager manager(nullptr, engine()); manager.openBuffer(root, source); manager.activate(root);
+    auto live = manager.current(); QVERIFY(live); live->followCursor = false;
+    live->setAutoRerun(false); live->preview.setWidth(1000);
+    const auto ready = [&] { return live->preview.valid() && !live->preview.busy(); };
+    QTRY_VERIFY_WITH_TIMEOUT(ready(), 15000);
+    const auto unresolved = live->preview.image();
+    const auto pid = live->processId();
+    const auto converge = [&] {
+        const int before = live->engineOutput.count("aux byte-stable, convergence reached");
+        live->setAutoRerun(true);
+        QTRY_VERIFY_WITH_TIMEOUT(live->engineOutput.count("aux byte-stable, convergence reached") > before, 15000);
+        live->setAutoRerun(false); live->preview.setPage(0);
+        QTRY_VERIFY_WITH_TIMEOUT(ready(), 15000);
+    };
+    const auto replace = [&](const QString &from, const QString &to) {
+        const int offset = source.indexOf(from); QVERIFY(offset >= 0);
+        const int line = source.left(offset).count('\n');
+        const int column = offset - source.lastIndexOf('\n', offset - 1) - 1;
+        QVERIFY(!from.contains('\n'));
+        source.replace(offset, from.size(), to);
+        const auto sequence = live->preview.sequence();
+        manager.changeBuffer(root, line, column, line, column + from.size(), to, source);
+        QTRY_VERIFY_WITH_TIMEOUT(live->preview.sequence() > sequence && ready(), 15000);
+    };
+    converge(); QVERIFY(!QTest::currentTestFailed());
+    const auto resolved = live->preview.image(); QVERIFY(unresolved != resolved);
+    for (const auto &values : {qMakePair(QString("{A}"), QString("{B}")), qMakePair(QString("{B}"), QString("{C}")), qMakePair(QString("{C}"), QString("{D}"))}) {
+        replace(values.first, values.second); QVERIFY(!QTest::currentTestFailed());
+        QCOMPARE(live->preview.image(), resolved);
+    }
+    replace("\\section{Target}", "\\section{Before}\\section{Target}"); QVERIFY(!QTest::currentTestFailed());
+    live->preview.setPage(1); QTRY_VERIFY_WITH_TIMEOUT(ready(), 15000);
+    converge(); QVERIFY(!QTest::currentTestFailed());
+    const auto renumbered = live->preview.image(); QVERIFY(renumbered != resolved);
+    replace("{D}", "{E}"); QVERIFY(!QTest::currentTestFailed());
+    QCOMPARE(live->preview.image(), renumbered);
+    replace("\\label{target}", ""); QVERIFY(!QTest::currentTestFailed());
+    live->preview.setPage(1); QTRY_VERIFY_WITH_TIMEOUT(ready(), 15000);
+    converge(); QVERIFY(!QTest::currentTestFailed());
+    QCOMPARE(live->preview.image(), unresolved);
+    QCOMPARE(live->processId(), pid);
 }
 void CompilerTest::bibliography_data()
 {

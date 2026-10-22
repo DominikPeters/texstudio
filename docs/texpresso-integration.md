@@ -375,6 +375,24 @@ Poppler/Qt lookup paths. The install target strips build lookup paths, so portab
 application dependency deployment remains release-packaging work below. The
 installed engine runtime validates and starts in a clean environment.
 
+## References retained during live editing
+
+The engine now includes extension `f942cd0`'s reference-retention fix (`c00fbaf`),
+pinned here as `09f0351` with both native rerun fixes preserved. Rolling back after
+an edit cancels the finishing activity while retaining the last complete copied
+auxiliary input. Resolved references therefore survive root replays without
+waiting for another idle convergence pass. A later complete pass still replaces
+that input when section numbers change or labels disappear.
+
+The Qt compiler regression fails on the prior `1db9818` engine and passes on the
+updated engine. It compares freshly decoded images across three unused-preamble
+edits with automatic reruns disabled, then verifies real renumbering, retention of
+that new result, and genuinely unresolved output after deleting the label. It
+also checks that the same engine process handles all of these changes. The
+extension's three auxiliary-state regressions pass against the bundled engine.
+All 14 client suites pass (145 checks, with the two long-document rows skipped
+in this run). No production Qt client changes are needed for this update.
+
 ## Remaining work
 
 - Measured Qt SVG/adaptive rendering.
