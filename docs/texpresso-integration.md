@@ -280,6 +280,14 @@ The full application passes 1,613 cases across 29 suites, including the real
 Biber workflow with Live output selected; all 18 native-tooling tests pass.
 Linux execution remains for CI.
 
+One additional upstream checkpoint-reuse check remains timing sensitive: after
+cancelling preparation, the engine's 10 ms worker synchronization fallback may
+discard the speculative checkpoint. Its edited PNG arrives, but the optional
+checkpoint-reuse assertion times out (eight of nine upstream engine checks
+passed). Qt's preparation cancellation, subsequent editing and source-navigation
+checks pass. Keep checkpoint reuse best effort rather than guaranteeing it under
+load.
+
 ## Remaining work
 
 - Measured Qt SVG/adaptive rendering.
