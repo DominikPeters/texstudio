@@ -77,6 +77,7 @@ private:
     void finishDestination();
     void finishForward();
     void cancelForward(int page);
+    void settleSourceSearch();
     void interruptBackground();
     void schedulePrefetch();
     bool restorePage();
@@ -94,6 +95,8 @@ private:
     struct SourceTarget { qint64 revision, sequence; int page; QPointF point; };
     std::optional<SourceTarget> sourceTarget;
     bool waitingForward = false, sourceFollowing = false, sourceReveal = false, nativeForwardPending = false;
+    bool supportsRequestLifecycle = false;
+    qint64 sourceRequest = 0;
     std::optional<Frame> pending;
     QList<CachedPage> pages; // LRU, four entries normally, up to sixteen for zoomed-out visible pages / 32 MiB.
     qint64 cacheBytes = 0;

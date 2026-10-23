@@ -20,6 +20,9 @@ private slots:
     void sourceEpochCannotReuseOldCompletion();
     void navigationBounds_data();
     void navigationBounds();
+    void identifiedSearchRejectsReplacedIntent();
+    void identifiedSearchCancellationSettlesImmediately();
+    void cancelledRenderReleasesRequestCredit();
 };
 static QJsonArray lastCommand(const QSignalSpy &commands)
 {
@@ -36,6 +39,54 @@ static void deliver(TexpressoPreview &preview, const QJsonArray &request, Qt::Gl
 static void start(TexpressoPreview &preview)
 {
     preview.setActive(true); preview.message({"preview-state", 10, 0, 8, true, 0});
+}
+void SourceRoutingTest::identifiedSearchRejectsReplacedIntent()
+{
+    TexpressoPreview preview;
+    QSignalSpy commands(&preview, &TexpressoPreview::command), reveals(&preview, &TexpressoPreview::reveal);
+    preview.setCapabilities({{"requestLifecycle", true}});
+    start(preview); deliver(preview, lastCommand(commands)); QTRY_VERIFY(preview.valid());
+    preview.forward("main.tex", 10);
+    const auto first = lastCommand(commands);
+    QCOMPARE(first[0].toString(), QString("preview-search"));
+    QCOMPARE(first[2].toString(), QString("main.tex")); QCOMPARE(first[3].toInt(), 11); QCOMPARE(first[4].toInt(), 0);
+    preview.forward("chapter.tex", 20);
+    const auto second = lastCommand(commands); QVERIFY(second[1] != first[1]);
+    preview.message({"preview-cancelled", first[1]});
+    preview.message({"preview-source", first[1], 10, 0, 5, 50, 80});
+    preview.message({"preview-forward", 10, 0, 5, 50, 80}); // An unowned legacy reply is ineligible.
+    QCOMPARE(preview.page(), 0); QVERIFY(preview.followingSource()); QVERIFY(reveals.isEmpty());
+    preview.message({"preview-source", second[1], 10, 0, 1.5, 50, 80});
+    QCOMPARE(preview.page(), 0);
+    preview.message({"preview-source", second[1], 10, 0, 1, 50, 80});
+    QCOMPARE(preview.page(), 1);
+    deliver(preview, lastCommand(commands), Qt::blue); QTRY_COMPARE(reveals.size(), 1);
+    preview.forward("main.tex", 30); const auto abandoned = lastCommand(commands);
+    preview.navigateTo(2);
+    preview.message({"preview-source", abandoned[1], 10, 0, 3, 50, 80});
+    QCOMPARE(preview.page(), 2); QCOMPARE(reveals.size(), 1); QVERIFY(!preview.followingSource());
+}
+void SourceRoutingTest::identifiedSearchCancellationSettlesImmediately()
+{
+    TexpressoPreview preview; QSignalSpy commands(&preview, &TexpressoPreview::command);
+    preview.setCapabilities({{"requestLifecycle", true}, {"backgroundRendering", true}});
+    start(preview); deliver(preview, lastCommand(commands)); QTRY_VERIFY(preview.valid());
+    preview.setViewportPages({0}); preview.forward("definitions.tex", 10);
+    const auto search = lastCommand(commands); QVERIFY(preview.followingSource());
+    preview.message({"preview-cancelled", search[1]});
+    QVERIFY(!preview.followingSource()); QVERIFY(preview.valid());
+    QTRY_COMPARE(lastCommand(commands)[0].toString(), QString("preview-background"));
+}
+void SourceRoutingTest::cancelledRenderReleasesRequestCredit()
+{
+    TexpressoPreview preview; QSignalSpy commands(&preview, &TexpressoPreview::command);
+    preview.setCapabilities({{"requestLifecycle", true}}); start(preview);
+    const auto old = lastCommand(commands);
+    preview.message({"preview-cancelled", old[1]});
+    const auto replacement = lastCommand(commands);
+    QVERIFY(old[1] != replacement[1]); QCOMPARE(replacement[2].toInt(), 0);
+    preview.message({"preview-cancelled", old[1]}); QCOMPARE(lastCommand(commands), replacement);
+    deliver(preview, replacement, Qt::green); QTRY_VERIFY(preview.valid());
 }
 void SourceRoutingTest::targetWaitsForItsDecodedFrame()
 {

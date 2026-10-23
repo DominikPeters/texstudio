@@ -122,7 +122,8 @@ void TexpressoProcess::start(const QString &engine, const QString &root, const Q
         emit failed(tr("TeX Live was not found. Install TeX Live, then restart the preview.")); return;
     }
     probe.setProcessEnvironment(env);
-    probe.start(engine, {"-capabilities"}); probeTimeout.start(5000);
+    // A newly installed signed executable may spend seconds in OS cold loading.
+    probe.start(engine, {"-capabilities"}); probeTimeout.start(10000);
 }
 void TexpressoProcess::send(const QJsonArray &command)
 {

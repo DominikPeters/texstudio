@@ -16,6 +16,11 @@ QRectF frameBounds(const QJsonObject &header)
     const auto b = header["bounds"].toArray();
     return QRectF(QPointF(b[0].toDouble(), b[1].toDouble()), QPointF(b[2].toDouble(), b[3].toDouble()));
 }
+bool protocolCount(const QJsonValue &value)
+{
+    const double n = value.toDouble(-1);
+    return value.isDouble() && std::isfinite(n) && n >= 0 && n <= 2147483647 && std::floor(n) == n;
+}
 }
 TexpressoPreview::TexpressoPreview(QObject *parent) : QObject(parent)
 {
@@ -28,6 +33,14 @@ TexpressoPreview::TexpressoPreview(QObject *parent) : QObject(parent)
     });
     forwardTimer.setSingleShot(true); forwardTimer.setInterval(2000);
     connect(&forwardTimer, &QTimer::timeout, this, [this] {
+        if (supportsRequestLifecycle && sourceRequest) {
+            const auto requestId = sourceRequest;
+            settleSourceSearch();
+            emit command({"preview-cancel", double(requestId), currentPage});
+            emit failed(tr("The source location did not become available. Try again after compilation finishes."));
+            request(); schedulePrefetch();
+            return;
+        }
         waitingForward = false;
         // Definitions-only inputs and missing source records can finish without
         // a forward reply. Release speculation once this pass is known complete,
@@ -171,6 +184,7 @@ void TexpressoPreview::setCapabilities(const QJsonObject &capabilities)
     supportsBackground = capabilities["backgroundRendering"].toBool();
     supportsRegions = capabilities["regions"].toBool();
     supportsPatches = capabilities["pngPatches"].toBool();
+    supportsRequestLifecycle = capabilities["requestLifecycle"].toBool();
     if (!supportsRegions) cancelRegion();
     if (!supportsPatches) rasterId = 0;
 }
@@ -198,6 +212,7 @@ void TexpressoPreview::sourceChanged(qint64 sequence)
     sourceSequence = sequence; engineRevision = stateRevision = -1;
     dirty = true; fresh = false; inFlight = 0; pending.reset();
     waitingForward = false; nativeForwardPending = false; sourceFollowing = false; sourceTarget.reset(); forwardTimer.stop();
+    sourceRequest = 0;
     cancelRegion();
     clearCache();
     emit updated();
@@ -241,7 +256,7 @@ void TexpressoPreview::message(const QJsonArray &m)
         engineRevision = stateRevision = revision;
         if (m[5].toInt() != currentPage) needsNativePage = true;
         count = std::max(0, m[3].toInt()); finished = m[4].toBool();
-        if (finished && !forwardTimer.isActive()) nativeForwardPending = false;
+        if (finished && !forwardTimer.isActive() && !sourceRequest) nativeForwardPending = false;
         if (destination) destinationTimer.start();
         if (finished && count && currentPage >= count) setPage(count - 1);
         // No render request is sent for a terminal zero-page document. Report
@@ -260,6 +275,15 @@ void TexpressoPreview::message(const QJsonArray &m)
         cancelRegion();
         engineRevision = qint64(m[1].toDouble()); dirty = true; fresh = false; inFlight = 0;
         emit updated(); request();
+    } else if (verb == "preview-cancelled" && m.size() == 2 && protocolCount(m[1]) && m[1].toDouble() > 0) {
+        if (m[1].toDouble() == sourceRequest) {
+            settleSourceSearch(); request(); schedulePrefetch();
+        } else if (m[1].toDouble() == inFlight) {
+            inFlight = 0;
+            if (renderingBackground) prefetched.remove(flightPage);
+            else if (!renderingRegion) dirty = true;
+            request();
+        }
     } else if (verb == "preview-retry" && m.size() == 2 && m[1].toDouble() == inFlight) {
         inFlight = 0;
         if (!renderingRegion && !renderingBackground) dirty = true;
@@ -282,10 +306,18 @@ void TexpressoPreview::message(const QJsonArray &m)
             setPage(int(target));
             finishDestination(); request();
         }
-    } else if (verb == "preview-forward" && sourceFollowing && m.size() == 6 && m[1].toDouble() == engineRevision && m[2].toDouble() == sourceSequence) {
-        const int page = m[3].toInt(-1);
-        if (page < 0 || page > 100000 || !std::isfinite(m[4].toDouble()) || !std::isfinite(m[5].toDouble())) return;
-        sourceTarget = SourceTarget{engineRevision, sourceSequence, page, {m[4].toDouble(), m[5].toDouble()}};
+    } else if (sourceFollowing && ((verb == "preview-forward" && !supportsRequestLifecycle && m.size() == 6)
+        || (verb == "preview-source" && supportsRequestLifecycle && m.size() == 7
+            && protocolCount(m[1]) && sourceRequest && m[1].toDouble() == sourceRequest))) {
+        const int offset = verb == "preview-source" ? 2 : 1;
+        if (m[offset].toDouble(-1) != engineRevision || m[offset + 1].toDouble(-1) != sourceSequence
+            || !protocolCount(m[offset + 2]) || m[offset + 2].toDouble() > 100000) return;
+        const int page = m[offset + 2].toInt();
+        const auto x = m[offset + 3], y = m[offset + 4];
+        if (!x.isDouble() || !y.isDouble() || !std::isfinite(x.toDouble()) || !std::isfinite(y.toDouble())
+            || std::abs(x.toDouble()) >= 1e9 || std::abs(y.toDouble()) >= 1e9) return;
+        sourceRequest = 0;
+        sourceTarget = SourceTarget{engineRevision, sourceSequence, page, {x.toDouble(), y.toDouble()}};
         waitingForward = false; nativeForwardPending = false; forwardTimer.stop();
         setPage(page); finishForward(); request();
     }
@@ -494,8 +526,12 @@ void TexpressoPreview::forward(const QString &path, int zeroBasedLine)
         // Forward search can move the native viewer before its reply arrives.
         emit interactionStarted(); interruptBackground();
         sourceTarget.reset(); sourceFollowing = true; nativeForwardPending = true;
-        needsNativePage = true; waitingForward = true; forwardTimer.start();
-        emit command({"synctex-forward", path, zeroBasedLine + 1});
+        needsNativePage = true; waitingForward = true;
+        forwardTimer.start(supportsRequestLifecycle ? 30000 : 2000);
+        if (supportsRequestLifecycle) {
+            sourceRequest = nextRequestId();
+            emit command({"preview-search", double(sourceRequest), path, zeroBasedLine + 1, double(sourceSequence)});
+        } else emit command({"synctex-forward", path, zeroBasedLine + 1});
     }
 }
 
@@ -508,9 +544,16 @@ void TexpressoPreview::finishForward()
     QScopedValueRollback<bool> guard(sourceReveal, true);
     emit reveal(target.point);
 }
+void TexpressoPreview::settleSourceSearch()
+{
+    sourceRequest = 0; sourceTarget.reset(); waitingForward = false;
+    nativeForwardPending = false; sourceFollowing = false; forwardTimer.stop();
+    emit activityChanged();
+}
 void TexpressoPreview::cancelForward(int page)
 {
     emit manualNavigated();
+    sourceRequest = 0;
     sourceTarget.reset(); waitingForward = false; nativeForwardPending = false; forwardTimer.stop();
     if (!sourceFollowing) return;
     sourceFollowing = false;
