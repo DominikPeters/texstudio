@@ -59,7 +59,7 @@ jobs:
         run: |
           brew install cmake ninja pkgconf qt qt5compat hunspell \
             freetype jpeg-turbo openjpeg brotli sdl2 harfbuzz graphite2 fontconfig \
-            libpng jbig2dec icu4c@78 boost cairo libtiff little-cms2 poppler-data
+            libpng jbig2dec icu4c@78 boost cairo libtiff little-cms2
           echo "$(brew --prefix qt)/bin" >> "$GITHUB_PATH"
       - name: Check tooling contracts
         run: python3 -m unittest discover -s native/tests
@@ -81,11 +81,13 @@ jobs:
         run: |
           python3 - <<'PY'
           import hashlib, json, pathlib, urllib.request
-          lock = json.load(open('native/macos-dependencies.lock.json'))['poppler']
-          archive = pathlib.Path('.native-sources/poppler.tar.xz')
-          urllib.request.urlretrieve(lock['url'], archive)
-          if hashlib.file_digest(archive.open('rb'), 'sha256').hexdigest() != lock['sha256']:
-              raise SystemExit('Poppler source checksum mismatch')
+          locks = json.load(open('native/macos-dependencies.lock.json'))
+          for name, suffix in [('poppler', 'tar.xz'), ('poppler-data', 'tar.gz')]:
+              lock = locks[name]
+              archive = pathlib.Path(f'.native-sources/{name}.{suffix}')
+              urllib.request.urlretrieve(lock['url'], archive)
+              if hashlib.file_digest(archive.open('rb'), 'sha256').hexdigest() != lock['sha256']:
+                  raise SystemExit(f'{name} checksum mismatch')
           PY
           mkdir -p .native-sources/poppler
           tar -xf .native-sources/poppler.tar.xz -C .native-sources/poppler --strip-components=1
@@ -101,6 +103,9 @@ jobs:
             -DBUILD_CPP_TESTS=OFF -DBUILD_MANUAL_TESTS=OFF
           cmake --build build-poppler --parallel 3
           cmake --install build-poppler
+          mkdir -p .native-sources/poppler-data
+          tar -xf .native-sources/poppler-data.tar.gz -C .native-sources/poppler-data --strip-components=1
+          make -C .native-sources/poppler-data install prefix="$RUNNER_TEMP/poppler"
       - name: Install the test TeX Live provider
         run: |
           brew install --cask basictex
@@ -123,7 +128,7 @@ jobs:
             --output "$RUNNER_TEMP/deploy/texstudio.app" \
             --macdeployqt "$(brew --prefix qt)/bin/macdeployqt" \
             --library-path "$RUNNER_TEMP/poppler/lib" --library-path "$(brew --prefix)/lib" \
-            --poppler-data "$(brew --prefix poppler-data)/share/poppler"
+            --poppler-data "$RUNNER_TEMP/poppler/share/poppler"
       - name: Sign, notarize, staple, and verify the complete app
         timeout-minutes: 35
         env:

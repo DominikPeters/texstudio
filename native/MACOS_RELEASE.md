@@ -14,6 +14,8 @@ Each architecture builds the pinned engine, locked MuPDF/ICU profile, Poppler
 with Qt support, and TeXstudio. The application includes Qt frameworks/plugins,
 PDF libraries/data, and the native engine. TeX Live remains a user installation.
 The runner installs BasicTeX only for tests; it is not copied into the app.
+Poppler and its encoding data are downloaded separately from their official
+releases and checked against `native/macos-dependencies.lock.json`.
 
 Signing uses the existing repository secrets:
 
@@ -51,7 +53,7 @@ python3 native/scripts/deploy_macos.py --app build/texstudio.app \
   --output /tmp/texstudio-deployed/texstudio.app \
   --macdeployqt "$(brew --prefix qt)/bin/macdeployqt" \
   --library-path /path/to/poppler/lib --library-path "$(brew --prefix)/lib" \
-  --poppler-data "$(brew --prefix poppler-data)/share/poppler"
+  --poppler-data /path/to/poppler/share/poppler
 python3 -m unittest discover -s native/tests
 ```
 
