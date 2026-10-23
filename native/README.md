@@ -41,6 +41,8 @@ the app and installing it. This is a build input, never an end-user preference.
 `-DTEXSTUDIO_ENABLE_TEXPRESSO=OFF` builds the original editor without live preview.
 
 Validate native tooling with `python3 -m unittest discover -s native/tests`.
+For a persistent, isolated macOS development app in `~/Applications`, use
+[the local test-app generator and instructions](LOCAL_TEST_APP.md).
 For opt-in long editing sessions through the actual editor and continuous
 preview, see [the full-editor soak instructions](../docs/texpresso-ui-soak.md).
 The runner supports 30/100-page projects, independent PDF/SyncTeX checks and
