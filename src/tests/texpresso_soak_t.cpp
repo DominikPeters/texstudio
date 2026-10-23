@@ -205,8 +205,20 @@ void TexStudioTest::liveEditingSoak()
         if (number) cursor.movePosition(4, QDocumentCursor::NextCharacter, QDocumentCursor::KeepAnchor);
         view->editor->setCursor(cursor); return true;
     };
+    auto restart = [&] {
+        auto s = manager->current(); const auto oldPid = s->processId();
+        if (!click("texpressoStop")) return false;
+        QElapsedTimer deadline; deadline.start();
+        while (!(::kill(-oldPid, 0) == -1 && errno == ESRCH) && deadline.elapsed() < 5000) QTest::qWait(20);
+        if (!(::kill(-oldPid, 0) == -1 && errno == ESRCH) || !click("texpressoRestart")) return false;
+        deadline.restart();
+        while (!(ready() && s->processId() != oldPid) && deadline.elapsed() < 30000) QTest::qWait(20);
+        return ready() && s->processId() != oldPid;
+    };
+    qint64 sustainedPid = 0;
     QHash<QString, int> values; int cycles = 0;
     while (!cycles || observer.clock.elapsed() < seconds * 1000) {
+        if (cycles) QCOMPARE(mainSession->processId(), sustainedPid);
         for (const auto &token : tokens) {
             observer.phase = QString("cycle-%1-%2").arg(cycles).arg(token);
             auto view = token == "UIINCLUDE" ? childView : mainView; select(view);
@@ -261,13 +273,17 @@ void TexStudioTest::liveEditingSoak()
         QVERIFY(click("texpressoPause")); QTRY_VERIFY_WITH_TIMEOUT(ready(), 30000);
         observer.phase = "hide-restore"; txs->texpressoAction->setChecked(false); QTest::qWait(150);
         QVERIFY(!preview->isVisible()); txs->texpressoAction->setChecked(true); QTRY_VERIFY_WITH_TIMEOUT(preview->isVisible() && ready(), 30000);
-        observer.phase = "stop-restart"; const auto oldPid = mainSession->processId(); QVERIFY(click("texpressoStop"));
-        QTRY_VERIFY_WITH_TIMEOUT(::kill(-oldPid, 0) == -1 && errno == ESRCH, 5000);
-        QVERIFY(click("texpressoRestart")); QTRY_VERIFY_WITH_TIMEOUT(ready() && mainSession->processId() != oldPid, 30000);
+        if (!cycles) {
+            observer.phase = "stop-restart"; QVERIFY(restart());
+            sustainedPid = mainSession->processId(); observer.checkpoint("sustained-session-started");
+        }
+        QCOMPARE(mainSession->processId(), sustainedPid);
         QVERIFY(read(child) == diskChild); observer.checkpoint("cycle-settled");
         observer.capturing = true; QVERIFY(preview->grab().save(output + QString("/cycle-%1.png").arg(cycles))); observer.capturing = false;
         ++cycles;
     }
+    // Replay the accumulated unsaved edits after a long-lived compiler session.
+    observer.phase = "final-stop-restart"; QVERIFY(restart()); observer.checkpoint("final-restart-settled");
     observer.phase = "final-probes";
     auto probeTokens = tokens; probeTokens << "UIOTHER";
     for (const auto &token : probeTokens) {

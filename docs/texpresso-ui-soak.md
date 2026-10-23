@@ -34,7 +34,9 @@ early/middle/late root content and an unsaved included buffer. Inputs do not
 wait for preview frames. Between streams it waits for the final source target
 to reach a fresh visible canvas paint. It also exercises wheel scrolling,
 zoom, resize, project-tab switching, compile errors followed by undo/redo and
-repair, Pause with an unsaved edit, preview hide/restore, and Stop/Restart.
+repair, Pause with an unsaved edit, and preview hide/restore. Stop/Restart runs
+after the first cycle and again at the end; intervening cycles assert that the
+same compiler session stays alive, so restarts cannot hide long-session issues.
 The second project and unsaved buffers remain open across cycles. The test
 checks the inactive project's session is retained and the stopped worker group
 exits. Cycle screenshots are captured outside the paint timing observer.
@@ -72,3 +74,24 @@ The `TeXpresso live preview` workflow exposes an optional manual soak duration
 of 1, 10 or 30 minutes. It builds a Debug application and uploads the evidence;
 ordinary pushes and pull requests keep the existing fast tests and session
 corpus checks. Run the script directly for visible-window or 100-page checks.
+
+Validated on 2026-10-23 with macOS arm64, Qt 6.12.0 and shared engine
+`2010b9f`, using the 30-page corpus:
+
+- Ten-minute offscreen run: 609 seconds in the UI workload, 622 seconds including
+  cleanup and independent compilation; 43 cycles and 5,504 scheduled edits.
+  Both sessions remained retained, with the same main frontend verified across
+  588 seconds of intervening cycles. All five final probes matched and no owned
+  processes remained.
+- Native macOS visible-window smoke: 128 scheduled edits, all recovery steps and
+  five independent probes passed; no owned processes remained.
+- Ordinary application suite with bibliography tests enabled: 1,613 passed,
+  zero failed, one skip for this opt-in soak.
+
+The long run observed 5,090 fresh current-source paints; 414 inputs lacked that
+observation. Only 98 of 172 typing phases met the 20 ms cadence tolerance.
+These are correctness results, not a cross-client performance comparison.
+Hashes, resource summaries and probe results are recorded in
+[the validation record](texpresso-ui-soak-validation-2026-10-23.json).
+Linux, 100-page and 30-minute full-editor runs were not exercised in this local
+validation; the new manual CI option has not been dispatched here.

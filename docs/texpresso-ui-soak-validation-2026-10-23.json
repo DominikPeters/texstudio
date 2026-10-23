@@ -1,0 +1,290 @@
+{
+  "schema": 1,
+  "date": "2026-10-23",
+  "platform": "macOS 15.7.9 arm64",
+  "qtVersion": "6.12.0",
+  "engineRevision": "2010b9fec2c2450b4d06013544d5968d8605922b",
+  "engineSha256": "40d905780d70145eba44486059f5a85010b64ac67ac1549078e31a26213a049d",
+  "compilerSha256": "5f3cbd59e660b5ac23854134ab600c75cf04eb2aa9ef2b0e3a5d58fccc595bcd",
+  "soakSourceSha256": "93cdfc2364030b044785451aa4b9a550b2ef2b0e0cc6a65fb32ea0cae1c0d7c8",
+  "runnerSha256": "927cfe3dd9a430138df85e6f77c1ed946138043af6b4334598dc96c9ecd860c0",
+  "method": "Real QEditor document edits and continuous Qt preview; fixed input deadlines; independent clean XeLaTeX, PDF text and standalone SyncTeX ownership checks.",
+  "limits": [
+    "Qt paintEvent completion plus next event turn, not physical keyboard or compositor latency.",
+    "Unobserved/superseded inputs remain counted; timing claims are invalid for phases with more than 20 ms input lateness.",
+    "Once-per-second RSS sums include shared/COW pages and harness state, not unique RAM or PSS; finite runs do not prove hours-long stability.",
+    "These local runs cover the 30-page corpus on macOS. Linux, 100-page and 30-minute full-editor modes are available but were not run in this validation."
+  ],
+  "runs": [
+    {
+      "passed": true,
+      "appSha256": "4bc41376c2a2ebb7394bc80f01619e3c57938bf54adcb194321fb7019f8d25e0",
+      "requestedSeconds": 600,
+      "targetPages": 30,
+      "platform": "offscreen",
+      "elapsedSeconds": 622.004274707986,
+      "inputs": 5504,
+      "resourceSamples": 593,
+      "leftoverProcesses": [],
+      "oracle": [
+        {
+          "file": "main.tex",
+          "line1": 42,
+          "page": 0,
+          "root": "main.tex",
+          "token": "UIEARLY1376",
+          "pdfPages": [
+            0
+          ],
+          "synctexPages": [
+            0
+          ]
+        },
+        {
+          "file": "main.tex",
+          "line1": 528,
+          "page": 15,
+          "root": "main.tex",
+          "token": "UIMIDDLE1376",
+          "pdfPages": [
+            15
+          ],
+          "synctexPages": [
+            15
+          ]
+        },
+        {
+          "file": "main.tex",
+          "line1": 984,
+          "page": 28,
+          "root": "main.tex",
+          "token": "UILATE1376",
+          "pdfPages": [
+            28
+          ],
+          "synctexPages": [
+            28
+          ]
+        },
+        {
+          "file": "chapter.tex",
+          "line1": 2,
+          "page": 15,
+          "root": "main.tex",
+          "token": "UIINCLUDE1419",
+          "pdfPages": [
+            15
+          ],
+          "synctexPages": [
+            15
+          ]
+        },
+        {
+          "file": "other.tex",
+          "line1": 3,
+          "page": 0,
+          "root": "other.tex",
+          "token": "UIOTHER0043",
+          "pdfPages": [
+            0
+          ],
+          "synctexPages": [
+            0,
+            1
+          ]
+        }
+      ],
+      "artifactDirectory": "/tmp/texstudio-ui-soak-10min-2",
+      "uiElapsedSeconds": 609.366278125,
+      "cycles": 43,
+      "currentPaintObserved": 5090,
+      "withoutCurrentPaintObservation": 414,
+      "typingPhases": 172,
+      "validCadencePhases": 98,
+      "maxInputLatenessMs": 158.4517910000868,
+      "sampledPeakOwnedTasks": 40,
+      "sampledPeakOwnedRssKiB": 537168,
+      "sustainedSessionVerifiedSeconds": 588.498919,
+      "allCycleCheckpointsRetainTwoSessions": true,
+      "perMinuteResources": [
+        {
+          "minute": 0,
+          "samples": 58,
+          "medianAppRssKiB": 118232.0,
+          "medianOwnedRssSumKiB": 262024.0,
+          "sampledPeakOwnedTasks": 39
+        },
+        {
+          "minute": 1,
+          "samples": 58,
+          "medianAppRssKiB": 105824.0,
+          "medianOwnedRssSumKiB": 228256.0,
+          "sampledPeakOwnedTasks": 37
+        },
+        {
+          "minute": 2,
+          "samples": 58,
+          "medianAppRssKiB": 90736.0,
+          "medianOwnedRssSumKiB": 209328.0,
+          "sampledPeakOwnedTasks": 37
+        },
+        {
+          "minute": 3,
+          "samples": 57,
+          "medianAppRssKiB": 88496,
+          "medianOwnedRssSumKiB": 203200,
+          "sampledPeakOwnedTasks": 38
+        },
+        {
+          "minute": 4,
+          "samples": 58,
+          "medianAppRssKiB": 81848.0,
+          "medianOwnedRssSumKiB": 190080.0,
+          "sampledPeakOwnedTasks": 40
+        },
+        {
+          "minute": 5,
+          "samples": 57,
+          "medianAppRssKiB": 88496,
+          "medianOwnedRssSumKiB": 207888,
+          "sampledPeakOwnedTasks": 38
+        },
+        {
+          "minute": 6,
+          "samples": 58,
+          "medianAppRssKiB": 85952.0,
+          "medianOwnedRssSumKiB": 199384.0,
+          "sampledPeakOwnedTasks": 37
+        },
+        {
+          "minute": 7,
+          "samples": 58,
+          "medianAppRssKiB": 89392.0,
+          "medianOwnedRssSumKiB": 215696.0,
+          "sampledPeakOwnedTasks": 38
+        },
+        {
+          "minute": 8,
+          "samples": 58,
+          "medianAppRssKiB": 88560.0,
+          "medianOwnedRssSumKiB": 223168.0,
+          "sampledPeakOwnedTasks": 38
+        },
+        {
+          "minute": 9,
+          "samples": 57,
+          "medianAppRssKiB": 83760,
+          "medianOwnedRssSumKiB": 186288,
+          "sampledPeakOwnedTasks": 38
+        },
+        {
+          "minute": 10,
+          "samples": 16,
+          "medianAppRssKiB": 90184.0,
+          "medianOwnedRssSumKiB": 191272.0,
+          "sampledPeakOwnedTasks": 36
+        }
+      ]
+    },
+    {
+      "passed": true,
+      "appSha256": "4bc41376c2a2ebb7394bc80f01619e3c57938bf54adcb194321fb7019f8d25e0",
+      "requestedSeconds": 10,
+      "targetPages": 30,
+      "platform": "cocoa",
+      "elapsedSeconds": 34.2280447499943,
+      "inputs": 128,
+      "resourceSamples": 29,
+      "leftoverProcesses": [],
+      "oracle": [
+        {
+          "file": "main.tex",
+          "line1": 42,
+          "page": 0,
+          "root": "main.tex",
+          "token": "UIEARLY0032",
+          "pdfPages": [
+            0
+          ],
+          "synctexPages": [
+            0
+          ]
+        },
+        {
+          "file": "main.tex",
+          "line1": 528,
+          "page": 15,
+          "root": "main.tex",
+          "token": "UIMIDDLE0032",
+          "pdfPages": [
+            15
+          ],
+          "synctexPages": [
+            15
+          ]
+        },
+        {
+          "file": "main.tex",
+          "line1": 984,
+          "page": 28,
+          "root": "main.tex",
+          "token": "UILATE0032",
+          "pdfPages": [
+            28
+          ],
+          "synctexPages": [
+            28
+          ]
+        },
+        {
+          "file": "chapter.tex",
+          "line1": 2,
+          "page": 15,
+          "root": "main.tex",
+          "token": "UIINCLUDE0033",
+          "pdfPages": [
+            15
+          ],
+          "synctexPages": [
+            15
+          ]
+        },
+        {
+          "file": "other.tex",
+          "line1": 3,
+          "page": 0,
+          "root": "other.tex",
+          "token": "UIOTHER0001",
+          "pdfPages": [
+            0
+          ],
+          "synctexPages": [
+            0,
+            1
+          ]
+        }
+      ],
+      "artifactDirectory": "/tmp/texstudio-ui-soak-cocoa-smoke",
+      "uiElapsedSeconds": 22.231909625,
+      "cycles": 1,
+      "currentPaintObserved": 115,
+      "withoutCurrentPaintObservation": 13,
+      "typingPhases": 4,
+      "validCadencePhases": 3,
+      "maxInputLatenessMs": 20.384249999999156,
+      "sampledPeakOwnedTasks": 32,
+      "sampledPeakOwnedRssKiB": 696768,
+      "sustainedSessionVerifiedSeconds": 0.0007574170000007143,
+      "allCycleCheckpointsRetainTwoSessions": true
+    }
+  ],
+  "normalApplicationTests": {
+    "suites": 29,
+    "passed": 1613,
+    "failed": 0,
+    "skipped": 1,
+    "skipReason": "Opt-in full-editor soak",
+    "bibliographyEnabled": true,
+    "log": "/tmp/texstudio-ui-soak-regression.log"
+  }
+}

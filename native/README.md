@@ -41,6 +41,10 @@ the app and installing it. This is a build input, never an end-user preference.
 `-DTEXSTUDIO_ENABLE_TEXPRESSO=OFF` builds the original editor without live preview.
 
 Validate native tooling with `python3 -m unittest discover -s native/tests`.
+For opt-in long editing sessions through the actual editor and continuous
+preview, see [the full-editor soak instructions](../docs/texpresso-ui-soak.md).
+The runner supports 30/100-page projects, independent PDF/SyncTeX checks and
+process/resource traces; normal application tests skip that workload.
 
 The Linux builder currently follows the extension's Ubuntu build approach with
 system MuPDF/ICU development libraries, recording the runtime library hashes and
