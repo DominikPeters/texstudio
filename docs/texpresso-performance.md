@@ -146,3 +146,54 @@ revision, file and 64-byte bucket, with a 16-entry history. Actual edits and
 foreground rendering cancel speculative work immediately. This ports the
 extension's scheduling behavior; the earlier measurements above do not measure
 the latency benefit of cursor preparation or continuous scrolling.
+
+## Shared native PNG caches (23 October)
+
+The engine now follows the extension's `8576d13` performance snapshot, with the
+two TeXstudio rerun fixes reapplied as `c8d1d14` and `9cf7741`. Both clients use
+the resulting `9cf7741adb9fae3229e9bf75e33b783060c5a443` revision. The extension
+thread reviewed the merge and passed its 50 native integration checks against
+the same fresh bundle. The engine worker protocol changed, so frontend and
+worker binaries must be updated together.
+
+This adds bounded native caches for unchanged page display lists (eight entries,
+32 MiB accounting budget) and encoded exports with their retained PNG rasters
+(four entries, 32 MiB budget). Conservative keys include page content, fonts and
+geometry. External resources, virtual fonts and other unsafe cases bypass
+reuse. These budgets describe cache retention, not total engine memory. SyncTeX
+and link annotations remain current. Compiler bursts also yield sooner to
+incoming commands; failed or cancelled finishing passes cannot replace good
+auxiliary state.
+
+Qt continues requesting PNG. It now uses identified source searches and terminal
+cancellation replies, so an older search cannot navigate a newer cursor intent
+or retain request credit. The native suffix lookup fix is paired with actual-path
+editor overlays, including unsaved files that do not yet exist on disk.
+
+A controlled macOS arm64 comparison uses the same Qt 6.12 executable against
+the old `09f0351` and new `9cf7741` bundles. After compiling a three-page text
+fixture and priming pages zero and one at 1600 pixels, each run alternates those
+pages sixteen times. It clears the Qt LRU before every return and checks every
+decoded image against its reference. Thus each sample includes native export,
+IPC and asynchronous Qt PNG decoding/publication. It excludes widget painting.
+Runs are serial, in old/new/new/old order, with one-millisecond event polling.
+
+| Forced native page return | Old engine | Shared engine |
+| --- | ---: | ---: |
+| Median of 32 samples | 18.00 ms | 8.18 ms |
+
+This is about 55% lower elapsed time in this fixture. It does not establish a
+typing-latency improvement or the benefit for cache-ineligible pages. Existing
+Qt image-cache hits already avoid native export entirely. Raw samples, engine
+hashes, cross-engine decoded-pixel equality and the method are in
+`texpresso-png-cache-performance-2026-10-23.json`.
+
+Reproduce with two complete engine bundles, changing only the selected bundle:
+
+```
+cmake -S src/texpresso -B build-client -DTEXSTUDIO_TEXPRESSO_BENCHMARKS=ON
+cmake --build build-client --target texpresso-png-cache-benchmark
+QT_QPA_PLATFORM=offscreen SDL_VIDEODRIVER=dummy \
+TEXPRESSO_TEST_ENGINE=/absolute/path/to/bundle/bin/texpresso \
+  ./build-client/texpresso-png-cache-benchmark
+```

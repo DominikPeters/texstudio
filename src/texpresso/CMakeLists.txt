@@ -87,4 +87,6 @@ option(TEXSTUDIO_TEXPRESSO_BENCHMARKS "Build opt-in live preview benchmarks" OFF
 if(TEXSTUDIO_TEXPRESSO_BENCHMARKS)
     add_executable(texpresso-preview-benchmark benchmarks/preview_benchmark.cpp)
     target_link_libraries(texpresso-preview-benchmark PRIVATE texpresso-client)
+    add_executable(texpresso-png-cache-benchmark benchmarks/png_cache_benchmark.cpp)
+    target_link_libraries(texpresso-png-cache-benchmark PRIVATE texpresso-client)
 endif()

@@ -398,9 +398,47 @@ startup validate after installation. The isolated development app now uses the
 `09f0351` engine; its existing `06e93971b` client executable and settings are
 retained. An already running preview needs a restart to load the new engine.
 
+## Shared performance snapshot (23 October)
+
+The shared engine pin is now `9cf7741`, based on the extension's `8576d13`
+performance work with both TeXstudio rerun fixes retained. This brings native
+display-list/PNG export caches, bounded compiler bursts, safer finishing-state
+retention and tracked extensionless input resolution. Both engine binaries must
+come from the new bundle because the worker handshake changed.
+
+The Qt client adopts the advertised `requestLifecycle` capability:
+`preview-search` carries a request ID and source epoch; only its matching
+`preview-source` may reveal the target. `preview-cancelled` retires matching
+search/render credit immediately. Replaced intents, old epochs and manual
+navigation reject stale replies. Missing terminal replies have a bounded
+30-second source-search timeout with a visible error. Older engines retain the
+legacy forward-search path. Startup capability probing allows ten seconds for
+cold operating-system loading.
+
+Included buffers attach under the actual resolved path, including failed disk
+lookups when an unsaved buffer exists. The host no longer invents extensionless
+aliases. Buffer-only file identities canonicalize their existing parent directory
+so macOS `/var` and `/private/var` aliases agree before the file is saved.
+Real-engine regressions cover dirty disk and buffer-only includes, repeated
+edits and undo, exact `.tex` forward/inverse SyncTeX, closing an overlay back to
+disk and a retained engine process.
+
+All 14 client suites (153 checks) and 25 native-tooling tests pass on this snapshot. The
+extension thread independently passed all 50 native integration checks against
+our bundle. Both opt-in sustained-editing rows also pass: 732 mutations each,
+one retained engine process, and early/middle/late owning pages matching clean
+XeLaTeX, standalone SyncTeX and Poppler. The rebuilt application passes all
+1,613 checks with the real Compile/Biber/live-preview workflow enabled.
+Compact sustained results are in
+`texpresso-source-follow-validation-2026-10-23.json`.
+
+The opt-in PNG cache benchmark and its limits are documented in
+`texpresso-performance.md`. PNG remains the Qt rendering format; browser-only
+SVG and webview presentation machinery are not ported.
+
 ## Remaining work
 
-- Measured Qt SVG/adaptive rendering.
+- Native PNG cache-miss costs and end-to-end editor/paint latency measurements.
 - Full dependency reconciliation (missing/deleted files, external include
   directories), source renames, bounded idle-session eviction and memory budgets.
 - Auxiliary-directory precedence in the engine.

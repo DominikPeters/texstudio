@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "date": "2026-10-23",
+  "platform": "macOS arm64",
+  "qtVersion": "6.12.0",
+  "engineRevision": "9cf7741adb9fae3229e9bf75e33b783060c5a443",
+  "method": "Production Qt session with fixed-deadline edits; independent clean XeLaTeX, SyncTeX and Poppler page ownership; correctness coverage, not UI latency",
+  "runs": [
+    {
+      "passed": true,
+      "targetPages": 100,
+      "engineSha256": "d11de559337f1189f2961a8b98f8b72b06813f3eb528d92f96bd31dfd5f86355",
+      "sourceSha256": "beb61a04188f60c0cca87f84f81f8284a991e1ac8de3fe8809807bc729300b81",
+      "elapsedMs": 84099,
+      "probes": [
+        {
+          "anchor": "early",
+          "line1": 41,
+          "livePage": 0,
+          "revision": 1440,
+          "sequence": 733,
+          "synctexPages": [
+            0
+          ],
+          "textPage": 0
+        },
+        {
+          "anchor": "middle",
+          "line1": 1661,
+          "livePage": 49,
+          "revision": 1440,
+          "sequence": 733,
+          "synctexPages": [
+            49
+          ],
+          "textPage": 49
+        },
+        {
+          "anchor": "late",
+          "line1": 3284,
+          "livePage": 98,
+          "revision": 1440,
+          "sequence": 733,
+          "synctexPages": [
+            98
+          ],
+          "textPage": 98
+        }
+      ],
+      "mutations": 732,
+      "artifactDirectory": "/tmp/texstudio-shared-performance-sustained/100pages-pAsSKx",
+      "sourceSearchCommands": 1406
+    },
+    {
+      "passed": true,
+      "targetPages": 30,
+      "engineSha256": "d11de559337f1189f2961a8b98f8b72b06813f3eb528d92f96bd31dfd5f86355",
+      "sourceSha256": "33b1d23274c5396552f34b0ad6c2e047296d518bf95e5afe97d21ae79d860376",
+      "elapsedMs": 83124,
+      "probes": [
+        {
+          "anchor": "early",
+          "line1": 41,
+          "livePage": 0,
+          "revision": 1396,
+          "sequence": 733,
+          "synctexPages": [
+            0
+          ],
+          "textPage": 0
+        },
+        {
+          "anchor": "middle",
+          "line1": 531,
+          "livePage": 15,
+          "revision": 1396,
+          "sequence": 733,
+          "synctexPages": [
+            15
+          ],
+          "textPage": 15
+        },
+        {
+          "anchor": "late",
+          "line1": 993,
+          "livePage": 29,
+          "revision": 1396,
+          "sequence": 733,
+          "synctexPages": [
+            29
+          ],
+          "textPage": 29
+        }
+      ],
+      "mutations": 732,
+      "artifactDirectory": "/tmp/texstudio-shared-performance-sustained/30pages-sAJJUT",
+      "sourceSearchCommands": 1311
+    }
+  ]
+}

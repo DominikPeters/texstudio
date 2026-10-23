@@ -145,7 +145,7 @@ void SustainedEditingTest::sustainedEditing()
     QElapsedTimer experiment; experiment.start();
     const auto commandConnection = connect(&session->preview, &TexpressoPreview::command, session, [&](const QJsonArray &command) {
         const auto verb = command[0].toString();
-        if (verb.startsWith("synctex")) commandReport.append(QJsonObject{{"atMs", double(experiment.elapsed())}, {"command", command}});
+        if (verb == "preview-search" || verb.startsWith("synctex")) commandReport.append(QJsonObject{{"atMs", double(experiment.elapsed())}, {"command", command}});
     });
     bool passed = false;
     const auto engineSha256 = QString::fromLatin1(QCryptographicHash::hash(readFile(engine), QCryptographicHash::Sha256).toHex());

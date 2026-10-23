@@ -1,0 +1,145 @@
+{
+  "schema": 1,
+  "date": "2026-10-23",
+  "platform": "macOS arm64",
+  "qtVersion": "6.12.0",
+  "baselineRevision": "09f03516ccc60b7fcdca41284a09d2ba10c2a601",
+  "engineRevision": "9cf7741adb9fae3229e9bf75e33b783060c5a443",
+  "order": "before, after, after, before; same Qt executable; serial runs",
+  "runs": [
+    {
+      "engine": "/Users/dominik/GitHub/texstudio/native/.bundles/darwin-arm64/bin/texpresso",
+      "engineSha256": "03652fec8b7cb9802e5d502a471bf73401ef942922506314c33824da66b6235a",
+      "identicalPixels": true,
+      "medianMs": 18.003375,
+      "method": "Alternating pages 0/1 after priming; Qt LRU cleared before each return; native export, IPC and Qt decode/publication; 1ms event polling; excludes widget painting",
+      "nativeRequests": 16,
+      "pagePixelSha256": [
+        "eef64a7fbbf2313f2e193b207a9ccd91e47cc5caa3d4ef1d0d5b474675e71be2",
+        "a7669e1844a27d4abaa455c50cc9129ddd5b092fc5e71dfe178641deb3a43246"
+      ],
+      "samplesMs": [
+        18.003125,
+        18.212917,
+        18.003625,
+        17.876541,
+        18.043583,
+        18.595,
+        18.692958,
+        19.11925,
+        17.94325,
+        19.057167,
+        17.512666,
+        17.805125,
+        17.781166,
+        17.928,
+        18.148417,
+        17.852667
+      ],
+      "sourceSha256": "e372643ecb567b7284d6488399bc47210a812ea86e22dcd27d97e943aa775491",
+      "width": 1600,
+      "snapshot": "before"
+    },
+    {
+      "engine": "/Users/dominik/GitHub/texstudio/native/.bundles/darwin-arm64-shared-performance/bin/texpresso",
+      "engineSha256": "d11de559337f1189f2961a8b98f8b72b06813f3eb528d92f96bd31dfd5f86355",
+      "identicalPixels": true,
+      "medianMs": 8.683562,
+      "method": "Alternating pages 0/1 after priming; Qt LRU cleared before each return; native export, IPC and Qt decode/publication; 1ms event polling; excludes widget painting",
+      "nativeRequests": 16,
+      "pagePixelSha256": [
+        "eef64a7fbbf2313f2e193b207a9ccd91e47cc5caa3d4ef1d0d5b474675e71be2",
+        "a7669e1844a27d4abaa455c50cc9129ddd5b092fc5e71dfe178641deb3a43246"
+      ],
+      "samplesMs": [
+        8.591208,
+        8.245,
+        9.252166,
+        11.654,
+        12.890875,
+        8.124542,
+        7.90925,
+        7.744709,
+        7.848291,
+        7.81825,
+        7.743708,
+        9.007541,
+        9.024083,
+        8.992333,
+        8.914416,
+        8.775916
+      ],
+      "sourceSha256": "e372643ecb567b7284d6488399bc47210a812ea86e22dcd27d97e943aa775491",
+      "width": 1600,
+      "snapshot": "after"
+    },
+    {
+      "engine": "/Users/dominik/GitHub/texstudio/native/.bundles/darwin-arm64-shared-performance/bin/texpresso",
+      "engineSha256": "d11de559337f1189f2961a8b98f8b72b06813f3eb528d92f96bd31dfd5f86355",
+      "identicalPixels": true,
+      "medianMs": 7.9642705,
+      "method": "Alternating pages 0/1 after priming; Qt LRU cleared before each return; native export, IPC and Qt decode/publication; 1ms event polling; excludes widget painting",
+      "nativeRequests": 16,
+      "pagePixelSha256": [
+        "eef64a7fbbf2313f2e193b207a9ccd91e47cc5caa3d4ef1d0d5b474675e71be2",
+        "a7669e1844a27d4abaa455c50cc9129ddd5b092fc5e71dfe178641deb3a43246"
+      ],
+      "samplesMs": [
+        7.917292,
+        7.77725,
+        7.661292,
+        8.933875,
+        7.721084,
+        8.865833,
+        9.044792,
+        7.81125,
+        7.954166,
+        7.974375,
+        9.230334,
+        8.028417,
+        7.601458,
+        7.793208,
+        8.96275,
+        8.957542
+      ],
+      "sourceSha256": "e372643ecb567b7284d6488399bc47210a812ea86e22dcd27d97e943aa775491",
+      "width": 1600,
+      "snapshot": "after"
+    },
+    {
+      "engine": "/Users/dominik/GitHub/texstudio/native/.bundles/darwin-arm64/bin/texpresso",
+      "engineSha256": "03652fec8b7cb9802e5d502a471bf73401ef942922506314c33824da66b6235a",
+      "identicalPixels": true,
+      "medianMs": 17.9968755,
+      "method": "Alternating pages 0/1 after priming; Qt LRU cleared before each return; native export, IPC and Qt decode/publication; 1ms event polling; excludes widget painting",
+      "nativeRequests": 16,
+      "pagePixelSha256": [
+        "eef64a7fbbf2313f2e193b207a9ccd91e47cc5caa3d4ef1d0d5b474675e71be2",
+        "a7669e1844a27d4abaa455c50cc9129ddd5b092fc5e71dfe178641deb3a43246"
+      ],
+      "samplesMs": [
+        18.071084,
+        16.459541,
+        18.112459,
+        17.703083,
+        18.093833,
+        17.862375,
+        18.039958,
+        17.590208,
+        18.045917,
+        16.534125,
+        18.031542,
+        17.962334,
+        18.04875,
+        17.839709,
+        17.726875,
+        18.031417
+      ],
+      "sourceSha256": "e372643ecb567b7284d6488399bc47210a812ea86e22dcd27d97e943aa775491",
+      "width": 1600,
+      "snapshot": "before"
+    }
+  ],
+  "identicalPixelsAcrossSnapshots": true,
+  "note": "Ordinary three-page text fixture. Conservative native cache bypasses external resources and virtual fonts. Not an editing-latency or widget-compositing measurement."
+}
