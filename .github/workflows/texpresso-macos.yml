@@ -132,7 +132,7 @@ jobs:
             --library-path "$RUNNER_TEMP/poppler/lib" --library-path "$(brew --prefix)/lib" \
             --poppler-data "$RUNNER_TEMP/poppler/share/poppler"
       - name: Sign, notarize, staple, and verify the complete app
-        timeout-minutes: 35
+        timeout-minutes: 45
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}

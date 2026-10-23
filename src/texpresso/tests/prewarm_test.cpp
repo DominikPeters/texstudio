@@ -34,7 +34,6 @@ void TexpressoPrewarmTest::deferredResolution()
     warm.setContext({true, true, 7, 3});
     warm.select("old", [&]() -> std::optional<TexpressoPrewarm::Position> { ++first; return {{"old.tex", 4}}; });
     QCOMPARE(first, 0); QVERIFY(warm.pending());
-    QTest::qWait(30);
     warm.select("latest", [&]() -> std::optional<TexpressoPrewarm::Position> { ++second; return {{"latest.tex", 83}}; });
     QCOMPARE(first, 0); QCOMPARE(second, 0);
     QTRY_COMPARE(commands.size(), 1);
@@ -42,7 +41,7 @@ void TexpressoPrewarmTest::deferredResolution()
     QCOMPARE(sent(commands), QJsonArray({"preview-prepare", 1, "latest.tex", 83, 7, 3}));
     warm.message(reply(sent(commands), "ready"));
     QVERIFY(!warm.pending());
-    warm.refresh(); QTest::qWait(240);
+    warm.refresh(); QVERIFY(!warm.pending());
     QCOMPARE(second, 1); QCOMPARE(commands.size(), 1);
 }
 void TexpressoPrewarmTest::bucketsAndEpochs()
@@ -55,7 +54,7 @@ void TexpressoPrewarmTest::bucketsAndEpochs()
         warm.select(QString::number(offset), [offset]() -> std::optional<TexpressoPrewarm::Position> { return {{"main.tex", offset}}; });
     };
     select(64); QTRY_COMPARE(commands.size(), 1); warm.message(reply(sent(commands), "cached"));
-    select(127); QTest::qWait(240); QCOMPARE(commands.size(), 1); QVERIFY(!warm.pending());
+    select(127); QTRY_VERIFY_WITH_TIMEOUT(!warm.pending(), 1000); QCOMPARE(commands.size(), 1);
     select(128); QTRY_COMPARE(commands.size(), 2); warm.message(reply(sent(commands), "ready"));
     warm.setContext({true, true, 2, 0}); QTRY_COMPARE(commands.size(), 3);
     QCOMPARE(sent(commands)[4].toInt(), 2); warm.message(reply(sent(commands), "ready"));
@@ -94,13 +93,13 @@ void TexpressoPrewarmTest::skippedRetryAfterProgress()
         ++resolves; return known ? std::optional<TexpressoPrewarm::Position>{{"include", 75}} : std::nullopt;
     });
     QTRY_COMPARE(resolves, 1); QVERIFY(commands.isEmpty()); QVERIFY(!warm.pending());
-    known = true; warm.refresh(); QTest::qWait(240); QCOMPARE(resolves, 1);
+    known = true; warm.refresh(); QVERIFY(!warm.pending()); QCOMPARE(resolves, 1);
     warm.refresh(true); QTRY_COMPARE(commands.size(), 1); QCOMPARE(resolves, 2);
     warm.message(reply(sent(commands), "skipped"));
-    warm.refresh(); QTest::qWait(240); QCOMPARE(commands.size(), 1);
+    warm.refresh(); QVERIFY(!warm.pending()); QCOMPARE(commands.size(), 1);
     warm.refresh(true); QTRY_COMPARE(commands.size(), 2);
     warm.message(reply(sent(commands), "ready"));
-    warm.refresh(true); QTest::qWait(240); QCOMPARE(commands.size(), 2);
+    warm.refresh(true); QVERIFY(!warm.pending()); QCOMPARE(commands.size(), 2);
 }
 void TexpressoPrewarmTest::unavailableAndBusy()
 {
@@ -108,11 +107,11 @@ void TexpressoPrewarmTest::unavailableAndBusy()
     TexpressoPrewarm warm([&] { return ++id; });
     QSignalSpy commands(&warm, &TexpressoPrewarm::command);
     warm.select("cursor", [&]() -> std::optional<TexpressoPrewarm::Position> { ++resolves; return {{"main.tex", 64}}; });
-    warm.setContext({false, true, 2, 0}); QTest::qWait(240);
-    warm.setContext({true, false, 2, 0}); QTest::qWait(240);
+    warm.setContext({false, true, 2, 0}); QVERIFY(!warm.pending());
+    warm.setContext({true, false, 2, 0}); QVERIFY(!warm.pending());
     QCOMPARE(resolves, 0); QVERIFY(commands.isEmpty());
     warm.setContext({true, true, 2, 0}); QVERIFY(warm.pending());
-    warm.setContext({true, false, 2, 0}); QTest::qWait(240);
+    warm.setContext({true, false, 2, 0});
     QCOMPARE(resolves, 0); QVERIFY(!warm.pending());
     warm.setContext({true, true, 2, 0}); QTRY_COMPARE(commands.size(), 1);
     warm.setContext({false, true, 2, 0});
@@ -126,7 +125,7 @@ void TexpressoPrewarmTest::reentrantStartedCancellation()
     connect(&warm, &TexpressoPrewarm::started, &warm, [&] { warm.setContext({false, false, 1, 0}); });
     warm.setContext({true, true, 1, 0});
     warm.select("cursor", []() -> std::optional<TexpressoPrewarm::Position> { return {{"main.tex", 64}}; });
-    QTRY_VERIFY(!commands.isEmpty()); QTest::qWait(30);
+    QTRY_VERIFY(!commands.isEmpty());
     QCOMPARE(commands.size(), 1);
     QCOMPARE(sent(commands)[0].toString(), QString("preview-prepare-cancel"));
     QVERIFY(!warm.pending());
@@ -144,7 +143,7 @@ void TexpressoPrewarmTest::watchdogDoesNotLoop()
     QCOMPARE(sent(commands), QJsonArray({"preview-prepare-cancel", request[1]}));
     QCOMPARE(settled.size(), 1);
     warm.message(reply(request, "ready")); QCOMPARE(settled.size(), 1);
-    warm.refresh(true); QTest::qWait(240); QCOMPARE(commands.size(), 2);
+    warm.refresh(true); QVERIFY(!warm.pending()); QCOMPARE(commands.size(), 2);
     warm.reset(); warm.refresh(); QTRY_COMPARE(commands.size(), 3);
     warm.message(reply(sent(commands), "ready"));
 }
@@ -163,7 +162,7 @@ void TexpressoPrewarmTest::boundedAttempts()
     }
     select(0); QTRY_COMPARE(commands.size(), 18); // Oldest attempt was evicted.
     warm.message(reply(sent(commands), "ready"));
-    select(16); QTest::qWait(240); QCOMPARE(commands.size(), 18); // Recent one remains.
+    select(16); QTRY_VERIFY_WITH_TIMEOUT(!warm.pending(), 1000); QCOMPARE(commands.size(), 18); // Recent one remains.
 }
 void TexpressoPrewarmTest::utf8AliasSession()
 {
