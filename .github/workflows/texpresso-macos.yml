@@ -109,8 +109,17 @@ jobs:
       - name: Install the test TeX Live provider
         run: |
           brew install --cask basictex
-          sudo /Library/TeX/texbin/tlmgr update --self
-          sudo /Library/TeX/texbin/tlmgr install geometry amsmath hyperref xcolor fontspec refcount biblatex biber
+          # CTAN's redirector may select mirrors at different update levels.
+          # Keep self-update and package installation on the same mirror.
+          texstudio_texlive_repository=https://mirrors.mit.edu/CTAN/systems/texlive/tlnet
+          for attempt in 1 2 3; do
+            if sudo /Library/TeX/texbin/tlmgr --repository "$texstudio_texlive_repository" update --self && \
+              sudo /Library/TeX/texbin/tlmgr --repository "$texstudio_texlive_repository" install geometry amsmath hyperref xcolor fontspec refcount biblatex biber; then
+              break
+            fi
+            if [ "$attempt" = 3 ]; then exit 1; fi
+            sleep 15
+          done
           echo /Library/TeX/texbin >> "$GITHUB_PATH"
       - name: Configure and build TeXstudio with live preview
         run: |

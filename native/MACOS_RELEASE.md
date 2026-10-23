@@ -14,6 +14,8 @@ Each architecture builds the pinned engine, locked MuPDF/ICU profile, Poppler
 with Qt support, and TeXstudio. The application includes Qt frameworks/plugins,
 PDF libraries/data, and the native engine. TeX Live remains a user installation.
 The runner installs BasicTeX only for tests; it is not copied into the app.
+Its self-update and package installation use one CTAN mirror to avoid version
+mismatches between asynchronously updated mirrors.
 Poppler and its encoding data are downloaded separately from their official
 releases and checked against `native/macos-dependencies.lock.json`.
 
