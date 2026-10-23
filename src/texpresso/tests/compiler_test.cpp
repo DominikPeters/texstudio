@@ -11,6 +11,8 @@ class CompilerTest : public QObject
 private slots:
     void convergence();
     void referencesSurviveEditingRollbacks();
+    void extensionlessInput_data();
+    void extensionlessInput();
     void bibliography_data();
     void bibliography();
     void buildState();
@@ -109,6 +111,48 @@ void CompilerTest::referencesSurviveEditingRollbacks()
     live->preview.setPage(1); QTRY_VERIFY_WITH_TIMEOUT(ready(), 15000);
     converge(); QVERIFY(!QTest::currentTestFailed());
     QCOMPARE(live->preview.image(), unresolved);
+    QCOMPARE(live->processId(), pid);
+}
+// Suffix resolution must use tracked editor contents, not a disk-only fallback.
+void CompilerTest::extensionlessInput_data()
+{
+    QTest::addColumn<bool>("onDisk");
+    QTest::newRow("dirty-disk-file") << true;
+    QTest::newRow("buffer-only-file") << false;
+}
+void CompilerTest::extensionlessInput()
+{
+    if (engine().isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for compiler integration tests");
+    QFETCH(bool, onDisk);
+    QTemporaryDir temp; QVERIFY(temp.isValid());
+    const auto root = temp.filePath("main.tex"), child = temp.filePath("chapter.tex");
+    writeFile(root, "\\documentclass{article}\n\\begin{document}\n\\input{chapter}\n\\end{document}\n");
+    if (onDisk) writeFile(child, "Disk chapter. \\typeout{CHAPTER-DISK}\n");
+    const QString first = "Unsaved chapter ALPHA. \\typeout{CHAPTER-ALPHA}\n";
+    const QString second = "Unsaved chapter BETA. \\typeout{CHAPTER-BETA}\n";
+    TexpressoManager manager(nullptr, engine()); manager.openBuffer(child, first); manager.activate(root);
+    auto live = manager.current(); live->followCursor = false; live->setAutoRerun(false);
+    const auto ready = [&] { return live->preview.valid() && !live->preview.busy(); };
+    QTRY_VERIFY_WITH_TIMEOUT(ready() && live->compilerOutput.contains("CHAPTER-ALPHA"), 20000);
+    QVERIFY(!live->compilerOutput.contains("CHAPTER-DISK"));
+    const auto alpha = live->preview.image(); const auto pid = live->processId();
+    manager.reconcileBuffer(child, second);
+    QTRY_VERIFY_WITH_TIMEOUT(ready() && live->compilerOutput.contains("CHAPTER-BETA"), 15000);
+    QVERIFY(live->preview.image() != alpha);
+    QSignalSpy reveals(&live->preview, &TexpressoPreview::reveal), sources(live, &TexpressoSession::sourceLocation);
+    live->syncForward(child, 0);
+    QTRY_VERIFY_WITH_TIMEOUT(!reveals.isEmpty(), 10000);
+    live->preview.inverse(reveals.last()[0].toPointF());
+    QTRY_VERIFY_WITH_TIMEOUT(!sources.isEmpty(), 10000);
+    QCOMPARE(sources.last()[0].toString(), TexpressoSession::identity(child)); // Keep .tex in both directions.
+    QCOMPARE(sources.last()[1].toInt(), 1);
+    manager.reconcileBuffer(child, first);
+    QTRY_VERIFY_WITH_TIMEOUT(ready() && live->preview.image() == alpha, 15000);
+    // Closing the overlay must expose the real file at the same tracked path.
+    writeFile(child, "Disk chapter. \\typeout{CHAPTER-DISK}\n");
+    manager.closeBuffer(child);
+    QTRY_VERIFY_WITH_TIMEOUT(ready() && live->compilerOutput.contains("CHAPTER-DISK"), 15000);
+    QVERIFY(live->preview.image() != alpha);
     QCOMPARE(live->processId(), pid);
 }
 void CompilerTest::bibliography_data()

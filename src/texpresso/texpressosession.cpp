@@ -9,7 +9,11 @@ QString TexpressoSession::identity(const QString &path)
 {
     const QFileInfo file(path);
     const auto canonical = file.canonicalFilePath();
-    return canonical.isEmpty() ? file.absoluteFilePath() : canonical;
+    if (!canonical.isEmpty()) return canonical;
+    // Buffer-only files still share the engine's canonical project directory
+    // (notably /var vs /private/var on macOS).
+    const auto directory = file.dir().canonicalPath();
+    return directory.isEmpty() ? file.absoluteFilePath() : QDir(directory).filePath(file.fileName());
 }
 QString TexpressoSession::absolute(const QString &path) const
 {
@@ -270,19 +274,14 @@ void TexpressoSession::message(const QJsonArray &m)
     else if (verb == "lookup-file" && m.size() == 4 && m[1] == "write") {
         const auto path = absolute(m[3].toString());
         writtenFiles.insert(identity(path)); watcher.removePath(path);
-    } else if (verb == "lookup-file" && m.size() == 4 && m[1] == "read" && m[2] == "failed") {
+    } else if (verb == "lookup-file" && m.size() == 4 && m[1] == "read") {
         const auto path = absolute(m[3].toString());
-        // XeTeX may probe an extensionless name before falling back to TeX
-        // Live's disk lookup. Provide the editor overlay under that VFS alias
-        // too, so \\input{chapter} uses unsaved chapter.tex contents.
-        if (QFileInfo(path).suffix().isEmpty() && !QFileInfo::exists(path)) {
-            const auto candidate = identity(path + ".tex");
-            if (buffers.contains(candidate)) announce(path, candidate);
-        }
-    } else if (verb == "lookup-file" && m.size() == 4 && m[1] == "read" && m[2] == "successful") {
-        const auto path = absolute(m[3].toString());
-        // Watch project resources, not the installed TeX distribution.
-        if (path.startsWith(QFileInfo(rootFile).absolutePath() + '/')) announce(path);
+        // The engine resolves suffixes through its tracked filesystem. Attach
+        // the actual editor path, including files that exist only in a buffer;
+        // inventing an extensionless alias loses the resolved SyncTeX name.
+        if (buffers.contains(identity(path))
+            || (m[2] == "successful" && path.startsWith(QFileInfo(rootFile).absolutePath() + '/')))
+            announce(path);
     } else if (verb == "reset-sync") {
         for (auto it = aliases.cbegin(); it != aliases.cend(); ++it)
             if (buffers.contains(it.key())) for (const auto &alias : it.value()) sendSource({"open", alias, buffers.value(it.key())});
