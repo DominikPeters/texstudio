@@ -32,6 +32,7 @@ signals:
     void zoomRequested(int direction, const QPoint &anchor);
     void linkActivated(int page, int index, qint64 revision, qint64 sequence);
 protected:
+    bool event(QEvent *event) override;
     void paintEvent(QPaintEvent *) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;

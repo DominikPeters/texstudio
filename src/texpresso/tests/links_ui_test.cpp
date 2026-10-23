@@ -12,7 +12,11 @@ class LinksUiTest : public QObject
 {
     Q_OBJECT
 private slots:
+    void initTestCase();
     void hoverAndCoordinates();
+    void cursorArtworkAndModifiers();
+    void cursorTracksStationaryHover();
+    void activeToolsKeepTheirCursors();
     void linkClickPreservesTools();
     void modifiedClicksKeepExistingActions();
     void draggedAndRecycledLinksAreSuppressed();
@@ -27,6 +31,24 @@ static QJsonObject annotation(const QString &uri = "https://example.com/link")
 {
     return {{"links", QJsonArray{QJsonObject{{"uri", uri}, {"bounds", QJsonArray{30, 40, 80, 60}}}}}};
 }
+static void compareCursor(const QCursor &actual, const QCursor &expected)
+{
+    QCOMPARE(actual.shape(), expected.shape());
+    QCOMPARE(actual.hotSpot(), expected.hotSpot());
+    QCOMPARE(actual.pixmap().toImage(), expected.pixmap().toImage());
+}
+void LinksUiTest::initTestCase()
+{
+    // Standalone tests do not link the editor's icon resources. Distinct
+    // artwork verifies which shared cursor is selected, including hotspots.
+    ViewerControls::initializeToolCursors([](const QString &name) {
+        QPixmap pixmap(32, 32);
+        const QHash<QString, QColor> colors{{"magnifier", Qt::red}, {"zoom-in-magnifier", Qt::green},
+            {"zoom-out-magnifier", Qt::blue}, {"focusedhand", Qt::yellow}};
+        pixmap.fill(colors.value(name));
+        return pixmap;
+    });
+}
 static void showCanvas(TexpressoCanvas &canvas)
 {
     canvas.pixels = QImage(400, 200, QImage::Format_RGB32); canvas.pixels.fill(Qt::white);
@@ -40,16 +62,101 @@ void LinksUiTest::hoverAndCoordinates()
     QScrollArea area; TexpressoCanvas canvas(&config, &area); showCanvas(canvas);
     QTest::mouseMove(&canvas, {60, 50});
     QCOMPARE(canvas.cursor().shape(), Qt::PointingHandCursor); QCOMPARE(canvas.toolTip(), QString("https://example.com/link"));
-    QTest::mouseMove(&canvas, {10, 10}); QCOMPARE(canvas.cursor().shape(), Qt::CrossCursor); QVERIFY(canvas.toolTip().isEmpty());
+    QTest::mouseMove(&canvas, {10, 10}); compareCursor(canvas.cursor(), ViewerControls::toolCursor(1, Qt::NoModifier)); QVERIFY(canvas.toolTip().isEmpty());
     for (const auto &uri : {"javascript:alert(1)", "file:///tmp/private", "#"}) {
         canvas.setAnnotations(7, 12, 3, annotation(uri)); QTest::mouseMove(&canvas, {60, 50});
-        QCOMPARE(canvas.cursor().shape(), Qt::CrossCursor); QVERIFY(canvas.toolTip().isEmpty());
+        compareCursor(canvas.cursor(), ViewerControls::toolCursor(1, Qt::NoModifier)); QVERIFY(canvas.toolTip().isEmpty());
         QTest::mouseMove(&canvas, {10, 10});
     }
     canvas.setAnnotations(7, 12, 3, annotation("#later")); QTest::mouseMove(&canvas, {60, 50});
     QCOMPARE(canvas.cursor().shape(), Qt::PointingHandCursor);
     canvas.fresh = false; canvas.resetTools(); QTest::mouseMove(&canvas, {61, 50});
-    QCOMPARE(canvas.cursor().shape(), Qt::CrossCursor); QVERIFY(canvas.toolTip().isEmpty());
+    compareCursor(canvas.cursor(), ViewerControls::toolCursor(1, Qt::NoModifier)); QVERIFY(canvas.toolTip().isEmpty());
+}
+void LinksUiTest::cursorArtworkAndModifiers()
+{
+    PDFDocumentConfig config{}; config.editTool = 1;
+    QScrollArea area; TexpressoCanvas canvas(&config, &area); showCanvas(canvas);
+    const QPoint point(10, 10);
+    const auto move = [&](Qt::KeyboardModifiers modifiers) {
+        QMouseEvent event(QEvent::MouseMove, point, canvas.mapToGlobal(point), Qt::NoButton, Qt::NoButton, modifiers);
+        QCoreApplication::sendEvent(&canvas, &event);
+    };
+    move(Qt::NoModifier);
+    QCOMPARE(canvas.cursor().shape(), Qt::BitmapCursor);
+    QCOMPARE(canvas.cursor().hotSpot(), QPoint(10, 10));
+    QCOMPARE(canvas.cursor().pixmap().toImage().pixelColor(0, 0), QColor(Qt::red));
+    move(Qt::ShiftModifier);
+    QCOMPARE(canvas.cursor().hotSpot(), QPoint(12, 12));
+    QCOMPARE(canvas.cursor().pixmap().toImage().pixelColor(0, 0), QColor(Qt::green));
+    move(Qt::AltModifier);
+    QCOMPARE(canvas.cursor().pixmap().toImage().pixelColor(0, 0), QColor(Qt::blue));
+    move(Qt::ShiftModifier | Qt::ControlModifier);
+    QCOMPARE(canvas.cursor().shape(), Qt::CrossCursor);
+    canvas.setTool(2); move(Qt::NoModifier);
+    QCOMPARE(canvas.cursor().hotSpot(), QPoint(8, 13));
+    QCOMPARE(canvas.cursor().pixmap().toImage().pixelColor(0, 0), QColor(Qt::yellow));
+    move(Qt::ShiftModifier); QCOMPARE(canvas.cursor().shape(), Qt::ArrowCursor);
+    move(Qt::ShiftModifier | Qt::ControlModifier); QCOMPARE(canvas.cursor().shape(), Qt::CrossCursor);
+}
+void LinksUiTest::cursorTracksStationaryHover()
+{
+    PDFDocumentConfig config{}; config.editTool = 1;
+    QScrollArea area; TexpressoCanvas canvas(&config, &area); showCanvas(canvas);
+    QCursor::setPos(canvas.mapToGlobal(QPoint(60, 50)));
+    QEvent enter(QEvent::Enter); QCoreApplication::sendEvent(&canvas, &enter);
+    QCOMPARE(canvas.cursor().shape(), Qt::PointingHandCursor);
+    QTest::keyPress(&canvas, Qt::Key_Shift);
+    // Match the PDF viewer's link hover, while modified clicks remain tools.
+    QCOMPARE(canvas.cursor().shape(), Qt::PointingHandCursor);
+    QTest::keyRelease(&canvas, Qt::Key_Shift);
+    QCursor::setPos(canvas.mapToGlobal(QPoint(10, 10)));
+    QTest::keyPress(&canvas, Qt::Key_Shift);
+    compareCursor(canvas.cursor(), ViewerControls::toolCursor(1, Qt::ShiftModifier));
+    QVERIFY(canvas.toolTip().isEmpty());
+    QTest::keyRelease(&canvas, Qt::Key_Shift);
+    compareCursor(canvas.cursor(), ViewerControls::toolCursor(1, Qt::NoModifier));
+    QCursor::setPos(canvas.mapToGlobal(QPoint(60, 50)));
+    QFocusEvent focus(QEvent::FocusIn); QCoreApplication::sendEvent(&canvas, &focus);
+    QCOMPARE(canvas.cursor().shape(), Qt::PointingHandCursor);
+    QEvent leave(QEvent::Leave); QCoreApplication::sendEvent(&canvas, &leave);
+    compareCursor(canvas.cursor(), ViewerControls::toolCursor(1, Qt::NoModifier));
+    QVERIFY(canvas.toolTip().isEmpty());
+}
+void LinksUiTest::activeToolsKeepTheirCursors()
+{
+    PDFDocumentConfig config{}; config.editTool = 1; config.magnifierSize = 120;
+    config.magnifierShape = PDFDocumentConfig::Circle;
+    QScrollArea area; TexpressoCanvas canvas(&config, &area); showCanvas(canvas);
+    QTest::mousePress(&canvas, Qt::LeftButton, Qt::NoModifier, {10, 10});
+    QVERIFY(canvas.findChild<PDFMagnifier *>()->isVisible());
+    QCOMPARE(canvas.cursor().shape(), Qt::BlankCursor);
+    QTest::mouseMove(&canvas, {60, 50});
+    QCOMPARE(canvas.cursor().shape(), Qt::BlankCursor); QVERIFY(canvas.toolTip().isEmpty());
+    QKeyEvent shift(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier);
+    QCoreApplication::sendEvent(&canvas, &shift);
+    QCOMPARE(canvas.cursor().shape(), Qt::BlankCursor);
+    QTest::mouseRelease(&canvas, Qt::LeftButton, Qt::NoModifier, {60, 50});
+    QCOMPARE(canvas.cursor().shape(), Qt::PointingHandCursor);
+    QVERIFY(!canvas.findChild<PDFMagnifier *>()->isVisible());
+    canvas.setTool(2);
+    QTest::mousePress(&canvas, Qt::LeftButton, Qt::NoModifier, {10, 10});
+    QCOMPARE(canvas.cursor().shape(), Qt::ClosedHandCursor);
+    QTest::mouseMove(&canvas, {60, 50});
+    QCOMPARE(canvas.cursor().shape(), Qt::ClosedHandCursor);
+    QCoreApplication::sendEvent(&canvas, &shift);
+    QCOMPARE(canvas.cursor().shape(), Qt::ClosedHandCursor);
+    QTest::mouseRelease(&canvas, Qt::LeftButton, Qt::NoModifier, {10, 10});
+    compareCursor(canvas.cursor(), ViewerControls::toolCursor(2, Qt::NoModifier));
+    QTest::mouseDClick(&canvas, Qt::LeftButton, Qt::NoModifier, {10, 10});
+    QVERIFY(canvas.interactionActive);
+    QVERIFY(canvas.findChild<PDFMagnifier *>()->isVisible());
+    QCOMPARE(canvas.cursor().shape(), Qt::BlankCursor);
+    QTest::mouseMove(&canvas, {60, 50});
+    QCOMPARE(canvas.cursor().shape(), Qt::BlankCursor);
+    QTest::mouseRelease(&canvas, Qt::LeftButton, Qt::NoModifier, {10, 10});
+    QVERIFY(!canvas.interactionActive);
+    compareCursor(canvas.cursor(), ViewerControls::toolCursor(2, Qt::NoModifier));
 }
 void LinksUiTest::linkClickPreservesTools()
 {

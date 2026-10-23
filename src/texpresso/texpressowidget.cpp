@@ -4,6 +4,7 @@
 #include <QHBoxLayout>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QKeyEvent>
 #include <QWheelEvent>
 #include <QScrollBar>
 #include <QFileInfo>
@@ -45,8 +46,7 @@ TexpressoCanvas::TexpressoCanvas(PDFDocumentConfig *config, QScrollArea *area)
 void TexpressoCanvas::setTool(int value)
 {
     tool = value == 2 ? 2 : 1;
-    setToolTip(QString()); setCursor(tool == 2 ? Qt::OpenHandCursor : Qt::CrossCursor);
-    if (underMouse()) updateLinkCursor(mapFromGlobal(QCursor::pos()), QApplication::keyboardModifiers());
+    updateLinkCursor(underMouse() ? mapFromGlobal(QCursor::pos()) : QPoint(-1, -1), QApplication::keyboardModifiers());
 }
 void TexpressoCanvas::setAnnotations(int page, qint64 revision, qint64 sequence, const QJsonObject &value)
 {
@@ -73,9 +73,16 @@ int TexpressoCanvas::linkAt(const QPoint &point) const
 }
 void TexpressoCanvas::updateLinkCursor(const QPoint &point, Qt::KeyboardModifiers modifiers)
 {
-    const int link = modifiers == Qt::NoModifier ? linkAt(point) : -1;
+    if (dragging || magnifier->isVisible()) {
+        setToolTip(QString());
+        setCursor(dragging ? Qt::ClosedHandCursor : Qt::BlankCursor);
+        return;
+    }
+    // The saved-PDF viewer identifies links even while a modifier is held.
+    // Modified clicks still retain their source-sync and zoom actions.
+    const int link = linkAt(point);
     setToolTip(link < 0 ? QString() : annotations.value("links").toArray()[link].toObject().value("uri").toString());
-    if (!dragging) setCursor(link < 0 ? (tool == 2 ? Qt::OpenHandCursor : Qt::CrossCursor) : Qt::PointingHandCursor);
+    setCursor(link < 0 ? ViewerControls::toolCursor(tool, modifiers) : QCursor(Qt::PointingHandCursor));
 }
 void TexpressoCanvas::resetTools()
 {
@@ -99,6 +106,36 @@ void TexpressoCanvas::setPreview(TexpressoPreview *value)
                 bounds.size() * factor), image);
             painter.end(); magnifier->setImage(detail, 0);
         });
+}
+bool TexpressoCanvas::event(QEvent *event)
+{
+    const bool handled = QWidget::event(event);
+    switch (event->type()) {
+    case QEvent::Enter:
+    case QEvent::FocusIn:
+        updateLinkCursor(mapFromGlobal(QCursor::pos()), QApplication::keyboardModifiers());
+        break;
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease: {
+        const auto key = static_cast<QKeyEvent *>(event);
+        auto modifiers = key->modifiers();
+        // A modifier key's own flag can describe the state before the event.
+        // Normalize it so releasing Shift restores the cursor immediately.
+        Qt::KeyboardModifier changed = Qt::NoModifier;
+        switch (key->key()) {
+        case Qt::Key_Shift: changed = Qt::ShiftModifier; break;
+        case Qt::Key_Control: changed = Qt::ControlModifier; break;
+        case Qt::Key_Meta: changed = Qt::MetaModifier; break;
+        case Qt::Key_Alt: changed = Qt::AltModifier; break;
+        }
+        if (changed != Qt::NoModifier) modifiers.setFlag(changed, event->type() == QEvent::KeyPress);
+        updateLinkCursor(mapFromGlobal(QCursor::pos()), modifiers);
+        break;
+    }
+    default:
+        break;
+    }
+    return handled;
 }
 void TexpressoCanvas::paintEvent(QPaintEvent *)
 {
@@ -129,6 +166,7 @@ void TexpressoCanvas::magnify(const QPoint &point)
     magnifier->setPage(0, scale * 72 / 96, rect(), sample.intersected(rect()));
     magnifier->move(point - magnifier->rect().center());
     magnifier->show(); magnifier->raise();
+    setToolTip(QString()); setCursor(Qt::BlankCursor);
 }
 void TexpressoCanvas::mousePressEvent(QMouseEvent *event)
 {
@@ -190,11 +228,15 @@ void TexpressoCanvas::mouseReleaseEvent(QMouseEvent *event)
 }
 void TexpressoCanvas::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::NoModifier && linkAt(event->pos()) < 0) magnify(event->pos());
+    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::NoModifier && linkAt(event->pos()) < 0) {
+        interactionActive = true; dragging = false;
+        magnify(event->pos());
+    }
 }
 void TexpressoCanvas::leaveEvent(QEvent *event)
 {
-    setToolTip(QString()); if (!dragging) setCursor(tool == 2 ? Qt::OpenHandCursor : Qt::CrossCursor); QWidget::leaveEvent(event);
+    updateLinkCursor(QPoint(-1, -1), QApplication::keyboardModifiers());
+    QWidget::leaveEvent(event);
 }
 void TexpressoCanvas::wheelEvent(QWheelEvent *event)
 {

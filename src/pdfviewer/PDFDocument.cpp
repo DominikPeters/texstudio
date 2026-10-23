@@ -360,11 +360,6 @@ void PDFMovie::seekDialog()
 
 //#pragma mark === PDFWidget ===
 
-QCursor *PDFWidget::magnifierCursor = nullptr;
-QCursor *PDFWidget::zoomInCursor = nullptr;
-QCursor *PDFWidget::zoomOutCursor = nullptr;
-QCursor *PDFWidget::focusedHandCursor = nullptr;
-
 PDFWidget::PDFWidget(bool embedded)
 	: QLabel()
 	, realPageIndex(0), oldRealPageIndex(0)
@@ -449,12 +444,9 @@ PDFWidget::PDFWidget(bool embedded)
 		globalConfig->magnifierShadow = false;
 	}
 
-    if (magnifierCursor == nullptr) {
-        magnifierCursor = new QCursor(loadPixmapFromSVG(getRealIconFile("magnifier"),QSize(32,32)),10,10);
-        zoomInCursor = new QCursor(loadPixmapFromSVG(getRealIconFile("zoom-in-magnifier"),QSize(32,32)),12,12);
-        zoomOutCursor = new QCursor(loadPixmapFromSVG(getRealIconFile("zoom-out-magnifier"),QSize(32,32)),12,12);
-        focusedHandCursor = new QCursor(loadPixmapFromSVG(getRealIconFile("focusedhand"),QSize(32,32)),8,13);
-	}
+    ViewerControls::initializeToolCursors([](const QString &name) {
+        return loadPixmapFromSVG(getRealIconFile(name), QSize(32, 32));
+    });
 
 	ctxZoomInAction = new QAction(tr("Zoom In"), this);
 	addAction(ctxZoomInAction);
@@ -1548,42 +1540,7 @@ void PDFWidget::updateCursor()
 	if (usingTool != kNone)
 		return;
 
-	Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
-	switch (currentTool) {
-	case kScroll: {
-		if (mods & Qt::ShiftModifier) {
-			if (mods & Qt::ControlModifier)
-				setCursor(Qt::CrossCursor);
-			else
-				setCursor(Qt::ArrowCursor);
-		}
-		else
-			setCursor(*focusedHandCursor);
-	}
-	break;
-	case kMagnifier: {
-		if (mods & Qt::AltModifier)
-			setCursor(*zoomOutCursor);
-		else if (mods & Qt::ShiftModifier) {
-			if (mods & Qt::ControlModifier)
-				setCursor(Qt::CrossCursor);
-			else
-				setCursor(*zoomInCursor);
-		}
-		else
-			setCursor(*magnifierCursor);
-	}
-	break;
-	case kSelectText:
-		setCursor(Qt::IBeamCursor);
-		break;
-	case kSelectImage:
-		setCursor(Qt::CrossCursor);
-		break;
-    default:
-        setCursor(Qt::ArrowCursor);
-        break;
-	}
+	setCursor(ViewerControls::toolCursor(currentTool, QApplication::keyboardModifiers()));
 }
 
 QRect PDFWidget::mapPopplerRectToWidget(QRectF r, const QSizeF &pageSize) const

@@ -1,5 +1,6 @@
 #pragma once
 #include <QAction>
+#include <QCursor>
 #include <QHash>
 #include <QLabel>
 #include <QLineEdit>
@@ -12,6 +13,9 @@
 // Rendering-independent controls shared by the saved-PDF and live viewers.
 namespace ViewerControls {
 using Icons = std::function<QIcon(const QString &)>;
+// Use the same artwork, hotspots and modifier rules in both viewers.
+void initializeToolCursors(const std::function<QPixmap(const QString &)> &pixmap);
+QCursor toolCursor(int tool, Qt::KeyboardModifiers modifiers);
 struct ActionSpec {
     QString id, text, icon;
     QList<QKeySequence> shortcuts;

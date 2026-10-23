@@ -5,6 +5,41 @@
 #include <cmath>
 
 namespace ViewerControls {
+namespace {
+struct ToolCursors {
+    QCursor magnifier, zoomIn, zoomOut, hand;
+};
+ToolCursors *toolCursors = nullptr;
+}
+void initializeToolCursors(const std::function<QPixmap(const QString &)> &pixmap)
+{
+    if (toolCursors) return;
+    toolCursors = new ToolCursors{
+        QCursor(pixmap("magnifier"), 10, 10),
+        QCursor(pixmap("zoom-in-magnifier"), 12, 12),
+        QCursor(pixmap("zoom-out-magnifier"), 12, 12),
+        QCursor(pixmap("focusedhand"), 8, 13)};
+}
+QCursor toolCursor(int tool, Qt::KeyboardModifiers modifiers)
+{
+    switch (tool) {
+    case 1: // Magnify
+        if (modifiers & Qt::AltModifier)
+            return toolCursors ? toolCursors->zoomOut : QCursor(Qt::CrossCursor);
+        if (modifiers & Qt::ShiftModifier) {
+            if (modifiers & Qt::ControlModifier) return QCursor(Qt::CrossCursor);
+            return toolCursors ? toolCursors->zoomIn : QCursor(Qt::CrossCursor);
+        }
+        return toolCursors ? toolCursors->magnifier : QCursor(Qt::CrossCursor);
+    case 2: // Scroll
+        if (modifiers & Qt::ShiftModifier)
+            return QCursor(modifiers & Qt::ControlModifier ? Qt::CrossCursor : Qt::ArrowCursor);
+        return toolCursors ? toolCursors->hand : QCursor(Qt::OpenHandCursor);
+    case 3: return QCursor(Qt::IBeamCursor); // Select text
+    case 4: return QCursor(Qt::CrossCursor); // Select image
+    default: return QCursor(Qt::ArrowCursor);
+    }
+}
 static QString tr(const char *text) { return QCoreApplication::translate("PDFDocument", text); }
 ActionSpec actionSpec(const QString &id)
 {

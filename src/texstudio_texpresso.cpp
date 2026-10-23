@@ -36,6 +36,9 @@ void Texstudio::setupTexpresso()
     configManager.registerOption("Preview/Scrolling Follows Cursor", &previewConfig->followFromCursor, false);
     configManager.registerOption("Preview/Invert Colors", &previewConfig->invertColors, false);
     configManager.registerOption("Preview/Grayscale", &previewConfig->grayscale, false);
+    ViewerControls::initializeToolCursors([](const QString &name) {
+        return loadPixmapFromSVG(getRealIconFile(name), QSize(32, 32));
+    });
     texpressoWidget = new TexpressoWidget(texpressoManager, previewConfig, getRealIcon, mainHSplitter);
     setupTexpressoOutput();
     // Use the PDF action IDs so configured PDF shortcuts also reach the live
