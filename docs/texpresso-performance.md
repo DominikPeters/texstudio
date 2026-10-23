@@ -276,3 +276,20 @@ barriers, suppresses prewarming while awaiting acknowledgment, and reissues the
 search against the latest sequence. Explicit Sync works with cursor following
 disabled. Manual navigation and real editor mutations still replace/cancel the
 intent. The shared engine remains at `2010b9f`.
+
+Post-change verification passed 1,614 application checks (bibliography enabled,
+two opt-in skips) and all 15 Qt integration suites. A 100-page UI smoke passed,
+followed by a ten-minute 100-page run: 616 seconds in the UI workload, 631 seconds
+including cleanup/oracles, 43 cycles and 5,504 scheduled edits. Both sessions
+stayed retained between lifecycle checks. All five final independent PDF-text
+and SyncTeX probes agreed, and no owned processes remained. The final engine
+tail shows the interrupted middle-source search reissued against sequence
+11274 after the dirty include advanced it from 11273.
+
+The long run observed 4,737 fresh current-source paints; 767 inputs lacked that
+observation. Only 93 of 172 typing phases met the 20 ms cadence tolerance. This
+is correctness evidence on a larger corpus, not a before/after UI-latency claim.
+A separately packaged macOS app also passed a visible-window 100-page smoke,
+all five probes, strict signature verification and its packaged engine hashes.
+[Validation details](texpresso-editor-validation-2026-10-23.json) retain hashes,
+resource summaries, source probes and the initial test-fixture correction.

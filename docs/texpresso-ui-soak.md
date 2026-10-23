@@ -95,3 +95,8 @@ Hashes, resource summaries and probe results are recorded in
 [the validation record](texpresso-ui-soak-validation-2026-10-23.json).
 Linux, 100-page and 30-minute full-editor runs were not exercised in this local
 validation; the new manual CI option has not been dispatched here.
+
+The subsequent editor performance pass also validated the 100-page mode for
+ten minutes, plus a visible-window 100-page smoke. See
+[the performance notes](texpresso-performance.md#editor-work-found-by-the-ui-soak)
+and [its validation record](texpresso-editor-validation-2026-10-23.json).

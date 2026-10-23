@@ -1,0 +1,370 @@
+{
+  "schema": 1,
+  "date": "2026-10-23",
+  "implementationRevision": "0ed3d505fcc970f243c2afa196e7e8681da85e29",
+  "platform": "macOS 15.7.9 arm64 / Qt 6.12.0",
+  "engineRevision": "2010b9fec2c2450b4d06013544d5968d8605922b",
+  "sourceSha256": {
+    "src/texstudio_texpresso.cpp": "c55bf6fe8017c1823f5981c00b932fafa24472182de775d8518bcb2d161f59e5",
+    "src/texpresso/texpressomanager.cpp": "afa97891d01d1c9c150a4488a2f444eeab065a2093ade99f8e36132ba0e680ce",
+    "src/texpresso/texpressosession.cpp": "fdade1435021e45dfd19efc890e59d6c783688af74117b5087940c56985e2e63",
+    "src/tests/texpresso_soak_t.cpp": "2fab873ee5c69b12f5d7eab8c91d69b850da249e70ede8aaab53d3fd4cfcd3cc"
+  },
+  "limits": [
+    "Correctness runs, not a before/after edit-to-visible latency comparison. Separate paired Debug host benchmark is recorded in texpresso-editor-performance-2026-10-23.json.",
+    "Observed Qt paintEvent completion excludes physical keyboard and compositor latency; unobserved/superseded inputs remain counted and cadence misses flag invalid phase timings.",
+    "Once-per-second RSS sums include shared/COW pages and harness state, not unique RAM or PSS. Finite workload does not prove hours-long stability."
+  ],
+  "runs": [
+    {
+      "passed": true,
+      "appSha256": "31aade79a4a9ab2284f1e443bfa7e62ca4a6072862083ab340c70a4670c0dd58",
+      "requestedSeconds": 10,
+      "targetPages": 100,
+      "platform": "offscreen",
+      "elapsedSeconds": 37.51715475000674,
+      "inputs": 128,
+      "leftoverProcesses": [],
+      "oracle": [
+        {
+          "file": "main.tex",
+          "line1": 42,
+          "page": 0,
+          "root": "main.tex",
+          "token": "UIEARLY0032",
+          "pdfPages": [
+            0
+          ],
+          "synctexPages": [
+            0
+          ]
+        },
+        {
+          "file": "main.tex",
+          "line1": 1658,
+          "page": 48,
+          "root": "main.tex",
+          "token": "UIMIDDLE0032",
+          "pdfPages": [
+            48
+          ],
+          "synctexPages": [
+            48
+          ]
+        },
+        {
+          "file": "main.tex",
+          "line1": 3275,
+          "page": 97,
+          "root": "main.tex",
+          "token": "UILATE0032",
+          "pdfPages": [
+            97
+          ],
+          "synctexPages": [
+            97
+          ]
+        },
+        {
+          "file": "chapter.tex",
+          "line1": 2,
+          "page": 48,
+          "root": "main.tex",
+          "token": "UIINCLUDE0033",
+          "pdfPages": [
+            48
+          ],
+          "synctexPages": [
+            48
+          ]
+        },
+        {
+          "file": "other.tex",
+          "line1": 3,
+          "page": 0,
+          "root": "other.tex",
+          "token": "UIOTHER0001",
+          "pdfPages": [
+            0
+          ],
+          "synctexPages": [
+            0,
+            1
+          ]
+        }
+      ],
+      "artifactDirectory": "/tmp/texstudio-ui-performance-100-smoke-after",
+      "uiElapsedSeconds": 24.607809834,
+      "cycles": 1,
+      "sustainedSessionVerifiedSeconds": 0.008092832999998792,
+      "allCycleCheckpointsRetainTwoSessions": true,
+      "currentPaintObserved": 103,
+      "withoutCurrentPaintObservation": 25,
+      "typingPhases": 4,
+      "validCadencePhases": 3,
+      "maxInputLatenessMs": 20.08191699999952,
+      "resourceSamples": 31,
+      "sampledPeakOwnedTasks": 34,
+      "sampledPeakOwnedRssKiB": 576896
+    },
+    {
+      "passed": true,
+      "appSha256": "31aade79a4a9ab2284f1e443bfa7e62ca4a6072862083ab340c70a4670c0dd58",
+      "requestedSeconds": 600,
+      "targetPages": 100,
+      "platform": "offscreen",
+      "elapsedSeconds": 631.1728751669871,
+      "inputs": 5504,
+      "leftoverProcesses": [],
+      "oracle": [
+        {
+          "file": "main.tex",
+          "line1": 42,
+          "page": 0,
+          "root": "main.tex",
+          "token": "UIEARLY1376",
+          "pdfPages": [
+            0
+          ],
+          "synctexPages": [
+            0
+          ]
+        },
+        {
+          "file": "main.tex",
+          "line1": 1658,
+          "page": 48,
+          "root": "main.tex",
+          "token": "UIMIDDLE1376",
+          "pdfPages": [
+            48
+          ],
+          "synctexPages": [
+            48
+          ]
+        },
+        {
+          "file": "main.tex",
+          "line1": 3275,
+          "page": 97,
+          "root": "main.tex",
+          "token": "UILATE1376",
+          "pdfPages": [
+            97
+          ],
+          "synctexPages": [
+            97
+          ]
+        },
+        {
+          "file": "chapter.tex",
+          "line1": 2,
+          "page": 48,
+          "root": "main.tex",
+          "token": "UIINCLUDE1419",
+          "pdfPages": [
+            48
+          ],
+          "synctexPages": [
+            48
+          ]
+        },
+        {
+          "file": "other.tex",
+          "line1": 3,
+          "page": 0,
+          "root": "other.tex",
+          "token": "UIOTHER0043",
+          "pdfPages": [
+            0
+          ],
+          "synctexPages": [
+            0,
+            1
+          ]
+        }
+      ],
+      "artifactDirectory": "/tmp/texstudio-ui-performance-100-10min-after",
+      "uiElapsedSeconds": 616.0021044169999,
+      "cycles": 43,
+      "sustainedSessionVerifiedSeconds": 592.720779917,
+      "allCycleCheckpointsRetainTwoSessions": true,
+      "currentPaintObserved": 4737,
+      "withoutCurrentPaintObservation": 767,
+      "typingPhases": 172,
+      "validCadencePhases": 93,
+      "maxInputLatenessMs": 251.44758300005924,
+      "resourceSamples": 602,
+      "sampledPeakOwnedTasks": 40,
+      "sampledPeakOwnedRssKiB": 505824,
+      "finalOwnedSearches": [
+        {
+          "request": 22597,
+          "file": "main.tex",
+          "line1": 42,
+          "sequence": 11273
+        },
+        {
+          "request": 22599,
+          "file": "main.tex",
+          "line1": 1658,
+          "sequence": 11273
+        },
+        {
+          "request": 22600,
+          "file": "main.tex",
+          "line1": 1658,
+          "sequence": 11273
+        },
+        {
+          "request": 22602,
+          "file": "main.tex",
+          "line1": 1658,
+          "sequence": 11274
+        },
+        {
+          "request": 22605,
+          "file": "main.tex",
+          "line1": 3275,
+          "sequence": 11274
+        },
+        {
+          "request": 22606,
+          "file": "main.tex",
+          "line1": 3275,
+          "sequence": 11274
+        },
+        {
+          "request": 22609,
+          "file": "chapter.tex",
+          "line1": 2,
+          "sequence": 11274
+        },
+        {
+          "request": 22610,
+          "file": "chapter.tex",
+          "line1": 2,
+          "sequence": 11274
+        }
+      ]
+    },
+    {
+      "passed": true,
+      "appSha256": "f8d12e6d52ecf8953112e965ca60993612a49cc0dee8e1f8421f1234feca4527",
+      "requestedSeconds": 10,
+      "targetPages": 100,
+      "platform": "cocoa",
+      "elapsedSeconds": 36.80318433302455,
+      "inputs": 128,
+      "leftoverProcesses": [],
+      "oracle": [
+        {
+          "file": "main.tex",
+          "line1": 42,
+          "page": 0,
+          "root": "main.tex",
+          "token": "UIEARLY0032",
+          "pdfPages": [
+            0
+          ],
+          "synctexPages": [
+            0
+          ]
+        },
+        {
+          "file": "main.tex",
+          "line1": 1658,
+          "page": 48,
+          "root": "main.tex",
+          "token": "UIMIDDLE0032",
+          "pdfPages": [
+            48
+          ],
+          "synctexPages": [
+            48
+          ]
+        },
+        {
+          "file": "main.tex",
+          "line1": 3275,
+          "page": 97,
+          "root": "main.tex",
+          "token": "UILATE0032",
+          "pdfPages": [
+            97
+          ],
+          "synctexPages": [
+            97
+          ]
+        },
+        {
+          "file": "chapter.tex",
+          "line1": 2,
+          "page": 48,
+          "root": "main.tex",
+          "token": "UIINCLUDE0033",
+          "pdfPages": [
+            48
+          ],
+          "synctexPages": [
+            48
+          ]
+        },
+        {
+          "file": "other.tex",
+          "line1": 3,
+          "page": 0,
+          "root": "other.tex",
+          "token": "UIOTHER0001",
+          "pdfPages": [
+            0
+          ],
+          "synctexPages": [
+            0,
+            1
+          ]
+        }
+      ],
+      "artifactDirectory": "/tmp/texstudio-ui-performance-cocoa-after-2",
+      "uiElapsedSeconds": 23.628271292,
+      "cycles": 1,
+      "sustainedSessionVerifiedSeconds": 0.0007325000000018918,
+      "allCycleCheckpointsRetainTwoSessions": true,
+      "currentPaintObserved": 104,
+      "withoutCurrentPaintObservation": 24,
+      "typingPhases": 4,
+      "validCadencePhases": 3,
+      "maxInputLatenessMs": 20.493624999999156,
+      "resourceSamples": 30,
+      "sampledPeakOwnedTasks": 33,
+      "sampledPeakOwnedRssKiB": 715072
+    }
+  ],
+  "applicationTests": {
+    "passed": 1614,
+    "failed": 0,
+    "skipped": 2,
+    "bibliographyEnabled": true,
+    "skips": [
+      "Opt-in UI soak",
+      "Opt-in editor buffer benchmark"
+    ],
+    "log": "/tmp/texstudio-ui-performance-regression.log"
+  },
+  "qtIntegration": {
+    "passedSuites": 15,
+    "productionEngine": "2010b9f",
+    "fullRunLog": "/tmp/texstudio-ui-performance-client-tests.log",
+    "focusedSourceFollowRerunLog": "/tmp/texstudio-ui-performance-source-follow-passed.log",
+    "note": "The initial full run passed 14 suites; the new synthetic source-follow fixture used noncanonical buffer keys. Corrected the fixture, then its suite passed. No production changes between those checks."
+  },
+  "packagedTestApp": {
+    "path": "/tmp/texstudio-editor-performance.app",
+    "appSha256": "f8d12e6d52ecf8953112e965ca60993612a49cc0dee8e1f8421f1234feca4527",
+    "signature": "Ad-hoc, codesign --verify --deep --strict passed",
+    "engineManifestFilesVerified": 18,
+    "engineManifestSha256": "45e0c2521e491aeb3b3247cbdc49ae8f4dccadb7ab58135b71db47fbe55e862d",
+    "isolatedConfig": "/tmp/texstudio-editor-performance-config",
+    "visibleSmoke": "/tmp/texstudio-ui-performance-cocoa-after-2"
+  }
+}
