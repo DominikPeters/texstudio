@@ -1,5 +1,28 @@
 # Qt live-preview benchmark
 
+## Editor buffer benchmark
+
+For the real editor buffer path, use the application configured with
+`-DCMAKE_BUILD_TYPE=Debug -DTEXSTUDIO_ENABLE_TESTS=ON`:
+
+```sh
+QT_QPA_PLATFORM=offscreen TEXPRESSO_TEST_UI_BENCHMARK=1 \
+TEXPRESSO_UI_BENCHMARK_OUTPUT=/tmp/editor-buffer-benchmark.json \
+  ./build/texstudio.app/Contents/MacOS/texstudio --auto-tests --start-always \
+  --no-session --config /tmp/editor-buffer-benchmark-config
+```
+
+On Linux use `./build/texstudio`. It disables native compilation and measures
+actual QEditor selection replacement and the following application event turn,
+at early/middle/late locations in the 30/100-page corpora. Each case has ten
+warmups and 100 measured edits. It checks the retained overlay against the actual
+document, has no timing threshold, and is skipped by normal application tests.
+Compare matching builds serially; Debug results do not establish Release or
+edit-to-visible performance. See the 2026-10-23 editor measurements in
+`docs/texpresso-performance.md` and the raw JSON record there.
+
+## Preview rendering benchmark
+
 Build and run this opt-in benchmark in Release mode:
 
 ```

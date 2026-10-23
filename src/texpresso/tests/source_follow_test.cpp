@@ -23,6 +23,7 @@ private slots:
     void sessionFlushDedupeAndCanonicalPath();
     void sessionStoresDisabledCaretAndKeepsEditStartSeparate();
     void sessionManualNavigationAndRecovery();
+    void dirtyIncludeKeepsOwnedReveal();
 private:
     void makeReady(TexpressoSession &session);
 };
@@ -33,14 +34,17 @@ static TexpressoSourceFollow::Intent intent()
 static int forwardCount(const QSignalSpy &commands)
 {
     int count = 0;
-    for (const auto &entry : commands) if (entry[0].toJsonArray()[0] == "synctex-forward") ++count;
+    for (const auto &entry : commands) {
+        const auto verb = entry[0].toJsonArray()[0];
+        if (verb == "synctex-forward" || verb == "preview-search") ++count;
+    }
     return count;
 }
 static QJsonArray lastForward(const QSignalSpy &commands)
 {
     for (int i = commands.size() - 1; i >= 0; --i) {
         const auto command = commands[i][0].toJsonArray();
-        if (command[0] == "synctex-forward") return command;
+        if (command[0] == "synctex-forward" || command[0] == "preview-search") return command;
     }
     return {};
 }
@@ -172,6 +176,46 @@ void TexpressoSourceFollowTest::sessionManualNavigationAndRecovery()
     session.syncForward("/work/main.tex", 0); QCOMPARE(forwardCount(commands), 3);
     QVERIFY(!session.suppressRestartSync);
     session.message({"flush"}); QCOMPARE(forwardCount(commands), 3);
+}
+void TexpressoSourceFollowTest::dirtyIncludeKeepsOwnedReveal()
+{
+    QTemporaryDir temp; const auto root = TexpressoSession::identity(temp.filePath("main.tex"));
+    QFile file(root); QVERIFY(file.open(QIODevice::WriteOnly)); file.write("Source.\n"); file.close();
+    const auto child = TexpressoSession::identity(temp.filePath("child.tex"));
+    const auto next = TexpressoSession::identity(temp.filePath("next.tex"));
+    const auto last = TexpressoSession::identity(temp.filePath("last.tex"));
+    TexpressoSession session(root, {}, {{root, "Source.\n"}, {child, "Dirty include.\n"}, {next, "Next.\n"}, {last, "Last.\n"}});
+    makeReady(session); session.process = std::make_unique<TexpressoProcess>();
+    session.preview.setCapabilities({{"requestLifecycle", true}});
+    session.followCursor = false; // Explicit Sync still owns its continuation.
+    QSignalSpy commands(&session.preview, &TexpressoPreview::command);
+    session.syncForward(root, 0, true); QCOMPARE(forwardCount(commands), 1);
+    session.message({"input-file", 1, child}); QVERIFY(session.sourceRefreshPending);
+    const auto sequence = session.preview.sequence();
+    QCOMPARE(forwardCount(commands), 1); // Wait for the replacement barrier.
+    session.message({"preview-state", 9, double(sequence - 1), 1, false, 0});
+    QCOMPARE(forwardCount(commands), 1);
+    session.message({"preview-state", 10, double(sequence), 1, false, 0});
+    QCOMPARE(forwardCount(commands), 2); QVERIFY(!session.sourceRefreshPending);
+    QCOMPARE(lastForward(commands)[4].toDouble(), double(sequence));
+    session.message({"preview-state", 10, double(sequence), 1, false, 0});
+    QCOMPARE(forwardCount(commands), 2);
+    session.message({"input-file", 2, next}); QVERIFY(session.sourceRefreshPending);
+    session.preview.navigateTo(0); QVERIFY(!session.sourceRefreshPending);
+    session.message({"preview-state", 11, double(session.preview.sequence()), 1, false, 0});
+    QCOMPARE(forwardCount(commands), 2); // A manual hold wins over the old Sync.
+    session.syncForward(root, 0, true); QCOMPARE(forwardCount(commands), 3);
+    session.message({"input-file", 3, last}); QVERIFY(session.sourceRefreshPending);
+    session.setPaused(true);
+    session.message({"preview-state", 12, double(session.preview.sequence()), 1, false, 0});
+    QCOMPARE(forwardCount(commands), 3); QVERIFY(session.sourceRefreshPending);
+    session.setPaused(false); QCOMPARE(forwardCount(commands), 4); QVERIFY(!session.sourceRefreshPending);
+    // A real edit replaces the earlier explicit navigation, even with follow off.
+    session.sendSource({"rescan"}, true); QVERIFY(session.sourceRefreshPending);
+    session.changeBuffer(root, 0, 0, 0, 0, "New ", "New Source.\n");
+    QVERIFY(!session.sourceRefreshPending);
+    session.message({"preview-state", 13, double(session.preview.sequence()), 1, false, 0});
+    QCOMPARE(forwardCount(commands), 4);
 }
 QTEST_MAIN(TexpressoSourceFollowTest)
 #include "source_follow_test.moc"

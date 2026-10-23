@@ -12,6 +12,9 @@ public:
     void activate(const QString &root);
     void openBuffer(const QString &path, const QString &text);
     void reconcileBuffer(const QString &path, const QString &text);
+    // Apply an ordered editor delta to the retained overlay. False requests a
+    // full snapshot (unknown buffer or a range outside the retained text).
+    bool changeBuffer(const QString &path, int sl, int sc, int el, int ec, const QString &text);
     void changeBuffer(const QString &path, int sl, int sc, int el, int ec, const QString &text, const QString &currentText);
     void closeBuffer(const QString &path);
     void retainProjects(const QSet<QString> &roots);
@@ -27,6 +30,7 @@ signals:
     void updated();
     void sourceLocation(const QString &file, int oneBasedLine, int column, const QString &word);
 private:
+    friend class TexStudioTest;
     QString engineFile;
     TexpressoSession::Buffers buffers;
     QMap<QString, TexpressoSession *> sessions;

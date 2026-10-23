@@ -67,7 +67,7 @@ private:
     void refreshCompilerOutput();
     void createProcess();
     void resetEngine();
-    void sendSource(QJsonArray command);
+    void sendSource(QJsonArray command, bool preserveSearch = false);
     void message(const QJsonArray &message);
     void announce(const QString &path, const QString &editorPath = QString());
     QString absolute(const QString &path) const;
@@ -100,6 +100,7 @@ private:
     qint64 acknowledgedSource = 0;
     qint64 compilerLogSequence = -1;
     bool resumePending = false;
+    bool sourceRefreshPending = false, sourceRequestExplicit = false;
     QString syncFile;
     int syncLine = 0, syncColumn = 0;
     void error(const QString &reason);

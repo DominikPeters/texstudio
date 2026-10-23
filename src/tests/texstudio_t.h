@@ -21,6 +21,8 @@ private slots:
     void sharedCompilationOutput();
     void liveBuildAndRefresh();
     void liveEditingSoak();
+    void liveEditorBuffers();
+    void liveEditingBufferBenchmark();
 
 private:
     bool allTests;

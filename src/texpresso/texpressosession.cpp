@@ -37,6 +37,7 @@ TexpressoSession::TexpressoSession(const QString &root, const QString &engine, c
     connect(&preview, &TexpressoPreview::activityChanged, this, &TexpressoSession::refreshPrewarmContext);
     connect(&preview, &TexpressoPreview::interactionStarted, &prewarm, [this] { prewarm.interrupt(); });
     connect(&preview, &TexpressoPreview::manualNavigated, this, [this] { sourceFollow.suspend(); });
+    connect(&preview, &TexpressoPreview::manualNavigated, this, [this] { sourceRefreshPending = false; });
     connect(&preview, &TexpressoPreview::failed, this, [this](const QString &reason) { previewError = reason; emit updated(); });
     connect(&preview, &TexpressoPreview::updated, this, [this] {
         if (preview.valid()) previewError.clear();
@@ -60,7 +61,7 @@ TexpressoSession::TexpressoSession(const QString &root, const QString &engine, c
             if (QFileInfo::exists(path) && !watcher.files().contains(path)) watcher.addPath(path);
         }
         pendingDependencies.clear();
-        if (changed) sendSource({"rescan"});
+        if (changed) sendSource({"rescan"}, true);
     });
 }
 void TexpressoSession::createProcess()
@@ -107,6 +108,7 @@ void TexpressoSession::start()
 void TexpressoSession::resetEngine()
 {
     sourceFollow.invalidate();
+    sourceRefreshPending = false;
     ready = false; resumePending = false;
     preview.setActive(false);
     prewarm.setContext({}); prewarm.reset();
@@ -182,9 +184,13 @@ void TexpressoSession::error(const QString &reason)
     failure = true; ready = false; status = reason;
     preview.setActive(false); if (process) process->stop(); emit updated();
 }
-void TexpressoSession::sendSource(QJsonArray command)
+void TexpressoSession::sendSource(QJsonArray command, bool preserveSearch)
 {
     if (!ready || failure || userStopped) return;
+    // Discovering a dirty include can invalidate a search which was compiling
+    // toward that very include. Keep its intent until the new barrier is acked.
+    // Editor mutations and manual navigation still replace/cancel the intent.
+    sourceRefreshPending = preserveSearch && (sourceRefreshPending || preview.followingSource());
     prewarm.interrupt();
     previewError.clear();
     process->send(command);
@@ -208,6 +214,7 @@ void TexpressoSession::applyPause()
         resumePending = run && acknowledgedSource < preview.sequence();
         if (!run || !resumePending) {
             process->send({run ? "resume" : "pause"});
+            if (run && sourceRefreshPending) syncForward(syncFile, syncLine, sourceRequestExplicit, syncColumn);
         }
     }
     if (!failure && !userStopped) status = externalBuildRunning() ? tr("External build running…") : !foreground ? tr("Project inactive") : userPaused ? tr("Compilation paused") : tr("Live preview");
@@ -250,7 +257,7 @@ void TexpressoSession::announce(const QString &path, const QString &editorPath)
     editorPaths[logical] = key;
     if (!aliases[key].contains(logical)) {
         aliases[key].insert(logical);
-        if (buffers.contains(key)) sendSource({"open", logical, buffers.value(key)});
+        if (buffers.contains(key)) sendSource({"open", logical, buffers.value(key)}, true);
     }
     if (!writtenFiles.contains(key) && QFileInfo::exists(logical) && !watcher.files().contains(logical)) watcher.addPath(logical);
 }
@@ -265,6 +272,8 @@ void TexpressoSession::message(const QJsonArray &m)
             resumePending = false; process->send({"resume"});
             syncForward(syncFile, syncLine, false, syncColumn);
         }
+        if (sourceRefreshPending && acknowledgedSource == preview.sequence() && foreground && !userPaused && !userStopped && !externalBuildRunning())
+            syncForward(syncFile, syncLine, sourceRequestExplicit, syncColumn);
     } else if (verb == "input-file" && m.size() == 3) {
         const auto logical = absolute(m[2].toString());
         const auto editor = editorPaths.value(logical, identity(logical));
@@ -284,7 +293,7 @@ void TexpressoSession::message(const QJsonArray &m)
             announce(path);
     } else if (verb == "reset-sync") {
         for (auto it = aliases.cbegin(); it != aliases.cend(); ++it)
-            if (buffers.contains(it.key())) for (const auto &alias : it.value()) sendSource({"open", alias, buffers.value(it.key())});
+            if (buffers.contains(it.key())) for (const auto &alias : it.value()) sendSource({"open", alias, buffers.value(it.key())}, true);
     } else if (verb == "synctex" && m.size() >= 3 && preview.valid()) {
         const auto logical = absolute(m[1].toString());
         emit sourceLocation(editorPaths.value(logical, logical), m[2].toInt(), m.size() > 3 ? m[3].toInt(-1) : -1, m.size() > 4 ? m[4].toString() : QString());
@@ -350,7 +359,7 @@ void TexpressoSession::refreshCompilerOutput()
 void TexpressoSession::refreshPrewarmContext()
 {
     prewarm.setContext({ready && supportsPreparation && foreground && !userPaused && !userStopped
-        && !failure && !externalBuildRunning(), preview.valid() && !preview.busy() && !preview.followingSource(),
+        && !failure && !externalBuildRunning(), !sourceRefreshPending && preview.valid() && !preview.busy() && !preview.followingSource(),
         preview.revision(), preview.sequence()});
 }
 void TexpressoSession::prepareEdit(const QString &path, int line, int column)
@@ -393,5 +402,6 @@ void TexpressoSession::syncForward(const QString &path, int line, bool explicitR
     if (known.isEmpty()) return;
     if (!sourceFollow.request({key, bufferVersions.value(key), line, column,
         preview.sequence(), preview.revision()}, explicitRequest)) return;
+    sourceRefreshPending = false; sourceRequestExplicit = explicitRequest;
     preview.forward(inputAliases.value(key, *known.cbegin()), line);
 }

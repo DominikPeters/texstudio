@@ -227,3 +227,52 @@ overlay. They also check Stop/reaping and a shortened test deadline followed by
 Restart with retained source. The extension independently covers fragmented,
 coalesced, incompatible and prematurely closed greetings. No host protocol
 adaptation or SVG support is needed.
+
+## Editor work found by the UI soak
+
+The full-editor soak recorded occasional missed input deadlines. A separate
+20-second CPU sample of the real application editing the 100-page corpus
+confirmed avoidable document reconstruction inside the synchronous edit path.
+The adapter captured the entire QDocument for every range signal, then captured
+it again for every queued contentsChanged reconciliation. A selected-text
+replacement normally emits an erase and an insertion: four full captures.
+
+The adapter now immediately applies each ordered UTF-16 range to the retained
+QString overlay, which remains available to all project sessions and Restart.
+A per-document zero-delay timer captures and reconciles the full editor contents
+once per event batch. Reloads, collaboration edits and delayed macros retain
+that full check; unknown/invalid ranges fall back to a snapshot. Range delivery
+and interaction invalidation remain synchronous. This reduces a normal selected
+replacement to one full document capture. The QString update can still copy or
+scan source text; this is not a claim of constant-time editing.
+
+A paired old/new/new/old benchmark uses the same real-QEditor test, Qt and
+compiler, with native compilation disabled. There are ten warmups and 100
+measured four-character replacements at each location. Entries are medians of
+the two per-run medians:
+
+| Corpus / location | Write before | Write after | Write + event turn before | After |
+| --- | ---: | ---: | ---: | ---: |
+| 30 pages / early | 1.42 ms | 1.20 ms | 2.14 ms | 1.74 ms |
+| 30 pages / middle | 1.80 ms | 1.58 ms | 2.87 ms | 2.55 ms |
+| 30 pages / late | 2.13 ms | 1.97 ms | 3.57 ms | 3.23 ms |
+| 100 pages / early | 2.64 ms | 1.33 ms | 4.21 ms | 2.41 ms |
+| 100 pages / middle | 3.88 ms | 2.62 ms | 6.71 ms | 4.87 ms |
+| 100 pages / late | 5.08 ms | 3.96 ms | 9.24 ms | 7.43 ms |
+
+These are macOS arm64 / Qt 6.12.0 **Debug application** measurements of host
+editing work. Event-turn time includes other application syntax/UI work. They
+do not establish Release performance, compiler speed, edit-to-visible latency,
+or the cause of every input-deadline miss in the soak. Raw samples, hashes and
+method are in [the editor performance record](texpresso-editor-performance-2026-10-23.json).
+The reproduction command is in the benchmark README.
+
+The 100-page profiling workload also exposed a source-search stall after
+Restart: discovering an unsaved include supplied an overlay and advanced the
+source barrier, cancelling a pending Sync request. No replacement search was
+issued, so cursor prewarming could resume while the intended reveal was lost.
+The session now preserves an active reveal through internal overlay/rescan
+barriers, suppresses prewarming while awaiting acknowledgment, and reissues the
+search against the latest sequence. Explicit Sync works with cursor following
+disabled. Manual navigation and real editor mutations still replace/cancel the
+intent. The shared engine remains at `2010b9f`.

@@ -123,14 +123,20 @@ void Texstudio::watchTexpressoDocument(LatexDocument *document)
     connect(document, &QObject::destroyed, texpressoManager, [this, document] { texpressoDocuments.remove(document); });
     connect(document, &QDocument::changedText, texpressoManager,
         [this, document](int sl, int sc, int el, int ec, const QString &text) {
-            texpressoManager->changeBuffer(document->getFileName(), sl, sc, el, ec, text, bufferText(document));
+            if (!texpressoManager->changeBuffer(document->getFileName(), sl, sc, el, ec, text))
+                texpressoManager->reconcileBuffer(document->getFileName(), bufferText(document));
         });
-    connect(document, &QDocument::contentsChanged, texpressoManager, [this, guarded = QPointer<LatexDocument>(document)] {
-        // contentsChanged precedes changedText. Reconcile after the ordered range
-        // signals, covering reloads and collaboration edits that suppress them.
-        QTimer::singleShot(0, texpressoManager, [this, guarded] {
-            if (guarded) texpressoManager->reconcileBuffer(guarded->getFileName(), bufferText(guarded));
-        });
+    auto reconcile = new QTimer(document);
+    reconcile->setSingleShot(true);
+    connect(reconcile, &QTimer::timeout, texpressoManager, [this, document] {
+        // Keep a full check after the ordered deltas. Reloads, collaboration
+        // edits and delayed macros can omit or defer changedText signals.
+        texpressoManager->reconcileBuffer(document->getFileName(), bufferText(document));
+    });
+    connect(document, &QDocument::contentsChanged, reconcile, [reconcile] {
+        // A selection replacement emits erase + insert, and a macro can emit
+        // many changes. Capture once per event batch, without delaying deltas.
+        if (!reconcile->isActive()) reconcile->start();
     });
     connect(document, &LatexDocument::structureUpdated, texpressoManager, [this] { texpressoActivationTimer.start(); });
     if (auto view = document->getEditorView()) {

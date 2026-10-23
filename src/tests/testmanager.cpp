@@ -49,6 +49,8 @@ QString TestManager::performTest(QObject* obj){
     QByteArray method;
     if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_SOAK") == 1) {
         method = "liveEditingSoak"; argv[argc++] = method.data();
+    } else if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_BENCHMARK") == 1) {
+        method = "liveEditingBufferBenchmark"; argv[argc++] = method.data();
     }
 	argv[0]=(char*)"texstudio";
 	argv[1]=(char*)"-o";
@@ -81,7 +83,8 @@ QString TestManager::execute(TestLevel level, LatexEditorView* edView, QCodeEdit
 	totalTestTime = 0;
 	QString tr;
 	QList<QObject*> tests;
-    if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_SOAK") == 1)
+    if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_SOAK") == 1
+        || qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_BENCHMARK") == 1)
         tests << new TexStudioTest(level==TL_ALL);
     else tests=QList<QObject*>()
             << new SmallUsefulFunctionsTest()

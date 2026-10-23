@@ -39,6 +39,31 @@ void TexpressoManager::openBuffer(const QString &path, const QString &text)
     for (auto session : sessions) session->openBuffer(path, text);
 }
 void TexpressoManager::reconcileBuffer(const QString &path, const QString &text) { openBuffer(path, text); }
+bool TexpressoManager::changeBuffer(const QString &path, int sl, int sc, int el, int ec, const QString &text)
+{
+    const auto it = buffers.constFind(TexpressoSession::identity(path));
+    if (it == buffers.cend() || sl < 0 || sc < 0 || el < sl || ec < 0 || (sl == el && ec < sc)) return false;
+    const auto &before = it.value();
+    qsizetype lineStart = 0, start = -1, end = -1;
+    for (int line = 0; line <= el; ++line) {
+        const auto newline = before.indexOf('\n', lineStart);
+        const auto lineEnd = newline < 0 ? before.size() : newline;
+        if (line == sl) {
+            if (sc > lineEnd - lineStart) return false;
+            start = lineStart + sc;
+        }
+        if (line == el) {
+            if (ec > lineEnd - lineStart) return false;
+            end = lineStart + ec; break;
+        }
+        if (newline < 0) return false;
+        lineStart = newline + 1;
+    }
+    QString current = before;
+    current.replace(start, end - start, text);
+    changeBuffer(path, sl, sc, el, ec, text, current);
+    return true;
+}
 void TexpressoManager::changeBuffer(const QString &path, int sl, int sc, int el, int ec, const QString &text, const QString &currentText)
 {
     if (path.isEmpty()) return;

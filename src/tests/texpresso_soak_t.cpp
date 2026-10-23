@@ -305,3 +305,92 @@ void TexStudioTest::liveEditingSoak()
     observer.checkpoint("finished"); observer.passed = true;
 #endif
 }
+
+void TexStudioTest::liveEditorBuffers()
+{
+#ifndef TEXSTUDIO_TEXPRESSO
+    QSKIP("Live preview is not built");
+#else
+    auto txs = txsInstance; auto manager = txs->texpressoManager;
+    const bool enabled = txs->texpressoAction->isChecked();
+    txs->texpressoAction->setChecked(false); txs->updateTexpresso();
+    QTemporaryDir directory; const auto path = directory.filePath("buffer.tex");
+    QVERIFY(save(path, "First line\nUnicode: café 😀\nLast line\n"));
+    auto view = txs->load(path); QVERIFY(view); txs->updateTexpresso();
+    const auto cleanup = qScopeGuard([&] {
+        view->document->setClean(); txs->editors->setCurrentEditor(view); txs->fileClose();
+        txs->texpressoAction->setChecked(enabled); txs->updateTexpresso();
+    });
+    auto mirror = [&] { return manager->buffers.value(TexpressoSession::identity(path)); };
+    auto actual = [&] { return view->document->textLines().join('\n'); };
+    QCOMPARE(mirror(), actual());
+    auto replace = [&](int sl, int sc, int el, int ec, const QString &text) {
+        QDocumentCursor cursor(view->document, sl, sc); cursor.moveTo(el, ec, QDocumentCursor::KeepAnchor);
+        view->editor->setCursor(cursor); view->editor->write(text);
+    };
+    replace(1, 14, 1, 16, "λ😀\nSecond inserted line");
+    QCOMPARE(mirror(), actual()); // Ordered deltas are retained synchronously.
+    view->editor->undo(); QCOMPARE(mirror(), actual());
+    view->editor->redo(); QCOMPARE(mirror(), actual());
+    replace(0, 0, 2, 3, "Multiple\nlines\nchanged\n"); QCOMPARE(mirror(), actual());
+    // Reload without range signals, then another edit before the queued check.
+    // The delta must not make the manager mistake a stale base for a full copy.
+    view->editor->setText("Reloaded base\nDifferent second line\n", false);
+    replace(0, 0, 0, 1, "R");
+    QCoreApplication::processEvents(); QCOMPARE(mirror(), actual());
+    // Invalid coordinates never modify retained state; the adapter can snapshot.
+    const auto before = mirror();
+    QVERIFY(!manager->changeBuffer(path, 0, 999, 0, 999, "x"));
+    QVERIFY(!manager->changeBuffer(path, 1, 0, 0, 0, "x"));
+    QVERIFY(!manager->changeBuffer(path, 99, 0, 99, 0, "x"));
+    QCOMPARE(mirror(), before);
+    replace(2, 0, 2, 0, "At final empty line"); QCOMPARE(mirror(), actual());
+    view->editor->setText("Replacement without ranges\n", false);
+    QCoreApplication::processEvents(); QCOMPARE(mirror(), actual());
+#endif
+}
+
+void TexStudioTest::liveEditingBufferBenchmark()
+{
+#ifndef TEXSTUDIO_TEXPRESSO
+    QSKIP("Live preview is not built");
+#else
+    if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_BENCHMARK") != 1)
+        QSKIP("Opt in with TEXPRESSO_TEST_UI_BENCHMARK=1");
+    const auto output = qEnvironmentVariable("TEXPRESSO_UI_BENCHMARK_OUTPUT"); QVERIFY(!output.isEmpty());
+    auto txs = txsInstance; auto manager = txs->texpressoManager;
+    const bool enabled = txs->texpressoAction->isChecked();
+    txs->texpressoAction->setChecked(false); txs->updateTexpresso();
+    QJsonArray runs;
+    for (int pages : {30, 100}) {
+        const auto source = QString::fromUtf8(read(QString(TESTDATADIR)
+            + QString("/../../texpresso/tests/sustained/varied-%1/varied.tex").arg(pages)));
+        QVERIFY(!source.isEmpty()); QTemporaryDir directory; const auto path = directory.filePath("main.tex");
+        QVERIFY(save(path, source.toUtf8())); auto view = txs->load(path); QVERIFY(view); txs->updateTexpresso();
+        const auto close = qScopeGuard([&] { view->document->setClean(); txs->editors->setCurrentEditor(view); txs->fileClose(); });
+        QCoreApplication::processEvents();
+        for (const auto &anchor : {QString("early"), QString("middle"), QString("late")}) {
+            const int at = source.indexOf("%<VARIED-CURSOR:" + anchor + '>'); QVERIFY(at >= 0);
+            const int line = lineAt(source, at), column = columnAt(source, at) + 3;
+            QJsonArray writes, turns;
+            for (int i = 0; i < 110; ++i) {
+                QDocumentCursor cursor(view->document, line, column);
+                cursor.movePosition(4, QDocumentCursor::NextCharacter, QDocumentCursor::KeepAnchor);
+                view->editor->setCursor(cursor);
+                QElapsedTimer clock; clock.start();
+                view->editor->write(QString("%1").arg(i % 10000, 4, 10, QChar('0')));
+                const double write = clock.nsecsElapsed() / 1e6;
+                QCoreApplication::processEvents(); const double total = clock.nsecsElapsed() / 1e6;
+                if (i >= 10) { writes.append(write); turns.append(total); }
+            }
+            QCOMPARE(manager->buffers.value(TexpressoSession::identity(path)), view->document->textLines().join('\n'));
+            runs.append(QJsonObject{{"pages", pages}, {"anchor", anchor}, {"sourceBytes", source.toUtf8().size()},
+                {"writeMs", writes}, {"writeAndEventTurnMs", turns}});
+        }
+    }
+    txs->texpressoAction->setChecked(enabled); txs->updateTexpresso();
+    QVERIFY(save(output, QJsonDocument(QJsonObject{{"schema", 1}, {"platform", QGuiApplication::platformName()},
+        {"method", "Actual QEditor four-character selection replacement; live compilation disabled; 10 warmups, 100 measured writes per location. Event-turn time includes other application work; no hard timing thresholds."},
+        {"runs", runs}}).toJson()));
+#endif
+}
