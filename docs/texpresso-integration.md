@@ -436,6 +436,32 @@ The opt-in PNG cache benchmark and its limits are documented in
 `texpresso-performance.md`. PNG remains the Qt rendering format; browser-only
 SVG and webview presentation machinery are not ported.
 
+## Shared checkpoint/startup follow-up
+
+Engine `2010b9f` follows the validated `9cf7741` snapshot. It retains existing
+snapshots near the two most recently used edit sites, including a predecessor
+for undo, within the existing 32-entry snapshot table. It can retain more live
+workers after pruning; this is not a total memory/process bound. The existing
+source and auxiliary-state rollback rules still decide whether a snapshot is
+valid.
+
+Startup now polls the unchanged C02 greeting incrementally, allowing source
+edits, Pause and shutdown while the worker initializes. A 120-second monotonic
+deadline reports failure and kills/reaps a worker that never completes its
+greeting. Explicit recovery remains available. The Qt protocol is unchanged.
+
+The `texpresso-startup` Qt suite exercises a gated real worker, two source
+updates and Pause before greeting, Resume with the latest overlay, Stop before
+greeting, and timeout reporting followed by Restart with retained source. It
+runs with the other real-engine client checks in CI. Its Python worker shim is
+test infrastructure only and is not shipped in the application.
+
+This snapshot passes all 15 Qt suites (158 checks), both opt-in sustained rows
+(1,464 edits with six independent owning-page probes), and all 1,613 application
+checks including the real Compile/Biber workflow. The client binary is unchanged;
+the application was rebundled with the tested engine. Bundle hashes and compact
+results are in `texpresso-checkpoint-startup-validation-2026-10-23.json`.
+
 ## Remaining work
 
 - Native PNG cache-miss costs and end-to-end editor/paint latency measurements.

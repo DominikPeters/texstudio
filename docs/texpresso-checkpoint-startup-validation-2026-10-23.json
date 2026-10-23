@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "date": "2026-10-23",
+  "platform": "macOS arm64",
+  "qtVersion": "6.12.0",
+  "engineRevision": "2010b9fec2c2450b4d06013544d5968d8605922b",
+  "frontendSha256": "40d905780d70145eba44486059f5a85010b64ac67ac1549078e31a26213a049d",
+  "workerSha256": "5f3cbd59e660b5ac23854134ab600c75cf04eb2aa9ef2b0e3a5d58fccc595bcd",
+  "workerProtocol": "C02/S02 unchanged",
+  "qtSuites": 15,
+  "qtChecksPassed": 158,
+  "qtDefaultOptInRowsSkipped": 2,
+  "appChecksPassed": 1613,
+  "appChecksSkipped": 0,
+  "startupCases": [
+    "latest overlay and Pause acknowledged before worker greeting",
+    "Stop and worker reaping before greeting",
+    "partial-greeting timeout and Restart with retained source"
+  ],
+  "retention": "Two recent edit sites and existing predecessor fallbacks; no extra eager forks; may retain more workers; existing 32-entry table is not a hard total-PID or RAM bound",
+  "method": "Qt production sessions and real application tests; long editing oracle uses independent clean XeLaTeX, SyncTeX and Poppler; correctness coverage, not a typing-latency benchmark",
+  "runs": [
+    {
+      "targetPages": 100,
+      "passed": true,
+      "engineSha256": "40d905780d70145eba44486059f5a85010b64ac67ac1549078e31a26213a049d",
+      "sourceSha256": "beb61a04188f60c0cca87f84f81f8284a991e1ac8de3fe8809807bc729300b81",
+      "elapsedMs": 81836,
+      "probes": [
+        {
+          "anchor": "early",
+          "line1": 41,
+          "livePage": 0,
+          "revision": 1462,
+          "sequence": 733,
+          "synctexPages": [
+            0
+          ],
+          "textPage": 0
+        },
+        {
+          "anchor": "middle",
+          "line1": 1661,
+          "livePage": 49,
+          "revision": 1462,
+          "sequence": 733,
+          "synctexPages": [
+            49
+          ],
+          "textPage": 49
+        },
+        {
+          "anchor": "late",
+          "line1": 3284,
+          "livePage": 98,
+          "revision": 1462,
+          "sequence": 733,
+          "synctexPages": [
+            98
+          ],
+          "textPage": 98
+        }
+      ],
+      "mutations": 732,
+      "artifactDirectory": "/tmp/texstudio-hot-checkpoints-sustained/100pages-rdqHHy"
+    },
+    {
+      "targetPages": 30,
+      "passed": true,
+      "engineSha256": "40d905780d70145eba44486059f5a85010b64ac67ac1549078e31a26213a049d",
+      "sourceSha256": "33b1d23274c5396552f34b0ad6c2e047296d518bf95e5afe97d21ae79d860376",
+      "elapsedMs": 78152,
+      "probes": [
+        {
+          "anchor": "early",
+          "line1": 41,
+          "livePage": 0,
+          "revision": 1461,
+          "sequence": 733,
+          "synctexPages": [
+            0
+          ],
+          "textPage": 0
+        },
+        {
+          "anchor": "middle",
+          "line1": 531,
+          "livePage": 15,
+          "revision": 1461,
+          "sequence": 733,
+          "synctexPages": [
+            15
+          ],
+          "textPage": 15
+        },
+        {
+          "anchor": "late",
+          "line1": 993,
+          "livePage": 29,
+          "revision": 1461,
+          "sequence": 733,
+          "synctexPages": [
+            29
+          ],
+          "textPage": 29
+        }
+      ],
+      "mutations": 732,
+      "artifactDirectory": "/tmp/texstudio-hot-checkpoints-sustained/30pages-wMxPGy"
+    }
+  ]
+}

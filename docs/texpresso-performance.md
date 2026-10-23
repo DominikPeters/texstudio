@@ -197,3 +197,33 @@ QT_QPA_PLATFORM=offscreen SDL_VIDEODRIVER=dummy \
 TEXPRESSO_TEST_ENGINE=/absolute/path/to/bundle/bin/texpresso \
   ./build-client/texpresso-png-cache-benchmark
 ```
+
+## Recent edit checkpoints and responsive startup
+
+The next shared revision, `2010b9fec2c2450b4d06013544d5968d8605922b`,
+keeps the PNG caches above and changes compiler snapshot retention. Pruning
+reserves existing checkpoints at the two most recently used distinct edit
+sites, plus an existing predecessor when needed for undo. It preserves the
+usual rollback validity checks and requests no additional eager forks.
+
+The extension's focused native regression exercises repair and undo near a
+12.98-million-token prefix. It avoids the roughly 11-million-token replay
+observed on baseline repair and checks earlier/different-file edits and clean
+PNG equality. This is engine replay-work evidence, not a Qt typing benchmark.
+The test retains 5–6 workers after pruning versus 3–4 before. The snapshot table
+still has 32 entries; that is not a hard total-PID or resident-memory limit.
+
+Worker startup also stops blocking the frontend on its greeting. The engine
+incrementally polls the unchanged C02/S02 greeting, processes editor commands
+between polls, and waits five milliseconds only while startup or its failure
+cleanup needs progress. A 120-second monotonic deadline allows cold format
+creation but terminates a stuck worker and reports failure. This improves
+command responsiveness during startup; it does not reduce the time the worker
+itself takes to initialize.
+
+Qt integration tests gate a real worker before its greeting and verify that
+source barriers and Pause are processed first, then Resume compiles the latest
+overlay. They also check Stop/reaping and a shortened test deadline followed by
+Restart with retained source. The extension independently covers fragmented,
+coalesced, incompatible and prematurely closed greetings. No host protocol
+adaptation or SVG support is needed.
