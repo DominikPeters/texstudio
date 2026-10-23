@@ -20,6 +20,7 @@ private slots:
     void bibliographyRerunPriority();
     void sharedCompilationOutput();
     void liveBuildAndRefresh();
+    void liveEditingSoak();
 
 private:
     bool allTests;

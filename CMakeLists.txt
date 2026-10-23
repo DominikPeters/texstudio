@@ -338,6 +338,7 @@ if(${TEXSTUDIO_ENABLE_TESTS})
 		src/tests/testmanager.cpp
 		src/tests/testutil.cpp
                 src/tests/texstudio_t.cpp
+                src/tests/texpresso_soak_t.cpp
 		src/tests/usermacro_t.cpp
 	)
 else()

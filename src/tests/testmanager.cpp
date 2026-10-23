@@ -44,13 +44,18 @@ bool globalExecuteAllTests;
 
 
 QString TestManager::performTest(QObject* obj){
-	char* argv[3];
+	char* argv[4];
+    int argc = 3;
+    QByteArray method;
+    if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_SOAK") == 1) {
+        method = "liveEditingSoak"; argv[argc++] = method.data();
+    }
 	argv[0]=(char*)"texstudio";
 	argv[1]=(char*)"-o";
 	argv[2]=tempResult;
 	QElapsedTimer timing;
 	timing.start();
-	QTest::qExec(obj,3,argv);
+	QTest::qExec(obj,argc,argv);
 	delete obj;
 	long long time = timing.elapsed();
 	totalTestTime += time;
@@ -75,7 +80,10 @@ QString TestManager::execute(TestLevel level, LatexEditorView* edView, QCodeEdit
 	//to include latexeditorview.h here
 	totalTestTime = 0;
 	QString tr;
-	QList<QObject*> tests=QList<QObject*>()
+	QList<QObject*> tests;
+    if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_SOAK") == 1)
+        tests << new TexStudioTest(level==TL_ALL);
+    else tests=QList<QObject*>()
             << new SmallUsefulFunctionsTest()
             << new LatexParserTest()
             << new LatexParsingTest()

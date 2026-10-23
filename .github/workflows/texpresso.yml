@@ -3,12 +3,18 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      ui_soak_minutes:
+        description: Full-editor soak duration (0 skips the optional Debug build)
+        type: choice
+        default: '0'
+        options: ['0', '1', '10', '30']
 permissions:
   contents: read
 jobs:
   linux:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && inputs.ui_soak_minutes != '0' && 90 || 35 }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,6 +60,22 @@ jobs:
           test -x build/package/usr/libexec/texstudio/texpresso/bin/texpresso
           test -x build/package/usr/libexec/texstudio/texpresso/bin/texpresso-xetex
           build/package/usr/libexec/texstudio/texpresso/bin/texpresso -capabilities
+      - name: Build Debug app and run the optional full-editor soak
+        if: github.event_name == 'workflow_dispatch' && inputs.ui_soak_minutes != '0'
+        env:
+          SOAK_MINUTES: ${{ inputs.ui_soak_minutes }}
+        run: |
+          cmake -S . -B build-soak -G Ninja -DCMAKE_BUILD_TYPE=Debug -DTEXSTUDIO_ENABLE_TESTS=ON
+          cmake --build build-soak -j2
+          python3 native/scripts/ui_soak.py --app build-soak/texstudio \
+            --output build-soak/ui-soak --seconds "$((SOAK_MINUTES * 60))" --platform offscreen
+      - name: Save full-editor soak evidence
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.ui_soak_minutes != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-full-editor-soak
+          path: build-soak/ui-soak/
+          if-no-files-found: ignore
       - name: Save build diagnostics
         if: failure()
         uses: actions/upload-artifact@v4

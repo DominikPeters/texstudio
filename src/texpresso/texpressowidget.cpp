@@ -219,8 +219,10 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     pause = new QToolButton(this); pause->setText(tr("Pause")); controls->addWidget(pause);
     stop = new QToolButton(this); stop->setText(tr("Stop")); controls->addWidget(stop);
     restart = new QToolButton(this); restart->setText(tr("Restart")); controls->addWidget(restart);
+    pause->setObjectName("texpressoPause"); stop->setObjectName("texpressoStop"); restart->setObjectName("texpressoRestart");
     auto output = new QToolButton(this); output->setText(tr("Output")); output->setObjectName("texpressoOutput"); controls->addWidget(output);
     auto sync = new QToolButton(this); sync->setText(tr("Sync")); sync->setToolTip(tr("Show the editor cursor in the preview")); controls->addWidget(sync);
+    sync->setObjectName("texpressoSync");
     auto follow = new QToolButton(this); follow->setDefaultAction(actions["followCursor"]); controls->addWidget(follow);
     controls->addStretch(); layout->addLayout(controls);
     auto reruns = new QHBoxLayout;
