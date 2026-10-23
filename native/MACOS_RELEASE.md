@@ -38,6 +38,8 @@ status. It then staples and validates the ticket, checks Gatekeeper and strict
 code signatures, exercises the signed engine, and uploads the final ZIP plus
 SHA-256 checksum. Failed or timed-out notarization does not publish an app.
 Diagnostics are uploaded separately. Both artifacts expire after 14 days.
+Ticket stapling and validation retry temporary ticket-service failures for a
+bounded time, recording verbose output from each attempt in the diagnostics.
 
 The ZIP preserves executable modes, Qt framework symlinks, and the stapled ticket.
 `Contents/Resources/texpresso-release.json` identifies the source and engine

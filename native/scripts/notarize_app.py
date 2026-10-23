@@ -1,14 +1,33 @@
 #!/usr/bin/env python3
 """Sign a deployed TeXstudio app, notarize it, staple its ticket, and archive it."""
 import argparse
+import json
 import os
 import platform
 import re
 import tempfile
+import time
 from pathlib import Path
 from common import sha256
 from deploy_macos import macho_files, refresh_engine_manifest, verify_dependencies
 from notarize import command, imported_identity, notarize, signing_credentials
+
+
+def staple_ticket(app, reports, action, *, attempts=6):
+    # The ticket service can lag behind an Accepted notary result. Preserve
+    # both output streams: stapler reports many failures only on stdout.
+    for attempt in range(1, attempts + 1):
+        result = command(['xcrun', 'stapler', action, '-v', app], check=False)
+        (reports / f'stapler-{action}-{attempt}.json').write_text(json.dumps({
+            'exitCode': result.returncode, 'stdout': result.stdout, 'stderr': result.stderr}, indent=2) + '\n')
+        if result.returncode == 0:
+            return
+        detail = (result.stdout + '\n' + result.stderr).strip()[-2000:]
+        if result.returncode not in (65, 68, 69, 75) or attempt == attempts:
+            raise RuntimeError(f'stapler {action} failed (exit {result.returncode}): {detail}')
+        delay = min(15 * attempt, 60)
+        print(f'stapler {action} attempt {attempt}/{attempts} failed (exit {result.returncode}); retrying in {delay}s: {detail}', flush=True)
+        time.sleep(delay)
 
 
 def sign_app(app, identity, keychain, *, adhoc=False):
@@ -75,8 +94,8 @@ def main():
             command(['ditto', '-c', '-k', '--sequesterRsrc', '--keepParent', app, upload])
             notarize(upload, args.reports, keychain, args.timeout)
             (args.reports / 'submitted-archive.sha256').write_text(sha256(upload) + '\n')
-        command(['xcrun', 'stapler', 'staple', app])
-        command(['xcrun', 'stapler', 'validate', app])
+        staple_ticket(app, args.reports, 'staple')
+        staple_ticket(app, args.reports, 'validate')
         command(['codesign', '--verify', '--deep', '--strict', '--verbose=2', app])
         command(['spctl', '--assess', '--type', 'execute', '--verbose=2', app])
         # Archive only after stapling. ditto preserves framework symlinks, modes,

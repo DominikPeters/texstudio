@@ -78,6 +78,32 @@ class MacOSApp(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'escapes'):
             deploy_macos.refresh_engine_manifest(self.app)
 
+    def test_stapling_retries_ticket_service_and_preserves_stdout(self):
+        reports = Path(self.temp.name)
+        responses = [subprocess.CompletedProcess([], 65, 'Record not found', ''),
+                     subprocess.CompletedProcess([], 0, 'The staple and validate action worked!', '')]
+        with patch.object(notarize_app, 'command', side_effect=responses) as command, patch.object(notarize_app.time, 'sleep') as sleep:
+            notarize_app.staple_ticket(self.app, reports, 'staple')
+        self.assertEqual(command.call_count, 2)
+        sleep.assert_called_once_with(15)
+        self.assertEqual(json.loads((reports / 'stapler-staple-1.json').read_text())['stdout'], 'Record not found')
+        self.assertEqual(json.loads((reports / 'stapler-staple-2.json').read_text())['exitCode'], 0)
+
+    def test_stapling_rejects_revoked_ticket_without_retry(self):
+        failure = subprocess.CompletedProcess([], 77, 'Ticket revoked', '')
+        with patch.object(notarize_app, 'command', return_value=failure), patch.object(notarize_app.time, 'sleep') as sleep:
+            with self.assertRaisesRegex(RuntimeError, 'exit 77.*Ticket revoked'):
+                notarize_app.staple_ticket(self.app, Path(self.temp.name), 'staple')
+        sleep.assert_not_called()
+
+    def test_stapling_stops_after_bounded_attempts(self):
+        failure = subprocess.CompletedProcess([], 65, 'Record not found', '')
+        with patch.object(notarize_app, 'command', return_value=failure) as command, patch.object(notarize_app.time, 'sleep') as sleep:
+            with self.assertRaisesRegex(RuntimeError, 'exit 65.*Record not found'):
+                notarize_app.staple_ticket(self.app, Path(self.temp.name), 'validate', attempts=3)
+        self.assertEqual(command.call_count, 3)
+        self.assertEqual(sleep.call_count, 2)
+
     def test_dependency_verification_distinguishes_install_id_from_host_dependency(self):
         def run(args, **options):
             if args[1] == '-l': return ''
