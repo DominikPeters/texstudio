@@ -120,6 +120,8 @@ jobs:
             -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/poppler;$(brew --prefix qt);$(brew --prefix qt5compat)" \
             -DTEXSTUDIO_ENABLE_TEXPRESSO=ON -DTEXSTUDIO_TEXPRESSO_TESTS=ON
           cmake --build build --parallel 3
+      - name: Test live preview and compiler integration
+        run: |
           TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/darwin-$(uname -m)/bin/texpresso" \
             ctest --test-dir build/src/texpresso --output-on-failure
       - name: Deploy Qt, PDF dependencies, and the engine into the app

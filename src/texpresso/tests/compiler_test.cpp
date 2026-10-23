@@ -74,9 +74,12 @@ void CompilerTest::referencesSurviveEditingRollbacks()
     const auto unresolved = live->preview.image();
     const auto pid = live->processId();
     const auto converge = [&] {
-        const int before = live->engineOutput.count("aux byte-stable, convergence reached");
+        // Diagnostics retain a bounded tail: a new pass can evict an older
+        // convergence message, so its occurrence count is not monotonic.
+        live->engineOutput.clear();
         live->setAutoRerun(true);
-        QTRY_VERIFY_WITH_TIMEOUT(live->engineOutput.count("aux byte-stable, convergence reached") > before, 15000);
+        QTRY_VERIFY2_WITH_TIMEOUT(live->engineOutput.contains("aux byte-stable, convergence reached"),
+                                 qPrintable(live->status + '\n' + live->engineOutput + '\n' + live->compilerOutput), 15000);
         live->setAutoRerun(false); live->preview.setPage(0);
         QTRY_VERIFY_WITH_TIMEOUT(ready(), 15000);
     };
