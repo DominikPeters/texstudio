@@ -5,6 +5,7 @@
 #include <QScrollArea>
 #include <QLabel>
 #include <QToolButton>
+#include <QStatusBar>
 #include <QTimer>
 #include <QPointer>
 #include "ViewerControls.h"
@@ -92,9 +93,14 @@ private:
     void showPage(int page);
     void revealPoint(const QPointF &point, bool source);
     void setZoom(qreal value, const QPoint &anchor = QPoint(-1, -1));
+    enum Severity { StatusPlain, StatusWarning, StatusError };
+    void setStatus(const QString &text, Severity severity = StatusPlain, const QString &toolTip = QString());
+    void updateStateIcons();
     TexpressoManager *manager;
     PDFDocumentConfig *config;
+    ViewerControls::Icons icons;
     QHash<QString, QAction *> actions;
+    QList<QAction *> contextActions;
     ViewerControls::PageControls pages;
     ViewerControls::ZoomControls zoomControls;
     QPointer<TexpressoSession> shown;
@@ -109,8 +115,10 @@ private:
     bool continuous = true;
     QScrollArea *area;
     QToolBar *toolbar;
-    QLabel *status, *project;
-    QToolButton *pause, *stop, *restart;
+    QStatusBar *statusBar;
+    QLabel *status, *statusIcon;
+    Severity statusSeverity = StatusPlain;
+    int iconState = -1;
     QTimer widthTimer;
     QTimer refreshTimer;
     QPointer<TexpressoSession> rasterSession;

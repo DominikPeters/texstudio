@@ -13,6 +13,8 @@
 #include <QDialog>
 #include <QInputDialog>
 #include <QActionGroup>
+#include <QStatusBar>
+#include <QTextDocument>
 #include <QSignalBlocker>
 #include <QClipboard>
 #include <QApplication>
@@ -245,11 +247,12 @@ void TexpressoCanvas::wheelEvent(QWheelEvent *event)
     } else event->ignore();
 }
 TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *config,
-    const ViewerControls::Icons &icons, QWidget *parent) : QWidget(parent), manager(manager), config(config)
+    const ViewerControls::Icons &icons, QWidget *parent) : QWidget(parent), manager(manager), config(config), icons(icons)
 {
     setObjectName("texpressoLivePreview"); setMinimumWidth(280);
     auto layout = new QVBoxLayout(this); layout->setContentsMargins(0, 0, 0, 0); layout->setSpacing(0);
-    project = new QLabel(this); project->setTextInteractionFlags(Qt::TextSelectableByMouse); layout->addWidget(project);
+    // Mirror the embedded PDF viewer: one icon toolbar above the pages and a
+    // status bar with synchronization, messages and zoom below them.
     toolbar = new QToolBar(this); toolbar->setObjectName("texpressoViewerToolbar"); toolbar->setIconSize(QSize(16, 16)); layout->addWidget(toolbar);
     for (const auto &id : {"magnify", "scroll", "firstPage", "previous", "next", "last", "actualSize", "fitToWidth", "fitToWindow", "zoomIn", "zoomOut", "gotoSource", "followCursor"})
         actions.insert(id, ViewerControls::createAction(id, this, icons));
@@ -257,54 +260,61 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     pages = ViewerControls::insertPageControls(toolbar, actions["next"], false);
     auto tools = new QActionGroup(this); tools->addAction(actions["magnify"]); tools->addAction(actions["scroll"]);
     actions[config->editTool == 2 ? "scroll" : "magnify"]->setChecked(true);
-    auto controls = new QHBoxLayout;
-    pause = new QToolButton(this); pause->setText(tr("Pause")); controls->addWidget(pause);
-    stop = new QToolButton(this); stop->setText(tr("Stop")); controls->addWidget(stop);
-    restart = new QToolButton(this); restart->setText(tr("Restart")); controls->addWidget(restart);
-    pause->setObjectName("texpressoPause"); stop->setObjectName("texpressoStop"); restart->setObjectName("texpressoRestart");
-    auto output = new QToolButton(this); output->setText(tr("Output")); output->setObjectName("texpressoOutput"); controls->addWidget(output);
-    auto sync = new QToolButton(this); sync->setText(tr("Sync")); sync->setToolTip(tr("Show the editor cursor in the preview")); controls->addWidget(sync);
-    sync->setObjectName("texpressoSync");
-    auto follow = new QToolButton(this); follow->setDefaultAction(actions["followCursor"]); controls->addWidget(follow);
-    controls->addStretch(); layout->addLayout(controls);
-    auto reruns = new QHBoxLayout;
-    auto autoRerun = new QAction(tr("Automatic reruns"), this);
+    const auto liveAction = [this](const QString &id, const QString &text, const QString &icon, const QString &toolTip) {
+        auto action = new QAction(this->icons(icon), text, this); action->setToolTip(toolTip);
+        actions.insert(id, action); return action;
+    };
+    auto build = liveAction("build", tr("Build && Refresh"), "build", tr("Build & Refresh, including the bibliography"));
+    auto autoRerun = liveAction("autoRerun", tr("Automatic Reruns"), QString(), tr("Rerun TeX after edits to settle references"));
     autoRerun->setCheckable(true); autoRerun->setChecked(true);
-    autoRerun->setToolTip(tr("Run additional TeX passes after editing pauses to settle references and auxiliary files"));
-    actions.insert("autoRerun", autoRerun);
-    auto autoButton = new QToolButton(this); autoButton->setDefaultAction(autoRerun); reruns->addWidget(autoButton);
-    auto rerunOnce = new QAction(tr("Rerun Once"), this); actions.insert("rerunOnce", rerunOnce);
-    rerunOnce->setToolTip(tr("Run one additional TeX pass for references and auxiliary files. Use Build & Refresh to run BibTeX or Biber."));
-    auto onceButton = new QToolButton(this); onceButton->setDefaultAction(rerunOnce); reruns->addWidget(onceButton);
-    auto build = new QAction(tr("Build & Refresh"), this); actions.insert("build", build);
-    build->setToolTip(tr("Run the normal compilation recipe, including bibliography tools, then refresh the live preview"));
-    auto buildButton = new QToolButton(this); buildButton->setDefaultAction(build); reruns->addWidget(buildButton);
-    reruns->addStretch(); layout->addLayout(reruns);
+    auto rerunOnce = liveAction("rerunOnce", tr("Rerun Once"), QString(), tr("Run one more TeX pass. Use Build & Refresh to run BibTeX or Biber."));
+    auto pause = liveAction("pause", tr("Pause Live Compilation"), "pause", tr("Pause Live Compilation"));
+    auto stop = liveAction("stop", tr("Stop Live Preview"), "stop", tr("Stop Live Preview"));
+    auto restart = liveAction("restart", tr("Restart Live Preview"), "compile", tr("Restart Live Preview"));
+    auto output = liveAction("output", tr("Show Output"), "viewlog", tr("Show Output"));
+    auto sync = liveAction("sync", tr("Go to Cursor"), "goto", tr("Show the editor cursor in the preview"));
+    auto continuousAction = liveAction("continuous", tr("Continuous Scrolling"), QString(), QString());
+    continuousAction->setCheckable(true); continuousAction->setChecked(true);
+    // Live compilation controls take the place of the PDF viewer's window buttons.
+    auto spacer = new QWidget(toolbar); spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    toolbar->addWidget(spacer);
+    toolbar->addAction(build); toolbar->addSeparator();
+    // Restart replaces Pause/Stop while the engine is stopped or failed.
+    for (auto action : {pause, stop, restart}) toolbar->addAction(action);
+    toolbar->widgetForAction(pause)->setObjectName("texpressoPause");
+    restart->setVisible(false);
     connect(autoRerun, &QAction::toggled, this, [this](bool enabled) { if (shown) shown->setAutoRerun(enabled); });
     connect(rerunOnce, &QAction::triggered, this, [this] { if (shown) shown->rerunOnce(); });
     connect(build, &QAction::triggered, this, &TexpressoWidget::buildRequested);
-    status = new QLabel(this); status->setObjectName("texpressoStatus"); status->setWordWrap(true); layout->addWidget(status);
     area = new QScrollArea(this); area->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     area->setWidgetResizable(false); area->setBackgroundRole(QPalette::Dark); area->setFrameStyle(QFrame::NoFrame);
     documentCanvas = new QWidget; documentCanvas->setObjectName("texpressoPages");
     canvas = new TexpressoCanvas(config, area); canvas->setParent(documentCanvas);
     canvas->setObjectName("texpressoActivePage"); area->setWidget(documentCanvas); layout->addWidget(area, 1);
     setFocusProxy(canvas);
-    auto continuousAction = new QAction(tr("Continuous scrolling"), this);
-    continuousAction->setCheckable(true); continuousAction->setChecked(true); actions.insert("continuous", continuousAction);
-    toolbar->addAction(continuousAction);
-    connect(continuousAction, &QAction::toggled, this, [this](bool enabled) {
-        continuous = enabled; extentPages = 1; layoutPage(); showPage(shown ? shown->preview.page() : 0); updateViewport();
-    });
-    canvas->setContextMenuPolicy(Qt::ActionsContextMenu);
-    for (const auto &id : {"magnify", "scroll", "zoomIn", "zoomOut", "gotoSource"}) canvas->addAction(actions[id]);
-    zoomControls = ViewerControls::createZoomControls(this, icons, [this](qreal value) { setZoom(value); }, [this] {
+    statusBar = new QStatusBar(this); statusBar->setObjectName("texpressoStatusBar"); statusBar->setSizeGripEnabled(false);
+    layout->addWidget(statusBar);
+    const auto statusButton = [this](QAction *action, const char *name) {
+        auto button = new QToolButton(statusBar); button->setDefaultAction(action); button->setObjectName(name);
+        statusBar->addPermanentWidget(button);
+    };
+    statusButton(actions["followCursor"], "texpressoFollow");
+    statusButton(sync, "texpressoSync");
+    statusIcon = new QLabel(statusBar); statusIcon->hide(); statusBar->addPermanentWidget(statusIcon);
+    status = new QLabel(statusBar); status->setObjectName("texpressoStatus");
+    status->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed); statusBar->addPermanentWidget(status, 1);
+    statusButton(output, "texpressoOutput");
+    zoomControls = ViewerControls::createZoomControls(statusBar, icons, [this](qreal value) { setZoom(value); }, [this] {
         bool ok; const int value = QInputDialog::getInt(this, tr("Custom Zoom"), tr("Zoom Factor (%):"), 100, 13, 400, 10, &ok);
         if (ok) setZoom(value / 100.0);
     });
-    auto zoomBar = new QHBoxLayout; zoomBar->addStretch();
-    for (QWidget *widget : QList<QWidget *>{zoomControls.scale, zoomControls.out, zoomControls.slider, zoomControls.in}) zoomBar->addWidget(widget);
-    layout->addLayout(zoomBar);
+    for (QWidget *widget : QList<QWidget *>{zoomControls.scale, zoomControls.out, zoomControls.slider, zoomControls.in}) statusBar->addPermanentWidget(widget);
+    connect(continuousAction, &QAction::toggled, this, [this](bool enabled) {
+        continuous = enabled; extentPages = 1; layoutPage(); showPage(shown ? shown->preview.page() : 0); updateViewport();
+    });
+    const auto separator = [this] { auto action = new QAction(this); action->setSeparator(true); return action; };
+    contextActions = {actions["magnify"], actions["scroll"], separator(), actions["zoomIn"], actions["zoomOut"],
+        separator(), continuousAction, separator(), rerunOnce, autoRerun, separator(), actions["gotoSource"]};
     canvas->hide();
     widthTimer.setSingleShot(true); widthTimer.setInterval(100);
     connect(&widthTimer, &QTimer::timeout, this, [this] {
@@ -343,16 +353,16 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
         const int tool = QString(id) == "scroll" ? 2 : 1; canvas->setTool(tool);
         for (auto page : extraCanvases) page->setTool(tool); emit toolChanged(tool);
     });
-    connect(actions["followCursor"], &QAction::toggled, this, &TexpressoWidget::followCursorChanged);
-    connect(pause, &QToolButton::clicked, this, [this] { if (shown) shown->setPaused(!shown->userPaused); });
-    connect(stop, &QToolButton::clicked, this, [this] { if (shown) shown->stop(); });
-    connect(restart, &QToolButton::clicked, manager, &TexpressoManager::restart);
-    connect(sync, &QToolButton::clicked, this, &TexpressoWidget::syncRequested);
+    connect(actions["followCursor"], &QAction::toggled, this, [this](bool enabled) { updateStateIcons(); emit followCursorChanged(enabled); });
+    connect(actions["pause"], &QAction::triggered, this, [this] { if (shown) shown->setPaused(!shown->userPaused); });
+    connect(actions["stop"], &QAction::triggered, this, [this] { if (shown) shown->stop(); });
+    connect(actions["restart"], &QAction::triggered, manager, &TexpressoManager::restart);
+    connect(actions["sync"], &QAction::triggered, this, &TexpressoWidget::syncRequested);
     connect(actions["gotoSource"], &QAction::triggered, this, [this] {
         if (shown && canvas->fresh) shown->preview.inverse(QPointF(canvas->pageBounds.center()));
     });
     connectCanvas(canvas);
-    connect(output, &QToolButton::clicked, this, &TexpressoWidget::outputRequested);
+    connect(actions["output"], &QAction::triggered, this, &TexpressoWidget::outputRequested);
     const auto saveScroll = [this] {
         if (shown && !updating) {
             shown->preview.scroll = {area->horizontalScrollBar()->value(), area->verticalScrollBar()->value()};
@@ -393,9 +403,6 @@ void TexpressoWidget::refresh()
     canvas->setPreview(session ? &session->preview : nullptr);
     if (switched) canvas->resetTools();
     const QFileInfo root(session ? session->root() : QString());
-    project->setText(session ? tr("Live — %1 / %2").arg(root.dir().dirName(), root.fileName()) : tr("Live preview"));
-    project->setToolTip(session ? session->root() : QString());
-    for (auto button : {pause, stop, restart}) button->setEnabled(session != nullptr);
     for (auto action : actions) action->setEnabled(session != nullptr);
     pages.number->setEnabled(session); zoomControls.scale->setEnabled(session); zoomControls.slider->setEnabled(session);
     {
@@ -417,20 +424,20 @@ void TexpressoWidget::refresh()
         for (const auto &id : {"firstPage", "previous"}) actions[id]->setEnabled(preview.page() > 0);
         actions["next"]->setEnabled(!preview.complete() || preview.page() + 1 < preview.pageCount());
         actions["last"]->setEnabled(preview.complete() && preview.pageCount() > 0 && preview.page() + 1 < preview.pageCount());
-        pause->setText(session->userPaused ? tr("Resume") : tr("Pause"));
-        pause->setEnabled(!session->userStopped && !session->failed());
-        stop->setEnabled(!session->userStopped && !session->failed());
+        const bool running = !session->userStopped && !session->failed();
+        actions["pause"]->setVisible(running); actions["stop"]->setVisible(running); actions["restart"]->setVisible(!running);
 #ifdef Q_OS_MACOS
-        const QString liveHint = tr("Live preview · Command-click to open source");
+        const QString liveHint = tr("Live preview of %1 · Command-click to open source").arg(root.fileName());
 #else
-        const QString liveHint = tr("Live preview · Ctrl-click to open source");
+        const QString liveHint = tr("Live preview of %1 · Ctrl-click to open source").arg(root.fileName());
 #endif
-        status->setText(session->failed() || session->userStopped || session->userPaused || session->externalBuildRunning() ? session->status
-            : !session->compilerError.isEmpty() ? tr("TeX error: %1 — open Output for details.").arg(session->compilerError.section('\n', 0, 0))
-            : !session->previewError.isEmpty() ? session->previewError
-            : !session->compilerWarning.isEmpty() ? session->compilerWarning
-            : preview.valid() ? liveHint : tr("Updating preview…"));
-        status->setToolTip(QStringList{session->compilerError, session->compilerWarning, session->previewError}.join('\n').trimmed());
+        const QString details = QStringList{session->compilerError, session->compilerWarning, session->previewError}.join('\n').trimmed();
+        if (session->failed()) setStatus(session->status, StatusError);
+        else if (session->userStopped || session->userPaused || session->externalBuildRunning()) setStatus(session->status);
+        else if (!session->compilerError.isEmpty()) setStatus(tr("TeX error: %1").arg(session->compilerError.section('\n', 0, 0)), StatusError, details);
+        else if (!session->previewError.isEmpty()) setStatus(session->previewError, StatusError, details);
+        else if (!session->compilerWarning.isEmpty()) setStatus(session->compilerWarning, StatusWarning, details);
+        else setStatus(preview.valid() ? liveHint : tr("Updating preview…"), StatusPlain, session->root());
         updateCanvas(canvas, preview.page());
         shownInvert = config->invertColors; shownGray = config->grayscale;
         actions["gotoSource"]->setEnabled(canvas->fresh);
@@ -451,14 +458,38 @@ void TexpressoWidget::refresh()
             area->verticalScrollBar()->setValue(preview.scroll.y());
         }
     } else {
-        status->setText(tr("Open a saved LaTeX project to start live preview."));
-        status->setToolTip(QString());
+        setStatus(tr("Open a saved LaTeX project to start live preview."));
         canvas->pixels = {}; canvas->fresh = false; canvas->setAnnotations(-1, -1, -1, {}); canvas->hide();
         for (auto page : extraCanvases) { page->hide(); page->pixels = {}; page->fresh = false; page->setPreview(nullptr); page->setAnnotations(-1, -1, -1, {}); }
         documentCanvas->resize(1, 1); pages.count->clear();
     }
+    updateStateIcons();
     updating = false;
     if (shown) updateViewport();
+}
+void TexpressoWidget::setStatus(const QString &text, Severity severity, const QString &toolTip)
+{
+    // Rich text lets long compiler context wrap instead of spanning the screen.
+    status->setText(text); status->setToolTip(Qt::convertFromPlainText(toolTip.isEmpty() ? text : toolTip));
+    if (severity == statusSeverity) return;
+    statusSeverity = severity;
+    const int size = status->fontMetrics().height();
+    if (severity != StatusPlain) statusIcon->setPixmap(icons(severity == StatusError ? "error" : "warning").pixmap(size, size));
+    statusIcon->setVisible(severity != StatusPlain);
+}
+void TexpressoWidget::updateStateIcons()
+{
+    // Refresh runs for every protocol batch while typing; only reload icons
+    // when a toggle changes. The on/off pair follows the PDF viewer's icons.
+    const bool follow = actions["followCursor"]->isChecked(), paused = shown && shown->userPaused;
+    const int state = int(follow) | int(paused) << 1;
+    if (state == iconState) return;
+    iconState = state;
+    actions["followCursor"]->setIcon(icons(follow ? "syncViewer" : "syncViewer-off"));
+    auto pause = actions["pause"];
+    pause->setIcon(icons(paused ? "compile" : "pause"));
+    pause->setText(paused ? tr("Resume Live Compilation") : tr("Pause Live Compilation"));
+    pause->setToolTip(pause->text());
 }
 void TexpressoWidget::updateCanvas(TexpressoCanvas *pageCanvas, int page)
 {
@@ -494,7 +525,7 @@ void TexpressoWidget::connectCanvas(TexpressoCanvas *pageCanvas)
     });
     connect(pageCanvas, &TexpressoCanvas::interactionFinished, this, [this] { if (!refreshTimer.isActive()) refreshTimer.start(); });
     pageCanvas->setContextMenuPolicy(Qt::ActionsContextMenu);
-    for (const auto &id : {"magnify", "scroll", "zoomIn", "zoomOut", "gotoSource"}) pageCanvas->addAction(actions[id]);
+    pageCanvas->addActions(contextActions);
     connect(pageCanvas, &TexpressoCanvas::activated, this, [this, pageCanvas] {
         if (!shown) return;
         const int page = pageCanvas->property("texpressoPage").toInt();

@@ -197,6 +197,10 @@ void TexStudioTest::liveEditingSoak()
         auto button = preview->findChild<QToolButton *>(name); if (!button || !button->isEnabled()) return false;
         QTest::mouseClick(button, Qt::LeftButton); return true;
     };
+    auto trigger = [&](const char *id) {
+        auto action = preview->viewerActions().value(id); if (!action || !action->isEnabled()) return false;
+        action->trigger(); return true;
+    };
     auto position = [&](LatexEditorView *view, const QString &needle, bool number) {
         const auto text = view->editor->text(); const int at = text.indexOf(needle);
         if (at < 0) return false;
@@ -207,10 +211,10 @@ void TexStudioTest::liveEditingSoak()
     };
     auto restart = [&] {
         auto s = manager->current(); const auto oldPid = s->processId();
-        if (!click("texpressoStop")) return false;
+        if (!trigger("stop")) return false;
         QElapsedTimer deadline; deadline.start();
         while (!(::kill(-oldPid, 0) == -1 && errno == ESRCH) && deadline.elapsed() < 5000) QTest::qWait(20);
-        if (!(::kill(-oldPid, 0) == -1 && errno == ESRCH) || !click("texpressoRestart")) return false;
+        if (!(::kill(-oldPid, 0) == -1 && errno == ESRCH) || !trigger("restart")) return false;
         deadline.restart();
         while (!(ready() && s->processId() != oldPid) && deadline.elapsed() < 30000) QTest::qWait(20);
         return ready() && s->processId() != oldPid;

@@ -45,6 +45,16 @@ hand scrolling, page navigation, actual size, fit width and fit window. PDF-only
 capabilities (text selection, annotations and fit-to-text bounds) remain absent
 until the engine provides their data.
 
+The panel follows the embedded PDF viewer's layout: one icon toolbar above the
+pages and a status bar below them. Live compilation controls take the place of
+the PDF viewer's window buttons at the toolbar's right end: Build & Refresh,
+then Pause/Resume and Stop, which Restart replaces while the engine is stopped
+or failed. Plain buttons are used because macOS split buttons rearrange on
+hover. The status bar holds the follow-cursor toggle and Go to Cursor, the
+compiler status with an error or warning icon, Output, and the shared zoom
+controls. The page context menu holds the less frequent Continuous Scrolling,
+Rerun Once and Automatic Reruns options.
+
 `ViewerTools.*` contains the existing PDF magnifier and laser-pointer painting,
 without Poppler dependencies. The magnifier accepts a renderer callback:
 Poppler supplies its usual detailed region; the live adapter supplies an

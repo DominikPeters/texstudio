@@ -207,6 +207,7 @@
 <file>images-ng/shortcut_change.svg</file>
 <file>images-ng/shortcut_change_text.svg</file>
 <file>images-ng/sidebar.svg</file>
+<file>images-ng/pause.svg</file>
 <file>images-ng/stop.svgz</file>
 <file>images-ng/strikeout.svg</file>
 <file>images-ng/structure.svg</file>
@@ -619,6 +620,8 @@
 <file>images-ng/colibre/smallfrac_dm.svg</file>
 <file>images-ng/colibre/sqrt.svg</file>
 <file>images-ng/colibre/sqrt_dm.svg</file>
+<file>images-ng/colibre/pause.svg</file>
+<file>images-ng/colibre/pause_dm.svg</file>
 <file>images-ng/colibre/stop.svg</file>
 <file>images-ng/colibre/stop_dm.svg</file>
 <file>images-ng/colibre/strikeout.svg</file>
