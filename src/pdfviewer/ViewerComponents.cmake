@@ -1,6 +1,7 @@
 # Both viewers use these Qt components; they have no Poppler dependency.
 if(NOT TARGET document-viewer)
     add_library(document-viewer STATIC
+        "${CMAKE_CURRENT_LIST_DIR}/ViewerPanel.cpp" "${CMAKE_CURRENT_LIST_DIR}/ViewerPanel.h"
         "${CMAKE_CURRENT_LIST_DIR}/ViewerTools.cpp" "${CMAKE_CURRENT_LIST_DIR}/ViewerTools.h"
         "${CMAKE_CURRENT_LIST_DIR}/ViewerLinks.cpp" "${CMAKE_CURRENT_LIST_DIR}/ViewerLinks.h"
         "${CMAKE_CURRENT_LIST_DIR}/ViewerControls.cpp" "${CMAKE_CURRENT_LIST_DIR}/ViewerControls.h")

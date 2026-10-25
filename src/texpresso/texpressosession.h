@@ -22,6 +22,7 @@ public:
     void start();
     void setActive(bool active);
     void setPaused(bool paused);
+    void setPreviewVisible(bool visible);
     void stop();
     void restart();
     void setAutoRerun(bool enabled);
@@ -63,6 +64,7 @@ private:
     friend class TexpressoDiagnosticsTest;
     friend class TexpressoPrewarmTest;
     friend class TexpressoSourceFollowTest;
+    friend class ViewerPanelTest;
     void refreshPrewarmContext();
     void refreshCompilerOutput();
     void createProcess();
@@ -97,6 +99,7 @@ private:
     QStringList outputLines, logLines;
     QString compilerLog;
     bool ready = false, foreground = false, failure = false;
+    bool previewVisible = true;
     qint64 acknowledgedSource = 0;
     qint64 compilerLogSequence = -1;
     bool resumePending = false;

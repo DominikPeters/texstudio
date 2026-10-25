@@ -10,6 +10,7 @@ public:
     explicit TexpressoManager(QObject *parent = nullptr, const QString &engine = QString());
     ~TexpressoManager() override;
     void activate(const QString &root);
+    void setPreviewVisible(bool visible);
     void openBuffer(const QString &path, const QString &text);
     void reconcileBuffer(const QString &path, const QString &text);
     // Apply an ordered editor delta to the retained overlay. False requests a
@@ -35,6 +36,7 @@ private:
     TexpressoSession::Buffers buffers;
     QMap<QString, TexpressoSession *> sessions;
     TexpressoSession *selected = nullptr;
+    bool previewVisible = true;
     struct ExternalBuild { int depth = 0; bool success = true; QStringList auxiliaryDirectories; };
     QMap<QString, ExternalBuild> externalBuilds;
     QMap<QString, QStringList> lastAuxiliaryDirectories;

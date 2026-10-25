@@ -225,6 +225,12 @@ void TexpressoPreview::setActive(bool enabled)
     if (active) request();
     emit activityChanged();
 }
+void TexpressoPreview::suspendRendering()
+{
+    setActive(false);
+    pendingInverse.reset();
+    cancelForward(currentPage);
+}
 void TexpressoPreview::setPage(int page)
 {
     if (!settingDestinationPage) cancelDestination();

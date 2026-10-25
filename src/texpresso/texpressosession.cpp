@@ -204,10 +204,18 @@ void TexpressoSession::setActive(bool active)
     if (!active) preview.releaseCache(); // Retain its displayed frame, not extra pages.
 }
 void TexpressoSession::setPaused(bool paused) { userPaused = paused; applyPause(); }
+void TexpressoSession::setPreviewVisible(bool visible)
+{
+    if (previewVisible == visible) return;
+    previewVisible = visible;
+    if (!visible) preview.suspendRendering();
+    else preview.setActive(foreground && !userPaused && !userStopped && !failure && !externalBuildRunning());
+    refreshPrewarmContext();
+}
 void TexpressoSession::applyPause()
 {
     const bool run = foreground && !userPaused && !userStopped && !failure && !externalBuildRunning();
-    preview.setActive(run);
+    preview.setActive(run && previewVisible);
     if (ready) {
         // Let the engine commit edits received while paused before stepping it.
         // A resume in the same stdin transaction can advance the old snapshot.
@@ -358,7 +366,7 @@ void TexpressoSession::refreshCompilerOutput()
 }
 void TexpressoSession::refreshPrewarmContext()
 {
-    prewarm.setContext({ready && supportsPreparation && foreground && !userPaused && !userStopped
+    prewarm.setContext({ready && supportsPreparation && foreground && previewVisible && !userPaused && !userStopped
         && !failure && !externalBuildRunning(), !sourceRefreshPending && preview.valid() && !preview.busy() && !preview.followingSource(),
         preview.revision(), preview.sequence()});
 }
@@ -396,7 +404,7 @@ void TexpressoSession::syncForward(const QString &path, int line, bool explicitR
     const auto key = identity(path);
     syncFile = key; syncLine = line; syncColumn = column;
     if (explicitRequest) suppressRestartSync = false;
-    if (!ready || !foreground || userPaused || userStopped || failure || externalBuildRunning()
+    if (!ready || !foreground || !previewVisible || userPaused || userStopped || failure || externalBuildRunning()
         || (!explicitRequest && (!followCursor || suppressRestartSync))) return;
     const auto known = aliases.value(key);
     if (known.isEmpty()) return;

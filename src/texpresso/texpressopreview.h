@@ -23,6 +23,7 @@ public:
     void requestRegion(const QRectF &bounds, int width, qint64 token);
     void cancelRegion();
     void setActive(bool active);
+    void suspendRendering();
     void setPage(int page);
     void navigateTo(int page);
     bool followingSource() const { return nativeForwardPending || sourceTarget.has_value() || sourceReveal; }

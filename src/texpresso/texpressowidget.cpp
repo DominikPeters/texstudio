@@ -318,6 +318,7 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     canvas->hide();
     widthTimer.setSingleShot(true); widthTimer.setInterval(100);
     connect(&widthTimer, &QTimer::timeout, this, [this] {
+        if (!previewEnabled) return;
         if (auto session = this->manager->current()) session->preview.setWidth(qRound(canvas->width() * devicePixelRatioF()));
     });
     refreshTimer.setSingleShot(true);
@@ -330,7 +331,7 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
             canvas->fresh = false; canvas->resetTools();
             for (auto page : extraCanvases) { page->fresh = false; page->resetTools(); }
         }
-        if (!refreshTimer.isActive()) refreshTimer.start();
+        if (previewEnabled && !refreshTimer.isActive()) refreshTimer.start();
     });
     const auto navigate = [this](const QString &id, const std::function<int(TexpressoPreview &)> &target) {
         connect(actions[id], &QAction::triggered, this, [this, target] { if (shown) { shown->preview.navigateTo(target(shown->preview)); showPage(shown->preview.page()); } });
@@ -364,7 +365,7 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     connectCanvas(canvas);
     connect(actions["output"], &QAction::triggered, this, &TexpressoWidget::outputRequested);
     const auto saveScroll = [this] {
-        if (shown && !updating) {
+        if (previewEnabled && shown && !updating) {
             shown->preview.scroll = {area->horizontalScrollBar()->value(), area->verticalScrollBar()->value()};
             updateViewport(true);
         }
@@ -372,6 +373,16 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     connect(area->horizontalScrollBar(), &QScrollBar::valueChanged, this, saveScroll);
     connect(area->verticalScrollBar(), &QScrollBar::valueChanged, this, saveScroll);
     refresh();
+}
+void TexpressoWidget::setPreviewVisible(bool visible)
+{
+    if (previewEnabled == visible) return;
+    previewEnabled = visible;
+    widthTimer.stop(); refreshTimer.stop();
+    canvas->resetTools();
+    for (auto page : extraCanvases) page->resetTools();
+    manager->setPreviewVisible(visible);
+    if (visible) refresh();
 }
 void TexpressoWidget::configureAppearance(bool modern, int iconSize)
 {
@@ -382,6 +393,7 @@ void TexpressoWidget::configureAppearance(bool modern, int iconSize)
 void TexpressoWidget::refresh()
 {
     refreshTimer.stop();
+    if (!previewEnabled) return;
     // Keep the canvas under the mouse stable until release. Selecting a second
     // visible page must not recycle that widget halfway through a lens gesture.
     if (manager->current() == shown) {
@@ -444,7 +456,7 @@ void TexpressoWidget::refresh()
         if (switched) {
             disconnect(revealConnection);
             revealConnection = connect(&preview, &TexpressoPreview::reveal, this, [this, session](const QPointF &point) {
-                if (shown != session) return;
+                if (!previewEnabled || shown != session) return;
                 revealPoint(point, session->preview.revealingSource());
             });
         }
@@ -609,6 +621,7 @@ void TexpressoWidget::setZoom(qreal value, const QPoint &anchor)
 }
 void TexpressoWidget::layoutPage()
 {
+    if (!previewEnabled) return;
     if (!shown || canvas->pageBounds.isEmpty()) { canvas->hide(); return; }
     auto &preview = shown->preview;
     if (preview.pageValid(preview.page())) knownBounds.insert(preview.page(), canvas->pageBounds);
@@ -657,7 +670,7 @@ void TexpressoWidget::layoutPage()
 }
 void TexpressoWidget::updateViewport(bool gesture)
 {
-    if (!shown || updating || pageRects.isEmpty()) return;
+    if (!previewEnabled || !shown || updating || pageRects.isEmpty()) return;
     auto &preview = shown->preview;
     const QRect viewport(documentCanvas->mapFrom(area->viewport(), QPoint()), area->viewport()->size());
     QList<int> visible; int primary = preview.page(), greatest = 0;

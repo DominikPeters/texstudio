@@ -74,6 +74,7 @@ public:
     explicit TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *config,
         const ViewerControls::Icons &icons, QWidget *parent = nullptr);
     void refresh();
+    void setPreviewVisible(bool visible);
     const QHash<QString, QAction *> &viewerActions() const { return actions; }
     void configureAppearance(bool modern, int iconSize);
 signals:
@@ -113,6 +114,7 @@ private:
     QHash<int, QRectF> knownBounds;
     int extentPages = 1, viewportPage = 0;
     bool continuous = true;
+    bool previewEnabled = true;
     QScrollArea *area;
     QToolBar *toolbar;
     QStatusBar *statusBar;

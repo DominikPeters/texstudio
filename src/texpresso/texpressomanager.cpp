@@ -25,10 +25,15 @@ void TexpressoManager::activate(const QString &root)
             if (!build.depth && lastAuxiliaryDirectories.contains(key)) {
                 session->beginExternalBuild(lastAuxiliaryDirectories.value(key)); session->endExternalBuild(true);
             }
-            session->setActive(true); session->start();
-        } else { selected = session; selected->setActive(true); }
+            session->setPreviewVisible(previewVisible); session->setActive(true); session->start();
+        } else { selected = session; selected->setPreviewVisible(previewVisible); selected->setActive(true); }
     }
     emit updated();
+}
+void TexpressoManager::setPreviewVisible(bool visible)
+{
+    previewVisible = visible;
+    if (selected) selected->setPreviewVisible(visible);
 }
 void TexpressoManager::openBuffer(const QString &path, const QString &text)
 {
