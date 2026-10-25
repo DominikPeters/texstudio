@@ -71,6 +71,10 @@ void ViewerPanelTest::closingAndVisibility()
     QVERIFY(panel.currentViewer()); QCOMPARE(panel.mode(), ViewerPanel::Pdf);
     panel.setMode(ViewerPanel::Live); QVERIFY(panel.liveVisible());
     QCOMPARE(visibility.size(), 5);
+    auto replaced = new ViewerPanel(&settings);
+    QPointer<QWidget> oldPdf = new QWidget, newPdf = new QWidget;
+    replaced->addPdf("a", oldPdf); replaced->addPdf("a", newPdf);
+    delete replaced; QVERIFY(oldPdf.isNull()); QVERIFY(newPdf.isNull());
 }
 void ViewerPanelTest::hiddenPreviewKeepsCompilerWarm()
 {

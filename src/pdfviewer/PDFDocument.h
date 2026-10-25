@@ -410,6 +410,7 @@ public:
 
 	static bool isCompiling, isMaybeCompiling;
 	bool embeddedMode;
+    bool previewPanelManaged = false;
 	bool autoClose;
 
 	void setStateEnlarged(bool state);
@@ -450,6 +451,7 @@ public slots:
 	void splitMergeTool();
 private slots:
 	void fileOpen();
+    void closeViewer();
 
 	void enablePageActions(int, bool);
 	void enableZoomActions(qreal);
@@ -496,6 +498,8 @@ private slots:
 signals:
 	void documentClosed();
 	void documentLoaded();
+    void displayRequested(PDFDocument::DisplayFlags flags);
+    void closeRequested();
 	void syncSource(const QString &sourceFile, int line, bool activate, const QString &guessedWord); //view -> source
 	void syncView(const QString &pdfFile, const QFileInfo &masterFile, int page); //view -> other view
 	void focusEditor();

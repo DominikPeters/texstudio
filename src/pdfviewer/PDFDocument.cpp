@@ -2768,7 +2768,7 @@ void PDFDocument::setupMenus(bool embedded)
     configManager->newManagedAction(menuroot,menuHelp, "about", tr("About"), this,SIGNAL(triggeredAbout()), QList<QKeySequence>() );
     configManager->newManagedAction(menuroot,menuFile, "open", tr("&Open..."), this,SLOT(fileOpen()), QList<QKeySequence>(),"document-open" );
     configManager->newManagedAction(menuroot,menuFile, "split", tr("Split && Merge..."), this,SLOT(splitMergeTool()), QList<QKeySequence>() );
-    actionClose=configManager->newManagedAction(menuroot,menuFile, "close", tr("&Close"), this,SLOT(close()), QList<QKeySequence>()<< QKeySequence(Qt::CTRL | Qt::Key_W) ,"close");
+    actionClose=configManager->newManagedAction(menuroot,menuFile, "close", tr("&Close"), this,SLOT(closeViewer()), QList<QKeySequence>()<< QKeySequence(Qt::CTRL | Qt::Key_W) ,"close");
 	menuFile->addSeparator();
     configManager->newManagedAction(menuroot,menuFile, "quit", tr("&Quit TeXstudio"), this,SIGNAL(triggeredQuit()), QList<QKeySequence>());
     actionPreferences=configManager->newManagedAction(menuroot,menuEdit, "preferences", tr("&Configure TeXstudio"), this, SIGNAL(triggeredConfigure()), QList<QKeySequence>());
@@ -3320,6 +3320,9 @@ void PDFDocument::syncFromView(const QString &pdfFile, const QFileInfo &masterFi
 {
 	if (!actionSynchronize_multiple_views->isChecked() || ignoreSynchronization())
 		return;
+    const auto origin = qobject_cast<PDFDocument *>(sender());
+    if ((previewPanelManaged || (origin && origin->previewPanelManaged)) && this->masterFile != masterFile)
+        return; // Cached projects must keep their own PDF and SyncTeX data.
 	if (pdfFile != curFile || this->masterFile != masterFile)
 		loadFile(pdfFile, masterFile, NoDisplayFlags);
 	if (page != widget()->getPageIndex())
@@ -3660,6 +3663,11 @@ void PDFDocument::updateIcons()
     tbScrollingFollowsCursor->setIcon(actionScrolling_follows_cursor->icon());
 }
 
+void PDFDocument::closeViewer()
+{
+    if (previewPanelManaged) emit closeRequested();
+    else close();
+}
 /*!
  * \return true if the document itself is closed, otherwise false
  */
@@ -3725,6 +3733,10 @@ void PDFDocument::unminimize()
 void PDFDocument::updateDisplayState(PDFDocument::DisplayFlags displayFlags)
 {
 	displayFlags &= (embeddedMode) ? FilterEmbedded : FilterWindowed;
+    if (previewPanelManaged) {
+        emit displayRequested(displayFlags);
+        return;
+    }
 	QWidget *activeWindow = QApplication::activeWindow();
 	unminimize();
 	if (displayFlags & Raise) {
@@ -4358,6 +4370,7 @@ void PDFDocument::goToPage(const int page)
 
 void PDFDocument::focus()
 {
+    if (previewPanelManaged) emit displayRequested(Raise | Focus);
 	widget()->setFocus();
 	if (!embeddedMode) {
 		raise();

@@ -2,6 +2,10 @@
 #include "texstudio.h"
 #include "texpresso/texpressomanager.h"
 #include "texpresso/texpressowidget.h"
+#include "ViewerPanel.h"
+#ifndef NO_POPPLER_PREVIEW
+#include "PDFDocument.h"
+#endif
 #include "minisplitter.h"
 #include "qdocument.h"
 #include "qdocumentcursor.h"
@@ -17,6 +21,11 @@ QString bufferText(LatexDocument *document) { return document->textLines().join(
 
 void Texstudio::setupTexpresso()
 {
+    previewPanel = new ViewerPanel(configManager.getSettings(), mainHSplitter);
+    mainHSplitter->addWidget(previewPanel); previewPanel->hide();
+#ifdef NO_POPPLER_PREVIEW
+    previewPanel->setPdfSupported(false);
+#endif
     texpressoManager = new TexpressoManager(this);
     // BuildManager captures the root before launching the recipe, so switching
     // editor tabs while LaTeX/BibTeX/Biber run cannot refresh another project.
@@ -24,12 +33,16 @@ void Texstudio::setupTexpresso()
             [this](const QString &root, QStringList directories, bool compilerSequence) {
         // A standalone bibliography tool may omit the compiler's output path.
         // A compiler recipe is authoritative, including returning to root output.
+        ++previewBuildDepth[TexpressoSession::identity(root)];
         if (directories.isEmpty() && !compilerSequence) directories = texpressoManager->auxiliaryDirectories(root);
         texpressoManager->beginExternalBuild(root, directories);
     });
     connect(&buildManager, &BuildManager::buildSequenceFinished, texpressoManager,
             [this](const QString &root, bool success) {
         texpressoManager->endExternalBuild(root, success);
+        const auto key = TexpressoSession::identity(root);
+        if (--previewBuildDepth[key] <= 0) previewBuildDepth.remove(key);
+        if (success && previewPanel->project() == key && previewPanel->mode() == ViewerPanel::Pdf) ensurePreviewPdf();
     });
     auto previewConfig = configManager.pdfDocumentConfig;
     configManager.registerOption("Preview/EditTool", &previewConfig->editTool, 1);
@@ -39,7 +52,30 @@ void Texstudio::setupTexpresso()
     ViewerControls::initializeToolCursors([](const QString &name) {
         return loadPixmapFromSVG(getRealIconFile(name), QSize(32, 32));
     });
-    texpressoWidget = new TexpressoWidget(texpressoManager, previewConfig, getRealIcon, mainHSplitter);
+    texpressoWidget = new TexpressoWidget(texpressoManager, previewConfig, getRealIcon, previewPanel);
+    previewPanel->setLiveViewer(texpressoWidget);
+    texpressoWidget->setPreviewVisible(false);
+    connect(previewPanel, &ViewerPanel::liveVisibilityChanged, texpressoWidget, &TexpressoWidget::setPreviewVisible);
+    connect(previewPanel, &ViewerPanel::pdfRequested, this, [this] { ensurePreviewPdf(); });
+    connect(previewPanel, &ViewerPanel::currentViewerChanged, this, [this] {
+        const bool pdf = previewPanel->mode() == ViewerPanel::Pdf && previewPanel->pdf(previewPanel->project());
+        setEnabledMenusEnlargeShrink(pdf && !configManager.viewerEnlarged, pdf && configManager.viewerEnlarged);
+    });
+    connect(previewPanel, &ViewerPanel::buildRequested, this, [this] {
+        const auto root = documents.getRootDocumentForDoc();
+        if (root && TexpressoSession::identity(root->getFileName()) == previewPanel->project()) runCommand(BuildManager::CMD_COMPILE);
+    });
+    connect(previewPanel, &ViewerPanel::modeChanged, this, [this](ViewerPanel::Mode mode) {
+        if (mode == ViewerPanel::Live && texpressoManager->current()
+            && previewPanel->project() != texpressoManager->current()->root()) {
+            previewPanel->setProject(texpressoManager->current()->root());
+            previewPanel->setMode(ViewerPanel::Live);
+            return;
+        }
+        if (mode == ViewerPanel::Live && configManager.viewerEnlarged) shrinkEmbeddedPDFViewer();
+        const bool pdf = mode == ViewerPanel::Pdf && previewPanel->pdf(previewPanel->project());
+        setEnabledMenusEnlargeShrink(pdf && !configManager.viewerEnlarged, pdf && configManager.viewerEnlarged);
+    });
     setupTexpressoOutput();
     // Use the PDF action IDs so configured PDF shortcuts also reach the live
     // panel. Widget-scoped contexts prevent clashes with the editor or PDF.
@@ -61,8 +97,7 @@ void Texstudio::setupTexpresso()
         }
     });
     connect(texpressoWidget, &TexpressoWidget::toolChanged, this, [this](int tool) { configManager.pdfDocumentConfig->editTool = tool; });
-    mainHSplitter->addWidget(texpressoWidget); texpressoWidget->hide();
-    texpressoAction = getManagedMenu("main/view/show")->addAction(tr("Live Preview"));
+    texpressoAction = getManagedMenu("main/view/show")->addAction(tr("Preview"));
     texpressoAction->setObjectName("texpressoLivePreviewAction");
     texpressoAction->setCheckable(true);
     texpressoAction->setChecked(configManager.getSettings()->value("texpresso/enabled", true).toBool());
@@ -70,16 +105,11 @@ void Texstudio::setupTexpresso()
     connect(&texpressoActivationTimer, &QTimer::timeout, this, &Texstudio::updateTexpresso);
     connect(texpressoAction, &QAction::toggled, this, [this](bool enabled) {
         configManager.getSettings()->setValue("texpresso/enabled", enabled);
+        if (!enabled && configManager.viewerEnlarged) shrinkEmbeddedPDFViewer();
         updateTexpresso();
     });
     connect(texpressoManager, &TexpressoManager::updated, this, [this] {
-        const bool show = texpressoManager->current() && texpressoAction->isChecked();
-        const bool opening = show && texpressoWidget->isHidden();
-        texpressoWidget->setVisible(show);
-        if (opening) {
-            const int width = mainHSplitter->width();
-            mainHSplitter->setSizes({width / 2, width / 2});
-        }
+        setPreviewPanelVisible(texpressoManager->current() && texpressoAction->isChecked());
     });
     connect(texpressoManager, &TexpressoManager::sourceLocation, this, [this](const QString &file, int line, int column, const QString &word) {
         Q_UNUSED(column)
@@ -178,7 +208,15 @@ void Texstudio::updateTexpresso()
     }
     texpressoManager->retainProjects(roots);
     const auto root = documents.getRootDocumentForDoc();
+    if (configManager.viewerEnlarged && root && TexpressoSession::identity(root->getFileName()) != previewPanel->project())
+        shrinkEmbeddedPDFViewer();
+    previewPanel->setProject(root && !root->getFileName().isEmpty() ? TexpressoSession::identity(root->getFileName()) : QString());
+    texpressoManager->setPreviewVisible(previewPanel->liveVisible());
     texpressoManager->activate(texpressoAction->isChecked() && root ? root->getFileName() : QString());
+    if (configManager.viewerEnlarged) {
+        if (!previewPanel->isVisible() || previewPanel->mode() == ViewerPanel::Live) shrinkEmbeddedPDFViewer();
+        else if (!enlargedViewer) enlargeEmbeddedPDFViewer();
+    }
     if (auto session = texpressoManager->current()) {
         session->followCursor = configManager.pdfDocumentConfig->followFromCursor;
         if (auto editor = currentEditor()) {
@@ -191,6 +229,66 @@ void Texstudio::updateTexpresso()
         }
     }
     texpressoWidget->refresh();
+}
+
+void Texstudio::ensurePreviewPdf()
+{
+#ifndef NO_POPPLER_PREVIEW
+    if (!previewPanel || previewPanel->project().isEmpty()) return;
+    const QFileInfo master(previewPanel->project());
+    const auto file = buildManager.findCompiledFile(master.completeBaseName() + ".pdf", master);
+    if (!QFileInfo(file).isReadable()) return;
+    // Retain an existing viewer's page, zoom, search and PDF/SyncTeX pair.
+    if (auto viewer = qobject_cast<PDFDocument *>(previewPanel->pdf(previewPanel->project()))) {
+        viewer->loadFile(file, master, PDFDocument::NoDisplayFlags);
+        return;
+    }
+    runInternalPdfViewer(master, enquoteStr(file) + " --embedded --preserve-existing-windowed --no-focus --no-foreground");
+#endif
+}
+
+void Texstudio::setPreviewPanelVisible(bool visible)
+{
+    const bool opening = visible && previewPanel->isHidden();
+    if (!visible && previewPanel->isVisible()) {
+        const auto sizes = mainHSplitter->sizes();
+        if (sizes.size() == 2 && sizes[0] > 0 && sizes[1] > 10)
+            pdfSplitterRel = qreal(sizes[1]) / (sizes[0] + sizes[1]);
+    }
+    previewPanel->setVisible(visible);
+    if (opening) {
+        const int width = mainHSplitter->width();
+        const auto fraction = pdfSplitterRel >= .1 && pdfSplitterRel <= .9 ? pdfSplitterRel : .5;
+        mainHSplitter->setSizes({qRound(width * (1 - fraction)), qRound(width * fraction)});
+    }
+}
+
+void Texstudio::attachPreviewPdf(PDFDocument *viewer)
+{
+#ifndef NO_POPPLER_PREVIEW
+    if (!previewPanel || !viewer->embeddedMode) return;
+    viewer->previewPanelManaged = true;
+    viewer->setParent(previewPanel); viewer->hide();
+    const auto registerPdf = [this, viewer] {
+        if (!viewer->getMasterFile().filePath().isEmpty())
+            previewPanel->addPdf(TexpressoSession::identity(viewer->getMasterFile().absoluteFilePath()), viewer);
+    };
+    connect(viewer, &PDFDocument::documentLoaded, this, registerPdf);
+    connect(viewer, &PDFDocument::closeRequested, this, [this] { texpressoAction->setChecked(false); focusEditor(); });
+    connect(viewer, &PDFDocument::displayRequested, this, [this, viewer, registerPdf](PDFDocument::DisplayFlags flags) {
+        registerPdf();
+        const auto root = TexpressoSession::identity(viewer->getMasterFile().absoluteFilePath());
+        // A compile-and-view recipe refreshes the cached PDF without taking
+        // over Live mode. Explicit View PDF and focus requests select it.
+        if ((flags & PDFDocument::Focus) || ((flags & PDFDocument::Raise) && !previewBuildDepth.contains(root))) {
+            texpressoAction->setChecked(true);
+            previewPanel->setProject(root); previewPanel->setMode(ViewerPanel::Pdf); setPreviewPanelVisible(true);
+            if (flags & PDFDocument::Focus) viewer->widget()->setFocus();
+        }
+    });
+#else
+    Q_UNUSED(viewer)
+#endif
 }
 
 bool Texstudio::syncTexpressoViewer(const QDocumentCursor &cursor, bool inForeground)

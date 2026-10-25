@@ -70,6 +70,8 @@ class SymbolWidget;
 class StructureTreeView;
 class TexpressoManager;
 class TexpressoWidget;
+class ViewerPanel;
+class PDFDocument;
 
 //Q_DECLARE_METATYPE(QSet<QString>)
 #if QT_VERSION_MAJOR<6
@@ -198,6 +200,11 @@ private:
 #ifdef TEXSTUDIO_TEXPRESSO
     TexpressoManager *texpressoManager = nullptr;
     TexpressoWidget *texpressoWidget = nullptr;
+    ViewerPanel *previewPanel = nullptr;
+    QHash<QString, int> previewBuildDepth;
+    void attachPreviewPdf(PDFDocument *viewer);
+    void ensurePreviewPdf();
+    void setPreviewPanelVisible(bool visible);
     QAction *texpressoAction = nullptr;
     QTimer texpressoActivationTimer;
     QSet<LatexDocument *> texpressoDocuments;

@@ -36,6 +36,33 @@ rendering using the extension as the behavioral reference.
 
 ## Shared viewer components
 
+`ViewerPanel.*` provides one embedded **Preview** area with a **Live | PDF**
+selector. Both renderers retain their own toolbar, status bar and navigation
+state. **View → Show → Preview** controls the whole area; detached PDF windows
+remain available through the PDF viewer's existing window controls.
+
+The selected mode is saved per canonical project path. Switching editor
+projects restores that choice, the live session's zoom/scroll, and the cached
+PDF viewer's page, zoom and search state. PDF mode shows the last normally
+compiled PDF; when none exists, it offers **Build PDF**, using the normal
+Compile recipe. Explicit View PDF selects PDF mode. File-watcher reloads and
+compile-and-view recipes refresh its contents without changing the selected
+mode or stealing focus. A normal session restore also preserves the mode.
+Closing the embedded PDF hides Preview and keeps its cached state; detaching
+still creates the usual independent PDF window.
+
+While PDF mode is selected, the current live compiler keeps running, with
+render requests, source-follow searches and cursor prewarming suspended.
+Returning to Live renders the current revision using the same engine process.
+Other project sessions retain their existing pause/resume behavior. Hidden
+embedded PDFs do not follow editor cursors, and multiple-view synchronization
+cannot replace a cached project's PDF/SyncTeX pair with another project's.
+
+The container uses a `QStackedWidget`; each viewer's widget-scoped shortcuts
+apply only when that viewer is shown and focused. Source synchronization keeps
+each renderer's existing revision rules. Switching modes retains the separate
+locations rather than assuming that their page numbers describe the same text.
+
 `src/pdfviewer/ViewerControls.*` owns the common action definitions, toolbar
 ordering, page entry/count widgets, zoom menu/slider and zoom-step calculations.
 Both `PDFDocument` and `TexpressoWidget` use these components. Live actions use
@@ -44,6 +71,27 @@ apply without intercepting editor commands. The live panel exposes magnifier,
 hand scrolling, page navigation, actual size, fit width and fit window. PDF-only
 capabilities (text selection, annotations and fit-to-text bounds) remain absent
 until the engine provides their data.
+
+Regression coverage includes the standalone `texpresso-viewer-panel` suite
+(persisted modes, cached views, focus/shortcuts, destruction, and live compiler
+updates without hidden rendering), and the full editor's `unifiedPreviewPanel`
+test (real PDFs, project switching, quiet reloads/builds and detach/re-embed).
+Run the latter in an isolated Debug application with tests enabled:
+
+```sh
+QT_QPA_PLATFORM=offscreen TEXPRESSO_TEST_PREVIEW_PANEL=1 \
+  build/texstudio.app/Contents/MacOS/texstudio --auto-tests --start-always \
+  --no-session --config /tmp/texstudio-preview-panel-test
+```
+
+On Linux, use the configured build's `texstudio` executable in place of the
+macOS bundle executable. Use a new disposable configuration directory per run.
+Set `TEXPRESSO_PREVIEW_TEST_ARTIFACTS` to a directory to capture the PDF-mode UI.
+
+Validated on macOS on 25 October 2026: all 16 client suites passed with the
+bundled engine, and the full application suite reported 1,614 passes, no
+failures and three opt-in skips. The isolated editor smoke applied 128 edits;
+all five independent PDF/SyncTeX probes matched and no owned processes remained.
 
 The panel follows the embedded PDF viewer's layout: one icon toolbar above the
 pages and a status bar below them. Live compilation controls take the place of

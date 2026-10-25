@@ -20,6 +20,7 @@ private slots:
     void bibliographyRerunPriority();
     void sharedCompilationOutput();
     void liveBuildAndRefresh();
+    void unifiedPreviewPanel();
     void liveEditingSoak();
     void liveEditorBuffers();
     void liveEditingBufferBenchmark();

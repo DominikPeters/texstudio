@@ -49,7 +49,9 @@ QString ViewerPanel::settingsKey() const
 }
 ViewerPanel::~ViewerPanel()
 {
-    for (auto viewer : pdfs) if (viewer) disconnect(viewer, nullptr, this, nullptr);
+    // A newer view may have replaced a project's mapping while its older
+    // widget is still owned by the stack (for example a cloned PDF).
+    for (int i = 0; i < stack->count(); ++i) disconnect(stack->widget(i), nullptr, this, nullptr);
 }
 void ViewerPanel::setLiveViewer(QWidget *viewer)
 {

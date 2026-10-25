@@ -20,6 +20,7 @@
 #include <QAtomicInt>
 #include "texstudio.h"
 #ifdef TEXSTUDIO_TEXPRESSO
+#include "ViewerPanel.h"
 #include "texpresso/texpressomanager.h"
 #include "texpresso/texpressowidget.h"
 #endif
@@ -529,6 +530,7 @@ Texstudio::~Texstudio()
         disconnect(dock, nullptr, this, nullptr);
 #ifdef TEXSTUDIO_TEXPRESSO
     texpressoActivationTimer.stop();
+    if (previewPanel) disconnect(previewPanel, nullptr, texpressoWidget, nullptr);
     delete texpressoManager;
     texpressoManager = nullptr;
 #endif
@@ -3866,7 +3868,15 @@ void Texstudio::restoreSession(const Session &s, bool showProgress, bool warnMis
     cursorHistory->setInsertionEnabled(true);
     qDebug()<<"total time for restoring session:"<<time.elapsed()<<"ms";
     if (!s.PDFFile().isEmpty()) {
-        runInternalCommand("txs:///view-pdf-internal", QFileInfo(s.PDFFile()), enquoteStr(s.PDFFile()) +" "+ (s.PDFEmbedded() ? "--embedded" : "--windowed"));
+        QString options = enquoteStr(s.PDFFile()) + " " + (s.PDFEmbedded() ? "--embedded" : "--windowed");
+        QFileInfo master(s.PDFFile());
+#ifdef TEXSTUDIO_TEXPRESSO
+        if (s.PDFEmbedded()) {
+            options += " --no-focus --no-foreground";
+            if (const auto root = documents.getRootDocumentForDoc()) master = root->getFileInfo();
+        }
+#endif
+        runInternalCommand("txs:///view-pdf-internal", master, options);
     }
     // update completer
     if (currentEditorView()){
@@ -3957,8 +3967,22 @@ Session Texstudio::getCurrentSession()
 #ifndef NO_POPPLER_PREVIEW
 	if (!PDFDocument::documentList().isEmpty()) {
 		PDFDocument *doc = PDFDocument::documentList().at(0);
-		s.setPDFEmbedded(doc->embeddedMode);
-		s.setPDFFile(doc->fileName());
+#ifdef TEXSTUDIO_TEXPRESSO
+        if (previewPanel) {
+            doc = qobject_cast<PDFDocument *>(previewPanel->pdf(previewPanel->project()));
+            if (!doc) {
+                for (auto viewer : PDFDocument::documentList()) {
+                    if (viewer->embeddedMode) continue;
+                    doc = viewer;
+                    break;
+                }
+            }
+        }
+#endif
+        if (doc) {
+            s.setPDFEmbedded(doc->embeddedMode);
+            s.setPDFFile(doc->fileName());
+        }
 	}
 #endif
 
@@ -4935,6 +4959,13 @@ void Texstudio::saveSettings(const QString &configName)
 	configManager.centralVisible = centralToolBar->isVisible();
 	// update completion usage
 	LatexCompleterConfig *conf = configManager.completerConfig;
+#ifdef TEXSTUDIO_TEXPRESSO
+    if (previewPanel && previewPanel->isVisible()) {
+        const auto sizes = mainHSplitter->sizes();
+        if (sizes.size() == 2 && sizes[1] > 10 && sizes[0] + sizes[1] > 0)
+            pdfSplitterRel = qreal(sizes[1]) / (sizes[0] + sizes[1]);
+    }
+#else
 #ifndef NO_POPPLER_PREVIEW
 	//pdf viewer embedded open ?
 	if (!PDFDocument::documentList().isEmpty()) {
@@ -4951,6 +4982,7 @@ void Texstudio::saveSettings(const QString &configName)
 				pdfSplitterRel = 1.0 * last / sum;
 		}
 	}
+#endif
 #endif
     symbolWidget->saveSplitterState(configManager.stateSymbolsWidget); // readout splitter state from symbol widget
 
@@ -6599,6 +6631,19 @@ void Texstudio::runInternalPdfViewer(const QFileInfo &master, const QString &opt
 
 	QList<PDFDocument *> oldPDFs = PDFDocument::documentList();
 
+#ifdef TEXSTUDIO_TEXPRESSO
+    // Each project keeps its embedded PDF, including its own SyncTeX data.
+    // An explicit close-all command still applies to every viewer.
+    if (previewPanel && !closeAll) {
+        const auto root = TexpressoSession::identity(master.absoluteFilePath());
+        for (int i = oldPDFs.size() - 1; i >= 0; --i) {
+            const auto viewer = oldPDFs[i];
+            if (TexpressoSession::identity(viewer->getMasterFile().absoluteFilePath()) != root
+                || (embedded && !viewer->embeddedMode && !closeWindowed)) oldPDFs.removeAt(i);
+        }
+    }
+#endif
+
 	if (preserveExisting) oldPDFs.clear();
 	if (preserveExistingWindowed)
 		for (int i = oldPDFs.size() - 1; i >= 0; i--)
@@ -6661,13 +6706,21 @@ void Texstudio::runInternalPdfViewer(const QFileInfo &master, const QString &opt
 		viewer->loadFile(pdfFile, master, displayPolicy);
 		int pg = viewer->syncFromSource(getCurrentFileName(), ln, col, displayPolicy);
 		viewer->fillRenderCache(pg);
-        if (viewer->embeddedMode && configManager.viewerEnlarged) {
+        bool enlarge = viewer->embeddedMode && configManager.viewerEnlarged;
+#ifdef TEXSTUDIO_TEXPRESSO
+        if (previewPanel) enlarge = enlarge && previewPanel->isVisible() && previewPanel->currentViewer() == viewer;
+#endif
+        if (enlarge) {
 			viewer->setStateEnlarged(true);
             centralVSplitter->hide();
 		}
 		if (preserveDuplicates) break;
 	}
-	setEnabledMenusEnlargeShrink(embedded && !configManager.viewerEnlarged, embedded && configManager.viewerEnlarged);
+    bool visibleEmbedded = embedded;
+#ifdef TEXSTUDIO_TEXPRESSO
+    if (previewPanel) visibleEmbedded = previewPanel->mode() == ViewerPanel::Pdf && previewPanel->pdf(previewPanel->project());
+#endif
+	setEnabledMenusEnlargeShrink(visibleEmbedded && !configManager.viewerEnlarged, visibleEmbedded && configManager.viewerEnlarged);
 #if defined Q_OS_MAC
 	if (embedded)
 		setMenuBar(configManager.menuParentsBar);
@@ -8493,6 +8546,9 @@ void Texstudio::focusEditor()
 
 void Texstudio::focusViewer()
 {
+#ifdef TEXSTUDIO_TEXPRESSO
+    if (previewPanel && previewPanel->liveVisible()) { texpressoWidget->setFocus(); return; }
+#endif
 #ifndef NO_POPPLER_PREVIEW
 	QList<PDFDocument *> viewers = PDFDocument::documentList();
 	if (viewers.isEmpty()) return;
@@ -8575,8 +8631,12 @@ void Texstudio::viewCloseElement()
 #ifndef NO_POPPLER_PREVIEW
 	if (configManager.useEscForClosingEmbeddedViewer) {
 		foreach (PDFDocument *doc, PDFDocument::documentList()) {
-			if (doc->embeddedMode) {
-				doc->close();
+			if (doc->embeddedMode && doc->isVisible()) {
+#ifdef TEXSTUDIO_TEXPRESSO
+                if (doc->previewPanelManaged) texpressoAction->setChecked(false);
+                else
+#endif
+				    doc->close();
 				return;
 			}
 		}
@@ -8670,6 +8730,10 @@ void Texstudio::pdfClosed()
 	PDFDocument *from = qobject_cast<PDFDocument *>(sender());
 	if (from) {
 		if (from->embeddedMode) {
+#ifdef TEXSTUDIO_TEXPRESSO
+            if (from->previewPanelManaged && previewPanel
+                && TexpressoSession::identity(from->getMasterFile().absoluteFilePath()) != previewPanel->project()) return;
+#endif
 			setEnabledMenusEnlargeShrink(false, false);
 			shrinkEmbeddedPDFViewer(true);
 			QList<int> sz = mainHSplitter->sizes(); // set widths to 50%, eventually restore user setting
@@ -8694,6 +8758,10 @@ QObject *Texstudio::newPdfPreviewer(bool embedded)
 	PDFDocument *pdfviewerWindow = new PDFDocument(configManager.pdfDocumentConfig, embedded);
     pdfviewerWindow->setToolbarIconSize(pdfviewerWindow->embeddedMode ? configManager.guiPDFToolbarIconSize : configManager.guiToolbarIconSize);
 	if (embedded) {
+#ifdef TEXSTUDIO_TEXPRESSO
+        if (previewPanel) attachPreviewPdf(pdfviewerWindow);
+        else {
+#endif
 		mainHSplitter->addWidget(pdfviewerWindow);
 		QList<int> sz = mainHSplitter->sizes(); // set widths to 50%, eventually restore user setting
 		int sum = 0;
@@ -8706,6 +8774,9 @@ QObject *Texstudio::newPdfPreviewer(bool embedded)
 		sz << sum - qRound(pdfSplitterRel * sum);
 		sz << qRound(pdfSplitterRel * sum);
 		mainHSplitter->setSizes(sz);
+#ifdef TEXSTUDIO_TEXPRESSO
+        }
+#endif
 	}
 	connect(pdfviewerWindow, SIGNAL(triggeredAbout()), SLOT(helpAbout()));
 	connect(pdfviewerWindow, SIGNAL(triggeredEnlarge()), SLOT(enlargeEmbeddedPDFViewer()));
@@ -10303,6 +10374,9 @@ void Texstudio::syncPDFViewer(QDocumentCursor cur, bool inForeground)
 			PDFDocument::DisplayFlags displayPolicy = PDFDocument::NoDisplayFlags;
 			if (inForeground) displayPolicy = PDFDocument::Raise | PDFDocument::Focus;
 			foreach (PDFDocument *viewer, PDFDocument::documentList()) {
+#ifdef TEXSTUDIO_TEXPRESSO
+                if (viewer->previewPanelManaged && !viewer->isVisible()) continue;
+#endif
 				if (inForeground || viewer->followCursor()) {
 					viewer->syncFromSource(filename, lineNumber, col, displayPolicy);
 				}
@@ -12641,6 +12715,10 @@ void Texstudio::enlargeEmbeddedPDFViewer()
 	if (oldPDFs.isEmpty())
 		return;
 	PDFDocument *viewer = oldPDFs.first();
+#ifdef TEXSTUDIO_TEXPRESSO
+    if (previewPanel) viewer = qobject_cast<PDFDocument *>(previewPanel->currentViewer());
+    if (!viewer) return;
+#endif
 	if (!viewer->embeddedMode)
 		return;
     centralVSplitter->hide();
@@ -12667,18 +12745,18 @@ void Texstudio::shrinkEmbeddedPDFViewer(bool preserveConfig)
     if (!preserveConfig)
 		configManager.viewerEnlarged = false;
 	QList<PDFDocument *> oldPDFs = PDFDocument::documentList();
-	if (oldPDFs.isEmpty())
-		return;
-	PDFDocument *viewer = oldPDFs.first();
-    if (!viewer || !viewer->embeddedMode)
-		return;
 	if(enlargedViewer){
 		PDFDocumentConfig *pdfConfig=configManager.pdfDocumentConfig;
 		pdfConfig->followFromScroll=rememberFollowFromScroll;
 		enlargedViewer=false;
 	}
-	viewer->setStateEnlarged(false);
-	setEnabledMenusEnlargeShrink(true, false);
+    for (auto viewer : oldPDFs) if (viewer->embeddedMode) viewer->setStateEnlarged(false);
+#ifdef TEXSTUDIO_TEXPRESSO
+    const bool embedded = previewPanel && previewPanel->mode() == ViewerPanel::Pdf && previewPanel->pdf(previewPanel->project());
+#else
+    const bool embedded = !oldPDFs.isEmpty() && oldPDFs.first()->embeddedMode;
+#endif
+	setEnabledMenusEnlargeShrink(embedded, false);
     focusEditor();
 #else
 	Q_UNUSED(preserveConfig)
@@ -12688,9 +12766,9 @@ void Texstudio::shrinkEmbeddedPDFViewer(bool preserveConfig)
 void Texstudio::setEnabledMenusEnlargeShrink(bool enabledEnlarge, bool enabledShrink)
 {
 	QAction *act=configManager.getManagedAction("main/view/enlargePDF");
-	act->setEnabled(enabledEnlarge);
+    if (act) act->setEnabled(enabledEnlarge);
 	act=configManager.getManagedAction("main/view/shrinkPDF");
-	act->setEnabled(enabledShrink);
+    if (act) act->setEnabled(enabledShrink);
 }
 
 void Texstudio::showStatusbar()

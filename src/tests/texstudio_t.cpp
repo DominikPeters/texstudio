@@ -1,6 +1,7 @@
 #include "texstudio_t.h"
 
 #include "testutil.h"
+#include "smallUsefulFunctions.h"
 #include "texstudio.h"
 #include "editors.h"
 #include <QtTest/QtTest>
@@ -9,9 +10,136 @@
 #ifdef TEXSTUDIO_TEXPRESSO
 #include "texpresso/texpressomanager.h"
 #include "texpresso/texpressowidget.h"
+#include "ViewerPanel.h"
+#ifndef NO_POPPLER_PREVIEW
+#include "PDFDocument.h"
+#include <QPdfWriter>
+#include <QPainter>
+#endif
 #endif
 
 extern Texstudio *txsInstance;
+
+void TexStudioTest::unifiedPreviewPanel()
+{
+#if !defined(TEXSTUDIO_TEXPRESSO) || defined(NO_POPPLER_PREVIEW)
+    QSKIP("Both embedded preview backends are required");
+#else
+    auto txs = txsInstance; auto panel = txs->previewPanel; QVERIFY(panel);
+    QTemporaryDir dir;
+    const auto first = dir.filePath("first.tex"), second = dir.filePath("second.tex");
+    const auto writeSource = [](const QString &path) {
+        QFile file(path); return file.open(QIODevice::WriteOnly)
+            && file.write("\\documentclass{article}\n\\begin{document}Preview test.\\end{document}\n") > 0;
+    };
+    const auto writePdf = [](const QString &path) {
+        QPdfWriter writer(path); writer.setResolution(72); QPainter painter(&writer);
+        painter.drawText(40, 60, "First page"); writer.newPage();
+        painter.drawText(40, 60, "Second page"); writer.newPage(); painter.drawText(40, 60, "Third page");
+    };
+    QVERIFY(writeSource(first)); QVERIFY(writeSource(second));
+    const auto firstPdf = dir.filePath("first.pdf"), secondPdf = dir.filePath("second.pdf");
+    writePdf(firstPdf);
+    const bool enabled = txs->texpressoAction->isChecked();
+    const auto oldEngine = txs->texpressoManager->engineFile;
+    const auto oldCommands = txs->buildManager.getAllCommands();
+    const auto oldOrder = txs->buildManager.getCommandsOrder();
+    const auto oldSave = txs->buildManager.saveFilesBeforeCompiling;
+    const bool oldBibliography = txs->configManager.runLaTeXBibTeXLaTeX;
+    QList<LatexEditorView *> views;
+    const auto cleanup = qScopeGuard([&] {
+        if (txs->buildManager.busyRunningCommands()) txs->buildManager.killCurrentProcess();
+        txs->buildManager.setAllCommands(oldCommands, oldOrder);
+        txs->buildManager.saveFilesBeforeCompiling = oldSave;
+        txs->configManager.runLaTeXBibTeXLaTeX = oldBibliography;
+        for (auto pdf : PDFDocument::documentList())
+            if (pdf->getMasterFile().absolutePath() == QFileInfo(first).absolutePath()) pdf->close();
+        QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+        for (auto view : views) { txs->editors->setCurrentEditor(view); view->document->setClean(); txs->fileClose(); }
+        txs->texpressoManager->engineFile = oldEngine;
+        txs->texpressoAction->setChecked(enabled); txs->updateTexpresso();
+    });
+    // The host also works when Live compilation is unavailable. Real engine
+    // lifetime and hidden rendering are covered by viewer_panel_test.cpp.
+    txs->texpressoAction->setChecked(false); txs->updateTexpresso();
+    txs->texpressoManager->engineFile = dir.filePath("missing-engine");
+    auto a = txs->load(first); QVERIFY(a); views << a;
+    auto b = txs->load(second); QVERIFY(b); views << b;
+    txs->editors->setCurrentEditor(a); txs->texpressoAction->setChecked(true); txs->updateTexpresso();
+    QCOMPARE(panel->project(), TexpressoSession::identity(first));
+    QCOMPARE(txs->mainHSplitter->count(), 2); QVERIFY(panel->liveVisible());
+    txs->runInternalPdfViewer(QFileInfo(first), enquoteStr(firstPdf) + " --embedded");
+    QCOMPARE(panel->mode(), ViewerPanel::Pdf);
+    QPointer<PDFDocument> pdfA = qobject_cast<PDFDocument *>(panel->pdf(panel->project())); QVERIFY(pdfA);
+    QVERIFY(pdfA->previewPanelManaged); QVERIFY(pdfA->popplerDoc());
+    QVERIFY(pdfA->isVisible()); QVERIFY(!txs->texpressoWidget->isVisible());
+    QCOMPARE(txs->mainHSplitter->count(), 2);
+    pdfA->widget()->zoom(1.25); pdfA->goToPage(1);
+    QTRY_COMPARE(pdfA->widget()->getPageIndex(), 1);
+    const double scale = pdfA->widget()->totalScaleFactor();
+    const auto artifacts = qEnvironmentVariable("TEXPRESSO_PREVIEW_TEST_ARTIFACTS");
+    if (!artifacts.isEmpty()) {
+        QVERIFY(QDir().mkpath(artifacts)); QTest::qWait(200);
+        QVERIFY(txs->grab().save(artifacts + "/pdf-mode.png"));
+    }
+    panel->setMode(ViewerPanel::Live); QVERIFY(panel->liveVisible());
+    txs->currentEditor()->setFocus(); auto focus = QApplication::focusWidget();
+    pdfA->loadFile(firstPdf, QFileInfo(first), PDFDocument::NoDisplayFlags);
+    QCoreApplication::processEvents();
+    QCOMPARE(panel->mode(), ViewerPanel::Live); QVERIFY(!pdfA->isVisible());
+    QCOMPARE(QApplication::focusWidget(), focus);
+    QCOMPARE(QFileInfo(txs->getCurrentSession().PDFFile()).canonicalFilePath(), QFileInfo(firstPdf).canonicalFilePath());
+    // A compile-and-view recipe updates the hidden PDF without changing mode.
+    txs->buildManager.buildSequenceStarted(first, {}, true);
+    txs->runInternalPdfViewer(QFileInfo(first), enquoteStr(firstPdf) + " --embedded");
+    QCOMPARE(panel->mode(), ViewerPanel::Live); QVERIFY(!pdfA->isVisible());
+    txs->buildManager.buildSequenceFinished(first, false);
+    panel->setMode(ViewerPanel::Pdf);
+    QCOMPARE(pdfA->widget()->getPageIndex(), 1); QCOMPARE(pdfA->widget()->totalScaleFactor(), scale);
+    txs->enlargeEmbeddedPDFViewer(); QVERIFY(!txs->centralVSplitter->isVisible());
+    QVERIFY(QMetaObject::invokeMethod(pdfA, "closeViewer", Qt::DirectConnection));
+    QVERIFY(!panel->isVisible()); QVERIFY(txs->centralVSplitter->isVisible()); QVERIFY(pdfA);
+    txs->texpressoAction->setChecked(true); txs->updateTexpresso();
+    QCOMPARE(panel->mode(), ViewerPanel::Pdf); QCOMPARE(panel->currentViewer(), pdfA.data());
+    QCOMPARE(pdfA->widget()->getPageIndex(), 1);
+    txs->editors->setCurrentEditor(b); txs->updateTexpresso();
+    QCOMPARE(panel->project(), TexpressoSession::identity(second)); QCOMPARE(panel->mode(), ViewerPanel::Live);
+    panel->setMode(ViewerPanel::Pdf); QVERIFY(panel->currentViewer() != pdfA);
+    QVERIFY(!panel->pdf(panel->project()));
+    // The placeholder's Build PDF button uses the normal compiler recipe and
+    // loads its result without requiring another mode change.
+    const auto builtPdf = dir.filePath("built.pdf"); writePdf(builtPdf);
+    auto commands = oldCommands; commands["compile"].commandLine = "txs:///pdflatex";
+    commands["pdflatex"].commandLine = "/bin/cp " + enquoteStr(builtPdf) + " " + enquoteStr(secondPdf);
+    txs->buildManager.setAllCommands(commands, oldOrder);
+    txs->buildManager.saveFilesBeforeCompiling = BuildManager::SFBC_ONLY_NAMED;
+    txs->configManager.runLaTeXBibTeXLaTeX = false;
+    QSignalSpy builds(&txs->buildManager, &BuildManager::buildSequenceStarted);
+    auto build = panel->findChild<QPushButton *>("previewBuildPdf"); QVERIFY(build);
+    QTest::mouseClick(build, Qt::LeftButton);
+    QTRY_VERIFY_WITH_TIMEOUT(!txs->buildManager.busyRunningCommands() && QFileInfo::exists(secondPdf)
+                            && panel->pdf(panel->project()), 10000);
+    QCOMPARE(builds.size(), 1); QCOMPARE(TexpressoSession::identity(builds[0][0].toString()), TexpressoSession::identity(second));
+    auto pdfB = qobject_cast<PDFDocument *>(panel->pdf(panel->project())); QVERIFY(pdfB); QVERIFY(pdfB != pdfA);
+    QCOMPARE(panel->currentViewer(), pdfB); panel->setMode(ViewerPanel::Live);
+    QCOMPARE(QFileInfo(txs->getCurrentSession().PDFFile()).canonicalFilePath(), QFileInfo(secondPdf).canonicalFilePath());
+    txs->editors->setCurrentEditor(a); txs->updateTexpresso();
+    QCOMPARE(panel->mode(), ViewerPanel::Pdf); QCOMPARE(panel->currentViewer(), pdfA.data());
+    QCOMPARE(pdfA->widget()->getPageIndex(), 1); QCOMPARE(pdfA->widget()->totalScaleFactor(), scale);
+    // Detaching and re-embedding affect this project's viewer only.
+    QVERIFY(QMetaObject::invokeMethod(pdfA, "toggleEmbedded", Qt::DirectConnection));
+    QTRY_VERIFY(pdfA.isNull());
+    QPointer<PDFDocument> detached;
+    for (auto viewer : PDFDocument::documentList())
+        if (!viewer->embeddedMode && viewer->getMasterFile() == QFileInfo(first)) detached = viewer;
+    QVERIFY(detached); QVERIFY(detached->isWindow()); QVERIFY(!detached->previewPanelManaged);
+    QCOMPARE(panel->pdf(TexpressoSession::identity(second)), pdfB);
+    QVERIFY(QMetaObject::invokeMethod(detached, "toggleEmbedded", Qt::DirectConnection));
+    QTRY_VERIFY(detached.isNull());
+    QVERIFY(qobject_cast<PDFDocument *>(panel->pdf(TexpressoSession::identity(first))));
+    QCOMPARE(panel->mode(), ViewerPanel::Pdf); QCOMPARE(txs->mainHSplitter->count(), 2);
+#endif
+}
 
 void TexStudioTest::checkIncludes_data(){
     if (!allTests){
