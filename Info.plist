@@ -46,7 +46,9 @@
 	<key>CFBundleIdentifier</key>
 	<string>texstudio</string>
 	<key>CFBundleName</key>
-	<string>TeXstudio</string>
+	<string>TeXstudio Espresso</string>
+	<key>CFBundleDisplayName</key>
+	<string>TeXstudio Espresso</string>
 	<key>CFBundleShortVersionString</key>
 	<string>4.9.9</string>
 	<key>AppleMagnifiedMode</key>

@@ -15,7 +15,7 @@ from deploy_macos import verify_dependencies
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-dir', type=Path, default=ROOT / 'build', help='Already configured CMake build')
-    parser.add_argument('--output', type=Path, default=Path.home() / 'Applications/TeXstudio TeXpresso Unified Preview.app')
+    parser.add_argument('--output', type=Path, default=Path.home() / 'Applications/TeXstudio Espresso.app')
     parser.add_argument('--macdeployqt', default=shutil.which('macdeployqt'))
     parser.add_argument('--library-path', type=Path, action='append', default=[])
     parser.add_argument('--poppler-data', type=Path, required=True, help='Poppler encoding data, copied into the app')
@@ -65,8 +65,8 @@ exec "$app_dir/texstudio" --start-always --disable-tests --config "$config_dir" 
     with plist_path.open('rb') as stream:
         plist = plistlib.load(stream)
     plist.update(CFBundleExecutable=launcher.name, CFBundleIdentifier='org.texstudio.texpresso.local-test',
-                 CFBundleName='TeXstudio TeXpresso Test', CFBundleDisplayName='TeXstudio TeXpresso Test',
-                 CFBundleIconName='AppIconCoffee', CFBundleIconFile='AppIconCoffee')
+                 CFBundleName='TeXstudio Espresso', CFBundleDisplayName='TeXstudio Espresso',
+                 CFBundleIconName='AppIconCoffee', CFBundleIconFile='AppIconCoffee.icns')
     for document_type in plist.get('CFBundleDocumentTypes', []):
         document_type.pop('LSIsAppleDefaultForType', None)
         document_type['LSHandlerRank'] = 'Alternate'

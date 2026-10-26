@@ -1,7 +1,7 @@
 # Persistent macOS test app
 
 Use this for local development builds. The default application is
-`~/Applications/TeXstudio TeXpresso Unified Preview.app`. Keep this single path
+`~/Applications/TeXstudio Espresso.app`. Keep this single path
 for subsequent builds rather than creating additional feature-named apps.
 Its launcher uses separate,
 persistent settings in `~/Library/Application Support/TeXstudio TeXpresso Test`,
@@ -16,7 +16,7 @@ python3 native/scripts/local_test_app.py --build-dir build-cursor-app \
   --library-path /tmp/texstudio-poppler/lib \
   --library-path "$(brew --prefix)/lib" \
   --poppler-data "$(brew --prefix)/share/poppler"
-open "$HOME/Applications/TeXstudio TeXpresso Unified Preview.app"
+open "$HOME/Applications/TeXstudio Espresso.app"
 ```
 
 This is the current development machine's command. Change
@@ -66,7 +66,7 @@ launcher intentionally disables self-tests:
 
 ```sh
 python3 native/scripts/ui_soak.py \
-  --app "$HOME/Applications/TeXstudio TeXpresso Unified Preview.app/Contents/MacOS/texstudio" \
+  --app "$HOME/Applications/TeXstudio Espresso.app/Contents/MacOS/texstudio" \
   --output /tmp/texstudio-installed-smoke --seconds 10 --pages 30
 ```
 
