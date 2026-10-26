@@ -7,6 +7,7 @@
 #include <QScrollBar>
 #include <QStandardPaths>
 #include <QTemporaryDir>
+#include <QScopeGuard>
 
 class PaginationTest : public QObject
 {
@@ -21,11 +22,14 @@ private slots:
     void endSearchCancellation_data();
     void endSearchCancellation();
     void automaticRerunPreservesEndIntent();
+    void lastPageWaitsForFrameAndReveals_data();
+    void lastPageWaitsForFrameAndReveals();
     void geometryDoesNotFollowSpeculativeSelection();
     void realPageCounts_data();
     void realPageCounts();
     void realShrinkGrowAndFailure();
     void realAutomaticRerunsKeepExactCount();
+    void providedPaperLastPage();
 };
 static QJsonArray last(const QSignalSpy &commands) { return commands.last()[0].toJsonArray(); }
 static void deliver(TexpressoPreview &preview, const QJsonArray &request)
@@ -185,6 +189,35 @@ void PaginationTest::automaticRerunPreservesEndIntent()
     preview.message({"preview-invalidated", 3, 0});
     QVERIFY(!preview.findingLastPage()); QCOMPARE(preview.page(), 0);
 }
+void PaginationTest::lastPageWaitsForFrameAndReveals_data()
+{
+    QTest::addColumn<bool>("successful");
+    QTest::newRow("successful-pass") << true;
+    QTest::newRow("pass-with-compiler-errors") << false;
+}
+void PaginationTest::lastPageWaitsForFrameAndReveals()
+{
+    QFETCH(bool, successful);
+    TexpressoPreview preview;
+    QSignalSpy commands(&preview, &TexpressoPreview::command), reveals(&preview, &TexpressoPreview::reveal);
+    preview.setCapabilities({{"backgroundRendering", true}}); preview.setActive(true);
+    preview.message({"preview-state", 1, 0, 1, false, 0});
+    deliver(preview, last(commands)); QTRY_VERIFY(preview.valid());
+    preview.lastPage(); const auto endRequest = last(commands);
+    preview.message({"preview-state", 1, 0, 4, successful, 0});
+    if (!successful) preview.message({"preview-error", endRequest[1], "No more pages."});
+    QCOMPARE(preview.page(), 3); QVERIFY(reveals.isEmpty());
+    const auto frame = last(commands);
+    QCOMPARE(frame[0].toString(), QString("preview-render")); QCOMPARE(frame[2].toInt(), 3);
+    // A queued layout update still reports the old viewport before the final
+    // frame arrives. It must not pull the explicit navigation back to page 1.
+    preview.setViewportPages({0}); QCOMPARE(preview.page(), 3);
+    deliver(preview, frame); QTRY_VERIFY(preview.valid()); QTRY_COMPARE(reveals.size(), 1);
+    QCOMPARE(reveals[0][0].toPointF(), QPointF(0, 0));
+    preview.navigateTo(0); deliver(preview, last(commands)); QTRY_VERIFY(preview.valid());
+    preview.lastPage(); // The cached final page also needs an explicit reveal.
+    QTRY_COMPARE(reveals.size(), 2); QCOMPARE(preview.page(), 3);
+}
 void PaginationTest::geometryDoesNotFollowSpeculativeSelection()
 {
     TexpressoManager manager; PDFDocumentConfig config{};
@@ -335,6 +368,63 @@ void PaginationTest::realAutomaticRerunsKeepExactCount()
     QTRY_VERIFY_WITH_TIMEOUT(live->preview.revision() > revision, 15000); live->preview.lastPage();
     QTRY_VERIFY_WITH_TIMEOUT(live->preview.complete() && live->preview.pageCount() == 3, 30000);
     manager.shutdown();
+}
+void PaginationTest::providedPaperLastPage()
+{
+    const auto paper = qEnvironmentVariable("TEXPRESSO_TEST_PAPER");
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (paper.isEmpty() || engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_PAPER and TEXPRESSO_TEST_ENGINE for an isolated paper reproduction");
+    const QFileInfo original(paper); QTemporaryDir dir;
+    const auto root = dir.filePath(original.fileName());
+    QVERIFY(QFile::copy(paper, root));
+    for (const auto &suffix : {"aux", "bbl", "bcf", "toc", "out", "run.xml"}) {
+        const auto name = original.completeBaseName() + '.' + suffix;
+        const auto input = original.dir().filePath(name);
+        if (QFileInfo::exists(input)) QVERIFY(QFile::copy(input, dir.filePath(name)));
+    }
+    QFile source(root); QVERIFY(source.open(QIODevice::ReadOnly));
+    const auto text = QString::fromUtf8(source.readAll()); source.close();
+    auto resources = QRegularExpression("\\\\addbibresource(?:\\[[^\\]]*\\])?\\{([^}]+)\\}").globalMatch(text);
+    while (resources.hasNext()) {
+        const auto name = resources.next().captured(1);
+        QVERIFY(!QDir::isAbsolutePath(name) && !name.contains(".."));
+        QVERIFY(QDir(dir.path()).mkpath(QFileInfo(name).path()));
+        QVERIFY(QFile::copy(original.dir().filePath(name), dir.filePath(name)));
+    }
+    TexpressoManager manager(nullptr, engine); PDFDocumentConfig config{};
+    TexpressoWidget widget(&manager, &config, [](const QString &) { return QIcon(); });
+    widget.resize(640, 700); widget.show(); manager.activate(root);
+    const auto live = manager.current(); live->followCursor = false;
+    const auto artifactDir = qEnvironmentVariable("TEXPRESSO_TEST_PAPER_ARTIFACTS");
+    const auto evidence = qScopeGuard([&] {
+        if (artifactDir.isEmpty()) return;
+        QDir().mkpath(artifactDir);
+        write(QDir(artifactDir).filePath("engine.log"), live->engineOutput.toUtf8());
+        write(QDir(artifactDir).filePath("compiler.log"), live->compilerOutput.toUtf8());
+    });
+    const auto diagnostic = [&] {
+        return QString("page=%1 count=%2 complete=%3 stopped=%4 finding=%5 error=%6\n%7")
+            .arg(live->preview.page()).arg(live->preview.pageCount()).arg(live->preview.complete())
+            .arg(live->preview.paginationStopped()).arg(live->preview.findingLastPage())
+            .arg(live->compilerError, live->engineOutput.right(2000));
+    };
+    QTRY_VERIFY2_WITH_TIMEOUT(live->preview.valid(), qPrintable(diagnostic()), 30000);
+    widget.refresh(); QVERIFY(widget.viewerActions()["last"]->isEnabled());
+    widget.viewerActions()["last"]->trigger();
+    QTRY_VERIFY2_WITH_TIMEOUT(live->preview.complete() || live->preview.paginationStopped(), qPrintable(diagnostic()), 60000);
+    QTRY_VERIFY2_WITH_TIMEOUT(live->preview.page() == live->preview.pageCount() - 1 && live->preview.valid(), qPrintable(diagnostic()), 15000);
+    const int expected = qEnvironmentVariableIntValue("TEXPRESSO_TEST_PAPER_PAGES");
+    if (expected > 0) QCOMPARE(live->preview.pageCount(), expected);
+    if (live->preview.paginationStopped()) {
+        QTRY_COMPARE(widget.pages.count->text(), QString::number(live->preview.pageCount()));
+        QCOMPARE(widget.pages.count->foregroundRole(), QPalette::PlaceholderText);
+    }
+    const int page = live->preview.page();
+    QTRY_VERIFY(page < widget.pageRects.size());
+    const int target = std::clamp(widget.pageRects[page].top() - 12, 0, widget.area->verticalScrollBar()->maximum());
+    QTRY_VERIFY2_WITH_TIMEOUT(std::abs(widget.area->verticalScrollBar()->value() - target) <= 2,
+        qPrintable(QString("viewport=%1 expected=%2\n%3").arg(widget.area->verticalScrollBar()->value()).arg(target).arg(diagnostic())), 5000);
+    qInfo().noquote() << diagnostic(); manager.shutdown();
 }
 QTEST_MAIN(PaginationTest)
 #include "pagination_test.moc"

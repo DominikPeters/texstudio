@@ -56,7 +56,10 @@ explicitly compiles through the end and shows the exact physical page count in
 the normal text color. This operation preserves
 the current page while compiling and is cancelled by navigation, source edits
 or pausing. A failed pass bounds navigation to its available prefix without
-claiming a final total. Only one discovery placeholder can extend the layout;
+claiming a final total. Last Page still reveals the last available page; when
+there is no earlier total, its count is gray without a trailing `+`, since no
+further page is currently available. Compiler diagnostics explain that boundary.
+Only one discovery placeholder can extend the layout;
 genuine blank pages remain pages and are never used to infer EOF.
 
 The standalone Qt `texpresso-pagination` test compares live counts with separate
@@ -68,6 +71,16 @@ obsolete frames and end-search cancellation. Run it after building the client:
 TEXPRESSO_TEST_ENGINE=/absolute/path/to/bundled/bin/texpresso \
   ctest --test-dir build-texpresso -R '^texpresso-pagination$' --output-on-failure
 ```
+
+To reproduce Last Page behavior on a local paper without changing its files,
+set `TEXPRESSO_TEST_PAPER=/absolute/path/paper.tex` and optionally
+`TEXPRESSO_TEST_PAPER_PAGES=15` and `TEXPRESSO_TEST_PAPER_ARTIFACTS=/tmp/pagination`.
+Run `build-texpresso/texpresso-pagination-tests providedPaperLastPage` with the
+same engine environment. This opt-in case copies the source, auxiliary files
+and bibliography resources to a temporary project, clicks the viewer action,
+and checks both the selected page and the actual scroll position. Logs are
+written to the artifacts directory when requested. It supports papers with
+local `addbibresource` files; other external assets must be copied separately.
 
 The Linux builder currently follows the extension's Ubuntu build approach with
 system MuPDF/ICU development libraries, recording the runtime library hashes and

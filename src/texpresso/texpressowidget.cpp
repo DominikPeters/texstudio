@@ -448,9 +448,9 @@ void TexpressoWidget::refresh()
         pages.validator->setTop(std::max(1, discover ? std::max(preview.page() + 1, preview.navigablePages()) : preview.pageCount()));
         pages.number->setEnabled(!noPages);
         if (!pages.number->hasFocus() || switched || noPages) pages.number->setText(noPages ? QString() : QString::number(preview.page() + 1));
-        pages.count->setForegroundRole(estimate ? QPalette::PlaceholderText : QPalette::WindowText);
-        pages.count->setText(estimate ? QString::number(*estimate) : preview.complete() ? QString::number(preview.pageCount())
-            : preview.pageCount() || preview.paginationStopped() ? tr("%1+").arg(preview.pageCount()) : QString::fromUtf8("…"));
+        pages.count->setForegroundRole(estimate || preview.paginationStopped() ? QPalette::PlaceholderText : QPalette::WindowText);
+        pages.count->setText(estimate ? QString::number(*estimate) : preview.complete() || preview.paginationStopped() ? QString::number(preview.pageCount())
+            : preview.pageCount() ? tr("%1+").arg(preview.pageCount()) : QString::fromUtf8("…"));
         pages.count->setToolTip(preview.complete() ? tr("Total pages in the completed document.")
             : estimate ? (preview.paginationStopped()
                 ? tr("Previous total: %1 pages. Compilation stopped after %2 pages; check Output.").arg(*estimate).arg(preview.pageCount())

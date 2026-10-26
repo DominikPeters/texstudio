@@ -97,6 +97,7 @@ private:
     void retryFullFrame();
     void trimPageDemand();
     void cancelEndSearch();
+    void finishEndNavigation();
     QImage pixels;
     QRectF pageBounds;
     QJsonObject pageAnnotations;
@@ -107,6 +108,7 @@ private:
     int currentPage = 0, displayedPage = -1, count = 0, pixelWidth = 1200;
     bool active = false, finished = false, dirty = true, fresh = false, decoding = false;
     bool findingEnd = false, endUnavailable = false, endSelected = false;
+    bool endRevealPending = false;
     std::optional<int> previousTotal;
     QTimer endTimer;
     struct SourceTarget { qint64 revision, sequence; int page; QPointF point; };

@@ -64,7 +64,7 @@ TexpressoPreview::TexpressoPreview(QObject *parent) : QObject(parent)
 bool TexpressoPreview::busy() const
 {
     if (!active) return false;
-    if (findingEnd || sourceTarget || destination || gestureActive || (inFlight && (!renderingBackground || visiblePages.contains(flightPage))) || dirty || pendingRegion || pendingInverse || waitingForward) return true;
+    if (findingEnd || endRevealPending || sourceTarget || destination || gestureActive || (inFlight && (!renderingBackground || visiblePages.contains(flightPage))) || dirty || pendingRegion || pendingInverse || waitingForward) return true;
     for (int page : visiblePages) if (!pageValid(page) && !prefetched.contains(page)) return true;
     return false;
 }
@@ -169,7 +169,8 @@ void TexpressoPreview::setViewportPages(const QList<int> &visible, bool gesture)
     visiblePages = next;
     // Layout refreshes can still describe the old viewport while a link is
     // resolving. Only a user gesture may replace that explicit navigation.
-    if (!next.isEmpty() && currentPage != next.first() && !destination && !followingSource() && (gesture || !next.contains(currentPage))) {
+    if (!next.isEmpty() && currentPage != next.first() && !destination && !followingSource()
+        && !findingEnd && !endRevealPending && (gesture || !next.contains(currentPage))) {
         const auto position = scroll; setPage(next.first()); scroll = position;
     }
     // A scrollbar produces many updates while the same neighbor remains on
@@ -282,7 +283,7 @@ void TexpressoPreview::message(const QJsonArray &m)
         if (finished && !forwardTimer.isActive() && !sourceRequest) nativeForwardPending = false;
         if (destination) destinationTimer.start();
         if (finished && count && currentPage >= count) setPage(count - 1);
-        if (goToEnd && count) setPage(count - 1);
+        if (goToEnd && count) { endRevealPending = true; setPage(count - 1); }
         // No render request is sent for a terminal zero-page document. Report
         // that terminal state here; waiting for preview-error would leave the
         // UI updating forever because the engine only emits it for a request.
@@ -318,11 +319,14 @@ void TexpressoPreview::message(const QJsonArray &m)
         request();
     } else if (verb == "preview-error" && m.size() == 3 && m[1].toDouble() == inFlight) {
         const bool unavailablePage = flightPage >= count && !renderingRegion;
+        const bool goToAvailableEnd = unavailablePage && endSelected;
         inFlight = 0;
         if (unavailablePage) {
-            findingEnd = endSelected = false; endTimer.stop(); endUnavailable = !finished;
+            findingEnd = false; endTimer.stop(); endUnavailable = !finished;
             trimPageDemand();
-            if (count && currentPage >= count) setPage(count - 1);
+            if (count && (currentPage >= count || goToAvailableEnd)) {
+                endRevealPending = goToAvailableEnd; setPage(count - 1);
+            }
             if (!count) dirty = false;
             emit updated();
         }
@@ -370,7 +374,7 @@ void TexpressoPreview::request()
     if ((!active && !pendingInverse) || inFlight || engineRevision < 0 || (!canDiscoverPages() && !count)) { emit activityChanged(); return; }
     if (destination && destination->page < 0) { emit activityChanged(); return; }
     if (dirty && !pendingInverse) restorePage();
-    finishDestination(); finishForward();
+    finishDestination(); finishForward(); finishEndNavigation();
     renderingBackground = false; flightPage = currentPage; flightWidth = pixelWidth;
     if (findingEnd && !finished) {
         // A background request beyond the supported page range drives the
@@ -463,7 +467,7 @@ void TexpressoPreview::decode(Frame frame)
                 rasterId = supportsPatches ? qint64(header["rasterId"].toDouble()) : 0;
                 rasterPage = currentPage; rasterBounds = pageBounds; rasterSize = pixels.size();
                 needsNativePage = false; fresh = true; cachePage();
-                finishInverse(); emit updated(); finishDestination(); finishForward();
+                finishInverse(); emit updated(); finishDestination(); finishForward(); finishEndNavigation();
             }
         }
         if (pending) {
@@ -626,7 +630,7 @@ void TexpressoPreview::navigateTo(int page)
 }
 void TexpressoPreview::cancelEndSearch()
 {
-    endSelected = false;
+    endSelected = endRevealPending = false;
     if (!findingEnd) return;
     findingEnd = false; endTimer.stop(); interruptBackground();
     emit updated();
@@ -634,11 +638,22 @@ void TexpressoPreview::cancelEndSearch()
 void TexpressoPreview::lastPage()
 {
     if (findingEnd) return;
-    if (!canDiscoverPages()) { navigateTo(std::max(0, count - 1)); endSelected = finished; return; }
+    if (!canDiscoverPages()) {
+        navigateTo(std::max(0, count - 1)); endSelected = finished;
+        endRevealPending = count > 0; finishEndNavigation(); return;
+    }
     if (!active) return;
     cancelDestination(); cancelForward(currentPage); cancelRegion(); interruptBackground();
     pendingInverse.reset(); findingEnd = endSelected = true; endTimer.start();
     emit manualNavigated(); emit updated(); request();
+}
+void TexpressoPreview::finishEndNavigation()
+{
+    if (!endRevealPending || !fresh || !count || currentPage != count - 1) return;
+    endRevealPending = false;
+    // A page becoming selected is not a scroll request. Reveal its start only
+    // once its own frame/geometry is available, including cached/failed passes.
+    emit reveal(pageBounds.topLeft());
 }
 void TexpressoPreview::trimPageDemand()
 {
