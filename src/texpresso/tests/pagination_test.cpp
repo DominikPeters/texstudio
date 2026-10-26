@@ -29,6 +29,7 @@ private slots:
     void realPageCounts();
     void realShrinkGrowAndFailure();
     void realAutomaticRerunsKeepExactCount();
+    void realRecoverableErrorStillShowsLastPage();
     void providedPaperLastPage();
 };
 static QJsonArray last(const QSignalSpy &commands) { return commands.last()[0].toJsonArray(); }
@@ -425,6 +426,36 @@ void PaginationTest::providedPaperLastPage()
     QTRY_VERIFY2_WITH_TIMEOUT(std::abs(widget.area->verticalScrollBar()->value() - target) <= 2,
         qPrintable(QString("viewport=%1 expected=%2\n%3").arg(widget.area->verticalScrollBar()->value()).arg(target).arg(diagnostic())), 5000);
     qInfo().noquote() << diagnostic(); manager.shutdown();
+}
+void PaginationTest::realRecoverableErrorStillShowsLastPage()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for failed-pass navigation integration");
+    QTemporaryDir dir; const auto root = dir.filePath("main.tex");
+    QVERIFY(write(root, QByteArray(document(3)).replace("Page 1.", "\\undefinedEndNavigationCommand Page 1.")));
+    TexpressoManager manager(nullptr, engine); PDFDocumentConfig config{};
+    TexpressoWidget widget(&manager, &config, [](const QString &) { return QIcon(); });
+    widget.resize(640, 700); widget.show(); manager.activate(root);
+    const auto live = manager.current(); live->followCursor = false;
+    QTRY_VERIFY_WITH_TIMEOUT(live->preview.valid(), 15000);
+    widget.refresh(); widget.viewerActions()["last"]->trigger();
+    QTRY_VERIFY_WITH_TIMEOUT(live->preview.valid() && live->preview.page() == 2 && live->preview.paginationStopped(), 20000);
+    QCOMPARE(live->preview.pageCount(), 3); QVERIFY(!live->preview.complete());
+    QTRY_COMPARE(widget.pages.count->text(), QString("3"));
+    QCOMPARE(widget.pages.count->foregroundRole(), QPalette::PlaceholderText);
+    const auto atEnd = [&] {
+        if (widget.pageRects.size() != 3) return false;
+        const int top = widget.pageRects.last().top();
+        const int y = widget.area->verticalScrollBar()->value();
+        return y >= top - 12 && y <= top;
+    };
+    QTRY_VERIFY(atEnd()); QVERIFY(!widget.viewerActions()["next"]->isEnabled());
+    // The already-known failed boundary must also work on a cached return.
+    widget.viewerActions()["firstPage"]->trigger(); QTRY_COMPARE(live->preview.page(), 0);
+    QTRY_VERIFY(live->preview.valid()); QTRY_VERIFY(widget.viewerActions()["last"]->isEnabled());
+    widget.viewerActions()["last"]->trigger();
+    QTRY_VERIFY(live->preview.valid() && live->preview.page() == 2 && atEnd());
+    manager.shutdown();
 }
 QTEST_MAIN(PaginationTest)
 #include "pagination_test.moc"
