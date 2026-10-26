@@ -15,7 +15,7 @@ from deploy_macos import verify_dependencies
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-dir', type=Path, default=ROOT / 'build', help='Already configured CMake build')
-    parser.add_argument('--output', type=Path, default=Path.home() / 'Applications/TeXstudio TeXpresso Test.app')
+    parser.add_argument('--output', type=Path, default=Path.home() / 'Applications/TeXstudio TeXpresso Unified Preview.app')
     parser.add_argument('--macdeployqt', default=shutil.which('macdeployqt'))
     parser.add_argument('--library-path', type=Path, action='append', default=[])
     parser.add_argument('--poppler-data', type=Path, required=True, help='Poppler encoding data, copied into the app')
@@ -26,7 +26,7 @@ def main():
     build = args.build_dir.expanduser().resolve()
     output = args.output.expanduser()
     if output.exists() or output.is_symlink():
-        parser.error('Output already exists; quit and move the previous app aside, or choose another --output')
+        parser.error('Output already exists; quit and archive the previous app outside Applications before rebuilding at the same path')
     output = output.resolve()
     if output.suffix != '.app' or args.jobs < 1:
         parser.error('Choose a .app output and a positive --jobs value')
@@ -36,6 +36,10 @@ def main():
         parser.error('Supply --macdeployqt or put macdeployqt on PATH')
     if not args.poppler_data.expanduser().is_dir():
         parser.error('--poppler-data must be an existing Poppler data directory')
+    icon_dir = ROOT / 'native/icons/alternatives/coffee'
+    for name in ('AppIconCoffee.icns', 'Assets.car'):
+        if not (icon_dir / name).is_file():
+            parser.error('Missing test app icon; run native/scripts/build_app_icon.py --variant coffee')
 
     run(['cmake', '--build', build, '--target', 'texpresso_bundle', '--parallel', str(args.jobs)], cwd=ROOT)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -55,11 +59,14 @@ mkdir -p "$config_dir" || exit 1
 exec "$app_dir/texstudio" --start-always --disable-tests --config "$config_dir" "$@"
 ''')
     launcher.chmod(0o755)
+    for name in ('AppIconCoffee.icns', 'Assets.car'):
+        shutil.copy2(icon_dir / name, output / 'Contents/Resources' / name)
     plist_path = output / 'Contents/Info.plist'
     with plist_path.open('rb') as stream:
         plist = plistlib.load(stream)
     plist.update(CFBundleExecutable=launcher.name, CFBundleIdentifier='org.texstudio.texpresso.local-test',
-                 CFBundleName='TeXstudio TeXpresso Test', CFBundleDisplayName='TeXstudio TeXpresso Test')
+                 CFBundleName='TeXstudio TeXpresso Test', CFBundleDisplayName='TeXstudio TeXpresso Test',
+                 CFBundleIconName='AppIconCoffee', CFBundleIconFile='AppIconCoffee')
     for document_type in plist.get('CFBundleDocumentTypes', []):
         document_type.pop('LSIsAppleDefaultForType', None)
         document_type['LSHandlerRank'] = 'Alternate'
@@ -72,6 +79,7 @@ exec "$app_dir/texstudio" --start-always --disable-tests --config "$config_dir" 
         'buildDirectory': str(build), 'buildExecutableSha256': sha256(build / 'texstudio.app/Contents/MacOS/texstudio'),
         'profileDirectory': '~/Library/Application Support/TeXstudio TeXpresso Test',
         'generator': 'native/scripts/local_test_app.py',
+        'iconName': 'AppIconCoffee',
     }, indent=2) + '\n')
     run(['codesign', '--force', '--options', '0', '--sign', '-', output / 'Contents/MacOS/texstudio'])
     run(['codesign', '--force', '--options', '0', '--sign', '-', '--entitlements',

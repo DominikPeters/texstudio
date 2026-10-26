@@ -10,8 +10,8 @@ specular effects and group shadows are disabled.
 adds the cup from `native/texpresso/doc/texpresso_logo_v3.svg` in the top right.
 The logo's background rectangle and TeX lettering are removed; the original cup
 paths and steam are retained. Its composition is stored in `Assets/Coffee.svg`.
-It overlays the equations in the original image. This alternative is not shipped
-as the default icon.
+It overlays the equations in the original image. The local test app generator
+uses this alternative; the standard CMake bundle keeps the cropped original.
 
 Open either `.icon` directory in Icon Composer to adjust its composition. Compare
 `preview.png` and `alternatives/coffee/preview.png` for Apple's macOS rendering.
@@ -40,8 +40,9 @@ app's Resources directory. `Info.plist` names `AppIcon`; macOS selects the asset
 catalog or compatibility `.icns` as appropriate. The original `texstudio.icns`
 is still bundled for document icons. Linux and Windows icons are unchanged.
 
-The coffee variant's compiled files live under `alternatives/coffee/`; they are
-for comparison and are not copied into the application by CMake. To try it in a
+The coffee variant's compiled files live under `alternatives/coffee/` and are not
+copied into the application by CMake. The local test app generator installs them
+automatically. To try it in a
 separate app bundle, copy that directory's `Assets.car` and `AppIconCoffee.icns`
 into Resources, change both `CFBundleIconName` and `CFBundleIconFile` to
 `AppIconCoffee`, then re-sign the bundle.

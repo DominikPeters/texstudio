@@ -1,7 +1,9 @@
 # Persistent macOS test app
 
 Use this for local development builds. The default application is
-`~/Applications/TeXstudio TeXpresso Test.app`. Its launcher uses separate,
+`~/Applications/TeXstudio TeXpresso Unified Preview.app`. Keep this single path
+for subsequent builds rather than creating additional feature-named apps.
+Its launcher uses separate,
 persistent settings in `~/Library/Application Support/TeXstudio TeXpresso Test`,
 allows it to run beside the normal editor, and disables Debug-build self-tests
 on ordinary launch. TeX Live remains user-installed.
@@ -9,12 +11,12 @@ on ordinary launch. TeX Live remains user-installed.
 Run from the repository root with an existing configured CMake build:
 
 ```sh
-python3 native/scripts/local_test_app.py --build-dir build \
+python3 native/scripts/local_test_app.py --build-dir build-cursor-app \
   --macdeployqt "$(brew --prefix qt)/bin/macdeployqt" \
   --library-path /tmp/texstudio-poppler/lib \
   --library-path "$(brew --prefix)/lib" \
   --poppler-data "$(brew --prefix)/share/poppler"
-open "$HOME/Applications/TeXstudio TeXpresso Test.app"
+open "$HOME/Applications/TeXstudio TeXpresso Unified Preview.app"
 ```
 
 This is the current development machine's command. Change
@@ -27,16 +29,19 @@ the app. The installed app does not depend on that temporary directory.
 The command rebuilds `texpresso_bundle`, then reuses `deploy_macos.py` to package
 Qt frameworks/plugins, PDF dependencies/data and the pinned engine. It applies
 an ad-hoc local signature, verifies the complete signature and dependencies,
-and adds the isolated launcher. It does not use Apple credentials or perform
+and adds the isolated launcher and the larger, unlettered coffee-cup icon from
+[the Icon Composer assets](icons/README.md). It does not use Apple credentials or perform
 notarization. See [signed macOS builds](MACOS_RELEASE.md) for distributed builds.
 
-It refuses to overwrite an existing output. Quit and rename the previous app
-before rebuilding, or pass `--output "$HOME/Applications/Another Test.app"` to
-keep both versions. Both names use the same test settings directory. To start
+It refuses to overwrite an existing output. Quit the test app, move the previous
+bundle outside Applications (for example, into the ignored repository directory
+`.native-sources/retired-test-apps/`), then rebuild at the same default path.
+Do not move a running app: its editor and engine may still need bundle resources.
+Keep only the current test app in Applications. To start
 with fresh settings, quit the test app and move that directory aside.
 
 The script reuses the configured CMake cache. After switching branches or when
-refreshing the About dialog's Git version, first run `cmake -S . -B build` to
+refreshing the About dialog's Git version, first run `cmake -S . -B build-cursor-app` to
 refresh the configuration and version metadata.
 
 For a new build directory, first build the engine as described in
@@ -61,7 +66,7 @@ launcher intentionally disables self-tests:
 
 ```sh
 python3 native/scripts/ui_soak.py \
-  --app "$HOME/Applications/TeXstudio TeXpresso Test.app/Contents/MacOS/texstudio" \
+  --app "$HOME/Applications/TeXstudio TeXpresso Unified Preview.app/Contents/MacOS/texstudio" \
   --output /tmp/texstudio-installed-smoke --seconds 10 --pages 30
 ```
 
