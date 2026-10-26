@@ -6,6 +6,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <optional>
+#include <algorithm>
 #include <QList>
 #include <QSet>
 #include <QTimer>
@@ -26,6 +27,10 @@ public:
     void suspendRendering();
     void setPage(int page);
     void navigateTo(int page);
+    void lastPage();
+    bool findingLastPage() const { return findingEnd; }
+    bool paginationStopped() const { return endUnavailable; }
+    bool canDiscoverPages() const { return !finished && !endUnavailable; }
     bool followingSource() const { return nativeForwardPending || sourceTarget.has_value() || sourceReveal; }
     bool revealingSource() const { return sourceReveal; }
     void setWidth(int width);
@@ -46,6 +51,12 @@ public:
     QRectF bounds() const { return pageBounds; }
     int page() const { return currentPage; }
     int pageCount() const { return count; }
+    std::optional<int> estimatedPageCount() const {
+        return !finished && previousTotal && count <= *previousTotal ? previousTotal : std::nullopt;
+    }
+    int navigablePages() const {
+        return canDiscoverPages() ? std::max(count + 1, previousTotal.value_or(0)) : count;
+    }
     bool complete() const { return finished; }
     bool valid() const { return fresh; }
     qint64 sequence() const { return sourceSequence; }
@@ -84,6 +95,8 @@ private:
     bool restorePage();
     void finishInverse();
     void retryFullFrame();
+    void trimPageDemand();
+    void cancelEndSearch();
     QImage pixels;
     QRectF pageBounds;
     QJsonObject pageAnnotations;
@@ -93,6 +106,9 @@ private:
     qint64 sourceSequence = 0, engineRevision = -1, stateRevision = -1, nextRequest = 0, inFlight = 0;
     int currentPage = 0, displayedPage = -1, count = 0, pixelWidth = 1200;
     bool active = false, finished = false, dirty = true, fresh = false, decoding = false;
+    bool findingEnd = false, endUnavailable = false, endSelected = false;
+    std::optional<int> previousTotal;
+    QTimer endTimer;
     struct SourceTarget { qint64 revision, sequence; int page; QPointF point; };
     std::optional<SourceTarget> sourceTarget;
     bool waitingForward = false, sourceFollowing = false, sourceReveal = false, nativeForwardPending = false;

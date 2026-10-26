@@ -144,7 +144,13 @@ void TexpressoCanvas::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.fillRect(rect(), Qt::white);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
-    if (pixels.isNull()) return;
+    if (pixels.isNull()) {
+        painter.setPen(Qt::darkGray);
+        painter.drawText(rect().adjusted(16, 20, -16, -20), Qt::AlignTop | Qt::AlignHCenter,
+            preview && property("texpressoPage").toInt() >= preview->pageCount()
+                ? tr("Compiling next page…") : tr("Rendering page…"));
+        return;
+    }
     if (!config->invertColors && !config->grayscale) {
         convertedPixels = {}; convertedKey = 0;
         painter.drawImage(rect(), pixels);
@@ -339,7 +345,12 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     navigate("firstPage", [](TexpressoPreview &) { return 0; });
     navigate("previous", [](TexpressoPreview &p) { return p.page() - 1; });
     navigate("next", [](TexpressoPreview &p) { return p.page() + 1; });
-    navigate("last", [](TexpressoPreview &p) { return p.pageCount() - 1; });
+    connect(actions["last"], &QAction::triggered, this, [this] {
+        if (!shown) return;
+        const bool known = !shown->preview.canDiscoverPages();
+        shown->preview.lastPage();
+        if (known) showPage(shown->preview.page());
+    });
     connect(pages.number, &QLineEdit::returnPressed, this, [this] { if (shown) { shown->preview.navigateTo(pages.number->text().toInt() - 1); showPage(shown->preview.page()); } });
     connect(actions["actualSize"], &QAction::triggered, this, [this] { setZoom(1); });
     connect(actions["fitToWidth"], &QAction::triggered, this, [this] { setZoom(0); });
@@ -430,12 +441,27 @@ void TexpressoWidget::refresh()
         actions["rerunOnce"]->setEnabled(!session->userStopped && !session->userPaused && !session->failed() && !session->externalBuildRunning());
         actions["build"]->setEnabled(!session->externalBuildRunning());
         auto &preview = session->preview;
-        pages.validator->setTop(preview.complete() ? std::max(1, preview.pageCount()) : 99999);
-        if (!pages.number->hasFocus() || switched) pages.number->setText(QString::number(preview.page() + 1));
-        pages.count->setText(preview.complete() ? QString::number(preview.pageCount()) : QString::fromUtf8("…"));
+        const bool discover = preview.canDiscoverPages();
+        const auto estimate = preview.estimatedPageCount();
+        const bool noPages = !discover && !preview.pageCount();
+        const bool canCompile = !session->userPaused && !session->userStopped && !session->failed() && !session->externalBuildRunning();
+        pages.validator->setTop(std::max(1, discover ? std::max(preview.page() + 1, preview.navigablePages()) : preview.pageCount()));
+        pages.number->setEnabled(!noPages);
+        if (!pages.number->hasFocus() || switched || noPages) pages.number->setText(noPages ? QString() : QString::number(preview.page() + 1));
+        pages.count->setForegroundRole(estimate ? QPalette::PlaceholderText : QPalette::WindowText);
+        pages.count->setText(estimate ? QString::number(*estimate) : preview.complete() ? QString::number(preview.pageCount())
+            : preview.pageCount() || preview.paginationStopped() ? tr("%1+").arg(preview.pageCount()) : QString::fromUtf8("…"));
+        pages.count->setToolTip(preview.complete() ? tr("Total pages in the completed document.")
+            : estimate ? (preview.paginationStopped()
+                ? tr("Previous total: %1 pages. Compilation stopped after %2 pages; check Output.").arg(*estimate).arg(preview.pageCount())
+                : tr("Previous total: %1 pages. Rechecking after edits; %2 pages are currently available.").arg(*estimate).arg(preview.pageCount()))
+            : preview.paginationStopped() ? tr("Compilation stopped after %1 pages. The total is unknown; check Output.").arg(preview.pageCount())
+            : tr("%1 pages available so far. Last Page calculates the total and goes to the end.").arg(preview.pageCount()));
         for (const auto &id : {"firstPage", "previous"}) actions[id]->setEnabled(preview.page() > 0);
-        actions["next"]->setEnabled(!preview.complete() || preview.page() + 1 < preview.pageCount());
-        actions["last"]->setEnabled(preview.complete() && preview.pageCount() > 0 && preview.page() + 1 < preview.pageCount());
+        actions["next"]->setEnabled((discover && canCompile) || preview.page() + 1 < preview.pageCount());
+        actions["last"]->setEnabled(!preview.findingLastPage() && (discover ? canCompile : (preview.pageCount() > 0 && preview.page() + 1 < preview.pageCount())));
+        actions["last"]->setToolTip(preview.findingLastPage() ? tr("Finding last page. Navigate or pause to cancel.")
+            : discover ? tr("Compile through the end to find the last page and total page count.") : tr("Go to the last page."));
         const bool running = !session->userStopped && !session->failed();
         actions["pause"]->setVisible(running); actions["stop"]->setVisible(running); actions["restart"]->setVisible(!running);
 #ifdef Q_OS_MACOS
@@ -447,7 +473,9 @@ void TexpressoWidget::refresh()
         if (session->failed()) setStatus(session->status, StatusError);
         else if (session->userStopped || session->userPaused || session->externalBuildRunning()) setStatus(session->status);
         else if (!session->compilerError.isEmpty()) setStatus(tr("TeX error: %1").arg(session->compilerError.section('\n', 0, 0)), StatusError, details);
+        else if (preview.complete() && !preview.pageCount()) setStatus(tr("No pages to preview."));
         else if (!session->previewError.isEmpty()) setStatus(session->previewError, StatusError, details);
+        else if (preview.findingLastPage()) setStatus(tr("Finding last page…"), StatusPlain, session->root());
         else if (!session->compilerWarning.isEmpty()) setStatus(session->compilerWarning, StatusWarning, details);
         else setStatus(preview.valid() ? liveHint : tr("Updating preview…"), StatusPlain, session->root());
         updateCanvas(canvas, preview.page());
@@ -625,13 +653,20 @@ void TexpressoWidget::layoutPage()
     if (!previewEnabled) return;
     if (!shown || canvas->pageBounds.isEmpty()) { canvas->hide(); return; }
     auto &preview = shown->preview;
+    if (!preview.canDiscoverPages() && !preview.pageCount()) {
+        pageRects.clear(); extentPages = 0; canvas->hide();
+        for (auto page : extraCanvases) page->hide();
+        documentCanvas->resize(1, 1); return;
+    }
     if (preview.pageValid(preview.page())) knownBounds.insert(preview.page(), canvas->pageBounds);
     const auto bounds = canvas->pageBounds;
     const double widthScale = std::max(0.05, (area->viewport()->width() - 16.0) / bounds.width());
     canvas->scale = preview.zoom == 0 ? widthScale : preview.zoom < 0
         ? std::min(widthScale, std::max(0.05, (area->viewport()->height() - 16.0) / bounds.height())) : preview.zoom * 96.0 / 72;
-    const int count = continuous ? std::clamp(std::max(preview.page() + 1, preview.pageCount() + (preview.complete() ? 0 : 1)), 1, 10000) : 1;
-    extentPages = preview.complete() ? count : std::max(extentPages, count);
+    // Only produced pages and one discovery placeholder can grow the layout.
+    // An arbitrary requested page must never create thousands of white sheets.
+    const int count = continuous ? std::clamp(preview.pageCount() + (preview.canDiscoverPages() ? 1 : 0), 1, 10000) : 1;
+    extentPages = preview.canDiscoverPages() ? std::max(extentPages, count) : count;
     if (!continuous) extentPages = 1;
     // Geometry metadata is cheap; only intersecting pages own canvases/pixels.
     // Preserve the top-page fraction as page dimensions become known.

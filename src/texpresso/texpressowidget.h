@@ -87,6 +87,7 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 private:
     friend class SourceViewportTest;
+    friend class PaginationTest;
     void layoutPage();
     void updateViewport(bool gesture = false);
     void connectCanvas(TexpressoCanvas *pageCanvas);

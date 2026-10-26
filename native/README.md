@@ -48,6 +48,27 @@ preview, see [the full-editor soak instructions](../docs/texpresso-ui-soak.md).
 The runner supports 30/100-page projects, independent PDF/SyncTeX checks and
 process/resource traces; normal application tests skip that workload.
 
+Live preview discovers pages on demand. After edits, the previous completed
+total remains visible in gray as the best estimate, with an explanatory tooltip.
+If no previous total exists (or the new document has already exceeded it), `N+`
+shows how many pages are available while the end is unknown. **Last Page**
+explicitly compiles through the end and shows the exact physical page count in
+the normal text color. This operation preserves
+the current page while compiling and is cancelled by navigation, source edits
+or pausing. A failed pass bounds navigation to its available prefix without
+claiming a final total. Only one discovery placeholder can extend the layout;
+genuine blank pages remain pages and are never used to infer EOF.
+
+The standalone Qt `texpresso-pagination` test compares live counts with separate
+XeLaTeX/PDF `pdfinfo` counts, including empty documents, blank final/intermediate
+pages and two-column layouts. It also covers shrink/grow edits, failure/repair,
+obsolete frames and end-search cancellation. Run it after building the client:
+
+```sh
+TEXPRESSO_TEST_ENGINE=/absolute/path/to/bundled/bin/texpresso \
+  ctest --test-dir build-texpresso -R '^texpresso-pagination$' --output-on-failure
+```
+
 The Linux builder currently follows the extension's Ubuntu build approach with
 system MuPDF/ICU development libraries, recording the runtime library hashes and
 glibc baseline. The compact pinned MuPDF/ICU profiles apply to the macOS builder.

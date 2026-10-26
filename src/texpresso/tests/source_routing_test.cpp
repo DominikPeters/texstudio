@@ -259,7 +259,9 @@ void SourceRoutingTest::navigationBounds()
     };
     preview.forward("main.tex", 10); preview.navigateTo(-1);
     QCOMPARE(preview.page(), 0); QVERIFY(hasCancel(0));
-    const int last = complete ? 7 : 100000;
+    // An unknown total permits one discovery page, rather than materializing
+    // an arbitrary distant page. Last Page explicitly requests EOF instead.
+    const int last = complete ? 7 : 8;
     preview.forward("main.tex", 10); preview.navigateTo(100001);
     QCOMPARE(preview.page(), last); QVERIFY(hasCancel(last));
     preview.forward("main.tex", 10);
