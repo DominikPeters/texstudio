@@ -6,6 +6,7 @@
 #include <QTemporaryDir>
 #include <QUrl>
 #include <QScopeGuard>
+#include <algorithm>
 #include <cmath>
 
 class LinksUiTest : public QObject
@@ -269,6 +270,18 @@ void LinksUiTest::realContinuousSecondaryPage()
         ((internalCenter - secondary->pageBounds.topLeft()) * secondary->scale).toPoint());
     QCOMPARE(internalClicks.size(), 1);
     QTRY_VERIFY_WITH_TIMEOUT(session->preview.page() == 0 && session->preview.valid() && geometryReadyAtReveal, 15000);
+    const auto destinations = session->preview.annotationsForPage(0).value("destinations").toArray();
+    const auto destination = std::find_if(destinations.begin(), destinations.end(), [](const QJsonValue &item) {
+        return item.toObject().value("name").toString() == "first";
+    });
+    QVERIFY(destination != destinations.end());
+    const auto anchor = destination->toObject();
+    auto area = widget.findChild<QScrollArea *>(); QVERIFY(area);
+    const QPoint localAnchor = ((QPointF(anchor["x"].toDouble(), anchor["y"].toDouble())
+        - activeCanvas->pageBounds.topLeft()) * activeCanvas->scale).toPoint();
+    const int documentY = activeCanvas->pos().y() + localAnchor.y();
+    const int expectedScroll = std::clamp(documentY - 12, area->verticalScrollBar()->minimum(), area->verticalScrollBar()->maximum());
+    QCOMPARE(area->verticalScrollBar()->value(), expectedScroll);
     QCOMPARE(openedUrls.size(), 1);
     manager.shutdown();
 }

@@ -593,9 +593,10 @@ void TexpressoWidget::revealPoint(const QPointF &point, bool source)
         revealAxis(area->horizontalScrollBar(), target.x(), area->viewport()->width());
         revealAxis(area->verticalScrollBar(), target.y(), area->viewport()->height());
     } else {
-        // An explicit hyperlink keeps the ordinary destination navigation.
-        if (preview.page() < pageRects.size()) area->verticalScrollBar()->setValue(pageRects[preview.page()].top());
-        area->ensureVisible(qRound(target.x()), qRound(target.y()), 40, 60);
+        // Navigate to the anchor itself, even when it was already visible.
+        // As in the extension, leave a small inset above/left of the target.
+        area->horizontalScrollBar()->setValue(qRound(target.x()) - 12);
+        area->verticalScrollBar()->setValue(qRound(target.y()) - 12);
     }
     preview.scroll = {area->horizontalScrollBar()->value(), area->verticalScrollBar()->value()};
     canvas->update(); updating = before;

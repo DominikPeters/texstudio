@@ -17,6 +17,8 @@ private slots:
     void secondVisiblePageDoesNotJumpToItsTop();
     void currentFrameGeometryAndStaleTargets();
     void explicitLinkKeepsDestinationNavigation();
+    void explicitLinkPositionsAnchor_data();
+    void explicitLinkPositionsAnchor();
     void scrollingHandoffRetainsVisiblePixels();
 private:
     void frame(int page = 0, QRectF bounds = QRectF(0, 0, 2000, 1200));
@@ -144,6 +146,36 @@ void SourceViewportTest::explicitLinkKeepsDestinationNavigation()
     QVERIFY(scroll().y() != before.y());
     const auto target = widget->canvas->mapTo(widget->area->viewport(), QPoint(400, 450));
     QVERIFY(widget->area->viewport()->rect().contains(target));
+}
+void SourceViewportTest::explicitLinkPositionsAnchor_data()
+{
+    QTest::addColumn<bool>("continuous");
+    QTest::addColumn<qreal>("zoom");
+    QTest::addColumn<QPointF>("anchor");
+    for (bool continuous : {false, true}) {
+        const auto mode = continuous ? "continuous" : "single";
+        QTest::newRow(qPrintable(QString("%1-visible").arg(mode))) << continuous << qreal(.75) << QPointF(400, 250);
+        QTest::newRow(qPrintable(QString("%1-below-fold-zoomed").arg(mode))) << continuous << qreal(1.25) << QPointF(500, 1000);
+        QTest::newRow(qPrintable(QString("%1-page-origin").arg(mode))) << continuous << qreal(.75) << QPointF(20, 30);
+        QTest::newRow(qPrintable(QString("%1-page-bottom").arg(mode))) << continuous << qreal(.75) << QPointF(1820, 1530);
+    }
+}
+void SourceViewportTest::explicitLinkPositionsAnchor()
+{
+    QFETCH(bool, continuous); QFETCH(qreal, zoom); QFETCH(QPointF, anchor);
+    widget->continuous = continuous; session->preview.zoom = zoom;
+    frame(1, {20, 30, 1800, 1500});
+    setScroll({150, widget->pageRects[1].top()});
+    const QPointF documentPoint = QPointF(widget->canvas->pos())
+        + (anchor - widget->canvas->pageBounds.topLeft()) * widget->canvas->scale;
+    widget->revealPoint(anchor, false);
+    const QPoint expected(
+        std::clamp(qRound(documentPoint.x()) - 12, 0, widget->area->horizontalScrollBar()->maximum()),
+        std::clamp(qRound(documentPoint.y()) - 12, 0, widget->area->verticalScrollBar()->maximum()));
+    QCOMPARE(scroll(), expected);
+    // Repeated/cached same-page links restore the same exact position.
+    setScroll({0, 0}); widget->revealPoint(anchor, false); QCOMPARE(scroll(), expected);
+    QCOMPARE(session->preview.scroll, expected);
 }
 void SourceViewportTest::scrollingHandoffRetainsVisiblePixels()
 {
