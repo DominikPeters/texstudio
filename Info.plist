@@ -30,7 +30,9 @@
 		</dict>
 	</array>
 	<key>CFBundleIconFile</key>
-	<string>texstudio.icns</string>
+	<string>AppIcon</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>NSPrincipalClass</key>
