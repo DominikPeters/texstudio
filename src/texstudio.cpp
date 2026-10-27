@@ -12865,6 +12865,9 @@ void Texstudio::changePDFIconSize(int value){
 
     int iconWidth=qRound(value*scale);
 
+#ifdef TEXSTUDIO_TEXPRESSO
+    if (texpressoWidget) texpressoWidget->configureAppearance(configManager.getOption("GUI/Style").toInt() != 0, iconWidth);
+#endif
 #ifndef NO_POPPLER_PREVIEW
         foreach (PDFDocument *pdfviewer, PDFDocument::documentList()) {
                 if (pdfviewer->embeddedMode) pdfviewer->setToolbarIconSize(iconWidth);

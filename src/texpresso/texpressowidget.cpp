@@ -398,6 +398,8 @@ void TexpressoWidget::setPreviewVisible(bool visible)
 void TexpressoWidget::configureAppearance(bool modern, int iconSize)
 {
     toolbar->setIconSize(QSize(iconSize, iconSize));
+    for (auto button : statusBar->findChildren<QAbstractButton *>(QString(), Qt::FindDirectChildrenOnly))
+        button->setIconSize(QSize(iconSize, iconSize));
     pages.number->setStyleSheet(modern ? "QLineEdit{ color: white; padding-top: -1px; margin-right: 2px; }"
                                       : "QLineEdit{ padding-top: -1px; margin-right: 2px; }");
 }

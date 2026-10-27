@@ -84,7 +84,7 @@ void Texstudio::setupTexpresso()
         it.value()->setObjectName("pdf/" + menu + '/' + it.key());
     }
     configManager.modifyManagedShortcuts("pdf");
-    const int iconSize = qRound(qMax(16, configManager.guiSecondaryToolbarIconSize) * QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96);
+    const int iconSize = qRound(configManager.guiPDFToolbarIconSize * QGuiApplication::primaryScreen()->logicalDotsPerInch() / 96);
     texpressoWidget->configureAppearance(configManager.getOption("GUI/Style").toInt() != 0, iconSize);
     connect(texpressoWidget, &TexpressoWidget::followCursorChanged, this, [this](bool enabled) {
         configManager.pdfDocumentConfig->followFromCursor = enabled;
