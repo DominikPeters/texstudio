@@ -106,6 +106,7 @@ PageControls insertPageControls(QToolBar *toolbar, QAction *before, bool modernS
     controls.number->setStyleSheet(modernStyle ? "QLineEdit{ color: white; padding-top: -1px; margin-right: 2px; }"
                                                : "QLineEdit{ padding-top: -1px; margin-right: 2px; }");
     controls.separator = new QLabel(QCoreApplication::translate("PDFDocument", "of", "separator for page number: 1 of 3"), toolbar);
+    controls.separator->setContentsMargins(4, 0, 4, 0);
     controls.count = new QLabel("1", toolbar);
     for (auto label : {controls.separator, controls.count}) label->setAlignment(Qt::AlignCenter);
     for (QWidget *widget : QList<QWidget *>{controls.number, controls.separator, controls.count}) toolbar->insertWidget(before, widget);
