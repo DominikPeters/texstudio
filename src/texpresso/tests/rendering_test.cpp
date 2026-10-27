@@ -5,6 +5,7 @@
 #include <QBuffer>
 #include <QTemporaryDir>
 #include <QFile>
+#include <QScopeGuard>
 
 class RenderingTest : public QObject
 {
@@ -16,6 +17,7 @@ private slots:
     void asynchronousMagnifier();
     void externalBuildDisablesInteractions();
     void realEngine();
+    void cachedInverseUsesPublishedSourceMap();
 };
 static QByteArray png(const QImage &image)
 {
@@ -155,6 +157,42 @@ void RenderingTest::externalBuildDisablesInteractions()
     manager.endExternalBuild(root, false);
     QTRY_VERIFY(canvas->fresh); QVERIFY(!lens->isVisible());
 }
+void RenderingTest::cachedInverseUsesPublishedSourceMap()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE");
+    const auto oldProfile = qgetenv("TEXPRESSO_PROFILE"); qputenv("TEXPRESSO_PROFILE", "1");
+    const auto restore = qScopeGuard([&] { if (oldProfile.isNull()) qunsetenv("TEXPRESSO_PROFILE"); else qputenv("TEXPRESSO_PROFILE", oldProfile); });
+    QTemporaryDir dir; const auto root = dir.filePath("main.tex");
+    QFile file(root); QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("\\documentclass{article}\n\\pagestyle{empty}\n\\begin{document}\nFirst source line.\n\\newpage\nSecond source line.\n\\newpage\nThird source line.\n\\end{document}\n"); file.close();
+    TexpressoProcess process; TexpressoPreview preview; QString diagnostics;
+    QSignalSpy images(&process, &TexpressoProcess::image), messages(&process, &TexpressoProcess::message), commands(&preview, &TexpressoPreview::command);
+    connect(&process, &TexpressoProcess::diagnostic, &preview, [&](const QString &text) { diagnostics += text; });
+    connect(&process, &TexpressoProcess::ready, &preview, [&](QJsonObject capabilities) {
+        capabilities["backgroundRendering"] = false; preview.setCapabilities(capabilities);
+        process.send({"rerun", false}); preview.setActive(true);
+    });
+    connect(&process, &TexpressoProcess::message, &preview, &TexpressoPreview::message);
+    connect(&process, &TexpressoProcess::image, &preview, &TexpressoPreview::receive);
+    connect(&preview, &TexpressoPreview::command, &process, &TexpressoProcess::send);
+    process.start(engine, root); QTRY_VERIFY2_WITH_TIMEOUT(preview.valid(), qPrintable(diagnostics), 20000);
+    const auto text = images.last()[0].toJsonObject()["textBounds"].toArray(); QCOMPARE(text.size(), 4);
+    const QPointF point((text[0].toDouble() + text[2].toDouble()) / 2, (text[1].toDouble() + text[3].toDouble()) / 2);
+    preview.setPage(1); QTRY_VERIFY_WITH_TIMEOUT(preview.valid() && preview.page() == 1, 10000);
+    preview.setPage(0); QVERIFY(preview.valid());
+    commands.clear(); messages.clear(); images.clear(); diagnostics.clear();
+    QElapsedTimer timer; timer.start(); preview.inverse(point);
+    const auto hasSource = [&] { for (const auto &row : messages) if (row[0].toJsonArray()[0] == "synctex") return true; return false; };
+    QTRY_VERIFY2_WITH_TIMEOUT(hasSource(), qPrintable(diagnostics), 3000);
+    qInfo() << "Cached inverse search returned in" << timer.elapsed() << "ms";
+    QCOMPARE(commands.size(), 1); QCOMPARE(lastCommand(commands)[0].toString(), QString("preview-inverse"));
+    QVERIFY(images.isEmpty());
+    QVERIFY2(!diagnostics.contains("dvi-display-list"), qPrintable(diagnostics));
+    QVERIFY2(!diagnostics.contains("compiler-restore"), qPrintable(diagnostics));
+    for (const auto &row : messages) if (row[0].toJsonArray()[0] == "synctex")
+        QCOMPARE(row[0].toJsonArray()[2].toInt(), 4);
+}
 void RenderingTest::realEngine()
 {
     const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
@@ -178,16 +216,21 @@ void RenderingTest::realEngine()
     connect(&preview, &TexpressoPreview::command, &process, &TexpressoProcess::send);
     process.start(engine, root);
     QTRY_VERIFY_WITH_TIMEOUT(preview.valid() || !errors.isEmpty(), 20000); QVERIFY(errors.isEmpty());
+    const auto textBounds = images.last()[0].toJsonObject()["textBounds"].toArray();
+    QCOMPARE(textBounds.size(), 4);
+    QVERIFY(!preview.horizontalTextRange().isEmpty());
     const auto fullBytes = images.last()[1].toByteArray().size();
     source.replace("123456789", "123456780");
     process.send({"open", root, source}); preview.sourceChanged(1); process.send({"preview-barrier", 1});
     QTRY_VERIFY2_WITH_TIMEOUT(preview.valid(), qPrintable(diagnostics), 10000);
     auto h = images.last()[0].toJsonObject(); QVERIFY(h.contains("patch"));
+    QCOMPARE(h["textBounds"].toArray().size(), 4);
     const auto patchBytes = images.last()[1].toByteArray().size(); QVERIFY(patchBytes < fullBytes);
     process.send({"open", root, source + "\n"}); preview.sourceChanged(2); process.send({"preview-barrier", 2});
     QTRY_VERIFY_WITH_TIMEOUT(preview.valid(), 10000);
     h = images.last()[0].toJsonObject(); QVERIFY(h.contains("patch"));
     QCOMPARE(images.last()[1].toByteArray().size(), 0);
+    QCOMPARE(h["textBounds"].toArray().size(), 4); // Metadata survives zero-byte updates.
     const auto page = preview.image();
     // Locate ink and request the same physical area at substantially higher
     // resolution. The decoded detail contains genuinely new samples.

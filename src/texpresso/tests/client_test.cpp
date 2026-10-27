@@ -59,6 +59,11 @@ void ClientTest::invalidDimensions()
     QVERIFY(!TexpressoProtocol::validImage(h));
     h = header(100); h["width"] = -1; QVERIFY(!TexpressoProtocol::validImage(h));
     h = header(0); QVERIFY(!TexpressoProtocol::validImage(h));
+    h = header(100); h["textBounds"] = QJsonArray{50, 20, 560, 700};
+    QVERIFY(TexpressoProtocol::validImage(h));
+    for (const auto &text : {QJsonArray{50, 20, 50, 700}, QJsonArray{1, 2, 3}, QJsonArray{"x", 0, 5, 6}}) {
+        h["textBounds"] = text; QVERIFY(!TexpressoProtocol::validImage(h));
+    }
 }
 void ClientTest::emptyPatchFrame()
 {
@@ -102,16 +107,13 @@ void ClientTest::pageCache()
     imageFrame(preview, commands.last()[0].toJsonArray(), blue); QTRY_VERIFY(preview.valid());
     const int count = commands.size(); preview.setPage(0);
     QVERIFY(preview.valid()); QCOMPARE(preview.image(), red); QCOMPARE(commands.size(), count);
-    // Cached pixels cannot be used with the engine's other-page display list.
+    // Published SyncTeX maps do not require another PNG for a cached page.
     preview.inverse({20, 30}); QCOMPARE(commands.size(), count + 1);
-    auto request = commands.last()[0].toJsonArray(); QCOMPARE(request[0].toString(), QString("preview-render"));
-    imageFrame(preview, request, red);
-    QTRY_COMPARE(commands.last()[0].toJsonArray()[0].toString(), QString("preview-inverse"));
+    QCOMPARE(commands.last()[0].toJsonArray()[0].toString(), QString("preview-inverse"));
     QCOMPARE(commands.last()[0].toJsonArray()[3].toInt(), 0);
-    // An inverse click abandoned by another page change must never be sent.
-    preview.setPage(1); preview.inverse({40, 50}); request = commands.last()[0].toJsonArray();
-    preview.setPage(0); const int before = commands.size(); imageFrame(preview, request, blue);
-    QTest::qWait(30); QCOMPARE(commands.size(), before);
+    preview.setPage(1); preview.inverse({40, 50});
+    QCOMPARE(commands.last()[0].toJsonArray()[3].toInt(), 1);
+    preview.setPage(0);
     preview.sourceChanged(4); QVERIFY(!preview.valid()); preview.message({"preview-state", 3, 4, 2, true, 0});
     QCOMPARE(commands.last()[0].toJsonArray()[0].toString(), QString("preview-render"));
     QVERIFY(!preview.valid()); // no reuse across source revisions

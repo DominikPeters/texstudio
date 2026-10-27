@@ -102,6 +102,27 @@ bool TexpressoPreview::pageValid(int page) const
     for (const auto &cached : pages) if (cached.page == page && cached.width == pixelWidth) return true;
     return false;
 }
+QRectF TexpressoPreview::horizontalTextRange() const
+{
+    if (textRangeDirty) {
+        textRange = {};
+        for (const auto &range : textRanges) textRange = textRange.united(range);
+        textRangeDirty = false;
+    }
+    return textRange;
+}
+void TexpressoPreview::rememberTextBounds(const QJsonObject &header)
+{
+    const auto b = header["textBounds"].toArray();
+    const auto paper = frameBounds(header);
+    const auto text = b.size() == 4 ? QRectF(QPointF(b[0].toDouble(), b[1].toDouble()),
+        QPointF(b[2].toDouble(), b[3].toDouble())).intersected(paper) : QRectF();
+    const int page = header["page"].toInt();
+    const auto range = text.isEmpty() ? QRectF() : QRectF(text.left() - paper.left(), 0, text.width(), 1);
+    if (textRanges.value(page) == range) return;
+    if (range.isEmpty()) textRanges.remove(page); else textRanges.insert(page, range);
+    textRangeDirty = true;
+}
 QJsonObject TexpressoPreview::annotationsForPage(int page) const
 {
     if (!supportsLinks || !pageValid(page)) return {};
@@ -457,13 +478,14 @@ void TexpressoPreview::decode(Frame frame)
                 if (!image.isNull() && token == regionToken && active && fresh)
                     emit regionReady(token, image, frameBounds(header));
             } else if (background) {
-                if (!image.isNull()) { storePage(header["page"].toInt(), flightWidth, image, frameBounds(header), header["annotations"].toObject()); emit updated(); }
+                if (!image.isNull()) { rememberTextBounds(header); storePage(header["page"].toInt(), flightWidth, image, frameBounds(header), header["annotations"].toObject()); emit updated(); }
             } else if (image.isNull() && header.contains("patch")) retryFullFrame();
             else if (image.isNull()) emit failed(tr("Cannot decode TeXpresso preview image."));
             else {
                 pixels = image; displayedPage = currentPage;
                 pageBounds = frameBounds(header);
                 pageAnnotations = header["annotations"].toObject();
+                rememberTextBounds(header);
                 rasterId = supportsPatches ? qint64(header["rasterId"].toDouble()) : 0;
                 rasterPage = currentPage; rasterBounds = pageBounds; rasterSize = pixels.size();
                 needsNativePage = false; fresh = true; cachePage();
@@ -511,10 +533,9 @@ void TexpressoPreview::inverse(const QPointF &point)
     emit interactionStarted(); interruptBackground();
     cancelRegion();
     pendingInverse = point;
-    // A cached image does not select the engine's single hit-testing display
-    // list. Prepare that page before using its source map, like the extension.
-    if (needsNativePage) { dirty = true; request(); }
-    else finishInverse();
+    // The native command can query a published page's SyncTeX map directly.
+    // If that map is not ready, the engine prepares it without a PNG round trip.
+    finishInverse();
 }
 void TexpressoPreview::finishInverse()
 {
@@ -657,6 +678,9 @@ void TexpressoPreview::finishEndNavigation()
 }
 void TexpressoPreview::trimPageDemand()
 {
+    for (auto it = textRanges.begin(); it != textRanges.end();) {
+        if (it.key() >= count) { it = textRanges.erase(it); textRangeDirty = true; } else ++it;
+    }
     for (int i = visiblePages.size() - 1; i >= 0; --i) if (visiblePages[i] >= count) visiblePages.removeAt(i);
     if (inFlight && flightPage >= count) {
         emit command({"preview-cancel", double(inFlight), std::max(0, count - 1)});

@@ -4,6 +4,7 @@
 #include <QRegularExpression>
 #include <algorithm>
 #include <limits>
+#include <QScopedValueRollback>
 
 QString TexpressoSession::identity(const QString &path)
 {
@@ -304,6 +305,10 @@ void TexpressoSession::message(const QJsonArray &m)
             if (buffers.contains(it.key())) for (const auto &alias : it.value()) sendSource({"open", alias, buffers.value(it.key())}, true);
     } else if (verb == "synctex" && m.size() >= 3 && preview.valid()) {
         const auto logical = absolute(m[1].toString());
+        // The resulting editor caret movement is navigation, not a new edit or
+        // a forward-search intent. Do not immediately rewarm/revisit that line.
+        prewarm.select();
+        const QScopedValueRollback<bool> guard(deliveringInverseLocation, true);
         emit sourceLocation(editorPaths.value(logical, logical), m[2].toInt(), m.size() > 3 ? m[3].toInt(-1) : -1, m.size() > 4 ? m[4].toString() : QString());
     } else if (verb == "append-lines" && m.size() >= 2) {
         auto &lines = m[1] == "out" ? outputLines : logLines;
@@ -376,6 +381,9 @@ void TexpressoSession::prepareEdit(const QString &path, int line, int column)
     const auto key = preparationPath;
     const auto version = bufferVersions.value(key);
     const QString selection = key + ':' + QString::number(version) + ':' + QString::number(line) + ':' + QString::number(column);
+    if (deliveringInverseLocation) suppressedPreparation = selection;
+    if (selection == suppressedPreparation) { prewarm.select(); return; }
+    suppressedPreparation.clear();
     prewarm.select(selection, [this, key, version, line, column]() -> std::optional<TexpressoPrewarm::Position> {
         if (!buffers.contains(key) || bufferVersions.value(key) != version || line < 0 || column < 0) return {};
         const auto known = aliases.value(key);
@@ -403,6 +411,11 @@ void TexpressoSession::syncForward(const QString &path, int line, bool explicitR
 {
     const auto key = identity(path);
     syncFile = key; syncLine = line; syncColumn = column;
+    if (deliveringInverseLocation && !explicitRequest) {
+        sourceFollow.request({key, bufferVersions.value(key), line, column, preview.sequence(), preview.revision()}, true);
+        sourceFollow.suspend();
+        return;
+    }
     if (explicitRequest) suppressRestartSync = false;
     if (!ready || !foreground || !previewVisible || userPaused || userStopped || failure || externalBuildRunning()
         || (!explicitRequest && (!followCursor || suppressRestartSync))) return;

@@ -128,5 +128,7 @@ private:
     int rasterWidth = 0;
     bool shownInvert = false, shownGray = false;
     bool updating = false;
+    double lastZoomMode = 0;
+    QRectF lastTextRange;
 };
 #endif

@@ -40,6 +40,12 @@ bool annotations(const QJsonValue &v) {
 
 bool TexpressoProtocol::validImage(const QJsonObject &h)
 {
+    if (h.contains("textBounds")) {
+        const auto text = h["textBounds"].toArray();
+        if (text.size() != 4) return false;
+        for (const auto &v : text) if (!coordinate(v)) return false;
+        if (text[2].toDouble() <= text[0].toDouble() || text[3].toDouble() <= text[1].toDouble()) return false;
+    }
     if (h.contains("annotations") && !annotations(h["annotations"])) return false;
     for (const char *key : {"requestId", "revision", "sequence", "page", "width", "height", "byteLength"})
         if (!count(h.value(QLatin1String(key)))) return false;

@@ -3,6 +3,7 @@
 #include "texpressosession.h"
 #include <QFile>
 #include <QTemporaryDir>
+#include <QBuffer>
 
 class TexpressoPrewarmTest : public QObject
 {
@@ -17,6 +18,7 @@ private slots:
     void watchdogDoesNotLoop();
     void boundedAttempts();
     void utf8AliasSession();
+    void inverseCursorDoesNotPrepareOrSearchAgain();
 };
 static QJsonArray sent(const QSignalSpy &spy, int index = -1)
 {
@@ -221,6 +223,32 @@ void TexpressoPrewarmTest::utf8AliasSession()
     QCOMPARE(sources.last()[1].toInt(), 2);
     live.prepareEdit(child, 0, emoji + 1);
     live.stop(); QVERIFY(!live.prewarm.pending());
+}
+void TexpressoPrewarmTest::inverseCursorDoesNotPrepareOrSearchAgain()
+{
+    const QString root = "/tmp/inverse-cursor.tex";
+    TexpressoSession live(root, {}, {{root, "first\nsecond\nthird\n"}});
+    live.ready = live.foreground = live.supportsPreparation = true;
+    QSignalSpy commands(&live.preview, &TexpressoPreview::command), preparations(&live.prewarm, &TexpressoPrewarm::command);
+    live.preview.setActive(true); live.preview.message({"preview-state", 1, 0, 1, true, 0});
+    const auto request = sent(commands);
+    QImage image(8, 8, QImage::Format_RGB32); image.fill(Qt::white);
+    QByteArray png; QBuffer buffer(&png); buffer.open(QIODevice::WriteOnly); image.save(&buffer, "PNG");
+    live.preview.receive({{"requestId", request[1]}, {"revision", 1}, {"sequence", 0}, {"page", 0},
+        {"bounds", QJsonArray{0, 0, 600, 800}}, {"width", 8}, {"height", 8}, {"mime", "image/png"}, {"byteLength", png.size()}}, png);
+    QTRY_VERIFY(live.preview.valid()); commands.clear();
+    connect(&live, &TexpressoSession::sourceLocation, &live, [&](const QString &path, int line) {
+        live.prepareEdit(path, line - 1, 0); // The editor's cursorPositionChanged callback.
+        live.syncForward(path, line - 1, false, 0);
+    });
+    live.message({"synctex", root, 2, 0, ""});
+    QVERIFY(!live.prewarm.pending()); QVERIFY(commands.isEmpty()); QVERIFY(preparations.isEmpty());
+    // A later activation refresh for the same caret also remains navigation.
+    live.prepareEdit(root, 1, 0); live.syncForward(root, 1, false, 0);
+    QVERIFY(!live.prewarm.pending()); QVERIFY(commands.isEmpty());
+    live.prepareEdit(root, 1, 1); QVERIFY(live.prewarm.pending()); // Actual user movement resumes prewarming.
+    live.prewarm.select(); live.syncForward(root, 2, false, 0);
+    QVERIFY(!commands.isEmpty()); // Actual user navigation resumes cursor following.
 }
 QTEST_MAIN(TexpressoPrewarmTest)
 #include "prewarm_test.moc"

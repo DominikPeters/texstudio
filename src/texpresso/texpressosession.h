@@ -81,6 +81,8 @@ private:
     TexpressoSourceFollow sourceFollow;
     bool supportsPreparation = false;
     QString preparationPath;
+    QString suppressedPreparation;
+    bool deliveringInverseLocation = false;
     int preparationLine = 0, preparationColumn = 0;
     QString lastPreparationFrame;
     QMap<QString, QSet<QString>> aliases;

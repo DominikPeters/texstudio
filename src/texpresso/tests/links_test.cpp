@@ -227,13 +227,14 @@ void LinksTest::emptyPatchUpdatesAnnotations()
     preview.message({"preview-state", 1, 0, 1, true, 0});
     deliver(preview, lastCommand(commands), annotations({"https://example.com/old"}), 11); QTRY_VERIFY(preview.valid());
     const auto pixels = preview.image();
-    preview.invalidateNativePage(); preview.inverse({40, 100});
+    preview.sourceChanged(1); preview.message({"preview-state", 2, 1, 1, true, 0});
     const auto request = lastCommand(commands); QCOMPARE(request[0].toString(), QString("preview-png"));
     auto header = frameHeader(0); header["requestId"] = request[1];
+    header["revision"] = 2; header["sequence"] = 1;
     header["rasterId"] = 12; header["patch"] = QJsonObject{{"base", 11}, {"rect", QJsonArray{0, 0, 0, 0}}};
     const auto next = annotations({"https://example.com/new"}); header["annotations"] = next;
     preview.receive(header, {}); QTRY_COMPARE(preview.annotationsForPage(0), next);
-    QCOMPARE(preview.image(), pixels); preview.activateLink(0, 0, 1, 0); QCOMPARE(external.size(), 1);
+    QCOMPARE(preview.image(), pixels); preview.activateLink(0, 0, 2, 1); QCOMPARE(external.size(), 1);
     QCOMPARE(external[0][0].toUrl(), QUrl("https://example.com/new"));
 }
 

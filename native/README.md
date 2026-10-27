@@ -62,6 +62,25 @@ further page is currently available. Compiler diagnostics explain that boundary.
 Only one discovery placeholder can extend the layout;
 genuine blank pages remain pages and are never used to infer EOF.
 
+Live **Fit to Text Width** uses the PDF viewer's action, icon and shortcut. The
+engine exports optional full-page `textBounds` alongside PNG frames (including
+patches and zero-byte updates). A lightweight MuPDF text-only bounds device
+excludes vector figures and images; its small cache is keyed by display-list
+content token, independent of raster size and codec. Qt learns the combined
+horizontal text range as pages are rendered, retains it across image eviction
+and edits, and trims it at known EOF. Unlike the saved-PDF viewer's whole-document
+scan, fitting does not force live pagination to finish. Blank pages use the
+learned range, or fit the paper if no text geometry is available.
+
+Backward SyncTeX queries a published page's source map directly, without first
+exporting another PNG or rebuilding its display list. If a source map is not
+available yet, the engine retains the existing lazy preparation path. A cached
+page without the foreground text display list returns the source line without
+a guessed word. Editor caret movement caused by this jump does not initiate a
+forward search or cursor prewarming; actual subsequent caret movement or edits
+resume those behaviors. `texpresso-rendering` checks the cached-page fast path
+with native profiling, and `texpresso-prewarm` checks the editor callback cycle.
+
 The standalone Qt `texpresso-pagination` test compares live counts with separate
 XeLaTeX/PDF `pdfinfo` counts, including empty documents, blank final/intermediate
 pages and two-column layouts. It also covers shrink/grow edits, failure/repair,

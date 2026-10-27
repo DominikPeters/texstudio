@@ -200,7 +200,8 @@ void TexpressoCanvas::mouseMoveEvent(QMouseEvent *event)
     }
     if (dragging) {
         const QPoint delta = event->globalPos() - dragPosition; dragPosition = event->globalPos();
-        area->horizontalScrollBar()->setValue(area->horizontalScrollBar()->value() - delta.x());
+        if (!preview || preview->zoom != -2 || !config->disableHorizontalScrollingForFitToTextWidth)
+            area->horizontalScrollBar()->setValue(area->horizontalScrollBar()->value() - delta.x());
         area->verticalScrollBar()->setValue(area->verticalScrollBar()->value() - delta.y());
     } else if (magnifier->isVisible()) magnify(event->pos());
     else updateLinkCursor(event->pos(), event->modifiers());
@@ -260,7 +261,7 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     // Mirror the embedded PDF viewer: one icon toolbar above the pages and a
     // status bar with synchronization, messages and zoom below them.
     toolbar = new QToolBar(this); toolbar->setObjectName("texpressoViewerToolbar"); toolbar->setIconSize(QSize(16, 16)); layout->addWidget(toolbar);
-    for (const auto &id : {"magnify", "scroll", "firstPage", "previous", "next", "last", "actualSize", "fitToWidth", "fitToWindow", "zoomIn", "zoomOut", "gotoSource", "followCursor"})
+    for (const auto &id : {"magnify", "scroll", "firstPage", "previous", "next", "last", "actualSize", "fitToWidth", "fitToTextWidth", "fitToWindow", "zoomIn", "zoomOut", "gotoSource", "followCursor"})
         actions.insert(id, ViewerControls::createAction(id, this, icons));
     ViewerControls::addToolbarActions(toolbar, actions);
     pages = ViewerControls::insertPageControls(toolbar, actions["next"], false);
@@ -354,6 +355,7 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     connect(pages.number, &QLineEdit::returnPressed, this, [this] { if (shown) { shown->preview.navigateTo(pages.number->text().toInt() - 1); showPage(shown->preview.page()); } });
     connect(actions["actualSize"], &QAction::triggered, this, [this] { setZoom(1); });
     connect(actions["fitToWidth"], &QAction::triggered, this, [this] { setZoom(0); });
+    connect(actions["fitToTextWidth"], &QAction::triggered, this, [this] { setZoom(-2); });
     connect(actions["fitToWindow"], &QAction::triggered, this, [this] { setZoom(-1); });
     for (const auto &id : {"zoomIn", "zoomOut"}) connect(actions[id], &QAction::triggered, this, [this, id] {
         setZoom(ViewerControls::steppedScale(canvas->scale * 72 / 96, QString(id) == "zoomIn" ? 1 : -1, this->config->zoomStepFactor));
@@ -642,10 +644,12 @@ void TexpressoWidget::setZoom(qreal value, const QPoint &anchor)
     const auto oldRect = page < pageRects.size() ? pageRects[page] : QRect();
     const QPointF fraction = oldRect.isEmpty() ? QPointF() : QPointF(double(documentPoint.x() - oldRect.x()) / oldRect.width(), double(documentPoint.y() - oldRect.y()) / oldRect.height());
     shown->preview.zoom = value; canvas->resetTools();
+    if (value == -2) lastZoomMode = 1; // Recenter even when the mode is already selected.
     const bool before = updating; updating = true; layoutPage();
     if (page < pageRects.size()) {
         const auto target = pageRects[page];
-        area->horizontalScrollBar()->setValue(qRound(target.x() + fraction.x() * target.width()) - viewportPosition.x());
+        if (value != -2)
+            area->horizontalScrollBar()->setValue(qRound(target.x() + fraction.x() * target.width()) - viewportPosition.x());
         area->verticalScrollBar()->setValue(qRound(target.y() + fraction.y() * target.height()) - viewportPosition.y());
     }
     updating = before; updateViewport(true);
@@ -662,8 +666,13 @@ void TexpressoWidget::layoutPage()
     }
     if (preview.pageValid(preview.page())) knownBounds.insert(preview.page(), canvas->pageBounds);
     const auto bounds = canvas->pageBounds;
+    const auto text = preview.horizontalTextRange();
+    const bool fitText = preview.zoom == -2 && !text.isEmpty();
+    const auto previousScale = canvas->scale;
+    const int previousWidth = documentCanvas->width();
     const double widthScale = std::max(0.05, (area->viewport()->width() - 16.0) / bounds.width());
-    canvas->scale = preview.zoom == 0 ? widthScale : preview.zoom < 0
+    canvas->scale = fitText ? std::clamp((area->viewport()->width() - 16.0) / text.width(), .125 * 96 / 72, 4.0 * 96 / 72)
+        : preview.zoom == 0 || preview.zoom == -2 ? widthScale : preview.zoom == -1
         ? std::min(widthScale, std::max(0.05, (area->viewport()->height() - 16.0) / bounds.height())) : preview.zoom * 96.0 / 72;
     // Only produced pages and one discovery placeholder can grow the layout.
     // An arbitrary requested page must never create thousands of white sheets.
@@ -695,10 +704,18 @@ void TexpressoWidget::layoutPage()
     canvas->setProperty("texpressoPage", activePage);
     if (activePage < pageRects.size()) canvas->setGeometry(pageRects[activePage]);
     canvas->show();
+    if (fitText && (previousScale != canvas->scale || previousWidth != width || preview.zoom != lastZoomMode
+        || lastTextRange != text || config->disableHorizontalScrollingForFitToTextWidth)) {
+        const bool before = updating; updating = true;
+        area->horizontalScrollBar()->setValue(qRound(canvas->x() + text.left() * canvas->scale) - 8);
+        updating = before;
+    }
+    lastZoomMode = preview.zoom; lastTextRange = text;
     const qreal factor = canvas->scale * 72 / 96;
     zoomControls.scale->setText(QString::number(qRound(factor * 100)) + '%');
     { const QSignalBlocker block(zoomControls.slider); zoomControls.slider->setValue(ViewerControls::scaleToSlider(factor)); }
-    actions["fitToWidth"]->setChecked(preview.zoom == 0); actions["fitToWindow"]->setChecked(preview.zoom < 0);
+    actions["fitToWidth"]->setChecked(preview.zoom == 0); actions["fitToWindow"]->setChecked(preview.zoom == -1);
+    actions["fitToTextWidth"]->setChecked(preview.zoom == -2);
     actions["zoomIn"]->setEnabled(factor < 4); zoomControls.in->setEnabled(factor < 4);
     actions["zoomOut"]->setEnabled(factor > .125); zoomControls.out->setEnabled(factor > .125);
     const int widthPixels = qRound(canvas->width() * devicePixelRatioF());

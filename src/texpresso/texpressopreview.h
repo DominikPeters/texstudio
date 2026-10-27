@@ -11,6 +11,7 @@
 #include <QSet>
 #include <QTimer>
 #include <QUrl>
+#include <QHash>
 
 class TexpressoPreview : public QObject
 {
@@ -40,6 +41,7 @@ public:
     void setViewportPages(const QList<int> &visible, bool gesture = false);
     QImage pageImage(int page) const;
     QRectF boundsForPage(int page) const;
+    QRectF horizontalTextRange() const;
     bool pageValid(int page) const;
     QJsonObject annotationsForPage(int page) const;
     void activateLink(int page, int index, qint64 revision, qint64 sequence);
@@ -61,7 +63,7 @@ public:
     bool valid() const { return fresh; }
     qint64 sequence() const { return sourceSequence; }
     qint64 revision() const { return engineRevision; }
-    double zoom = 0; // 0 = fit width; retained per project.
+    double zoom = 0; // 0 = fit width, -1 = fit window, -2 = fit text width; per project.
     QPoint scroll;
 signals:
     void command(const QJsonArray &command);
@@ -98,6 +100,10 @@ private:
     void trimPageDemand();
     void cancelEndSearch();
     void finishEndNavigation();
+    void rememberTextBounds(const QJsonObject &header);
+    QHash<int, QRectF> textRanges;
+    mutable QRectF textRange;
+    mutable bool textRangeDirty = false;
     QImage pixels;
     QRectF pageBounds;
     QJsonObject pageAnnotations;

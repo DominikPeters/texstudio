@@ -20,8 +20,10 @@ private slots:
     void explicitLinkPositionsAnchor_data();
     void explicitLinkPositionsAnchor();
     void scrollingHandoffRetainsVisiblePixels();
+    void fitTextWidth();
+    void fitTextWidthBlankAndEditedPages();
 private:
-    void frame(int page = 0, QRectF bounds = QRectF(0, 0, 2000, 1200));
+    void frame(int page = 0, QRectF bounds = QRectF(0, 0, 2000, 1200), QRectF text = {});
     QPoint scroll() const;
     void setScroll(const QPoint &point);
     QPointF pagePoint(const QPointF &documentPoint) const;
@@ -44,22 +46,24 @@ void SourceViewportTest::init()
     frame();
 }
 void SourceViewportTest::cleanup() { widget.reset(); session.reset(); manager.reset(); }
-void SourceViewportTest::frame(int page, QRectF bounds)
+void SourceViewportTest::frame(int page, QRectF bounds, QRectF text)
 {
     auto &preview = session->preview;
     QSignalSpy commands(&preview, &TexpressoPreview::command);
     preview.setPage(page);
-    if (preview.revision() < 0) preview.message({"preview-state", 1, 0, 3, true, 0});
+    if (preview.revision() < 0) preview.message({"preview-state", 1, double(preview.sequence()), 3, true, 0});
     if (!preview.valid()) {
         QVERIFY(!commands.isEmpty());
         const auto request = commands.last()[0].toJsonArray();
         QCOMPARE(request[0].toString(), QString("preview-render"));
         QImage image(16, 24, QImage::Format_RGB32); image.fill(page == 0 ? Qt::red : Qt::blue);
         QByteArray png; QBuffer buffer(&png); QVERIFY(buffer.open(QIODevice::WriteOnly)); QVERIFY(image.save(&buffer, "PNG"));
-        preview.receive({{"requestId", request[1]}, {"revision", request[4]}, {"sequence", request[5]},
+        QJsonObject header{{"requestId", request[1]}, {"revision", request[4]}, {"sequence", request[5]},
             {"page", page}, {"width", image.width()}, {"height", image.height()},
             {"bounds", QJsonArray{bounds.left(), bounds.top(), bounds.right(), bounds.bottom()}},
-            {"mime", "image/png"}, {"byteLength", png.size()}}, png);
+            {"mime", "image/png"}, {"byteLength", png.size()}};
+        if (!text.isEmpty()) header["textBounds"] = QJsonArray{text.left(), text.top(), text.right(), text.bottom()};
+        preview.receive(header, png);
         QTRY_VERIFY(preview.valid());
     }
     widget->canvas->pixels = preview.image(); widget->canvas->pageBounds = preview.bounds(); widget->canvas->fresh = true;
@@ -213,6 +217,54 @@ void SourceViewportTest::scrollingHandoffRetainsVisiblePixels()
     QCOMPARE(widget->canvas->pixels.pixelColor(0, 0), QColor(Qt::red));
     const auto next = visiblePage(1); QVERIFY(next);
     QCOMPARE(next->pixels.pixelColor(0, 0), QColor(Qt::blue)); QVERIFY(!next->fresh);
+}
+void SourceViewportTest::fitTextWidth()
+{
+    auto &preview = session->preview;
+    preview.sourceChanged(1);
+    // Non-zero page origins must not shift the fitted text.
+    frame(0, {20, 30, 2000, 1200}, {320, 130, 1400, 900});
+    const auto actions = widget->viewerActions();
+    QVERIFY(actions.contains("fitToTextWidth"));
+    actions["fitToTextWidth"]->setEnabled(true); actions["fitToWindow"]->setEnabled(true);
+    QCOMPARE(actions["fitToTextWidth"]->shortcuts(), ViewerControls::actionSpec("fitToTextWidth").shortcuts);
+    setScroll({0, 100});
+    actions["fitToTextWidth"]->trigger(); widget->widthTimer.stop();
+    QCOMPARE(preview.zoom, -2.0);
+    QVERIFY(actions["fitToTextWidth"]->isChecked());
+    QVERIFY(!actions["fitToWidth"]->isChecked()); QVERIFY(!actions["fitToWindow"]->isChecked());
+    const auto check = [this] {
+        const auto text = session->preview.horizontalTextRange();
+        const auto left = widget->canvas->mapTo(widget->area->viewport(), QPoint()).x() + text.left() * widget->canvas->scale;
+        QVERIFY(std::abs(left - 8) <= 1);
+        QVERIFY(std::abs(text.width() * widget->canvas->scale - (widget->area->viewport()->width() - 16)) <= 1);
+    };
+    check();
+    widget->resize(800, 600); QCoreApplication::processEvents(); widget->widthTimer.stop(); check();
+    // Clicking the selected action recenters after a manual horizontal pan.
+    setScroll({0, scroll().y()}); actions["fitToTextWidth"]->trigger(); widget->widthTimer.stop(); check();
+    actions["zoomIn"]->trigger(); QVERIFY(preview.zoom > 0); QVERIFY(!actions["fitToTextWidth"]->isChecked());
+    actions["fitToWindow"]->trigger(); QCOMPARE(preview.zoom, -1.0); QVERIFY(!actions["fitToTextWidth"]->isChecked());
+}
+void SourceViewportTest::fitTextWidthBlankAndEditedPages()
+{
+    auto &preview = session->preview;
+    preview.sourceChanged(1); frame(0, {0, 0, 2000, 1200}, {300, 100, 1400, 900});
+    widget->viewerActions()["fitToTextWidth"]->setEnabled(true);
+    widget->viewerActions()["fitToTextWidth"]->trigger(); widget->widthTimer.stop();
+    const auto scale = widget->canvas->scale;
+    frame(1); // A blank page must not zoom in on its page number or lose the range.
+    QCOMPARE(preview.horizontalTextRange(), QRectF(300, 0, 1400, 1));
+    QCOMPARE(widget->canvas->scale, scale);
+    preview.releaseCache(); QCOMPARE(preview.horizontalTextRange(), QRectF(300, 0, 1400, 1));
+    preview.sourceChanged(2); // Preserve the best geometry while the new pass catches up.
+    QCOMPARE(preview.horizontalTextRange(), QRectF(300, 0, 1400, 1));
+    frame(0, {0, 0, 2000, 1200}, {250, 100, 1500, 900});
+    QCOMPARE(preview.horizontalTextRange(), QRectF(250, 0, 1500, 1));
+    preview.sourceChanged(3); frame(0); // The text was deleted.
+    QVERIFY(preview.horizontalTextRange().isEmpty());
+    QVERIFY(std::isfinite(widget->canvas->scale));
+    QVERIFY(widget->canvas->scale < scale); // Falls back to fitting the paper.
 }
 QTEST_MAIN(SourceViewportTest)
 #include "source_viewport_test.moc"
