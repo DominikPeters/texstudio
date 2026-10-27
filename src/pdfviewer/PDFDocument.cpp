@@ -4631,7 +4631,7 @@ void PDFDocument::showToolbarsDelayed()
 
 void PDFDocument::setToolbarIconSize(int sz)
 {
-    // adapt icon size to dpi
+    // Accept the unscaled GUI setting; apply DPI scaling exactly once here.
     double dpi=QGuiApplication::primaryScreen()->logicalDotsPerInch();
     double scale=dpi/96;
 

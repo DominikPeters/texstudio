@@ -12822,7 +12822,7 @@ void Texstudio::changeIconSize(int value)
 	setIconSize(QSize(iconWidth, iconWidth));
 #ifndef NO_POPPLER_PREVIEW
 	foreach (PDFDocument *pdfviewer, PDFDocument::documentList()) {
-		if (!pdfviewer->embeddedMode) pdfviewer->setToolbarIconSize(iconWidth);
+		if (!pdfviewer->embeddedMode) pdfviewer->setToolbarIconSize(value);
 	}
 #endif
 }
@@ -12870,7 +12870,7 @@ void Texstudio::changePDFIconSize(int value){
 #endif
 #ifndef NO_POPPLER_PREVIEW
         foreach (PDFDocument *pdfviewer, PDFDocument::documentList()) {
-                if (pdfviewer->embeddedMode) pdfviewer->setToolbarIconSize(iconWidth);
+                if (pdfviewer->embeddedMode) pdfviewer->setToolbarIconSize(value);
         }
 #endif
 }
