@@ -18,6 +18,7 @@ private slots:
     void completionRetiresBeyondEndRequests();
     void failedFrontierStopsAndRepairs();
     void failedBeforeFirstPage();
+    void stoppedPassBoundsNavigation();
     void lastPageIsBackgroundAndCancellable();
     void endSearchCancellation_data();
     void endSearchCancellation();
@@ -29,6 +30,9 @@ private slots:
     void realPageCounts();
     void realShrinkGrowAndFailure();
     void realAutomaticRerunsKeepExactCount();
+    void fullBuildKeepsCompletedTotal_data();
+    void fullBuildKeepsCompletedTotal();
+    void realFailedIdlePassStops();
     void realRecoverableErrorStillShowsLastPage();
     void providedPaperLastPage();
 };
@@ -138,6 +142,27 @@ void PaginationTest::failedBeforeFirstPage()
     QVERIFY(!preview.busy()); QCOMPARE(preview.pageCount(), 0);
     preview.sourceChanged(1); preview.message({"preview-state", 2, 1, 1, true, 0});
     deliver(preview, last(commands)); QTRY_VERIFY(preview.valid());
+}
+void PaginationTest::stoppedPassBoundsNavigation()
+{
+    TexpressoPreview preview;
+    preview.message({"preview-state", 1, 0, 3, false, 0});
+    preview.message({"preview-stopped", 1, 0, 3});
+    QVERIFY(preview.paginationStopped()); QVERIFY(!preview.complete());
+    QVERIFY(!preview.canDiscoverPages());
+    preview.navigateTo(1000); QCOMPARE(preview.page(), 2);
+    preview.sourceChanged(1);
+    preview.message({"preview-state", 2, 1, 2, false, 0});
+    for (const auto &message : {QJsonArray{"preview-stopped", 1, 0, 3},
+             QJsonArray{"preview-stopped", 2, 0, 2}, QJsonArray{"preview-stopped", 1, 1, 2},
+             QJsonArray{"preview-stopped", 2, 1, 3}, QJsonArray{"preview-stopped", 2, 1, "2"}}) {
+        preview.message(message); QVERIFY(!preview.paginationStopped());
+    }
+    preview.message({"preview-stopped", 2, 1, 2}); QVERIFY(preview.paginationStopped());
+    preview.message({"preview-invalidated", 3, 1}); QVERIFY(preview.canDiscoverPages());
+    preview.message({"preview-state", 3, 1, 4, true, 0});
+    preview.message({"preview-stopped", 3, 1, 4});
+    QVERIFY(preview.complete()); QVERIFY(!preview.paginationStopped());
 }
 void PaginationTest::endSearchCancellation_data()
 {
@@ -368,6 +393,88 @@ void PaginationTest::realAutomaticRerunsKeepExactCount()
     manager.openBuffer(root, QString::fromUtf8(source).replace("\\section{Last}", "\\section{Extra}Extra.\\newpage\n\\section{Last}"));
     QTRY_VERIFY_WITH_TIMEOUT(live->preview.revision() > revision, 15000); live->preview.lastPage();
     QTRY_VERIFY_WITH_TIMEOUT(live->preview.complete() && live->preview.pageCount() == 3, 30000);
+    manager.shutdown();
+}
+void PaginationTest::fullBuildKeepsCompletedTotal_data()
+{
+    QTest::addColumn<bool>("prewarm");
+    QTest::newRow("idle-after-build") << false;
+    QTest::newRow("cursor-prewarming") << true;
+}
+void PaginationTest::fullBuildKeepsCompletedTotal()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for pagination integration");
+    QFETCH(bool, prewarm);
+    QTemporaryDir dir; const auto root = dir.filePath("main.tex");
+    const auto source = document(5); QVERIFY(write(root, source));
+    const auto env = TexpressoProcess::texliveEnvironment();
+    const auto tex = QStandardPaths::findExecutable("xelatex", env.value("PATH").split(QDir::listSeparator()));
+    if (tex.isEmpty()) QSKIP("XeLaTeX required for a normal full build");
+    QProcess build; build.setProcessEnvironment(env); build.setWorkingDirectory(dir.path());
+    build.start(tex, {"-interaction=nonstopmode", "-halt-on-error", "main.tex"});
+    QVERIFY(build.waitForFinished(30000)); QCOMPARE(build.exitCode(), 0);
+    TexpressoManager manager(nullptr, engine); PDFDocumentConfig config{};
+    TexpressoWidget widget(&manager, &config, [](const QString &) { return QIcon(); });
+    widget.resize(640, 700); widget.show();
+    manager.beginExternalBuild(root);
+    manager.openBuffer(root, QString::fromUtf8(source));
+    manager.activate(root);
+    auto live = manager.current(); live->followCursor = false;
+    manager.endExternalBuild(root, true);
+    if (prewarm) live->prepareEdit(root, 3, 0);
+    QTRY_VERIFY_WITH_TIMEOUT(live->preview.valid(), 15000);
+    const auto diagnostic = [&] {
+        return QString("page=%1 count=%2 complete=%3\n%4")
+            .arg(live->preview.page()).arg(live->preview.pageCount()).arg(live->preview.complete())
+            .arg(live->engineOutput.split('\n').filter(QRegularExpression("\\[(?:rerun|pass|prepare-edit)\\]")).join('\n'));
+    };
+    QTRY_VERIFY2_WITH_TIMEOUT(live->preview.complete(), qPrintable(diagnostic()), 15000);
+    QCOMPARE(live->preview.pageCount(), 5);
+    QCOMPARE(live->preview.page(), 0); // Counting must not navigate to the end.
+    QTRY_COMPARE(widget.pages.count->text(), QString("5"));
+    QCOMPARE(widget.pages.count->foregroundRole(), QPalette::WindowText);
+    QTest::qWait(500); QVERIFY(live->preview.complete());
+    // A completed total is about the source, even when prewarming restores an
+    // earlier checkpoint. Real edits must still invalidate it and learn a new
+    // total, including shrinking documents and failed passes.
+    if (prewarm) live->prepareEdit(root, 4, 0);
+    QTest::qWait(500); QVERIFY(live->preview.complete());
+    manager.openBuffer(root, QString::fromUtf8(document(3)));
+    QVERIFY(!live->preview.complete());
+    QTRY_VERIFY2_WITH_TIMEOUT(live->preview.complete() && live->preview.pageCount() == 3, qPrintable(diagnostic()), 15000);
+    manager.openBuffer(root, QString::fromUtf8(document(2)).replace("Page 1.", "\\undefinedPaginationCommand Page 1."));
+    QTRY_VERIFY_WITH_TIMEOUT(!live->compilerError.isEmpty(), 15000);
+    live->preview.lastPage(); // Drive the failed pass to its terminal boundary.
+    QTRY_VERIFY2_WITH_TIMEOUT(live->preview.paginationStopped(), qPrintable(diagnostic()), 15000);
+    QVERIFY(!live->preview.complete());
+    manager.openBuffer(root, QString::fromUtf8(document(7)));
+    QTRY_VERIFY2_WITH_TIMEOUT(live->preview.complete() && live->preview.pageCount() == 7, qPrintable(diagnostic()), 15000);
+    manager.shutdown();
+}
+void PaginationTest::realFailedIdlePassStops()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for pagination integration");
+    QTemporaryDir dir; const auto root = dir.filePath("main.tex");
+    QVERIFY(write(root, QByteArray(document(3)).replace("Page 1.", "\\undefinedPaginationCommand Page 1.")));
+    TexpressoManager manager(nullptr, engine); PDFDocumentConfig config{};
+    TexpressoWidget widget(&manager, &config, [](const QString &) { return QIcon(); });
+    widget.resize(640, 700); widget.show(); manager.activate(root);
+    const auto live = manager.current(); live->followCursor = false;
+    QTRY_VERIFY_WITH_TIMEOUT(live->preview.valid(), 15000);
+    // No Last Page click or beyond-end render request: automatic EOF itself
+    // must remove '+' and its extra layout placeholder on a failed pass.
+    QTRY_VERIFY_WITH_TIMEOUT(live->preview.paginationStopped(), 15000);
+    QVERIFY(!live->preview.complete()); QCOMPARE(live->preview.pageCount(), 3);
+    QCOMPARE(live->preview.page(), 0);
+    QTRY_COMPARE(widget.pages.count->text(), QString("3"));
+    QCOMPARE(widget.pages.count->foregroundRole(), QPalette::PlaceholderText);
+    QTRY_COMPARE(widget.pageRects.size(), 3);
+    QVERIFY(!live->compilerError.isEmpty());
+    manager.openBuffer(root, QString::fromUtf8(document(2)));
+    QTRY_VERIFY_WITH_TIMEOUT(live->preview.complete() && live->preview.pageCount() == 2, 15000);
+    QTRY_COMPARE(widget.pages.count->foregroundRole(), QPalette::WindowText);
     manager.shutdown();
 }
 void PaginationTest::providedPaperLastPage()

@@ -61,6 +61,14 @@ there is no earlier total, its count is gray without a trailing `+`, since no
 further page is currently available. Compiler diagnostics explain that boundary.
 Only one discovery placeholder can extend the layout;
 genuine blank pages remain pages and are never used to infer EOF.
+Successful automatic convergence also records the exact total before restoring
+the live compiler checkpoint used for fast edits. That total survives checkpoint
+restoration and cursor prewarming, so a completed document loses its `+` without
+requiring Last Page. Real source changes and new finishing passes invalidate it;
+failed passes never supply an exact total. The additive `preview-stopped`
+notification bounds failed passes at EOF even if no beyond-end image was
+requested, removing their `+` and discovery placeholder without marking the
+count as exact.
 
 Live **Fit to Text Width** uses the PDF viewer's action, icon and shortcut. The
 engine exports optional full-page `textBounds` alongside PNG frames (including

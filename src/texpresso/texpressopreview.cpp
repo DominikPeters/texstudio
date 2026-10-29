@@ -313,6 +313,20 @@ void TexpressoPreview::message(const QJsonArray &m)
             emit failed(tr("The document has not produced a page. Open Output for compiler messages."));
         }
         emit updated(); request();
+    } else if (verb == "preview-stopped" && m.size() == 4
+        && protocolCount(m[1]) && m[1].toDouble() == engineRevision
+        && protocolCount(m[2]) && m[2].toDouble() == sourceSequence
+        && protocolCount(m[3]) && m[3].toInt() == count && !finished && !endUnavailable) {
+        findingEnd = false; endTimer.stop(); endUnavailable = true;
+        trimPageDemand();
+        if (count && (currentPage >= count || endSelected)) {
+            endRevealPending = endSelected; setPage(count - 1);
+        }
+        if (!count) {
+            dirty = false; pendingInverse.reset();
+            emit failed(tr("The document has not produced a page. Open Output for compiler messages."));
+        }
+        emit updated(); request();
     } else if (verb == "preview-invalidated" && m.size() == 3 && m[2].toDouble() == sourceSequence) {
         if (qint64(m[1].toDouble()) < engineRevision) return;
         // An automatic auxiliary rerun still belongs to the user's Last Page
