@@ -20,6 +20,7 @@ private slots:
     void utf8AliasSession();
     void inverseCursorDoesNotPrepareOrSearchAgain();
     void failedPaginationCancelsPrewarming();
+    void interactionsAfterPrewarmingKeepGeneration();
 };
 static QJsonArray sent(const QSignalSpy &spy, int index = -1)
 {
@@ -271,6 +272,53 @@ void TexpressoPrewarmTest::failedPaginationCancelsPrewarming()
     // A real source change resets paginationStopped and permits warming again.
     live.prepareEdit(root, 2, 0); QVERIFY(!live.prewarm.pending());
     QCOMPARE(live.preview.pageCount(), 3); QVERIFY(live.preview.paginationStopped());
+}
+void TexpressoPrewarmTest::interactionsAfterPrewarmingKeepGeneration()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for prewarming integration");
+    QTemporaryDir dir; const auto root = dir.filePath("main.tex"), child = dir.filePath("chapter.tex");
+    const QString rootText = "\\documentclass{article}\n\\begin{document}\nFirst.\\newpage\n%" + QString(2100, 'x')
+        + "\n\\input{chapter}\n\\newpage\nThird.\\end{document}\n";
+    const QString childText = "%" + QString(75, 'x') + "\nA paragraph with enough source to prepare an earlier checkpoint.\\label{target}\n";
+    for (const auto &entry : {qMakePair(root, rootText), qMakePair(child, childText)}) {
+        QFile file(entry.first); QVERIFY(file.open(QIODevice::WriteOnly)); file.write(entry.second.toUtf8());
+    }
+    TexpressoSession live(root, engine, {{TexpressoSession::identity(root), rootText}, {TexpressoSession::identity(child), childText}});
+    live.followCursor = false; live.setActive(true); live.start();
+    QSignalSpy diagnostics(live.process.get(), &TexpressoProcess::diagnostic);
+    QTRY_VERIFY_WITH_TIMEOUT(live.preview.valid(), 15000);
+    live.preview.navigateTo(1);
+    QTRY_VERIFY_WITH_TIMEOUT(live.preview.valid() && live.inputAliases.contains(TexpressoSession::identity(child)), 15000);
+    live.preview.lastPage(); // Establish the complete, converged generation first.
+    QTRY_VERIFY2_WITH_TIMEOUT(live.preview.complete() && live.preview.pageCount() == 3,
+        qPrintable(QString("count=%1 complete=%2 error=%3 status=%4\n%5").arg(live.preview.pageCount())
+            .arg(live.preview.complete()).arg(live.compilerError, live.status, live.engineOutput.right(4000))), 20000);
+    const auto converged = [&] {
+        for (const auto &event : diagnostics)
+            if (event[0].toString().contains("aux byte-stable, convergence reached")) return true;
+        return false;
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(converged(), 15000);
+    QTRY_VERIFY_WITH_TIMEOUT(live.preview.complete(), 10000);
+    live.preview.navigateTo(1); QTRY_VERIFY_WITH_TIMEOUT(live.preview.valid(), 10000);
+    const auto revision = live.preview.revision(), sequence = live.preview.sequence();
+    QSignalSpy prepared(live.process.get(), &TexpressoProcess::message), regions(&live.preview, &TexpressoPreview::regionReady);
+    live.prepareEdit(child, 1, 15);
+    QTRY_VERIFY_WITH_TIMEOUT(!live.prewarm.pending(), 10000);
+    bool replayed = false;
+    for (const auto &event : prepared) {
+        const auto m = event[0].toJsonArray();
+        if (m[0] == "preview-prepared" && m[4] == "ready") replayed = true;
+    }
+    QVERIFY2(replayed, "The fixture must actually restore an earlier checkpoint");
+    live.preview.requestRegion({20, 20, 40, 40}, 80, 1);
+    QTRY_VERIFY_WITH_TIMEOUT(!regions.isEmpty(), 10000);
+    live.preview.cancelRegion(); live.preview.navigateTo(0); QTRY_VERIFY_WITH_TIMEOUT(live.preview.valid(), 10000);
+    live.preview.navigateTo(1); QTRY_VERIFY_WITH_TIMEOUT(live.preview.valid(), 10000);
+    QTest::qWait(1000);
+    QCOMPARE(live.preview.sequence(), sequence); QCOMPARE(live.preview.revision(), revision);
+    QCOMPARE(live.preview.pageCount(), 3); QVERIFY(live.preview.complete());
 }
 QTEST_MAIN(TexpressoPrewarmTest)
 #include "prewarm_test.moc"

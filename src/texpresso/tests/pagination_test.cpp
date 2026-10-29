@@ -8,6 +8,7 @@
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QScopeGuard>
+#include <QNativeGestureEvent>
 
 class PaginationTest : public QObject
 {
@@ -35,15 +36,22 @@ private slots:
     void realFailedIdlePassStops();
     void realRecoverableErrorStillShowsLastPage();
     void providedPaperLastPage();
+    void replayKeepsPublishedAvailability();
+    void failedPassKeepsTextGeometry();
+    void trackpadZoomKeepsAnchor();
+    void incompleteTypingKeepsPage_data();
+    void incompleteTypingKeepsPage();
 };
 static QJsonArray last(const QSignalSpy &commands) { return commands.last()[0].toJsonArray(); }
-static void deliver(TexpressoPreview &preview, const QJsonArray &request)
+static void deliver(TexpressoPreview &preview, const QJsonArray &request, const QJsonArray &textBounds = {})
 {
     QImage image(16, 24, QImage::Format_RGB32); image.fill(Qt::white);
     QByteArray bytes; QBuffer buffer(&bytes); buffer.open(QIODevice::WriteOnly); image.save(&buffer, "PNG");
-    preview.receive({{"requestId", request[1]}, {"revision", request[4]}, {"sequence", request[5]},
+    QJsonObject header{{"requestId", request[1]}, {"revision", request[4]}, {"sequence", request[5]},
         {"page", request[2]}, {"width", 16}, {"height", 24}, {"bounds", QJsonArray{0, 0, 600, 800}},
-        {"mime", "image/png"}, {"byteLength", bytes.size()}}, bytes);
+        {"mime", "image/png"}, {"byteLength", bytes.size()}};
+    if (!textBounds.isEmpty()) header["textBounds"] = textBounds;
+    preview.receive(header, bytes);
 }
 void PaginationTest::editForgetsExactCount()
 {
@@ -276,6 +284,128 @@ static QByteArray document(int pages)
         source += "Page " + QByteArray::number(page + 1) + ".\n";
     }
     return source + "\\end{document}\n";
+}
+void PaginationTest::replayKeepsPublishedAvailability()
+{
+    TexpressoPreview preview;
+    preview.message({"preview-state", 1, 0, 5, false, 2});
+    preview.message({"preview-state", 1, 0, 1, false, 2});
+    QCOMPARE(preview.pageCount(), 5);
+    preview.message({"preview-stopped", 1, 0, 3});
+    QCOMPARE(preview.pageCount(), 3); QVERIFY(preview.paginationStopped());
+    preview.sourceChanged(1); preview.message({"preview-state", 2, 1, 1, false, 2});
+    QCOMPARE(preview.pageCount(), 1);
+}
+void PaginationTest::failedPassKeepsTextGeometry()
+{
+    TexpressoPreview preview; QSignalSpy commands(&preview, &TexpressoPreview::command);
+    preview.setActive(true); preview.message({"preview-state", 1, 0, 3, true, 0});
+    deliver(preview, last(commands), {150, 10, 450, 700}); QTRY_VERIFY(preview.valid());
+    preview.navigateTo(1); deliver(preview, last(commands), {100, 10, 500, 700}); QTRY_VERIFY(preview.valid());
+    const auto range = preview.horizontalTextRange();
+    preview.sourceChanged(1); preview.message({"preview-state", 2, 1, 1, false, 1});
+    preview.message({"preview-stopped", 2, 1, 1});
+    QCOMPARE(preview.page(), 1); QVERIFY(!preview.valid()); QVERIFY(!preview.pageImage(1).isNull());
+    QCOMPARE(preview.horizontalTextRange(), range);
+    preview.sourceChanged(2); preview.message({"preview-state", 3, 2, 1, true, 1});
+    QCOMPARE(preview.page(), 0); QCOMPARE(preview.horizontalTextRange().width(), 300.0);
+}
+void PaginationTest::trackpadZoomKeepsAnchor()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+    TexpressoManager manager; PDFDocumentConfig config{};
+    TexpressoWidget widget(&manager, &config, [](const QString &) { return QIcon(); });
+    widget.resize(640, 700); widget.show(); QCoreApplication::processEvents();
+    TexpressoSession session("/tmp/zoom.tex", {}, {}); widget.shown = &session;
+    auto &preview = session.preview; QSignalSpy commands(&preview, &TexpressoPreview::command);
+    preview.setActive(true); preview.message({"preview-state", 1, 0, 3, true, 0});
+    deliver(preview, last(commands)); QTRY_VERIFY(preview.valid());
+    widget.canvas->pixels = preview.image(); widget.canvas->pageBounds = preview.bounds();
+    widget.setZoom(1); widget.layoutPage();
+    const QPoint anchor(200, 200);
+    const auto viewportAnchor = widget.canvas->mapTo(widget.area->viewport(), anchor);
+    const auto pagePoint = QPointF(anchor) / widget.canvas->scale;
+    QSignalSpy scales(widget.canvas, &TexpressoCanvas::scaleRequested);
+    const auto windowAnchor = widget.canvas->mapTo(widget.window(), anchor);
+    QPointingDevice trackpad("Test trackpad", 12345, QInputDevice::DeviceType::TouchPad,
+        QPointingDevice::PointerType::Finger, QInputDevice::Capability::Position, 2, 0);
+    QNativeGestureEvent pinch(Qt::ZoomNativeGesture, &trackpad, 2,
+        windowAnchor, windowAnchor, widget.canvas->mapToGlobal(anchor), .1, {});
+    QCOMPARE(pinch.globalPosition().toPoint(), widget.canvas->mapToGlobal(anchor));
+    // Exercise the native handler directly: Qt's synthetic-event delivery
+    // otherwise substitutes the offscreen platform's current pointer state.
+    widget.canvas->event(&pinch);
+    QCOMPARE(scales.size(), 1); QCOMPARE(scales[0][1].toPoint(), anchor);
+    QVERIFY(pinch.isAccepted()); QVERIFY(std::abs(preview.zoom - 1.1) < .0001);
+    const auto newAnchor = widget.canvas->mapTo(widget.area->viewport(), (pagePoint * widget.canvas->scale).toPoint());
+    QVERIFY2((newAnchor - viewportAnchor).manhattanLength() <= 2,
+        qPrintable(QString("before=%1,%2 after=%3,%4 zoom=%5").arg(viewportAnchor.x()).arg(viewportAnchor.y()).arg(newAnchor.x()).arg(newAnchor.y()).arg(preview.zoom)));
+    QCOMPARE(preview.sequence(), 0); QCOMPARE(preview.revision(), 1); QCOMPARE(preview.pageCount(), 3);
+    widget.shown = nullptr;
+#else
+    QSKIP("Native gesture constructor requires Qt 6.2");
+#endif
+}
+void PaginationTest::incompleteTypingKeepsPage_data()
+{
+    QTest::addColumn<QString>("opening"); QTest::addColumn<QString>("closing");
+    QTest::newRow("unfinished-math") << QString("Let $x =") << QString(" y$.");
+    QTest::newRow("unfinished-footnote") << QString("\\footnote{") << QString("A note.}");
+}
+void PaginationTest::incompleteTypingKeepsPage()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for typing integration");
+    QFETCH(QString, opening); QFETCH(QString, closing);
+    QTemporaryDir dir; const auto root = dir.filePath("main.tex");
+    const QString before = "\\documentclass{article}\n\\begin{document}\nFirst paragraph.\\par\nSecond paragraph.\\par\n"
+        "Third paragraph.\\par\nFourth paragraph.\\par\nFifth paragraph.\\newpage\nSixth paragraph.\\par\n";
+    const QString after = "\n\\section*{Seventh paragraph}Seventh paragraph.\\par\n\\newpage\nThird page.\n\\end{document}\n";
+    QVERIFY(write(root, (before + after).toUtf8()));
+    TexpressoManager manager(nullptr, engine); PDFDocumentConfig config{};
+    TexpressoWidget widget(&manager, &config, [](const QString &) { return QIcon(); });
+    widget.resize(640, 700); widget.show(); manager.openBuffer(root, before + after); manager.activate(root);
+    const auto live = manager.current(); live->followCursor = false;
+    QFile trace(qEnvironmentVariable("TEXPRESSO_TYPING_TRACE"));
+    if (!trace.fileName().isEmpty() && trace.open(QIODevice::WriteOnly)) {
+        connect(live->process.get(), &TexpressoProcess::diagnostic, &trace, [&trace](const QString &text) { trace.write(text.toUtf8()); trace.flush(); });
+        connect(live->process.get(), &TexpressoProcess::message, &trace, [&trace](const QJsonArray &message) {
+            trace.write(QJsonDocument(message).toJson(QJsonDocument::Compact) + '\n'); trace.flush();
+        });
+    }
+    QTRY_VERIFY_WITH_TIMEOUT(live->preview.complete() && live->preview.pageCount() == 3, 15000);
+    live->preview.navigateTo(1); QTRY_VERIFY_WITH_TIMEOUT(live->preview.valid(), 15000);
+    widget.setZoom(1); widget.showPage(1);
+    live->followCursor = true;
+    for (int i = 0; i < opening.size(); ++i) {
+        manager.changeBuffer(root, 8, i, 8, i, opening.mid(i, 1), before + opening.left(i + 1) + after);
+        live->prepareEdit(root, 8, i + 1); live->syncForward(root, 8, false, i + 1);
+        QTest::qWait(30);
+    }
+    QTRY_VERIFY_WITH_TIMEOUT(!live->compilerError.isEmpty() || live->preview.paginationStopped(), 15000);
+    // A lazy compiler may stop stepping once the page is available even
+    // though TeX has reported an error. Stability must not require forcing EOF.
+    QTest::qWait(500);
+    QCOMPARE(live->preview.page(), 1);
+    QVERIFY(!live->preview.image().isNull());
+    QTRY_VERIFY(widget.pageRects.size() >= 2);
+    QVERIFY(widget.area->verticalScrollBar()->value() >= widget.pageRects[1].top() - 12);
+    for (int i = 0; i < closing.size(); ++i) {
+        const int column = opening.size() + i;
+        manager.changeBuffer(root, 8, column, 8, column, closing.mid(i, 1), before + opening + closing.left(i + 1) + after);
+        live->prepareEdit(root, 8, column + 1); live->syncForward(root, 8, false, column + 1);
+        QTest::qWait(30);
+    }
+    QTRY_VERIFY2_WITH_TIMEOUT(live->preview.valid() && live->compilerError.isEmpty(),
+        qPrintable(QString("page=%1 count=%2 complete=%3 stopped=%4 busy=%5 error=%6\n%7\n%8\nstatus=%9 failed=%10 revision=%11 seq=%12")
+            .arg(live->preview.page()).arg(live->preview.pageCount()).arg(live->preview.complete())
+            .arg(live->preview.paginationStopped()).arg(live->preview.busy()).arg(live->compilerError)
+            .arg(live->compilerOutput.right(2000)).arg(live->engineOutput.right(3000))
+            .arg(live->status).arg(live->failed()).arg(live->preview.revision()).arg(live->preview.sequence())), 15000);
+    QCOMPARE(live->preview.page(), 1);
+    QCOMPARE(live->preview.estimatedPageCount().value_or(live->preview.pageCount()), 3);
+    QTRY_VERIFY(live->compilerError.isEmpty());
+    manager.shutdown();
 }
 void PaginationTest::realPageCounts_data()
 {

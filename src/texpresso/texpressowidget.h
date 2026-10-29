@@ -31,6 +31,7 @@ signals:
     void activated();
     void interactionFinished();
     void zoomRequested(int direction, const QPoint &anchor);
+    void scaleRequested(qreal factor, const QPoint &anchor);
     void linkActivated(int page, int index, qint64 revision, qint64 sequence);
 protected:
     bool event(QEvent *event) override;
@@ -42,6 +43,7 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
     void leaveEvent(QEvent *event) override;
 private:
+    friend class PaginationTest;
     int linkAt(const QPoint &point) const;
     void updateLinkCursor(const QPoint &point, Qt::KeyboardModifiers modifiers);
     void magnify(const QPoint &point);
@@ -49,6 +51,7 @@ private:
     QScrollArea *area;
     PDFMagnifier *magnifier;
     int tool = 1;
+    qreal pinchTotal = 1;
     bool dragging = false;
     QPoint dragPosition;
     Qt::KeyboardModifiers pressedModifiers;

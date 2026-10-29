@@ -71,6 +71,10 @@ void RerunTest::stableRerun()
     writeFile(root, "\\documentclass{article}\n\\begin{document}\nStable.\\end{document}\n");
     TexpressoManager manager(nullptr, engine()); manager.activate(root); auto live = manager.current();
     QFile trace; traceSession(live, trace, automatic ? ".automatic" : ".manual");
+    bool stableRerunSeen = false;
+    connect(live->process.get(), &TexpressoProcess::diagnostic, &trace, [&stableRerunSeen](const QString &text) {
+        stableRerunSeen |= text.contains("auxiliary files are already stable");
+    });
     live->followCursor = false; live->setAutoRerun(automatic);
     QTRY_VERIFY2_WITH_TIMEOUT(live->preview.valid() || live->failed(), qPrintable(live->status + '\n' + live->engineOutput), 20000);
     QVERIFY2(!live->failed(), qPrintable(live->status + live->engineOutput));
@@ -85,7 +89,7 @@ void RerunTest::stableRerun()
         QVERIFY2(live->previewError.isEmpty(), qPrintable(live->previewError));
         QCOMPARE(failures.size(), 0);
     }
-    QTRY_VERIFY2_WITH_TIMEOUT(live->engineOutput.contains("auxiliary files are already stable"), qPrintable(live->engineOutput.right(10000)), 15000);
+    QTRY_VERIFY2_WITH_TIMEOUT(stableRerunSeen, qPrintable(live->engineOutput.right(10000)), 15000);
     // A no-op click must be consumed now, not become a surprise finishing pass
     // when the user next edits while automatic reruns are disabled.
     live->setAutoRerun(false);

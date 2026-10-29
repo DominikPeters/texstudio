@@ -70,6 +70,19 @@ notification bounds failed passes at EOF even if no beyond-end image was
 requested, removing their `+` and discovery placeholder without marking the
 count as exact.
 
+On transient TeX errors, an already displayed page and its scroll position stay
+visible even when the failed pass stops before that page. Source following and
+cursor prewarming wait while compiler errors are present, then resume after
+repair. The retained picture is stale and does not offer live link/SyncTeX hit
+testing. Successful document shrinkage and explicit navigation still update the
+page normally. Page availability does not regress within a source revision just
+because an unchanged compiler checkpoint is replayed; replaying already
+converged auxiliary output does not initiate another auxiliary pass.
+
+The live viewer accepts native trackpad pinch zoom, Qt pinch gestures and smooth
+Control-wheel zoom. Scaling uses the gesture position as its anchor and applies
+the same zoom limits as the toolbar.
+
 Live **Fit to Text Width** uses the PDF viewer's action, icon and shortcut. The
 engine exports optional full-page `textBounds` alongside PNG frames (including
 patches and zero-byte updates). A lightweight MuPDF text-only bounds device

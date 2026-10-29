@@ -6,6 +6,9 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QWheelEvent>
+#include <QNativeGestureEvent>
+#include <QGestureEvent>
+#include <QPinchGesture>
 #include <QScrollBar>
 #include <QFileInfo>
 #include <QDir>
@@ -25,6 +28,8 @@ TexpressoCanvas::TexpressoCanvas(PDFDocumentConfig *config, QScrollArea *area)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
+    setAttribute(Qt::WA_AcceptTouchEvents);
+    grabGesture(Qt::PinchGesture);
     magnifier = new PDFMagnifier(this, 96, config,
         [this](int, QObject *, qreal resolution, const QRect &region) {
             if (region.isEmpty() || qint64(region.width()) * region.height() > 16000000) return QPixmap();
@@ -111,6 +116,31 @@ void TexpressoCanvas::setPreview(TexpressoPreview *value)
 }
 bool TexpressoCanvas::event(QEvent *event)
 {
+    if (event->type() == QEvent::NativeGesture) {
+        const auto gesture = static_cast<QNativeGestureEvent *>(event);
+        if (gesture->gestureType() == Qt::ZoomNativeGesture) {
+            const qreal factor = 1 + gesture->value();
+            if (std::isfinite(factor) && factor > 0) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                emit scaleRequested(factor, mapFromGlobal(gesture->globalPosition().toPoint()));
+#else
+                emit scaleRequested(factor, mapFromGlobal(gesture->screenPos().toPoint()));
+#endif
+            }
+            event->accept(); return true;
+        }
+    } else if (event->type() == QEvent::Gesture) {
+        const auto gestures = static_cast<QGestureEvent *>(event);
+        if (const auto pinch = static_cast<QPinchGesture *>(gestures->gesture(Qt::PinchGesture))) {
+            if (pinch->state() == Qt::GestureStarted) pinchTotal = 1;
+            const qreal total = pinch->totalScaleFactor();
+            if (std::isfinite(total) && total > 0 && pinchTotal > 0) {
+                emit scaleRequested(total / pinchTotal, mapFromGlobal(pinch->centerPoint().toPoint()));
+                pinchTotal = total;
+            }
+            gestures->accept(pinch); return true;
+        }
+    }
     const bool handled = QWidget::event(event);
     switch (event->type()) {
     case QEvent::Enter:
@@ -249,7 +279,9 @@ void TexpressoCanvas::leaveEvent(QEvent *event)
 }
 void TexpressoCanvas::wheelEvent(QWheelEvent *event)
 {
-    if ((event->modifiers() & Qt::ControlModifier) && event->angleDelta().y()) {
+    if ((event->modifiers() & Qt::ControlModifier) && event->pixelDelta().y()) {
+        emit scaleRequested(std::pow(1.002, event->pixelDelta().y()), event->position().toPoint()); event->accept();
+    } else if ((event->modifiers() & Qt::ControlModifier) && event->angleDelta().y()) {
         emit zoomRequested(event->angleDelta().y() > 0 ? 1 : -1, event->position().toPoint()); event->accept();
     } else event->ignore();
 }
@@ -447,7 +479,7 @@ void TexpressoWidget::refresh()
         auto &preview = session->preview;
         const bool discover = preview.canDiscoverPages();
         const auto estimate = preview.estimatedPageCount();
-        const bool noPages = !discover && !preview.pageCount();
+        const bool noPages = !discover && !preview.pageCount() && preview.pageImage(preview.page()).isNull();
         const bool canCompile = !session->userPaused && !session->userStopped && !session->failed() && !session->externalBuildRunning();
         pages.validator->setTop(std::max(1, discover ? std::max(preview.page() + 1, preview.navigablePages()) : preview.pageCount()));
         pages.number->setEnabled(!noPages);
@@ -585,6 +617,10 @@ void TexpressoWidget::connectCanvas(TexpressoCanvas *pageCanvas)
     connect(pageCanvas, &TexpressoCanvas::zoomRequested, this, [this, pageCanvas](int direction, const QPoint &anchor) {
         setZoom(ViewerControls::steppedScale(pageCanvas->scale * 72 / 96, direction, config->zoomStepFactor), pageCanvas->mapTo(canvas, anchor));
     });
+    connect(pageCanvas, &TexpressoCanvas::scaleRequested, this, [this, pageCanvas](qreal factor, const QPoint &anchor) {
+        if (!std::isfinite(factor) || factor <= 0) return;
+        setZoom(std::clamp(pageCanvas->scale * 72 / 96 * factor, .125, 4.0), pageCanvas->mapTo(canvas, anchor));
+    });
 }
 void TexpressoWidget::showPage(int page)
 {
@@ -659,7 +695,8 @@ void TexpressoWidget::layoutPage()
     if (!previewEnabled) return;
     if (!shown || canvas->pageBounds.isEmpty()) { canvas->hide(); return; }
     auto &preview = shown->preview;
-    if (!preview.canDiscoverPages() && !preview.pageCount()) {
+    const bool retainedPage = preview.paginationStopped() && !preview.pageImage(preview.page()).isNull();
+    if (!preview.canDiscoverPages() && !preview.pageCount() && !retainedPage) {
         pageRects.clear(); extentPages = 0; canvas->hide();
         for (auto page : extraCanvases) page->hide();
         documentCanvas->resize(1, 1); return;
@@ -676,7 +713,8 @@ void TexpressoWidget::layoutPage()
         ? std::min(widthScale, std::max(0.05, (area->viewport()->height() - 16.0) / bounds.height())) : preview.zoom * 96.0 / 72;
     // Only produced pages and one discovery placeholder can grow the layout.
     // An arbitrary requested page must never create thousands of white sheets.
-    const int count = continuous ? std::clamp(preview.pageCount() + (preview.canDiscoverPages() ? 1 : 0), 1, 10000) : 1;
+    const int layoutCount = std::max(preview.pageCount() + (preview.canDiscoverPages() ? 1 : 0), retainedPage ? preview.page() + 1 : 0);
+    const int count = continuous ? std::clamp(layoutCount, 1, 10000) : 1;
     extentPages = preview.canDiscoverPages() ? std::max(extentPages, count) : count;
     if (!continuous) extentPages = 1;
     // Geometry metadata is cheap; only intersecting pages own canvases/pixels.

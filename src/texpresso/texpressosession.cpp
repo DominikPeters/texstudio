@@ -366,13 +366,14 @@ void TexpressoSession::refreshCompilerOutput()
         if (missingBibliography.match(compilerOutput).hasMatch())
             compilerWarning = tr("Bibliography output is missing. Use Build & Refresh to run BibTeX or Biber.");
     }
+    refreshPrewarmContext();
     emit outputUpdated();
     if (compilerError != oldError || compilerWarning != oldWarning) emit updated();
 }
 void TexpressoSession::refreshPrewarmContext()
 {
     prewarm.setContext({ready && supportsPreparation && foreground && previewVisible && !userPaused && !userStopped
-        && !failure && !externalBuildRunning() && !preview.paginationStopped(),
+        && !failure && !externalBuildRunning() && !preview.paginationStopped() && compilerError.isEmpty(),
         !sourceRefreshPending && preview.valid() && !preview.busy() && !preview.followingSource(),
         preview.revision(), preview.sequence()});
 }
@@ -419,7 +420,7 @@ void TexpressoSession::syncForward(const QString &path, int line, bool explicitR
     }
     if (explicitRequest) suppressRestartSync = false;
     if (!ready || !foreground || !previewVisible || userPaused || userStopped || failure || externalBuildRunning()
-        || (!explicitRequest && (!followCursor || suppressRestartSync))) return;
+        || (!explicitRequest && (!followCursor || suppressRestartSync || !compilerError.isEmpty() || preview.paginationStopped()))) return;
     const auto known = aliases.value(key);
     if (known.isEmpty()) return;
     if (!sourceFollow.request({key, bufferVersions.value(key), line, column,

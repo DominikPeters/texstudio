@@ -61,6 +61,7 @@ signals:
     void sourceLocation(const QString &file, int oneBasedLine, int column, const QString &word);
 private:
     friend class RerunTest;
+    friend class PaginationTest;
     friend class TexpressoDiagnosticsTest;
     friend class TexpressoPrewarmTest;
     friend class TexpressoSourceFollowTest;

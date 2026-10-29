@@ -292,9 +292,14 @@ void TexpressoPreview::message(const QJsonArray &m)
             if (endSelected && !m[4].toBool()) { findingEnd = true; endTimer.start(); }
             endUnavailable = false; sourceTarget.reset(); cancelDestination(false); inFlight = 0; dirty = true; fresh = false; cancelRegion(); clearCache();
         }
+        const bool sameGeneration = revision == engineRevision;
         engineRevision = stateRevision = revision;
         if (m[5].toInt() != currentPage) needsNativePage = true;
-        count = std::max(0, m[3].toInt()); finished = m[4].toBool();
+        const int available = std::max(0, m[3].toInt());
+        finished = m[4].toBool();
+        // Speculative checkpoint replay can temporarily expose a shorter
+        // native prefix without invalidating any already published page.
+        count = sameGeneration && !finished ? std::max(count, available) : available;
         const bool goToEnd = endSelected && finished;
         if (finished) {
             previousTotal = count;
@@ -316,10 +321,11 @@ void TexpressoPreview::message(const QJsonArray &m)
     } else if (verb == "preview-stopped" && m.size() == 4
         && protocolCount(m[1]) && m[1].toDouble() == engineRevision
         && protocolCount(m[2]) && m[2].toDouble() == sourceSequence
-        && protocolCount(m[3]) && m[3].toInt() == count && !finished && !endUnavailable) {
+        && protocolCount(m[3]) && m[3].toInt() <= count && !finished && !endUnavailable) {
+        count = m[3].toInt();
         findingEnd = false; endTimer.stop(); endUnavailable = true;
         trimPageDemand();
-        if (count && (currentPage >= count || endSelected)) {
+        if (count && (endSelected || (currentPage >= count && pageImage(currentPage).isNull()))) {
             endRevealPending = endSelected; setPage(count - 1);
         }
         if (!count) {
@@ -359,7 +365,7 @@ void TexpressoPreview::message(const QJsonArray &m)
         if (unavailablePage) {
             findingEnd = false; endTimer.stop(); endUnavailable = !finished;
             trimPageDemand();
-            if (count && (currentPage >= count || goToAvailableEnd)) {
+            if (count && (goToAvailableEnd || (currentPage >= count && pageImage(currentPage).isNull()))) {
                 endRevealPending = goToAvailableEnd; setPage(count - 1);
             }
             if (!count) dirty = false;
@@ -692,7 +698,9 @@ void TexpressoPreview::finishEndNavigation()
 }
 void TexpressoPreview::trimPageDemand()
 {
-    for (auto it = textRanges.begin(); it != textRanges.end();) {
+    // A failed prefix cannot disprove geometry learned from a good pass.
+    // Keep text-width fitting stable until a successful EOF confirms shrinkage.
+    for (auto it = textRanges.begin(); finished && it != textRanges.end();) {
         if (it.key() >= count) { it = textRanges.erase(it); textRangeDirty = true; } else ++it;
     }
     for (int i = visiblePages.size() - 1; i >= 0; --i) if (visiblePages[i] >= count) visiblePages.removeAt(i);
