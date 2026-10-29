@@ -372,7 +372,8 @@ void TexpressoSession::refreshCompilerOutput()
 void TexpressoSession::refreshPrewarmContext()
 {
     prewarm.setContext({ready && supportsPreparation && foreground && previewVisible && !userPaused && !userStopped
-        && !failure && !externalBuildRunning(), !sourceRefreshPending && preview.valid() && !preview.busy() && !preview.followingSource(),
+        && !failure && !externalBuildRunning() && !preview.paginationStopped(),
+        !sourceRefreshPending && preview.valid() && !preview.busy() && !preview.followingSource(),
         preview.revision(), preview.sequence()});
 }
 void TexpressoSession::prepareEdit(const QString &path, int line, int column)

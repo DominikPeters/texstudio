@@ -19,6 +19,7 @@ private slots:
     void boundedAttempts();
     void utf8AliasSession();
     void inverseCursorDoesNotPrepareOrSearchAgain();
+    void failedPaginationCancelsPrewarming();
 };
 static QJsonArray sent(const QSignalSpy &spy, int index = -1)
 {
@@ -249,6 +250,27 @@ void TexpressoPrewarmTest::inverseCursorDoesNotPrepareOrSearchAgain()
     live.prepareEdit(root, 1, 1); QVERIFY(live.prewarm.pending()); // Actual user movement resumes prewarming.
     live.prewarm.select(); live.syncForward(root, 2, false, 0);
     QVERIFY(!commands.isEmpty()); // Actual user navigation resumes cursor following.
+}
+void TexpressoPrewarmTest::failedPaginationCancelsPrewarming()
+{
+    const QString root = "/tmp/failed-pagination.tex";
+    TexpressoSession live(root, {}, {{root, "first\nsecond\nthird\n"}});
+    live.ready = live.foreground = live.supportsPreparation = true;
+    QSignalSpy commands(&live.preview, &TexpressoPreview::command);
+    live.preview.setActive(true); live.preview.message({"preview-state", 1, 0, 3, false, 0});
+    const auto request = sent(commands);
+    QImage image(8, 8, QImage::Format_RGB32); image.fill(Qt::white);
+    QByteArray png; QBuffer buffer(&png); buffer.open(QIODevice::WriteOnly); image.save(&buffer, "PNG");
+    live.preview.receive({{"requestId", request[1]}, {"revision", 1}, {"sequence", 0}, {"page", 0},
+        {"bounds", QJsonArray{0, 0, 600, 800}}, {"width", 8}, {"height", 8}, {"mime", "image/png"}, {"byteLength", png.size()}}, png);
+    QTRY_VERIFY(live.preview.valid());
+    live.prepareEdit(root, 1, 0); QVERIFY(live.prewarm.pending());
+    live.message({"preview-stopped", 1, 0, 3});
+    QVERIFY(!live.prewarm.pending());
+    // Cursor motion may not roll a failed prefix back to an earlier worker.
+    // A real source change resets paginationStopped and permits warming again.
+    live.prepareEdit(root, 2, 0); QVERIFY(!live.prewarm.pending());
+    QCOMPARE(live.preview.pageCount(), 3); QVERIFY(live.preview.paginationStopped());
 }
 QTEST_MAIN(TexpressoPrewarmTest)
 #include "prewarm_test.moc"
