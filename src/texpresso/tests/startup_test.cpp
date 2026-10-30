@@ -41,7 +41,7 @@ if first:
         connection = socket.socket(fileno=int(os.environ['TEXPRESSO_FD']))
         greeting = b''
         while len(greeting) < 12: greeting += connection.recv(12 - len(greeting))
-        assert greeting == b'TEXPRESSOS02'
+        assert greeting == b'TEXPRESSOS03'
         connection.sendall(b'TEXP')
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         time.sleep(60)

@@ -55,7 +55,7 @@ shows how many pages are available while the end is unknown. **Last Page**
 explicitly compiles through the end and shows the exact physical page count in
 the normal text color. This operation preserves
 the current page while compiling and is cancelled by navigation, source edits
-or pausing. A failed pass bounds navigation to its available prefix without
+or pausing. A fatal or truncated pass bounds navigation to its available prefix without
 claiming a final total. Last Page still reveals the last available page; when
 there is no earlier total, its count is gray without a trailing `+`, since no
 further page is currently available. Compiler diagnostics explain that boundary.
@@ -65,8 +65,8 @@ Successful automatic convergence also records the exact total before restoring
 the live compiler checkpoint used for fast edits. That total survives checkpoint
 restoration and cursor prewarming, so a completed document loses its `+` without
 requiring Last Page. Real source changes and new finishing passes invalidate it;
-failed passes never supply an exact total. The additive `preview-stopped`
-notification bounds failed passes at EOF even if no beyond-end image was
+fatal or truncated passes never supply an exact total. The additive `preview-stopped`
+notification bounds interrupted passes at EOF even if no beyond-end image was
 requested, removing their `+` and discovery placeholder without marking the
 count as exact.
 
@@ -104,7 +104,10 @@ with native profiling, and `texpresso-prewarm` checks the editor callback cycle.
 
 The standalone Qt `texpresso-pagination` test compares live counts with separate
 XeLaTeX/PDF `pdfinfo` counts, including empty documents, blank final/intermediate
-pages and two-column layouts. It also covers shrink/grow edits, failure/repair,
+pages and two-column layouts. Completed output with recoverable TeX errors has
+a confirmed total in the normal text color; fatal/truncated passes and old
+totals after edits remain grey. Compiler errors stay visible independently.
+It also covers shrink/grow edits, failure/repair,
 obsolete frames and end-search cancellation. Run it after building the client:
 
 ```sh

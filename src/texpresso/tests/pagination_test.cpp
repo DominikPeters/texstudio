@@ -34,6 +34,7 @@ private slots:
     void fullBuildKeepsCompletedTotal_data();
     void fullBuildKeepsCompletedTotal();
     void realFailedIdlePassStops();
+    void realRecoverableErrorStillShowsLastPage_data();
     void realRecoverableErrorStillShowsLastPage();
     void providedPaperLastPage();
     void replayKeepsPublishedAvailability();
@@ -491,7 +492,7 @@ void PaginationTest::realShrinkGrowAndFailure()
     QCOMPARE(widget.pages.count->foregroundRole(), QPalette::WindowText);
     manager.reconcileBuffer(root, QString::fromUtf8(document(8)));
     QTRY_VERIFY_WITH_TIMEOUT(live->preview.revision() >= 0, 15000); end(8); QVERIFY(!QTest::currentTestFailed());
-    manager.reconcileBuffer(root, "\\documentclass{article}\n\\begin{document}\nOne.\\newpage\n\\undefinedPaginationCommand\n\\end{document}\n");
+    manager.reconcileBuffer(root, "\\documentclass{article}\n\\begin{document}\nOne.\\newpage\n\\footnote{\n");
     QTRY_VERIFY_WITH_TIMEOUT(live->preview.revision() >= 0, 15000); live->preview.lastPage();
     QTRY_VERIFY_WITH_TIMEOUT(live->preview.paginationStopped(), 20000);
     QVERIFY(!live->preview.complete()); QCOMPARE(live->preview.pageCount(), 1);
@@ -573,12 +574,15 @@ void PaginationTest::fullBuildKeepsCompletedTotal()
     manager.openBuffer(root, QString::fromUtf8(document(3)));
     QVERIFY(!live->preview.complete());
     QTRY_VERIFY2_WITH_TIMEOUT(live->preview.complete() && live->preview.pageCount() == 3, qPrintable(diagnostic()), 15000);
-    manager.openBuffer(root, QString::fromUtf8(document(2)).replace("Page 1.", "\\undefinedPaginationCommand Page 1."));
+    manager.openBuffer(root, QString::fromUtf8(document(2)).replace("\\end{document}", "\\clearpage\\footnote{"));
     QTRY_VERIFY_WITH_TIMEOUT(!live->compilerError.isEmpty(), 15000);
     live->preview.lastPage(); // Drive the failed pass to its terminal boundary.
     QTRY_VERIFY2_WITH_TIMEOUT(live->preview.paginationStopped(), qPrintable(diagnostic()), 15000);
     QVERIFY(!live->preview.complete());
     manager.openBuffer(root, QString::fromUtf8(document(7)));
+    // A repaired lazy pass need not rewrite auxiliary bytes before this page.
+    // Explicit end demand confirms the new total without relying on aux dirtiness.
+    live->preview.lastPage();
     QTRY_VERIFY2_WITH_TIMEOUT(live->preview.complete() && live->preview.pageCount() == 7, qPrintable(diagnostic()), 15000);
     manager.shutdown();
 }
@@ -587,7 +591,7 @@ void PaginationTest::realFailedIdlePassStops()
     const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
     if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for pagination integration");
     QTemporaryDir dir; const auto root = dir.filePath("main.tex");
-    QVERIFY(write(root, QByteArray(document(3)).replace("Page 1.", "\\undefinedPaginationCommand Page 1.")));
+    QVERIFY(write(root, QByteArray(document(3)).replace("\\end{document}", "\\clearpage\\footnote{")));
     TexpressoManager manager(nullptr, engine); PDFDocumentConfig config{};
     TexpressoWidget widget(&manager, &config, [](const QString &) { return QIcon(); });
     widget.resize(640, 700); widget.show(); manager.activate(root);
@@ -656,6 +660,9 @@ void PaginationTest::providedPaperLastPage()
     if (live->preview.paginationStopped()) {
         QTRY_COMPARE(widget.pages.count->text(), QString::number(live->preview.pageCount()));
         QCOMPARE(widget.pages.count->foregroundRole(), QPalette::PlaceholderText);
+    } else {
+        QTRY_COMPARE(widget.pages.count->text(), QString::number(live->preview.pageCount()));
+        QCOMPARE(widget.pages.count->foregroundRole(), QPalette::WindowText);
     }
     const int page = live->preview.page();
     QTRY_VERIFY(page < widget.pageRects.size());
@@ -664,22 +671,35 @@ void PaginationTest::providedPaperLastPage()
         qPrintable(QString("viewport=%1 expected=%2\n%3").arg(widget.area->verticalScrollBar()->value()).arg(target).arg(diagnostic())), 5000);
     qInfo().noquote() << diagnostic(); manager.shutdown();
 }
+void PaginationTest::realRecoverableErrorStillShowsLastPage_data()
+{
+    QTest::addColumn<bool>("automatic");
+    QTest::newRow("idle-auto-rerun") << true;
+    QTest::newRow("explicit-last-page") << false;
+}
 void PaginationTest::realRecoverableErrorStillShowsLastPage()
 {
     const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
-    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for failed-pass navigation integration");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for recovered-pass navigation integration");
+    QFETCH(bool, automatic);
     QTemporaryDir dir; const auto root = dir.filePath("main.tex");
     QVERIFY(write(root, QByteArray(document(3)).replace("Page 1.", "\\undefinedEndNavigationCommand Page 1.")));
     TexpressoManager manager(nullptr, engine); PDFDocumentConfig config{};
     TexpressoWidget widget(&manager, &config, [](const QString &) { return QIcon(); });
     widget.resize(640, 700); widget.show(); manager.activate(root);
     const auto live = manager.current(); live->followCursor = false;
+    live->setAutoRerun(automatic);
     QTRY_VERIFY_WITH_TIMEOUT(live->preview.valid(), 15000);
-    widget.refresh(); widget.viewerActions()["last"]->trigger();
-    QTRY_VERIFY_WITH_TIMEOUT(live->preview.valid() && live->preview.page() == 2 && live->preview.paginationStopped(), 20000);
-    QCOMPARE(live->preview.pageCount(), 3); QVERIFY(!live->preview.complete());
+    if (!automatic) { widget.refresh(); widget.viewerActions()["last"]->trigger(); }
+    QTRY_VERIFY_WITH_TIMEOUT(live->preview.complete() || live->preview.paginationStopped(), 20000);
+    QVERIFY(live->preview.complete()); QVERIFY(!live->preview.paginationStopped());
+    QCOMPARE(live->preview.pageCount(), 3);
+    QVERIFY(!live->compilerError.isEmpty()); // Errors remain visible independently of pagination.
     QTRY_COMPARE(widget.pages.count->text(), QString("3"));
-    QCOMPARE(widget.pages.count->foregroundRole(), QPalette::PlaceholderText);
+    QCOMPARE(widget.pages.count->foregroundRole(), QPalette::WindowText);
+    QVERIFY(!live->engineOutput.contains("aux byte-stable, convergence reached"));
+    if (automatic) { QCOMPARE(live->preview.page(), 0); widget.viewerActions()["last"]->trigger(); }
+    QTRY_VERIFY_WITH_TIMEOUT(live->preview.valid() && live->preview.page() == 2, 15000);
     const auto atEnd = [&] {
         if (widget.pageRects.size() != 3) return false;
         const int top = widget.pageRects.last().top();
@@ -687,7 +707,7 @@ void PaginationTest::realRecoverableErrorStillShowsLastPage()
         return y >= top - 12 && y <= top;
     };
     QTRY_VERIFY(atEnd()); QVERIFY(!widget.viewerActions()["next"]->isEnabled());
-    // The already-known failed boundary must also work on a cached return.
+    // The completed boundary must also work on a cached return.
     widget.viewerActions()["firstPage"]->trigger(); QTRY_COMPARE(live->preview.page(), 0);
     QTRY_VERIFY(live->preview.valid()); QTRY_VERIFY(widget.viewerActions()["last"]->isEnabled());
     widget.viewerActions()["last"]->trigger();
