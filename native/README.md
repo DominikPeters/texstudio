@@ -130,3 +130,44 @@ system MuPDF/ICU development libraries, recording the runtime library hashes and
 glibc baseline. The compact pinned MuPDF/ICU profiles apply to the macOS builder.
 The live-preview workflow validates Linux bundles and their installation; the
 inherited upstream compatibility workflows disable live preview explicitly.
+
+## Engine compatibility audits
+
+The TeX Live provider supplies packages and fonts to the embedded engine; it does
+not replace that engine with the installed XeTeX. Its generated primitive table
+comes from Tectonic format version 33. The inherited reference-source import
+[leaves the TeX Live 2022 paragraph extensions commented out](https://github.com/tectonic-typesetting/tectonic-staging/blob/70dbe0603c4b27f17b3b4dcb25a85e9da3050fe9/stage1/gen-ninja.py#L345-L347).
+Those definitions live in Web2C change files, outside `xetex.web`. Compare the
+change-file list in upstream [xetex.am](https://github.com/TeX-Live/texlive-source/blob/trunk/texk/web2c/xetexdir/am/xetex.am)
+when refreshing the reference; comparing only the base WEB source misses them.
+
+`scripts/audit_engine_compat.py` derives candidate names from the embedded table
+and supplied upstream sources, then compares them in two disposable documents.
+It creates a private format/provider cache, preserves the `xelatex` executable
+name when it is a symlink, and records source/binary hashes with the results.
+It separately reports missing definitions and `ifprimitive` disagreements;
+presence alone does not establish equivalent behavior.
+
+With the upstream files downloaded into an ignored local directory:
+
+```sh
+python3 native/scripts/audit_engine_compat.py \
+  --engine "/path/to/bundled/bin/texpresso-xetex" \
+  --xelatex /Library/TeX/texbin/xelatex \
+  --upstream .native-sources/engine-compatibility/upstream/xetex.web \
+  --upstream .native-sources/engine-compatibility/upstream/partoken.ch \
+  --upstream .native-sources/engine-compatibility/upstream/showstream.ch \
+  --upstream .native-sources/engine-compatibility/upstream/tracingstacklevels.ch \
+  --output .native-sources/engine-compatibility/runtime-inventory.json
+```
+
+On 30 October 2026, 502 named candidates compared against TeX Live 2026 XeTeX
+0.999998 found four absent primitives in the embedded 0.999994 engine:
+`partokencontext`, `partokenname`, `showstream`, and `ignoreprimitiveerror`.
+There were also 425 present commands with a differing `ifprimitive` result.
+An isolated worker experiment corrected the primitive lookup's string-length
+test from `length(prim[p].s1) - 1` to `length(prim[p].s1 - 1)`; this removed all
+425 identity disagreements while leaving the four genuinely absent primitives.
+The experiment's source and worker were restored afterward. Behavioral tests
+for individual extensions and package fixtures are still needed before claiming
+compatibility, including changes that add no primitive names.
