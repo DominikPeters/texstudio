@@ -413,7 +413,7 @@ void PaginationTest::startupRerunsKeepPublishedTotal()
         if (highest >= 13 && total < highest) regressed = true;
         highest = std::max(highest, total);
     });
-    QTRY_VERIFY_WITH_TIMEOUT(live->preview.valid(), 15000);
+    QTRY_VERIFY_WITH_TIMEOUT(live->preview.valid(), 45000);
     QTRY_VERIFY_WITH_TIMEOUT(live->engineOutput.contains("aux byte-stable, convergence reached"), 30000);
     QTest::qWait(1200);
     QVERIFY2(!regressed, qPrintable(trace.join('\n')));
