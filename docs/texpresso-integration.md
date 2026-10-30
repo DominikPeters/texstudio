@@ -68,9 +68,10 @@ ordering, page entry/count widgets, zoom menu/slider and zoom-step calculations.
 Both `PDFDocument` and `TexpressoWidget` use these components. Live actions use
 the PDF action IDs and widget-scoped shortcuts, so customized PDF shortcuts also
 apply without intercepting editor commands. The live panel exposes magnifier,
-hand scrolling, page navigation, actual size, fit width and fit window. PDF-only
-capabilities (text selection, annotations and fit-to-text bounds) remain absent
-until the engine provides their data.
+hand scrolling, page navigation, actual size, fit width/window/text width and
+hyperref navigation to positions. Text selection and saved-PDF annotations
+remain absent. See [the viewer comparison](texpresso-viewer-feature-comparison.md)
+for the current feature audit and port feasibility.
 
 Regression coverage includes the standalone `texpresso-viewer-panel` suite
 (persisted modes, cached views, focus/shortcuts, destruction, and live compiler
