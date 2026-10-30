@@ -134,8 +134,8 @@ inherited upstream compatibility workflows disable live preview explicitly.
 ## Engine compatibility audits
 
 The TeX Live provider supplies packages and fonts to the embedded engine; it does
-not replace that engine with the installed XeTeX. Its generated primitive table
-comes from Tectonic format version 33. The inherited reference-source import
+not replace that engine with the installed XeTeX. Its primitive table was derived from Tectonic format version 33; the current
+worker uses TeXpresso format 1001 with the compatibility extensions below. The inherited reference-source import
 [leaves the TeX Live 2022 paragraph extensions commented out](https://github.com/tectonic-typesetting/tectonic-staging/blob/70dbe0603c4b27f17b3b4dcb25a85e9da3050fe9/stage1/gen-ninja.py#L345-L347).
 Those definitions live in Web2C change files, outside `xetex.web`. Compare the
 change-file list in upstream [xetex.am](https://github.com/TeX-Live/texlive-source/blob/trunk/texk/web2c/xetexdir/am/xetex.am)
@@ -171,3 +171,17 @@ test from `length(prim[p].s1) - 1` to `length(prim[p].s1 - 1)`; this removed all
 The experiment's source and worker were restored afterward. Behavioral tests
 for individual extensions and package fixtures are still needed before claiming
 compatibility, including changes that add no primitive names.
+
+The current worker implements those four primitives and the corrected lookup;
+the same 502-candidate audit now reports no missing primitives or identity
+disagreements. Its integer parameters use normal TeX scoping/serialization, and
+paragraph hooks cover vertical boxes/centers, insertions/adjustments, output
+routines, and alignment boundaries. `showstream` matches XeTeX's file redirection;
+`ignoreprimitiveerror` bit 1 writes the `vsplit` warning only to the log.
+
+The engine's `test/test-engine-compat.py` compares these behaviors against XeTeX
+0.999998 (TeX Live 2026), including `microtype` title/footnote fixtures, format
+reloads, and optional migration from an older worker. Both format serial and cache
+filenames are versioned, so existing installations regenerate their format without
+manual cache deletion. See `native/texpresso/src/engine/PROVIDERS.md` for the
+standalone test invocation and format-maintenance notes.
