@@ -581,7 +581,10 @@ void TexpressoPreview::cachePage()
 void TexpressoPreview::storePage(int page, int width, const QImage &image, const QRectF &bounds, const QJsonObject &annotations)
 {
     if (!active) return;
-    constexpr qint64 budget = 32 * 1024 * 1024;
+    // Preserve two ordinary Retina pages when possible. Large zooms can keep
+    // one full-resolution page; neither page count nor pixel density may make
+    // retained decoded images exceed 64 MiB per active session.
+    const qint64 budget = std::clamp(qint64(image.sizeInBytes()) * 2, qint64(32 * 1024 * 1024), qint64(64 * 1024 * 1024));
     for (int i = pages.size() - 1; i >= 0; --i) {
         if (pages[i].page == page && pages[i].width == width) {
             cacheBytes -= pages[i].image.sizeInBytes(); pages.removeAt(i);

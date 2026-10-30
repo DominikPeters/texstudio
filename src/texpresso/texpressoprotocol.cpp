@@ -50,8 +50,8 @@ bool TexpressoProtocol::validImage(const QJsonObject &h)
     for (const char *key : {"requestId", "revision", "sequence", "page", "width", "height", "byteLength"})
         if (!count(h.value(QLatin1String(key)))) return false;
     const qint64 w = h["width"].toInt(), height = h["height"].toInt();
-    if (!w || !height || w > 8192 || height > 8192 || w * height > 4000000
-        || h["byteLength"].toInt() > 16 * 1024 * 1024) return false;
+    if (!w || !height || w > 8192 || height > 8192 || w * height > maxPixels
+        || h["byteLength"].toInt() > (h["mime"] == "image/png" ? maxPngBytes : 16 * 1024 * 1024)) return false;
     if (h["mime"] != "image/png" && h["mime"] != "image/svg+xml") return false;
     if (h.contains("rasterId") && (!count(h["rasterId"]) || h["rasterId"].toInt() < 1)) return false;
     const auto bounds = h["bounds"].toArray();

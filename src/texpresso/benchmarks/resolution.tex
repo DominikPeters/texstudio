@@ -1,0 +1,32 @@
+\documentclass[a4paper]{article}
+\usepackage{amsmath,graphicx,xcolor}
+\begin{document}
+\section*{Live preview resolution benchmark}
+This public synthetic document compares text, mathematical notation, vector
+graphics, and a deterministic RGB image. It contains no user document content.
+\[
+  \int_0^1 x^n\,dx=\frac{1}{n+1},\qquad
+  \sum_{k=0}^{\infty}\frac{x^k}{k!}=e^x,\qquad
+  A=\begin{pmatrix}1&\alpha\\\beta&1\end{pmatrix}.
+\]
+\newcount\paragraphnumber
+\loop
+  \advance\paragraphnumber by 1
+  Paragraph \the\paragraphnumber: Live compilation, fine mathematical symbols
+  $\varepsilon,\delta,\partial_x f,\sqrt{x^2+y^2}$ and ordinary text should
+  remain sharp at the display's physical pixel density.\par
+\ifnum\paragraphnumber<12\repeat
+\newpage
+\section*{Vector graphics}
+\setlength{\unitlength}{1pt}
+\begin{picture}(340,460)
+  \color{blue}\multiput(0,0)(6,0){55}{\line(0,1){440}}
+  \color{red}\multiput(0,0)(0,6){74}{\line(1,0){330}}
+  \color{black}\qbezier(0,0)(330,0)(330,440)
+  \qbezier(0,440)(0,0)(330,0)
+  \multiput(20,20)(20,24){16}{\circle{36}}
+\end{picture}
+\newpage
+\section*{Deterministic RGB image}
+\includegraphics[width=\textwidth,height=.85\textheight,keepaspectratio]{noise.png}
+\end{document}

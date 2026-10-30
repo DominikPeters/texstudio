@@ -1,5 +1,9 @@
 # Qt live-preview performance — 22 October 2026
 
+For the newer physical-pixel rendering change, see the
+[31 October resolution measurements](texpresso-resolution-2026-10-31/README.md).
+The measurements below describe the earlier client-only work.
+
 This pass changes the Qt client, following the extension's page-cache and
 deferred inverse-search approach. Both sides of the measurement use the same
 bundled engine revision, `08684365`, to isolate the client changes.

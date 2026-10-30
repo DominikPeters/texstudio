@@ -20,7 +20,7 @@ class TexpressoProcess : public QObject
 public:
     explicit TexpressoProcess(QObject *parent = nullptr);
     ~TexpressoProcess() override;
-    void start(const QString &engine, const QString &root, const QStringList &inclusionDirectories = {});
+    void start(const QString &engine, const QString &root, const QStringList &inclusionDirectories = {}, int pixelLimit = TexpressoProtocol::maxPixels);
     void send(const QJsonArray &command);
     void stop();
     bool running() const { return child.state() != QProcess::NotRunning; }
@@ -43,6 +43,7 @@ private:
     QStringList inclusionDirectories;
     qint64 processGroup = 0;
     bool stopping = false;
+    int previewPixelLimit = TexpressoProtocol::maxPixels;
     void killGroup();
 };
 #endif

@@ -1,5 +1,17 @@
 # Qt live-preview benchmark
 
+## Physical-pixel resolution budget
+
+`texpresso-raster-benchmark` and
+`native/scripts/benchmark_preview_resolution.py` compare raster budgets on a
+public text/math, vector and deterministic RGB-image fixture. The helper builds
+the PDF before measuring; runs old/new/new/old engines serially; and records
+native export, controller frame publication, payload size, decoded image size,
+and resident-memory samples. It also saves same-size text crops. No user paper
+is used and no timing threshold is tested. See the
+[2026-10-31 report](../../../docs/texpresso-resolution-2026-10-31/README.md)
+for build/reproduction commands, raw samples, limits and measurement caveats.
+
 ## Editor buffer benchmark
 
 For the real editor buffer path, use the application configured with

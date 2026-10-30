@@ -59,6 +59,13 @@ void ClientTest::invalidDimensions()
     QVERIFY(!TexpressoProtocol::validImage(h));
     h = header(100); h["width"] = -1; QVERIFY(!TexpressoProtocol::validImage(h));
     h = header(0); QVERIFY(!TexpressoProtocol::validImage(h));
+    h = header(100); h["width"] = 2240; h["height"] = 3168;
+    QVERIFY(TexpressoProtocol::validImage(h));
+    h["width"] = 4000; h["height"] = 4000; h["byteLength"] = 64 * 1024 * 1024;
+    QVERIFY(TexpressoProtocol::validImage(h));
+    h["height"] = 4001; QVERIFY(!TexpressoProtocol::validImage(h));
+    h["height"] = 4000; h["byteLength"] = 64 * 1024 * 1024 + 1;
+    QVERIFY(!TexpressoProtocol::validImage(h));
     h = header(100); h["textBounds"] = QJsonArray{50, 20, 560, 700};
     QVERIFY(TexpressoProtocol::validImage(h));
     for (const auto &text : {QJsonArray{50, 20, 50, 700}, QJsonArray{1, 2, 3}, QJsonArray{"x", 0, 5, 6}}) {
@@ -131,6 +138,8 @@ void ClientTest::cacheEviction_data()
     QTest::addColumn<QSize>("size"); QTest::addColumn<int>("count");
     QTest::newRow("entry-budget") << QSize(2, 2) << 5;
     QTest::newRow("byte-budget") << QSize(4000, 1000) << 3;
+    QTest::newRow("retina-byte-budget") << QSize(2240, 3168) << 3;
+    QTest::newRow("maximum-raster") << QSize(4000, 4000) << 2;
 }
 void ClientTest::cacheEviction()
 {

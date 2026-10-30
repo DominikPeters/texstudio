@@ -12,6 +12,8 @@ class TexpressoProtocol : public QObject
 {
     Q_OBJECT
 public:
+    static constexpr qint64 maxPixels = 16000000;
+    static constexpr qint64 maxPngBytes = 64 * 1024 * 1024;
     explicit TexpressoProtocol(QObject *parent = nullptr) : QObject(parent) {}
     void feed(const QByteArray &bytes);
     void finish();

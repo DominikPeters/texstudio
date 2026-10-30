@@ -6,6 +6,7 @@
 #include <QStandardPaths>
 #include <csignal>
 #include <unistd.h>
+#include <algorithm>
 
 TexpressoChild::TexpressoChild(QObject *parent) : QProcess(parent)
 {
@@ -72,6 +73,8 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
         }
         child.setProgram(program);
         QStringList arguments = {"-texlive", "-headless", "-json", "-lines"};
+        if (features["maxPreviewPixels"].toInt() > 4000000)
+            arguments << "-preview-max-pixels" << QString::number(std::min(features["maxPreviewPixels"].toInt(), previewPixelLimit));
         for (const auto &directory : inclusionDirectories) arguments << "-I" << directory;
         arguments << rootFile;
         child.setArguments(arguments);
@@ -113,8 +116,9 @@ TexpressoProcess::~TexpressoProcess()
     probe.kill(); probe.waitForFinished(1000);
     killGroup(); child.kill(); child.waitForFinished(1000);
 }
-void TexpressoProcess::start(const QString &engine, const QString &root, const QStringList &directories)
+void TexpressoProcess::start(const QString &engine, const QString &root, const QStringList &directories, int pixelLimit)
 {
+    previewPixelLimit = std::clamp(pixelLimit, 1, int(TexpressoProtocol::maxPixels));
     program = engine; rootFile = root; inclusionDirectories = directories;
     const auto env = texliveEnvironment();
     if (!QFileInfo(engine).isExecutable()) { emit failed(tr("The bundled TeXpresso engine is missing. Reinstall this application.")); return; }

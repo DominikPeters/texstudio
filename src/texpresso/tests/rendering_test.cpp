@@ -18,7 +18,40 @@ private slots:
     void externalBuildDisablesInteractions();
     void realEngine();
     void cachedInverseUsesPublishedSourceMap();
+    void retinaResolution();
 };
+void RenderingTest::retinaResolution()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for native Retina rendering");
+    QTemporaryDir project; const auto root = project.filePath("retina.tex");
+    QString source = "\\documentclass[a4paper]{article}\n\\begin{document}\nFirst page A.\\newpage\nSecond page B.\\end{document}\n";
+    QFile file(root); QVERIFY(file.open(QIODevice::WriteOnly)); file.write(source.toUtf8()); file.close();
+    TexpressoManager manager(nullptr, engine); manager.openBuffer(root, source); manager.activate(root);
+    auto session = manager.current(); session->followCursor = false; session->setAutoRerun(false);
+    auto &preview = session->preview;
+    QTRY_VERIFY_WITH_TIMEOUT(preview.valid() || session->failed(), 45000);
+    QVERIFY2(!session->failed(), qPrintable(session->engineOutput));
+    preview.lastPage(); QTRY_VERIFY_WITH_TIMEOUT(preview.complete() && preview.valid(), 15000);
+    for (int width : {2240, 3200}) {
+        preview.setWidth(width); preview.navigateTo(0);
+        QTRY_VERIFY_WITH_TIMEOUT(preview.valid() && preview.image().width() == width, 15000);
+        const auto first = preview.image();
+        QVERIFY(qint64(first.width()) * first.height() > 4000000);
+        preview.navigateTo(1); QTRY_VERIFY_WITH_TIMEOUT(preview.valid() && preview.image().width() == width, 15000);
+        QVERIFY(preview.image() != first);
+        preview.releaseCache(); preview.navigateTo(0);
+        QTRY_VERIFY_WITH_TIMEOUT(preview.valid() && preview.image().width() == width, 15000);
+        QCOMPARE(preview.image(), first); // Includes native encoded-only cache reuse at 3200 px.
+    }
+    const auto sequence = preview.sequence();
+    const auto beforeEdit = preview.image();
+    source.replace("page A", "page C"); manager.openBuffer(root, source);
+    QTRY_VERIFY_WITH_TIMEOUT(preview.sequence() > sequence && preview.valid(), 15000);
+    QCOMPARE(preview.image().width(), 3200); // A changed page still decodes/composes at Retina size.
+    QVERIFY(preview.image() != beforeEdit);
+    manager.shutdown();
+}
 static QByteArray png(const QImage &image)
 {
     QByteArray bytes; QBuffer buffer(&bytes); buffer.open(QIODevice::WriteOnly); image.save(&buffer, "PNG"); return bytes;
