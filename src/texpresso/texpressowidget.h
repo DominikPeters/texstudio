@@ -131,6 +131,8 @@ private:
     int rasterWidth = 0;
     bool shownInvert = false, shownGray = false;
     bool updating = false;
+    QPoint zoomScrollPosition = QPoint(-1, -1);
+    QPointF zoomScrollRemainder;
     double lastZoomMode = 0;
     QRectF lastTextRange;
 };

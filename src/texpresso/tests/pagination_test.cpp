@@ -9,6 +9,8 @@
 #include <QTemporaryDir>
 #include <QScopeGuard>
 #include <QNativeGestureEvent>
+#include <QPinchGesture>
+#include <QGestureEvent>
 
 class PaginationTest : public QObject
 {
@@ -40,6 +42,8 @@ private slots:
     void replayKeepsPublishedAvailability();
     void failedPassKeepsTextGeometry();
     void trackpadZoomKeepsAnchor();
+    void recognizedPinchKeepsCursorAnchor();
+    void startupRerunsKeepPublishedTotal();
     void incompleteTypingKeepsPage_data();
     void incompleteTypingKeepsPage();
 };
@@ -347,6 +351,76 @@ void PaginationTest::trackpadZoomKeepsAnchor()
     QSKIP("Native gesture constructor requires Qt 6.2");
 #endif
 }
+void PaginationTest::recognizedPinchKeepsCursorAnchor()
+{
+    TexpressoManager manager; PDFDocumentConfig config{};
+    TexpressoWidget widget(&manager, &config, [](const QString &) { return QIcon(); });
+    widget.move(300, 220); widget.resize(640, 700); widget.show(); QCoreApplication::processEvents();
+    TexpressoSession session("/tmp/pinch.tex", {}, {}); widget.shown = &session;
+    auto &preview = session.preview; QSignalSpy commands(&preview, &TexpressoPreview::command);
+    preview.setActive(true); preview.message({"preview-state", 1, 0, 5, true, 0});
+    deliver(preview, last(commands)); QTRY_VERIFY(preview.valid());
+    widget.canvas->pixels = preview.image(); widget.canvas->pageBounds = preview.bounds();
+    widget.setZoom(1); widget.layoutPage(); widget.showPage(2);
+    widget.area->horizontalScrollBar()->setValue(80);
+    const QPoint viewportAnchor(220, 260);
+    const QPoint globalAnchor = widget.area->viewport()->mapToGlobal(viewportAnchor);
+    const auto local = widget.canvas->mapFromGlobal(globalAnchor);
+    const QPointF pagePoint = (QPointF(widget.documentCanvas->mapFromGlobal(globalAnchor))
+        - widget.pageRects[2].topLeft()) / widget.canvas->scale;
+    QSignalSpy scales(widget.canvas, &TexpressoCanvas::scaleRequested);
+    const auto cleanup = qScopeGuard([&] { widget.shown = nullptr; });
+    for (int i = 1; i <= 60; ++i) {
+        QPinchGesture pinch;
+#ifdef Q_OS_MACOS
+        // QMacPinchGestureRecognizer uses a widget-local center and global hotspot.
+        pinch.setCenterPoint(local);
+#else
+        pinch.setCenterPoint(globalAnchor);
+#endif
+        pinch.setHotSpot(globalAnchor); pinch.setTotalScaleFactor(std::pow(1.01, i <= 30 ? i : 60 - i));
+        QGestureEvent gesture({&pinch}); widget.canvas->event(&gesture);
+        QCoreApplication::processEvents();
+        const auto actual = widget.documentCanvas->mapToGlobal(
+            (QPointF(widget.pageRects[2].topLeft()) + pagePoint * widget.canvas->scale).toPoint());
+        QVERIFY2((actual - globalAnchor).manhattanLength() <= 3,
+            qPrintable(QString("step=%1 anchor=%2,%3 actual=%4,%5")
+                .arg(i).arg(globalAnchor.x()).arg(globalAnchor.y()).arg(actual.x()).arg(actual.y())));
+    }
+    QCOMPARE(scales.size(), 60);
+}
+
+void PaginationTest::startupRerunsKeepPublishedTotal()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for startup pagination integration");
+    QTemporaryDir dir; const auto root = dir.filePath("main.tex");
+    QByteArray source = "\\documentclass{article}\n\\begin{document}\n\\tableofcontents\n";
+    for (int i = 0; i < 12; ++i)
+        source += "\\newpage\n\\section{Section " + QByteArray::number(i) + "}\\label{s" + QByteArray::number(i) + "}See \\ref{s11}.\n";
+    source += "\\end{document}\n"; QVERIFY(write(root, source));
+    TexpressoManager manager(nullptr, engine); PDFDocumentConfig config{};
+    TexpressoWidget widget(&manager, &config, [](const QString &) { return QIcon(); });
+    widget.resize(640, 700); widget.show(); manager.openBuffer(root, QString::fromUtf8(source)); manager.activate(root);
+    const auto live = manager.current(); live->followCursor = false; live->prepareEdit(root, 0, 0);
+    QStringList trace; int highest = 0; bool regressed = false;
+    connect(live->process.get(), &TexpressoProcess::message, &widget, [&](const QJsonArray &message) {
+        if (message[0].toString().startsWith("preview-") || message[0] == "reset-sync")
+            trace << QString::fromUtf8(QJsonDocument(message).toJson(QJsonDocument::Compact));
+    });
+    connect(&live->preview, &TexpressoPreview::updated, &widget, [&] {
+        const int total = live->preview.estimatedPageCount().value_or(live->preview.pageCount());
+        if (highest >= 13 && total < highest) regressed = true;
+        highest = std::max(highest, total);
+    });
+    QTRY_VERIFY_WITH_TIMEOUT(live->preview.valid(), 15000);
+    QTRY_VERIFY_WITH_TIMEOUT(live->engineOutput.contains("aux byte-stable, convergence reached"), 30000);
+    QTest::qWait(1200);
+    QVERIFY2(!regressed, qPrintable(trace.join('\n')));
+    QCOMPARE(live->preview.pageCount(), 13); QVERIFY(live->preview.complete());
+    manager.shutdown();
+}
+
 void PaginationTest::incompleteTypingKeepsPage_data()
 {
     QTest::addColumn<QString>("opening"); QTest::addColumn<QString>("closing");

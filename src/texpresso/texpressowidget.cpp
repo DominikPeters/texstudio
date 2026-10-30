@@ -135,7 +135,16 @@ bool TexpressoCanvas::event(QEvent *event)
             if (pinch->state() == Qt::GestureStarted) pinchTotal = 1;
             const qreal total = pinch->totalScaleFactor();
             if (std::isfinite(total) && total > 0 && pinchTotal > 0) {
-                emit scaleRequested(total / pinchTotal, mapFromGlobal(pinch->centerPoint().toPoint()));
+#ifdef Q_OS_MACOS
+                // Qt's macOS recognizer stores a widget-local center at the
+                // start, but updates the global hotspot as the cursor moves.
+                // The canvas itself can move while zooming/scrolling.
+                const auto global = pinch->hasHotSpot() ? pinch->hotSpot()
+                    : QPointF(mapToGlobal(pinch->centerPoint().toPoint()));
+#else
+                const auto global = pinch->centerPoint();
+#endif
+                emit scaleRequested(total / pinchTotal, mapFromGlobal(global.toPoint()));
                 pinchTotal = total;
             }
             gestures->accept(pinch); return true;
@@ -452,6 +461,7 @@ void TexpressoWidget::refresh()
     const bool switched = session != shown;
     shown = session;
     if (switched) {
+        zoomScrollPosition = QPoint(-1, -1); zoomScrollRemainder = {};
         knownBounds.clear(); extentPages = 1; viewportPage = session ? session->preview.page() : 0;
         canvas->pixels = {}; canvas->setProperty("texpressoPage", -1);
         for (auto page : extraCanvases) { page->hide(); page->pixels = {}; page->setProperty("texpressoPage", -1); }
@@ -674,19 +684,28 @@ void TexpressoWidget::setZoom(qreal value, const QPoint &anchor)
 {
     if (!shown) return;
     const QPoint viewportPosition = anchor.x() < 0 ? area->viewport()->rect().center() : canvas->mapTo(area->viewport(), anchor);
-    const QPoint documentPoint = documentCanvas->mapFrom(area->viewport(), viewportPosition);
+    const QPoint scrollPosition(area->horizontalScrollBar()->value(), area->verticalScrollBar()->value());
+    if (scrollPosition != zoomScrollPosition) zoomScrollRemainder = {};
+    const QPointF documentPoint = QPointF(documentCanvas->mapFrom(area->viewport(), viewportPosition)) + zoomScrollRemainder;
     int page = shown->preview.page();
-    for (int i = 0; i < pageRects.size(); ++i) if (pageRects[i].contains(documentPoint)) { page = i; break; }
+    for (int i = 0; i < pageRects.size(); ++i) if (QRectF(pageRects[i]).contains(documentPoint)) { page = i; break; }
     const auto oldRect = page < pageRects.size() ? pageRects[page] : QRect();
-    const QPointF fraction = oldRect.isEmpty() ? QPointF() : QPointF(double(documentPoint.x() - oldRect.x()) / oldRect.width(), double(documentPoint.y() - oldRect.y()) / oldRect.height());
+    // Keep the point in page coordinates, rather than fractions of the rounded
+    // widget dimensions. Retain subpixel scroll offsets across small pinch steps.
+    const QPointF pagePoint = oldRect.isEmpty() ? QPointF() : (documentPoint - oldRect.topLeft()) / canvas->scale;
     shown->preview.zoom = value; canvas->resetTools();
     if (value == -2) lastZoomMode = 1; // Recenter even when the mode is already selected.
     const bool before = updating; updating = true; layoutPage();
     if (page < pageRects.size()) {
         const auto target = pageRects[page];
-        if (value != -2)
-            area->horizontalScrollBar()->setValue(qRound(target.x() + fraction.x() * target.width()) - viewportPosition.x());
-        area->verticalScrollBar()->setValue(qRound(target.y() + fraction.y() * target.height()) - viewportPosition.y());
+        const QPointF wanted = QPointF(target.topLeft()) + pagePoint * canvas->scale - viewportPosition;
+        const auto position = [](QScrollBar *bar, qreal wanted) {
+            bar->setValue(qRound(wanted));
+            return wanted >= bar->minimum() && wanted <= bar->maximum() ? wanted - bar->value() : 0;
+        };
+        zoomScrollRemainder.setX(value != -2 ? position(area->horizontalScrollBar(), wanted.x()) : 0);
+        zoomScrollRemainder.setY(position(area->verticalScrollBar(), wanted.y()));
+        zoomScrollPosition = {area->horizontalScrollBar()->value(), area->verticalScrollBar()->value()};
     }
     updating = before; updateViewport(true);
 }
