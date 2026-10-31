@@ -6,12 +6,22 @@ libdeflate improves on the current system zlib but is less attractive for this
 pipeline because it requires whole-image scratch buffers. All candidates still
 produce standard, lossless PNG and use Qt's existing decoder.
 
-This experiment changes the opt-in benchmark only. The engine, its build
+The initial experiment changed the opt-in benchmark only. The engine, its build
 dependencies, and the installed app have not been switched. A production change
 should use zlib-ng's separate native API to avoid replacing the system zlib
 symbols used by other libraries, pin/build it for macOS and Linux, and run the
 existing native PNG tests with both backends. Intel and Linux performance remain
 unmeasured here.
+
+The subsequently approved implementation enables zlib-ng **level 2** in bundled
+macOS/Linux builds, with a system-zlib fallback for standalone builds. The
+actual C production writer passed the native PNG tests with both backends and
+Qt rendering/scrolling/link/diagnostic tests with zlib-ng. A verification run of
+the actual production function (rather than the C++ experimental wrapper) at
+2240 px measured 10.86 ms text, 8.81 ms vectors and 77.90 ms noise encoding;
+all outputs decoded exactly. See [production verification](production.json).
+Bundlers build the locked native static library, run the PNG regression and
+verify the backend/version/level from capabilities before packaging.
 
 ## Matched comparison
 

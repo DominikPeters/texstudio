@@ -1,0 +1,1120 @@
+{
+  "platform": "macOS-15.7.9-arm64-arm-64bit",
+  "machine": "arm64",
+  "benchmarkSha256": "23f31497846f6b97ad56a9ad846b0f4f1668c8a7424135d80a2cd9c18a761bd5",
+  "fixtureSha256": "f819bcf00989fc229ef9831dbdeb28a5e9fd9f6cb2427618b966512138758798",
+  "order": "serial; reverse codec order at alternating widths; PNG repeated at end of each case",
+  "runs": [
+    {
+      "codec": "png",
+      "compressionLibraries": {
+        "crc": "system zlib",
+        "libdeflate": "1.26",
+        "zlibNg": "2.3.3"
+      },
+      "decodeMs": {
+        "median": 4.336458,
+        "samples": [
+          4.310291,
+          4.761583,
+          5.532833,
+          4.336458,
+          4.374417,
+          4.231708,
+          3.891875
+        ]
+      },
+      "decodedBytes": {
+        "median": 7096320,
+        "samples": [
+          7096320,
+          7096320,
+          7096320,
+          7096320,
+          7096320,
+          7096320,
+          7096320
+        ]
+      },
+      "encodeCpuMs": {
+        "median": 10.932,
+        "samples": [
+          10.932,
+          12.425,
+          11.77,
+          12.719,
+          10.461,
+          10.401,
+          10.859
+        ]
+      },
+      "encodeMs": {
+        "median": 10.977291,
+        "samples": [
+          10.977291,
+          12.992917,
+          12.301875,
+          14.61125,
+          10.483875,
+          10.400584,
+          10.898625
+        ]
+      },
+      "encodedBytes": 240840,
+      "explicitEncoderScratchBytes": 0,
+      "grayscaleDetectionMs": {
+        "median": 8.991792,
+        "samples": [
+          8.9155,
+          9.263458,
+          8.991792,
+          8.955875,
+          9.023042,
+          9.0235,
+          8.940334
+        ]
+      },
+      "grayscaleSource": true,
+      "height": 3168,
+      "kind": "page",
+      "optionalGrayscaleConversionMs": {
+        "median": 0.000375,
+        "samples": [
+          0.024667,
+          0.0005,
+          0.000375,
+          0.000166,
+          0.000625,
+          0.000208,
+          0.000334
+        ]
+      },
+      "page": 0,
+      "peakRssBytesBeforeQualityAnalysis": 87719936,
+      "qtImageFormat": 24,
+      "qtVersion": "6.12.0",
+      "quality": {
+        "changedPixelFraction": 0,
+        "darkPixelsLightenedPast128": 0,
+        "identical": true,
+        "inkMse": 0,
+        "inkPixels": 264302,
+        "maxChannelError": 0,
+        "mse": 0,
+        "originalWhitePixelsChanged": 0,
+        "psnrDb": null
+      },
+      "requestedWidth": 2240,
+      "webpSettings": {
+        "lossless": 0,
+        "method": 4,
+        "nearLossless": 100,
+        "preset": "not applicable",
+        "quality": 75,
+        "sharpYuv": 0,
+        "threads": 0
+      },
+      "webpVersion": 67072,
+      "width": 2240,
+      "name": "text",
+      "sequence": 0,
+      "artifact": "2240-text-00-png"
+    },
+    {
+      "codec": "png",
+      "compressionLibraries": {
+        "crc": "system zlib",
+        "libdeflate": "1.26",
+        "zlibNg": "2.3.3"
+      },
+      "decodeMs": {
+        "median": 4.384542,
+        "samples": [
+          4.499375,
+          4.338875,
+          4.384542,
+          4.524166,
+          4.288083,
+          4.642375,
+          4.201834
+        ]
+      },
+      "decodedBytes": {
+        "median": 7096320,
+        "samples": [
+          7096320,
+          7096320,
+          7096320,
+          7096320,
+          7096320,
+          7096320,
+          7096320
+        ]
+      },
+      "encodeCpuMs": {
+        "median": 10.703,
+        "samples": [
+          10.635,
+          10.981,
+          11.012,
+          10.593,
+          10.761,
+          10.703,
+          10.618
+        ]
+      },
+      "encodeMs": {
+        "median": 10.862958,
+        "samples": [
+          10.704042,
+          11.205417,
+          11.52675,
+          10.610375,
+          10.922791,
+          10.862958,
+          10.768333
+        ]
+      },
+      "encodedBytes": 240840,
+      "explicitEncoderScratchBytes": 0,
+      "grayscaleDetectionMs": {
+        "median": 9.339125,
+        "samples": [
+          9.54875,
+          9.22775,
+          9.268958,
+          9.386,
+          9.339125,
+          9.382083,
+          9.222709
+        ]
+      },
+      "grayscaleSource": true,
+      "height": 3168,
+      "kind": "page",
+      "optionalGrayscaleConversionMs": {
+        "median": 0.000583,
+        "samples": [
+          0.006709,
+          0.000625,
+          0.000375,
+          0.000542,
+          0,
+          0.000667,
+          0.000583
+        ]
+      },
+      "page": 0,
+      "peakRssBytesBeforeQualityAnalysis": 73236480,
+      "qtImageFormat": 24,
+      "qtVersion": "6.12.0",
+      "quality": {
+        "changedPixelFraction": 0,
+        "darkPixelsLightenedPast128": 0,
+        "identical": true,
+        "inkMse": 0,
+        "inkPixels": 264302,
+        "maxChannelError": 0,
+        "mse": 0,
+        "originalWhitePixelsChanged": 0,
+        "psnrDb": null
+      },
+      "requestedWidth": 2240,
+      "webpSettings": {
+        "lossless": 0,
+        "method": 4,
+        "nearLossless": 100,
+        "preset": "not applicable",
+        "quality": 75,
+        "sharpYuv": 0,
+        "threads": 0
+      },
+      "webpVersion": 67072,
+      "width": 2240,
+      "name": "text",
+      "sequence": 1,
+      "artifact": "2240-text-01-png"
+    },
+    {
+      "codec": "png",
+      "compressionLibraries": {
+        "crc": "system zlib",
+        "libdeflate": "1.26",
+        "zlibNg": "2.3.3"
+      },
+      "decodeMs": {
+        "median": 16.971875,
+        "samples": [
+          16.971875,
+          16.661416,
+          16.621958,
+          17.051708,
+          18.347125,
+          18.452583,
+          16.714042
+        ]
+      },
+      "decodedBytes": {
+        "median": 28385280,
+        "samples": [
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280
+        ]
+      },
+      "encodeCpuMs": {
+        "median": 9.086,
+        "samples": [
+          9.086,
+          8.864,
+          8.81,
+          8.82,
+          9.866,
+          9.234,
+          9.49
+        ]
+      },
+      "encodeMs": {
+        "median": 9.123084,
+        "samples": [
+          9.123084,
+          8.880875,
+          8.852417,
+          8.834041,
+          10.2125,
+          9.433667,
+          9.597333
+        ]
+      },
+      "encodedBytes": 258575,
+      "explicitEncoderScratchBytes": 0,
+      "grayscaleDetectionMs": {
+        "median": 1.823291,
+        "samples": [
+          2.034,
+          1.790875,
+          1.781792,
+          1.822792,
+          1.823291,
+          1.931125,
+          1.8535
+        ]
+      },
+      "grayscaleSource": false,
+      "height": 3168,
+      "kind": "page",
+      "page": 1,
+      "peakRssBytesBeforeQualityAnalysis": 80494592,
+      "qtImageFormat": 4,
+      "qtVersion": "6.12.0",
+      "quality": {
+        "changedPixelFraction": 0,
+        "darkPixelsLightenedPast128": 0,
+        "identical": true,
+        "inkMse": 0,
+        "inkPixels": 443349,
+        "maxChannelError": 0,
+        "mse": 0,
+        "originalWhitePixelsChanged": 0,
+        "psnrDb": null
+      },
+      "requestedWidth": 2240,
+      "webpSettings": {
+        "lossless": 0,
+        "method": 4,
+        "nearLossless": 100,
+        "preset": "not applicable",
+        "quality": 75,
+        "sharpYuv": 0,
+        "threads": 0
+      },
+      "webpVersion": 67072,
+      "width": 2240,
+      "name": "vectors",
+      "sequence": 0,
+      "artifact": "2240-vectors-00-png"
+    },
+    {
+      "codec": "png",
+      "compressionLibraries": {
+        "crc": "system zlib",
+        "libdeflate": "1.26",
+        "zlibNg": "2.3.3"
+      },
+      "decodeMs": {
+        "median": 16.748542,
+        "samples": [
+          17.119416,
+          17.495417,
+          16.57025,
+          17.122667,
+          16.583917,
+          16.748542,
+          16.612375
+        ]
+      },
+      "decodedBytes": {
+        "median": 28385280,
+        "samples": [
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280
+        ]
+      },
+      "encodeCpuMs": {
+        "median": 8.786,
+        "samples": [
+          9.002,
+          8.68,
+          8.897,
+          8.672,
+          8.776,
+          8.786,
+          8.797
+        ]
+      },
+      "encodeMs": {
+        "median": 8.806791,
+        "samples": [
+          9.077917,
+          8.701292,
+          8.905708,
+          8.688625,
+          8.806791,
+          8.786083,
+          8.84
+        ]
+      },
+      "encodedBytes": 258575,
+      "explicitEncoderScratchBytes": 0,
+      "grayscaleDetectionMs": {
+        "median": 1.806917,
+        "samples": [
+          1.789166,
+          1.806917,
+          1.782375,
+          1.782208,
+          1.899292,
+          1.827834,
+          1.888792
+        ]
+      },
+      "grayscaleSource": false,
+      "height": 3168,
+      "kind": "page",
+      "page": 1,
+      "peakRssBytesBeforeQualityAnalysis": 80789504,
+      "qtImageFormat": 4,
+      "qtVersion": "6.12.0",
+      "quality": {
+        "changedPixelFraction": 0,
+        "darkPixelsLightenedPast128": 0,
+        "identical": true,
+        "inkMse": 0,
+        "inkPixels": 443349,
+        "maxChannelError": 0,
+        "mse": 0,
+        "originalWhitePixelsChanged": 0,
+        "psnrDb": null
+      },
+      "requestedWidth": 2240,
+      "webpSettings": {
+        "lossless": 0,
+        "method": 4,
+        "nearLossless": 100,
+        "preset": "not applicable",
+        "quality": 75,
+        "sharpYuv": 0,
+        "threads": 0
+      },
+      "webpVersion": 67072,
+      "width": 2240,
+      "name": "vectors",
+      "sequence": 1,
+      "artifact": "2240-vectors-01-png"
+    },
+    {
+      "codec": "png",
+      "compressionLibraries": {
+        "crc": "system zlib",
+        "libdeflate": "1.26",
+        "zlibNg": "2.3.3"
+      },
+      "decodeMs": {
+        "median": 32.598958,
+        "samples": [
+          32.722,
+          32.094958,
+          32.168167,
+          32.852208,
+          33.583208,
+          32.536375,
+          32.598958
+        ]
+      },
+      "decodedBytes": {
+        "median": 28385280,
+        "samples": [
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280
+        ]
+      },
+      "encodeCpuMs": {
+        "median": 78.335,
+        "samples": [
+          79.049,
+          78.335,
+          78.615,
+          78.15,
+          78.243,
+          78.638,
+          77.872
+        ]
+      },
+      "encodeMs": {
+        "median": 78.725708,
+        "samples": [
+          79.480709,
+          78.639917,
+          79.261,
+          78.725708,
+          78.693667,
+          78.927208,
+          78.327583
+        ]
+      },
+      "encodedBytes": 6870895,
+      "explicitEncoderScratchBytes": 0,
+      "grayscaleDetectionMs": {
+        "median": 1.595416,
+        "samples": [
+          1.703833,
+          1.57025,
+          1.626041,
+          1.571167,
+          1.579417,
+          1.595416,
+          1.599125
+        ]
+      },
+      "grayscaleSource": false,
+      "height": 3168,
+      "kind": "page",
+      "page": 2,
+      "peakRssBytesBeforeQualityAnalysis": 123912192,
+      "qtImageFormat": 4,
+      "qtVersion": "6.12.0",
+      "quality": {
+        "changedPixelFraction": 0,
+        "darkPixelsLightenedPast128": 0,
+        "identical": true,
+        "inkMse": 0,
+        "inkPixels": 2365924,
+        "maxChannelError": 0,
+        "mse": 0,
+        "originalWhitePixelsChanged": 0,
+        "psnrDb": null
+      },
+      "requestedWidth": 2240,
+      "webpSettings": {
+        "lossless": 0,
+        "method": 4,
+        "nearLossless": 100,
+        "preset": "not applicable",
+        "quality": 75,
+        "sharpYuv": 0,
+        "threads": 0
+      },
+      "webpVersion": 67072,
+      "width": 2240,
+      "name": "noise",
+      "sequence": 0,
+      "artifact": "2240-noise-00-png"
+    },
+    {
+      "codec": "png",
+      "compressionLibraries": {
+        "crc": "system zlib",
+        "libdeflate": "1.26",
+        "zlibNg": "2.3.3"
+      },
+      "decodeMs": {
+        "median": 33.521375,
+        "samples": [
+          33.802834,
+          33.521375,
+          32.632542,
+          34.068125,
+          33.091375,
+          33.350583,
+          33.867875
+        ]
+      },
+      "decodedBytes": {
+        "median": 28385280,
+        "samples": [
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280,
+          28385280
+        ]
+      },
+      "encodeCpuMs": {
+        "median": 77.609,
+        "samples": [
+          77.522,
+          78.953,
+          77.216,
+          77.609,
+          78.773,
+          78.238,
+          77.494
+        ]
+      },
+      "encodeMs": {
+        "median": 77.897166,
+        "samples": [
+          77.866,
+          79.397708,
+          77.46625,
+          77.897166,
+          80.341625,
+          79.356042,
+          77.7685
+        ]
+      },
+      "encodedBytes": 6870895,
+      "explicitEncoderScratchBytes": 0,
+      "grayscaleDetectionMs": {
+        "median": 1.581,
+        "samples": [
+          1.581,
+          1.592125,
+          1.578416,
+          1.60375,
+          1.615791,
+          1.569083,
+          1.568834
+        ]
+      },
+      "grayscaleSource": false,
+      "height": 3168,
+      "kind": "page",
+      "page": 2,
+      "peakRssBytesBeforeQualityAnalysis": 135856128,
+      "qtImageFormat": 4,
+      "qtVersion": "6.12.0",
+      "quality": {
+        "changedPixelFraction": 0,
+        "darkPixelsLightenedPast128": 0,
+        "identical": true,
+        "inkMse": 0,
+        "inkPixels": 2365924,
+        "maxChannelError": 0,
+        "mse": 0,
+        "originalWhitePixelsChanged": 0,
+        "psnrDb": null
+      },
+      "requestedWidth": 2240,
+      "webpSettings": {
+        "lossless": 0,
+        "method": 4,
+        "nearLossless": 100,
+        "preset": "not applicable",
+        "quality": 75,
+        "sharpYuv": 0,
+        "threads": 0
+      },
+      "webpVersion": 67072,
+      "width": 2240,
+      "name": "noise",
+      "sequence": 1,
+      "artifact": "2240-noise-01-png"
+    },
+    {
+      "codec": "png",
+      "compressionLibraries": {
+        "crc": "system zlib",
+        "libdeflate": "1.26",
+        "zlibNg": "2.3.3"
+      },
+      "decodeMs": {
+        "median": 0.049125,
+        "samples": [
+          0.056625,
+          0.0495,
+          0.045792,
+          0.050084,
+          0.0445,
+          0.04725,
+          0.049125
+        ]
+      },
+      "decodedBytes": {
+        "median": 20480,
+        "samples": [
+          20480,
+          20480,
+          20480,
+          20480,
+          20480,
+          20480,
+          20480
+        ]
+      },
+      "encodeCpuMs": {
+        "median": 0.061,
+        "samples": [
+          0.072,
+          0.063,
+          0.067,
+          0.061,
+          0.056,
+          0.06,
+          0.054
+        ]
+      },
+      "encodeMs": {
+        "median": 0.059958,
+        "samples": [
+          0.073042,
+          0.063125,
+          0.066666,
+          0.059958,
+          0.055667,
+          0.059792,
+          0.054208
+        ]
+      },
+      "encodedBytes": 2273,
+      "explicitEncoderScratchBytes": 0,
+      "grayscaleDetectionMs": {
+        "median": 0.026708,
+        "samples": [
+          0.026958,
+          0.026709,
+          0.026667,
+          0.026666,
+          0.031709,
+          0.026708,
+          0.026708
+        ]
+      },
+      "grayscaleSource": true,
+      "height": 80,
+      "kind": "word",
+      "optionalGrayscaleConversionMs": {
+        "median": 4.1e-05,
+        "samples": [
+          0.001333,
+          0,
+          4.1e-05,
+          4.2e-05,
+          4.1e-05,
+          0,
+          4.2e-05
+        ]
+      },
+      "page": 0,
+      "peakRssBytesBeforeQualityAnalysis": 49840128,
+      "qtImageFormat": 24,
+      "qtVersion": "6.12.0",
+      "quality": {
+        "changedPixelFraction": 0,
+        "darkPixelsLightenedPast128": 0,
+        "identical": true,
+        "inkMse": 0,
+        "inkPixels": 2017,
+        "maxChannelError": 0,
+        "mse": 0,
+        "originalWhitePixelsChanged": 0,
+        "psnrDb": null
+      },
+      "requestedWidth": 2240,
+      "webpSettings": {
+        "lossless": 0,
+        "method": 4,
+        "nearLossless": 100,
+        "preset": "not applicable",
+        "quality": 75,
+        "sharpYuv": 0,
+        "threads": 0
+      },
+      "webpVersion": 67072,
+      "width": 256,
+      "name": "word",
+      "sequence": 0,
+      "artifact": "2240-word-00-png"
+    },
+    {
+      "codec": "png",
+      "compressionLibraries": {
+        "crc": "system zlib",
+        "libdeflate": "1.26",
+        "zlibNg": "2.3.3"
+      },
+      "decodeMs": {
+        "median": 0.046333,
+        "samples": [
+          0.051959,
+          0.047916,
+          0.046333,
+          0.047125,
+          0.045,
+          0.044833,
+          0.044666
+        ]
+      },
+      "decodedBytes": {
+        "median": 20480,
+        "samples": [
+          20480,
+          20480,
+          20480,
+          20480,
+          20480,
+          20480,
+          20480
+        ]
+      },
+      "encodeCpuMs": {
+        "median": 0.06,
+        "samples": [
+          0.087,
+          0.069,
+          0.062,
+          0.06,
+          0.059,
+          0.057,
+          0.056
+        ]
+      },
+      "encodeMs": {
+        "median": 0.059709,
+        "samples": [
+          0.085958,
+          0.068167,
+          0.06275,
+          0.059709,
+          0.058416,
+          0.057375,
+          0.0565
+        ]
+      },
+      "encodedBytes": 2273,
+      "explicitEncoderScratchBytes": 0,
+      "grayscaleDetectionMs": {
+        "median": 0.026167,
+        "samples": [
+          0.029167,
+          0.026167,
+          0.026166,
+          0.026292,
+          0.02625,
+          0.026083,
+          0.026167
+        ]
+      },
+      "grayscaleSource": true,
+      "height": 80,
+      "kind": "word",
+      "optionalGrayscaleConversionMs": {
+        "median": 4.2e-05,
+        "samples": [
+          0.0045,
+          4.2e-05,
+          0,
+          4.2e-05,
+          0,
+          4.2e-05,
+          4.2e-05
+        ]
+      },
+      "page": 0,
+      "peakRssBytesBeforeQualityAnalysis": 50331648,
+      "qtImageFormat": 24,
+      "qtVersion": "6.12.0",
+      "quality": {
+        "changedPixelFraction": 0,
+        "darkPixelsLightenedPast128": 0,
+        "identical": true,
+        "inkMse": 0,
+        "inkPixels": 2017,
+        "maxChannelError": 0,
+        "mse": 0,
+        "originalWhitePixelsChanged": 0,
+        "psnrDb": null
+      },
+      "requestedWidth": 2240,
+      "webpSettings": {
+        "lossless": 0,
+        "method": 4,
+        "nearLossless": 100,
+        "preset": "not applicable",
+        "quality": 75,
+        "sharpYuv": 0,
+        "threads": 0
+      },
+      "webpVersion": 67072,
+      "width": 256,
+      "name": "word",
+      "sequence": 1,
+      "artifact": "2240-word-01-png"
+    },
+    {
+      "codec": "png",
+      "compressionLibraries": {
+        "crc": "system zlib",
+        "libdeflate": "1.26",
+        "zlibNg": "2.3.3"
+      },
+      "decodeMs": {
+        "median": 0.236959,
+        "samples": [
+          0.236959,
+          0.267875,
+          0.263208,
+          0.268167,
+          0.228584,
+          0.222041,
+          0.223
+        ]
+      },
+      "decodedBytes": {
+        "median": 192000,
+        "samples": [
+          192000,
+          192000,
+          192000,
+          192000,
+          192000,
+          192000,
+          192000
+        ]
+      },
+      "encodeCpuMs": {
+        "median": 0.521,
+        "samples": [
+          0.521,
+          0.521,
+          0.56,
+          0.587,
+          0.512,
+          0.501,
+          0.487
+        ]
+      },
+      "encodeMs": {
+        "median": 0.520417,
+        "samples": [
+          0.520417,
+          0.520875,
+          0.560041,
+          0.613417,
+          0.512459,
+          0.501458,
+          0.486542
+        ]
+      },
+      "encodedBytes": 22642,
+      "explicitEncoderScratchBytes": 0,
+      "grayscaleDetectionMs": {
+        "median": 0.257542,
+        "samples": [
+          0.256625,
+          0.28675,
+          0.247583,
+          0.303042,
+          0.293209,
+          0.257542,
+          0.248584
+        ]
+      },
+      "grayscaleSource": true,
+      "height": 160,
+      "kind": "paragraph",
+      "optionalGrayscaleConversionMs": {
+        "median": 0.000125,
+        "samples": [
+          0.004916,
+          0.000375,
+          0,
+          0.000125,
+          0.000125,
+          0,
+          4.2e-05
+        ]
+      },
+      "page": 0,
+      "peakRssBytesBeforeQualityAnalysis": 52510720,
+      "qtImageFormat": 24,
+      "qtVersion": "6.12.0",
+      "quality": {
+        "changedPixelFraction": 0,
+        "darkPixelsLightenedPast128": 0,
+        "identical": true,
+        "inkMse": 0,
+        "inkPixels": 25772,
+        "maxChannelError": 0,
+        "mse": 0,
+        "originalWhitePixelsChanged": 0,
+        "psnrDb": null
+      },
+      "requestedWidth": 2240,
+      "webpSettings": {
+        "lossless": 0,
+        "method": 4,
+        "nearLossless": 100,
+        "preset": "not applicable",
+        "quality": 75,
+        "sharpYuv": 0,
+        "threads": 0
+      },
+      "webpVersion": 67072,
+      "width": 1200,
+      "name": "paragraph",
+      "sequence": 0,
+      "artifact": "2240-paragraph-00-png"
+    },
+    {
+      "codec": "png",
+      "compressionLibraries": {
+        "crc": "system zlib",
+        "libdeflate": "1.26",
+        "zlibNg": "2.3.3"
+      },
+      "decodeMs": {
+        "median": 0.219667,
+        "samples": [
+          0.237708,
+          0.224208,
+          0.220375,
+          0.21725,
+          0.217917,
+          0.216708,
+          0.219667
+        ]
+      },
+      "decodedBytes": {
+        "median": 192000,
+        "samples": [
+          192000,
+          192000,
+          192000,
+          192000,
+          192000,
+          192000,
+          192000
+        ]
+      },
+      "encodeCpuMs": {
+        "median": 0.487,
+        "samples": [
+          0.555,
+          0.502,
+          0.487,
+          0.487,
+          0.485,
+          0.483,
+          0.483
+        ]
+      },
+      "encodeMs": {
+        "median": 0.486292,
+        "samples": [
+          0.554792,
+          0.50225,
+          0.486292,
+          0.487583,
+          0.485083,
+          0.483542,
+          0.483458
+        ]
+      },
+      "encodedBytes": 22642,
+      "explicitEncoderScratchBytes": 0,
+      "grayscaleDetectionMs": {
+        "median": 0.241166,
+        "samples": [
+          0.241791,
+          0.242333,
+          0.241166,
+          0.240875,
+          0.241042,
+          0.240167,
+          0.259834
+        ]
+      },
+      "grayscaleSource": true,
+      "height": 160,
+      "kind": "paragraph",
+      "optionalGrayscaleConversionMs": {
+        "median": 4.2e-05,
+        "samples": [
+          0.003125,
+          0,
+          0,
+          4.1e-05,
+          4.2e-05,
+          4.2e-05,
+          4.2e-05
+        ]
+      },
+      "page": 0,
+      "peakRssBytesBeforeQualityAnalysis": 51412992,
+      "qtImageFormat": 24,
+      "qtVersion": "6.12.0",
+      "quality": {
+        "changedPixelFraction": 0,
+        "darkPixelsLightenedPast128": 0,
+        "identical": true,
+        "inkMse": 0,
+        "inkPixels": 25772,
+        "maxChannelError": 0,
+        "mse": 0,
+        "originalWhitePixelsChanged": 0,
+        "psnrDb": null
+      },
+      "requestedWidth": 2240,
+      "webpSettings": {
+        "lossless": 0,
+        "method": 4,
+        "nearLossless": 100,
+        "preset": "not applicable",
+        "quality": 75,
+        "sharpYuv": 0,
+        "threads": 0
+      },
+      "webpVersion": 67072,
+      "width": 1200,
+      "name": "paragraph",
+      "sequence": 1,
+      "artifact": "2240-paragraph-01-png"
+    }
+  ],
+  "harnessSourceSha256": {
+    "benchmark_codecs.py": "9a59c2c94c354df6c8cacada2e8efadc14e1b6e2b45ecb86a857f2df5a81a2d6",
+    "codec_benchmark.cpp": "a113d8d338753530e7622f79e45939e6b0ee0e90e70f25a95ef1e5a997bb0e99",
+    "png_compression.h": "bdbcf29211d805bd901daeb958d12ed6b758b29d33f934441e2eb8a6e94c72b1"
+  },
+  "nativeObjectSha256": {
+    "preview.o": "dd2d9d231a26a64f7428ffef838e8e5281e2decf341e7afaad0384c8258aaaff",
+    "renderer.o": "9c8c853215d939d37d0b364be9e160c7cec517b1395f7d5fb4c55e47779fac51"
+  }
+}

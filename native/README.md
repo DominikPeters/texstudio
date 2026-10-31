@@ -16,14 +16,25 @@ Initialize the engine with `git submodule update --init native/texpresso`.
 On macOS, supply MuPDF and ICU at the versions in `dependencies.lock.json`:
 
 ```
-python3 native/scripts/build.py --mupdf-source /path/to/mupdf --icu-prefix /path/to/icu
+python3 native/scripts/build.py --mupdf-source /path/to/mupdf --icu-prefix /path/to/icu \
+  --zlib-ng-source /path/to/zlib-ng
 ```
 
 On Linux install the engine's build dependencies (see the live-preview CI), then:
 
 ```
-python3 native/scripts/build_linux.py
+python3 native/scripts/build_linux.py --zlib-ng-source /path/to/zlib-ng
 ```
+
+Both builders require the zlib-ng source revision in `dependencies.lock.json`.
+They build its static native API and enable streaming PNG compression at level
+2, preserving system zlib for MuPDF and other dependencies. `-capabilities`
+reports `pngCompression`, which the builders verify before packaging. The
+manifest records the compressor version, source revision and library hash;
+notices include its license. Standalone engine builds retain system zlib level
+1 unless built with `-DTXP_ZLIB_NG`, the generated zlib-ng include directory and
+`libz-ng.a`. No libdeflate dependency or PNG/Qt protocol change is required.
+See the [compression benchmark](../docs/texpresso-png-compression/README.md).
 
 Bundles contain `bin/texpresso`, `bin/texpresso-xetex`, relocated runtime
 libraries, dependency notices and `build-manifest.json`. macOS binaries are

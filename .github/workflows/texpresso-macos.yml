@@ -48,6 +48,7 @@ jobs:
           lock = json.load(open('native/dependencies.lock.json'))
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               output.write('mupdf=' + lock['mupdf']['revision'] + '\n')
+              output.write('zlibng=' + lock['zlibNg']['revision'] + '\n')
               output.write('commit=' + subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() + '\n')
           PY
       - name: Cache Homebrew downloads
@@ -72,10 +73,17 @@ jobs:
           persist-credentials: false
       - name: Initialize only MuPDF's required submodule
         run: git -C .native-sources/mupdf submodule update --init --depth 1 thirdparty/lcms2
+      - name: Fetch locked zlib-ng source
+        uses: actions/checkout@v7
+        with:
+          repository: zlib-ng/zlib-ng
+          ref: ${{ steps.source.outputs.zlibng }}
+          path: .native-sources/zlib-ng
+          persist-credentials: false
       - name: Build the shared engine and its complete runtime
         run: |
           python3 native/scripts/build.py --mupdf-source .native-sources/mupdf \
-            --icu-prefix "$(brew --prefix icu4c@78)" --jobs 3
+            --icu-prefix "$(brew --prefix icu4c@78)" --zlib-ng-source .native-sources/zlib-ng --jobs 3
           python3 native/scripts/validate_bundle.py "native/.bundles/darwin-$(uname -m)"
       - name: Fetch and build Poppler with Qt preview support
         run: |
