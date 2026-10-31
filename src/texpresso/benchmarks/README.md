@@ -1,5 +1,53 @@
 # Qt live-preview benchmark
 
+## Codec comparison
+
+`texpresso-codec-benchmark` compares our production PNG writer with libwebp,
+including Qt's actual PNG/WebP decoding. It is an opt-in developer target;
+the installed app and production protocol are unaffected. On macOS with
+Homebrew Qt, shared MuPDF, SDL2 and libwebp, first build the pinned engine's
+`build/frontend/preview.o` and `build/frontend/renderer.o` using its Homebrew
+Makefile configuration, against the same MuPDF headers/library used below.
+For a clean development checkout, those objects can be built without XeTeX:
+
+```sh
+make -C /absolute/path/to/built/texpresso config
+make -C /absolute/path/to/built/texpresso/src/frontend \
+  ../../build/frontend/preview.o ../../build/frontend/renderer.o
+```
+
+An existing matching development engine tree works too.
+Use the engine tree containing those objects as `TEXPRESSO_ENGINE_BUILD`:
+
+```sh
+cmake -S src/texpresso -B build-codecs -DCMAKE_BUILD_TYPE=Release \
+  -DTEXSTUDIO_TEXPRESSO_BENCHMARKS=ON -DTEXSTUDIO_TEXPRESSO_TESTS=OFF \
+  -DTEXPRESSO_ENGINE_BUILD=/absolute/path/to/built/texpresso \
+  -DCMAKE_PREFIX_PATH=/opt/homebrew
+cmake --build build-codecs --target texpresso-codec-benchmark --parallel
+python3 src/texpresso/benchmarks/benchmark_codecs.py \
+  --benchmark build-codecs/texpresso-codec-benchmark \
+  --engine-build /absolute/path/to/built/texpresso \
+  --output /tmp/texstudio-codecs
+```
+
+The output directory must not exist. The runner generates a public three-page
+fixture with installed XeLaTeX and a deterministic RGB image; `--fixture` can
+reuse that PDF. It runs fresh processes serially, with two warmups and seven
+samples per case. Defaults cover 1200/2240 physical pixel widths, text/math,
+vectors, RGB noise and small text patches, across PNG and fast lossless,
+near-lossless and lossy WebP configurations. `--widths` and `--codecs` select
+subsets. Run on an otherwise quiet machine. Shared MuPDF linking was tested
+on Homebrew macOS; static MuPDF builds may need additional dependency libraries.
+
+The JSON records encoding wall/CPU time, Qt decoding time, encoded/decoded
+bytes, peak process RSS, grayscale conversion cost and pixel-error metrics.
+Lossless modes must reproduce every source pixel. No timing threshold is tested.
+Crops and raw JSON are retained; full encoded pages are removed by default to
+save disk space (`--keep-images` retains them). See the
+[2026-10-31 results](../../../docs/texpresso-codecs-2026-10-31/README.md)
+for measurements, limitations, exact batches and the decision to keep PNG.
+
 ## Physical-pixel resolution budget
 
 `texpresso-raster-benchmark` and
