@@ -16,7 +16,6 @@ python3 native/scripts/local_test_app.py --build-dir build-cursor-app \
   --library-path /tmp/texstudio-poppler/lib \
   --library-path "$(brew --prefix)/lib" \
   --poppler-data "$(brew --prefix)/share/poppler"
-open "$HOME/Applications/TeXstudio Espresso.app"
 ```
 
 This is the current development machine's command. Change
@@ -32,6 +31,13 @@ an ad-hoc local signature, verifies the complete signature and dependencies,
 and adds the isolated launcher and the larger, unlettered coffee-cup icon from
 [the Icon Composer assets](icons/README.md). It does not use Apple credentials or perform
 notarization. See [signed macOS builds](MACOS_RELEASE.md) for distributed builds.
+
+For routine development, set `--output` to an ignored staging path such as
+`.native-sources/app-updates/feature/TeXstudio Espresso.app` and verify it with
+[the background testing workflow](TESTING.md). Building and verification do not
+require quitting the installed app. Installation/restart and interactive launch
+are separate, explicitly requested operations; do not open a native file dialog
+to perform routine verification.
 
 It refuses to overwrite an existing output. Quit the test app, move the previous
 bundle outside Applications (for example, into the ignored repository directory
