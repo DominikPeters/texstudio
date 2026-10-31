@@ -20,6 +20,9 @@
 extern "C" {
 #include "preview.h"
 }
+#ifdef TEXPRESSO_COMPRESSION_BENCHMARK
+#include "png_compression.h"
+#endif
 
 static QJsonObject summary(QVector<double> samples) {
     QJsonArray raw; for (auto v : samples) raw.append(v);
@@ -71,7 +74,11 @@ int main(int argc,char **argv) {
     const QString mode=QString::fromLocal8Bit(argv[5]),prefix=QString::fromLocal8Bit(argv[6]);
     const int pageNumber=QString::fromLocal8Bit(argv[2]).toInt(),width=QString::fromLocal8Bit(argv[3]).toInt();
     if (width<512 || width>4096 || pageNumber<0 || (kind!="page" && kind!="word" && kind!="paragraph")) return 1;
-    const bool png=mode=="png";
+    bool alternativePng=false;
+#ifdef TEXPRESSO_COMPRESSION_BENCHMARK
+    alternativePng=mode.startsWith("ng") || mode.startsWith("deflate");
+#endif
+    const bool png=mode=="png" || alternativePng;
     WebPConfig config; WebPConfigInit(&config);
     if (!png) {
         if (mode=="ll0" || mode=="ll1" || mode=="ll0-mt" || mode=="near80" || mode=="near60" || mode=="near80-l1" || mode=="near60-l1") {
@@ -112,9 +119,14 @@ int main(int argc,char **argv) {
     const QImage reference(pixels->samples,pixels->w,pixels->h,pixels->stride,QImage::Format_RGB888);
     QVector<double> encode,decode,cpu,storage,grayConversion,grayDetection;QImage last;QByteArray encoded;
     const bool grayscale=gray(reference);
+    size_t scratch=0;
     for (int i=0;i<9;++i) {
         QElapsedTimer timer;timer.start();const auto cpuStart=std::clock();
         fz_buffer *buffer=nullptr;WebPMemoryWriter writer;WebPMemoryWriterInit(&writer);
+#ifdef TEXPRESSO_COMPRESSION_BENCHMARK
+        if(alternativePng)buffer=compressionPng(ctx,pixels,mode,&scratch);
+        else
+#endif
         if (png) buffer=txp_preview_png(ctx,pixels);
         else {
             WebPPicture picture;WebPPictureInit(&picture);picture.use_argb=config.lossless || config.use_sharp_yuv;
@@ -154,11 +166,16 @@ int main(int argc,char **argv) {
         {"qtVersion",qVersion()},{"qtImageFormat",int(last.format())},{"webpVersion",WebPGetEncoderVersion()},{"grayscaleSource",grayscale},
         {"encodeMs",summary(encode)},{"encodeCpuMs",summary(cpu)},{"decodeMs",summary(decode)},
         {"decodedBytes",summary(storage)},{"encodedBytes",encoded.size()},{"peakRssBytesBeforeQualityAnalysis",rss},
+        {"explicitEncoderScratchBytes",double(scratch)},
         {"grayscaleDetectionMs",summary(grayDetection)},{"quality",quality},
         {"webpSettings",QJsonObject{{"lossless",config.lossless},{"quality",config.quality},{"method",config.method},
             {"nearLossless",config.near_lossless},{"threads",config.thread_level},{"sharpYuv",config.use_sharp_yuv},
             {"preset",png?"not applicable":config.lossless?"LosslessPreset":mode.endsWith("-default")?"DEFAULT":"TEXT"}}}};
     if(grayscale) report["optionalGrayscaleConversionMs"]=summary(grayConversion);
+#ifdef TEXPRESSO_COMPRESSION_BENCHMARK
+    report["compressionLibraries"]=QJsonObject{{"zlibNg",ZLIBNG_VERSION},{"libdeflate",LIBDEFLATE_VERSION_STRING},
+        {"crc",alternativePng && mode.endsWith("-crc")?"zlib-ng":"system zlib"}};
+#endif
     std::cout<<QJsonDocument(report).toJson().constData();
     if(pixels!=full)fz_drop_pixmap(ctx,pixels);fz_drop_pixmap(ctx,full);fz_drop_context(ctx);
 }

@@ -1,0 +1,19 @@
+{
+  "baseSourceRevision": "c41468bb45e0cfdb7890ff6139d379c18726d07c",
+  "engineRevision": "7925c62e9df1104467f6e38212516e04d5784955",
+  "cpu": "Apple M1 Pro",
+  "systemZlibVersion": "1.2.12",
+  "zlibNgVersion": "2.3.3",
+  "zlibNgRevision": "12731092979c6d07f42da27da673a9f6c7b13586",
+  "zlibNgStaticLibrarySha256": "7f7fb82bda7c94afec801be11b78e7c6253f7b739f37b33583f8d09268f61e8e",
+  "zlibNgConfiguration": "Release; ZLIB_COMPAT=OFF; BUILD_SHARED_LIBS=OFF; NEON and ARMv8 CRC enabled by runtime dispatch",
+  "libdeflateVersion": "1.26",
+  "libdeflateDylibSha256": "be13ae95ee99fdb86aa45bee19ab7228d8b9b0b9b89ecf7209dc2349fb25cf70",
+  "batches": {
+    "level-sweep.json": "Exploratory: O3 wrapper, QByteArray output and zero-filled vector scratch, system CRC",
+    "crc-sweep.json": "Exploratory: O2 wrapper, QByteArray output and zero-filled vector scratch, CRC comparisons",
+    "matched.json": "Primary: O2 wrapper, MuPDF output buffer, uninitialized libdeflate scratch, system CRC"
+  },
+  "reproduction": "src/texpresso/benchmarks/README.md#png-compression-comparison",
+  "productionChanged": false
+}

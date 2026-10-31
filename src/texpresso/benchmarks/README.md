@@ -48,6 +48,42 @@ save disk space (`--keep-images` retains them). See the
 [2026-10-31 results](../../../docs/texpresso-codecs-2026-10-31/README.md)
 for measurements, limitations, exact batches and the decision to keep PNG.
 
+## PNG compression comparison
+
+The codec harness can optionally compare the production PNG writer with
+zlib-ng's native streaming API and libdeflate's whole-buffer API. These are
+benchmark dependencies only. Build zlib-ng 2.3.3 (commit
+`12731092979c6d07f42da27da673a9f6c7b13586`) with its native API:
+
+```sh
+git clone --depth 1 --branch 2.3.3 https://github.com/zlib-ng/zlib-ng.git /tmp/texpresso-zlib-ng
+cmake -S /tmp/texpresso-zlib-ng -B /tmp/texpresso-zlib-ng/build \
+  -DCMAKE_BUILD_TYPE=Release -DZLIB_COMPAT=OFF -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF
+cmake --build /tmp/texpresso-zlib-ng/build --parallel 4
+```
+
+With libdeflate headers/library available (tested with Homebrew 1.26), add
+`-DTEXPRESSO_ZLIBNG_BUILD=/tmp/texpresso-zlib-ng/build` to the codec CMake command
+above, then rebuild `texpresso-codec-benchmark`. Run:
+
+```sh
+python3 src/texpresso/benchmarks/benchmark_codecs.py \
+  --benchmark build-codecs/texpresso-codec-benchmark \
+  --engine-build /absolute/path/to/built/texpresso \
+  --output /tmp/texstudio-png-compression \
+  --widths 1200 2240 3360 --codecs png ng1 ng2 deflate1
+```
+
+`ng1`/`ng2` are zlib-ng compression levels; `deflate1` through `deflate6` select
+libdeflate levels. Add `-crc` to use zlib-ng's CRC routine instead of the system
+zlib routine. The matched writers use the same MuPDF output buffer operations,
+grayscale scan, unfiltered rows, resolution metadata and 64 KiB IDAT chunks.
+The candidate wrapper is compiled at `-O2`, matching the production native
+objects. Qt decodes every output and lossless equality is required. The report
+records explicit scratch buffer sizes, excluding compressor-internal state and
+encoded output; process RSS includes rasterization and Qt and is less precise.
+See [results and tradeoffs](../../../docs/texpresso-png-compression/README.md).
+
 ## Physical-pixel resolution budget
 
 `texpresso-raster-benchmark` and

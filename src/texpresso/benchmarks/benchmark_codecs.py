@@ -55,6 +55,8 @@ def main():
     metadata = dict(platform=platform.platform(), machine=platform.machine(),
                     benchmarkSha256=digest(benchmark), fixtureSha256=digest(pdf),
                     order='serial; reverse codec order at alternating widths; PNG repeated at end of each case', runs=[])
+    metadata['harnessSourceSha256'] = {name: digest(Path(__file__).with_name(name))
+                                       for name in ('benchmark_codecs.py', 'codec_benchmark.cpp', 'png_compression.h')}
     if args.engine_build:
         metadata['nativeObjectSha256'] = {name: digest(args.engine_build / 'build/frontend' / name)
                                           for name in ('preview.o', 'renderer.o')}
@@ -75,7 +77,7 @@ def main():
                 metadata['runs'].append(result)
                 (output / 'results.json').write_text(json.dumps(metadata, indent=2) + '\n')
                 if not args.keep_images:
-                    prefix.with_suffix('.png' if codec == 'png' else '.webp').unlink()
+                    prefix.with_suffix('.png' if codec == 'png' or codec.startswith(('ng', 'deflate')) else '.webp').unlink()
                 print(f'{prefix.name}: encode {result["encodeMs"]["median"]:.2f} ms, decode {result["decodeMs"]["median"]:.2f} ms, {result["encodedBytes"]} bytes', flush=True)
     print(output / 'results.json')
 
