@@ -64,6 +64,7 @@ private:
     friend class PaginationTest;
     friend class TexpressoDiagnosticsTest;
     friend class TexpressoPrewarmTest;
+    friend class LinksTest;
     friend class TexpressoSourceFollowTest;
     friend class ViewerPanelTest;
     void refreshPrewarmContext();

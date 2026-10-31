@@ -102,6 +102,24 @@ forward search or cursor prewarming; actual subsequent caret movement or edits
 resume those behaviors. `texpresso-rendering` checks the cached-page fast path
 with native profiling, and `texpresso-prewarm` checks the editor callback cycle.
 
+Hyperref destination lookup uses the incremental destination index directly.
+A compiler checkpoint can precede opening its DVI output file; a link clicked
+after cursor prewarming or convergence restoration must treat that empty index
+as unresolved and continue compilation, rather than dereference an absent output.
+The native `make test-preview-destinations` regression covers known/missing
+destinations requested before the first compiler step. The Qt links suite also
+checks a link after actual prewarming before the first shipout.
+
+For an opt-in reproduction on a local paper, set `TEXPRESSO_TEST_ENGINE` and
+`TEXPRESSO_TEST_PAPER`, then run
+`build-texpresso/texpresso-links-tests providedPaperDestination` with
+`QT_QPA_PLATFORM=offscreen`. It copies the paper, auxiliary files and declared
+bibliographies to a temporary project without changing the originals. It follows
+the first-page TOC link named by `TEXPRESSO_TEST_PAPER_DESTINATION` (default
+`section.6`), verifies the target annotation and optionally checks the one-based
+`TEXPRESSO_TEST_PAPER_DESTINATION_PAGE`. `TEXPRESSO_TEST_PAPER_ARTIFACTS` saves the
+engine log when requested.
+
 The standalone Qt `texpresso-pagination` test compares live counts with separate
 XeLaTeX/PDF `pdfinfo` counts, including empty documents, blank final/intermediate
 pages and two-column layouts. Completed output with recoverable TeX errors has

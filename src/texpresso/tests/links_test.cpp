@@ -5,6 +5,8 @@
 #include <QBuffer>
 #include <QFile>
 #include <QTemporaryDir>
+#include <QRegularExpression>
+#include <QScopeGuard>
 #include <QUrl>
 #include <limits>
 
@@ -20,6 +22,8 @@ private slots:
     void cachedAndBackgroundLinks();
     void emptyPatchUpdatesAnnotations();
     void realHyperref();
+    void linkAfterPreamblePrewarming();
+    void providedPaperDestination();
 };
 
 static QJsonObject annotations(const QStringList &uris, const QString &destination = {})
@@ -236,6 +240,79 @@ void LinksTest::emptyPatchUpdatesAnnotations()
     preview.receive(header, {}); QTRY_COMPARE(preview.annotationsForPage(0), next);
     QCOMPARE(preview.image(), pixels); preview.activateLink(0, 0, 2, 1); QCOMPARE(external.size(), 1);
     QCOMPARE(external[0][0].toUrl(), QUrl("https://example.com/new"));
+}
+
+void LinksTest::linkAfterPreamblePrewarming()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for prewarming/link integration");
+    QTemporaryDir project; const auto root = project.filePath("main.tex");
+    const QString source = "\\documentclass{article}\n\\usepackage[xetex]{hyperref}\n%" + QString(4096, 'x')
+        + "\n\\begin{document}\n\\hyperlink{later}{Jump to later page}.\\newpage\n"
+          "\\hypertarget{later}{Later target}.\\end{document}\n";
+    QFile file(root); QVERIFY(file.open(QIODevice::WriteOnly)); file.write(source.toUtf8()); file.close();
+    TexpressoSession live(root, engine, {{TexpressoSession::identity(root), source}});
+    live.followCursor = false; live.setAutoRerun(false); live.setActive(true); live.start();
+    QSignalSpy prepared(live.process.get(), &TexpressoProcess::message), reveals(&live.preview, &TexpressoPreview::reveal);
+    const auto diagnostic = [&] { return live.engineOutput.right(8000); };
+    QTRY_VERIFY2_WITH_TIMEOUT(live.preview.valid(), qPrintable(diagnostic()), 20000);
+    const int index = linkIndex(live.preview.annotationsForPage(0), "#later"); QVERIFY(index >= 0);
+    // Roll back to an input boundary before the first shipout opened the DVI.
+    live.prepareEdit(root, 3, 0);
+    const auto warmed = [&] {
+        for (const auto &event : prepared) {
+            const auto message = event[0].toJsonArray();
+            if (message[0] == "preview-prepared" && message[4] == "ready") return true;
+        }
+        return false;
+    };
+    QTRY_VERIFY2_WITH_TIMEOUT(warmed(), qPrintable(diagnostic()), 15000);
+    live.preview.activateLink(0, index, live.preview.revision(), live.preview.sequence());
+    QTRY_VERIFY2_WITH_TIMEOUT(live.preview.page() == 1 && live.preview.valid() && !reveals.isEmpty(),
+        qPrintable(diagnostic()), 15000);
+    QVERIFY(!live.failed()); live.stop();
+}
+
+void LinksTest::providedPaperDestination()
+{
+    const auto paper = qEnvironmentVariable("TEXPRESSO_TEST_PAPER"), engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (paper.isEmpty() || engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_PAPER and TEXPRESSO_TEST_ENGINE for an isolated paper link reproduction");
+    const QFileInfo original(paper); QTemporaryDir project; const auto root = project.filePath(original.fileName());
+    QVERIFY(QFile::copy(paper, root));
+    for (const auto &suffix : {"aux", "bbl", "bcf", "toc", "out", "run.xml"}) {
+        const auto name = original.completeBaseName() + '.' + suffix;
+        if (QFileInfo::exists(original.dir().filePath(name))) QVERIFY(QFile::copy(original.dir().filePath(name), project.filePath(name)));
+    }
+    QFile file(root); QVERIFY(file.open(QIODevice::ReadOnly)); const auto source = QString::fromUtf8(file.readAll()); file.close();
+    auto resources = QRegularExpression("\\\\addbibresource(?:\\[[^\\]]*\\])?\\{([^}]+)\\}").globalMatch(source);
+    while (resources.hasNext()) {
+        const auto name = resources.next().captured(1);
+        QVERIFY(!QDir::isAbsolutePath(name) && !name.contains(".."));
+        QVERIFY(QDir(project.path()).mkpath(QFileInfo(name).path()));
+        QVERIFY(QFile::copy(original.dir().filePath(name), project.filePath(name)));
+    }
+    TexpressoSession live(root, engine, {{TexpressoSession::identity(root), source}});
+    live.followCursor = false; live.setActive(true); live.start();
+    const auto artifacts = qEnvironmentVariable("TEXPRESSO_TEST_PAPER_ARTIFACTS");
+    const auto evidence = qScopeGuard([&] {
+        if (artifacts.isEmpty()) return;
+        QDir().mkpath(artifacts); QFile log(QDir(artifacts).filePath("links-engine.log"));
+        if (log.open(QIODevice::WriteOnly)) log.write(live.engineOutput.toUtf8());
+    });
+    const auto diagnostic = [&] { return live.compilerLogOutput().right(2000) + '\n' + live.engineOutput.right(6000); };
+    QSignalSpy reveals(&live.preview, &TexpressoPreview::reveal);
+    QTRY_VERIFY2_WITH_TIMEOUT(live.preview.valid(), qPrintable(diagnostic()), 30000);
+    const auto destination = qEnvironmentVariable("TEXPRESSO_TEST_PAPER_DESTINATION", "section.6");
+    const int index = linkIndex(live.preview.annotationsForPage(0), '#' + destination);
+    QVERIFY2(index >= 0, qPrintable("No first-page link to " + destination));
+    live.preview.activateLink(0, index, live.preview.revision(), live.preview.sequence());
+    QTRY_VERIFY2_WITH_TIMEOUT(live.preview.valid() && !reveals.isEmpty(), qPrintable(diagnostic()), 60000);
+    const int expectedPage = qEnvironmentVariableIntValue("TEXPRESSO_TEST_PAPER_DESTINATION_PAGE");
+    if (expectedPage > 0) QCOMPARE(live.preview.page(), expectedPage - 1);
+    bool targetFound = false;
+    for (const auto &value : live.preview.annotationsForPage(live.preview.page())["destinations"].toArray())
+        if (value.toObject()["name"] == destination) targetFound = true;
+    QVERIFY(targetFound); QVERIFY(!live.failed()); live.stop();
 }
 
 void LinksTest::realHyperref()
