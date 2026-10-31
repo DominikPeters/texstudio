@@ -13,7 +13,76 @@ private slots:
     void batchedLogUpdates();
     void diagnosticSourceGeneration();
     void liveOutputAndStatus();
+    void fatalEngineErrorIsVisible();
+    void dviPageFailureKeepsEngineUsable();
+    void malformedDviStopsNormally();
 };
+
+void TexpressoDiagnosticsTest::fatalEngineErrorIsVisible()
+{
+    TexpressoSession session("/tmp/main.tex", {}, {});
+    session.message({"engine-error", "Invalid DVI page boundary at byte 100"});
+    QVERIFY(session.failed());
+    QVERIFY(session.status.contains("Invalid DVI page boundary at byte 100"));
+    QVERIFY(!session.status.contains("crashed"));
+}
+
+static QByteArray dviFixture(bool malformed = false)
+{
+    QByteArray bytes;
+    const auto byte = [&](int value) { bytes.append(char(value)); };
+    const auto u32 = [&](unsigned value) { byte(value >> 24); byte(value >> 16); byte(value >> 8); byte(value); };
+    byte(247); byte(7); u32(25400000); u32(473628672); u32(1000); byte(0);
+    for (int page = 0; page < 2; ++page) {
+        byte(139); for (int i = 0; i < 11; ++i) u32(0);
+        if (page == 1) { byte(171); byte(65); } // Character in an undefined font.
+        byte(malformed ? 139 : 140);
+        if (malformed) { for (int i = 0; i < 11; ++i) u32(0); break; }
+    }
+    return bytes;
+}
+
+void TexpressoDiagnosticsTest::dviPageFailureKeepsEngineUsable()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for DVI failure integration");
+    QTemporaryDir project; const auto root = project.filePath("main.xdv");
+    QFile file(root); QVERIFY(file.open(QIODevice::WriteOnly)); file.write(dviFixture()); file.close();
+    TexpressoProcess process;
+    QSignalSpy ready(&process, &TexpressoProcess::ready), images(&process, &TexpressoProcess::image),
+        messages(&process, &TexpressoProcess::message), failures(&process, &TexpressoProcess::failed);
+    process.start(engine, root); QTRY_VERIFY_WITH_TIMEOUT(!ready.isEmpty(), 10000);
+    process.send({"preview-render", 1, 0, 512, 1, 0});
+    QTRY_VERIFY_WITH_TIMEOUT(!images.isEmpty() || !failures.isEmpty(), 10000);
+    QVERIFY(failures.isEmpty()); QCOMPARE(images.last()[0].toJsonObject()["requestId"].toInt(), 1);
+    process.send({"preview-render", 2, 1, 512, 1, 0});
+    const auto pageFailed = [&] {
+        for (const auto &event : messages) {
+            const auto m = event[0].toJsonArray();
+            if (m[0] == "preview-error" && m[1] == 2 && m[2].toString().contains("font")) return true;
+        }
+        return false;
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(pageFailed() || !failures.isEmpty(), 10000);
+    QVERIFY(pageFailed()); QVERIFY(failures.isEmpty()); QVERIFY(process.running());
+    process.send({"preview-render", 3, 0, 512, 1, 0});
+    QTRY_VERIFY_WITH_TIMEOUT(images.last()[0].toJsonObject()["requestId"].toInt() == 3 || !failures.isEmpty(), 10000);
+    QVERIFY(failures.isEmpty()); QVERIFY(process.running()); process.stop();
+}
+
+void TexpressoDiagnosticsTest::malformedDviStopsNormally()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for DVI failure integration");
+    QTemporaryDir project; const auto root = project.filePath("main.xdv");
+    QFile file(root); QVERIFY(file.open(QIODevice::WriteOnly)); file.write(dviFixture(true)); file.close();
+    TexpressoSession session(root, engine, {});
+    session.setActive(true); session.start();
+    QTRY_VERIFY_WITH_TIMEOUT(session.failed(), 10000);
+    QVERIFY(session.status.contains("Unexpected DVI page boundary"));
+    QVERIFY(!session.status.contains("crashed"));
+}
+
 
 void TexpressoDiagnosticsTest::compilerErrorsAndRecovery()
 {

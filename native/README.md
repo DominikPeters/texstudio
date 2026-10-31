@@ -149,6 +149,31 @@ glibc baseline. The compact pinned MuPDF/ICU profiles apply to the macOS builder
 The live-preview workflow validates Linux bundles and their installation; the
 inherited upstream compatibility workflows disable live preview explicitly.
 
+## Preview failure handling
+
+Malformed or incomplete DVI/XDV data is reported over the headless protocol
+instead of calling `abort()`. A page-local interpretation failure emits
+`["preview-error", request, message]`; the engine discards that page's partial
+drawing state and remains available for later pages or a corrected compiler
+revision. A failure that makes the global compiler/output state untrustworthy
+emits `["engine-error", message]` and exits normally with status 1. TeXstudio
+shows that message in the live-preview status and retains the engine trace in
+Show Output. Internal process invariants and operating-system failures remain
+fatal because continuing from them is not safe.
+
+The native safety regression exhaustively feeds every DVI opcode short input,
+then checks truncated pages, malformed boundaries, missing fonts, partial
+specials, include-path bounds and recovery of the drawing context:
+
+```sh
+make test-preview-safety
+```
+
+Run the same target with AddressSanitizer and UndefinedBehaviorSanitizer when
+changing the DVI parser. The Qt `texpresso-diagnostics` suite additionally
+checks that a bad page does not kill the process and that a global engine error
+is displayed as a normal failure rather than as a crash.
+
 ## Engine compatibility audits
 
 The TeX Live provider supplies packages and fonts to the embedded engine; it does

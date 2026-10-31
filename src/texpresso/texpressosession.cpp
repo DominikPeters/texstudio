@@ -275,7 +275,9 @@ void TexpressoSession::message(const QJsonArray &m)
     preview.message(m);
     prewarm.message(m);
     const auto verb = m[0].toString();
-    if (verb == "preview-state" && m.size() == 6) {
+    if (verb == "engine-error" && m.size() == 2 && m[1].isString()) {
+        error(tr("TeXpresso engine failed: %1").arg(m[1].toString()));
+    } else if (verb == "preview-state" && m.size() == 6) {
         acknowledgedSource = std::max(acknowledgedSource, qint64(m[2].toDouble()));
         if (resumePending && acknowledgedSource == preview.sequence() && foreground && !userPaused && !userStopped && !externalBuildRunning()) {
             resumePending = false; process->send({"resume"});
