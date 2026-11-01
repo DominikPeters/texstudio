@@ -1,13 +1,13 @@
 #include "ViewerPanel.h"
+#include <QAction>
+#include <QActionGroup>
 #include <QApplication>
-#include <QButtonGroup>
 #include <QCryptographicHash>
-#include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QSettings>
 #include <QStackedWidget>
-#include <QToolButton>
+#include <QToolBar>
 #include <QVBoxLayout>
 
 ViewerPanel::ViewerPanel(QSettings *settings, QWidget *parent) : QWidget(parent), settings(settings)
@@ -16,25 +16,24 @@ ViewerPanel::ViewerPanel(QSettings *settings, QWidget *parent) : QWidget(parent)
     setMinimumWidth(280);
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0); layout->setSpacing(0);
-    auto header = new QHBoxLayout;
-    header->setContentsMargins(6, 3, 6, 3);
-    header->addWidget(new QLabel(tr("Preview"), this)); header->addStretch();
-    auto group = new QButtonGroup(this);
-    const auto button = [&](const QString &text, const char *name, Mode mode) {
-        auto b = new QToolButton(this); b->setText(text); b->setObjectName(name);
-        b->setCheckable(true); b->setAutoRaise(true); b->setFocusPolicy(Qt::NoFocus);
-        group->addButton(b); header->addWidget(b);
-        connect(b, &QToolButton::clicked, this, [this, mode] { setMode(mode); });
-        return b;
+    // The mode switch leads each viewer's own toolbar instead of taking a row.
+    auto group = new QActionGroup(this);
+    const auto action = [&](const QString &text, const char *name, Mode mode) {
+        auto a = new QAction(text, this); a->setObjectName(name); a->setCheckable(true);
+        group->addAction(a);
+        connect(a, &QAction::triggered, this, [this, mode] { setMode(mode); });
+        return a;
     };
-    liveButton = button(tr("Live"), "previewModeLive", Live);
-    liveButton->setToolTip(tr("Preview current edits with TeXpresso"));
-    pdfButton = button(tr("PDF"), "previewModePdf", Pdf);
-    pdfButton->setToolTip(tr("View the last compiled PDF"));
-    layout->addLayout(header);
+    liveAction = action(tr("Live"), "previewModeLive", Live);
+    liveAction->setToolTip(tr("Preview current edits with TeXpresso"));
+    pdfAction = action(tr("PDF"), "previewModePdf", Pdf);
+    pdfAction->setToolTip(tr("View the last compiled PDF"));
     stack = new QStackedWidget(this); stack->setObjectName("previewStack"); layout->addWidget(stack, 1);
     emptyPdf = new QWidget(stack);
-    auto emptyLayout = new QVBoxLayout(emptyPdf); emptyLayout->addStretch();
+    auto emptyLayout = new QVBoxLayout(emptyPdf); emptyLayout->setContentsMargins(0, 0, 0, 0);
+    auto emptyToolbar = new QToolBar(emptyPdf); emptyToolbar->setObjectName("previewEmptyToolbar");
+    emptyToolbar->setIconSize(QSize(16, 16)); emptyLayout->addWidget(emptyToolbar);
+    addModeActions(emptyPdf); emptyLayout->addStretch();
     auto message = new QLabel(tr("No compiled PDF is available for this project yet."), emptyPdf);
     message->setWordWrap(true); message->setAlignment(Qt::AlignCenter); emptyLayout->addWidget(message);
     auto build = new QPushButton(tr("Build PDF"), emptyPdf); build->setObjectName("previewBuildPdf");
@@ -55,11 +54,12 @@ ViewerPanel::~ViewerPanel()
 }
 void ViewerPanel::setLiveViewer(QWidget *viewer)
 {
-    live = viewer; stack->addWidget(viewer); refresh();
+    live = viewer; stack->addWidget(viewer); addModeActions(viewer); refresh();
 }
 void ViewerPanel::setPdfSupported(bool supported)
 {
-    pdfSupported = supported; pdfButton->setEnabled(supported);
+    // Without a PDF viewer a lone Live switch would be inert.
+    pdfSupported = supported; liveAction->setVisible(supported); pdfAction->setVisible(supported);
     if (!supported) currentMode = Live;
     refresh();
 }
@@ -79,6 +79,14 @@ void ViewerPanel::setMode(Mode mode)
     refresh(true);
     if (changed) emit modeChanged(mode);
 }
+void ViewerPanel::addModeActions(QWidget *viewer)
+{
+    auto toolbar = viewer->findChild<QToolBar *>(QString(), Qt::FindDirectChildrenOnly);
+    if (!toolbar || toolbar->actions().contains(liveAction)) return;
+    const auto first = toolbar->actions().value(0);
+    toolbar->insertActions(first, {liveAction, pdfAction});
+    if (first) toolbar->insertSeparator(first);
+}
 QWidget *ViewerPanel::pdf(const QString &project) const { return pdfs.value(project); }
 QWidget *ViewerPanel::currentViewer() const { return stack->currentWidget(); }
 bool ViewerPanel::liveVisible() const { return isVisible() && currentMode == Live && live && stack->currentWidget() == live; }
@@ -89,7 +97,7 @@ void ViewerPanel::addPdf(const QString &project, QWidget *viewer)
     }
     pdfs[project] = viewer;
     if (stack->indexOf(viewer) < 0) {
-        stack->addWidget(viewer);
+        stack->addWidget(viewer); addModeActions(viewer);
         connect(viewer, &QObject::destroyed, this, [this] { refresh(); });
     }
     refresh();
@@ -101,7 +109,7 @@ void ViewerPanel::refresh(bool requestPdf)
     const auto previous = stack->currentWidget();
     const bool hadFocus = previous && (previous->hasFocus() || previous->isAncestorOf(QApplication::focusWidget()));
     stack->setCurrentWidget(target); setFocusProxy(target);
-    liveButton->setChecked(currentMode == Live); pdfButton->setChecked(currentMode == Pdf);
+    liveAction->setChecked(currentMode == Live); pdfAction->setChecked(currentMode == Pdf);
     emptyPdf->findChild<QPushButton *>()->setEnabled(!currentProject.isEmpty() && pdfSupported);
     if (previous != target && hadFocus) target->setFocus();
     updateLiveVisibility();

@@ -3,9 +3,11 @@
 #include "texpressomanager.h"
 #include <QAction>
 #include <QFile>
+#include <QLabel>
 #include <QLineEdit>
 #include <QSettings>
 #include <QTemporaryDir>
+#include <QToolBar>
 
 class ViewerPanelTest : public QObject
 {
@@ -14,6 +16,7 @@ private slots:
     void projectModesAndCachedViews();
     void visibleShortcutsAndFocus();
     void closingAndVisibility();
+    void modeSwitchLeadsViewerToolbars();
     void hiddenPreviewKeepsCompilerWarm();
 };
 void ViewerPanelTest::projectModesAndCachedViews()
@@ -75,6 +78,33 @@ void ViewerPanelTest::closingAndVisibility()
     QPointer<QWidget> oldPdf = new QWidget, newPdf = new QWidget;
     replaced->addPdf("a", oldPdf); replaced->addPdf("a", newPdf);
     delete replaced; QVERIFY(oldPdf.isNull()); QVERIFY(newPdf.isNull());
+}
+void ViewerPanelTest::modeSwitchLeadsViewerToolbars()
+{
+    QTemporaryDir dir; QSettings settings(dir.filePath("settings.ini"), QSettings::IniFormat);
+    ViewerPanel panel(&settings); panel.resize(600, 400);
+    QVERIFY(!panel.findChild<QLabel *>(QString(), Qt::FindDirectChildrenOnly));
+    const auto viewer = [](QAction *&existing) {
+        auto widget = new QWidget; auto toolbar = new QToolBar(widget);
+        existing = toolbar->addAction("Zoom"); return widget;
+    };
+    QAction *liveZoom, *pdfZoom;
+    auto live = viewer(liveZoom), pdf = viewer(pdfZoom);
+    panel.setLiveViewer(live); panel.setProject("a");
+    const auto modeActions = [](QWidget *widget) { return widget->findChild<QToolBar *>()->actions(); };
+    auto actions = modeActions(live);
+    QCOMPARE(actions.size(), 4); QCOMPARE(actions[0]->objectName(), QString("previewModeLive"));
+    QCOMPARE(actions[1]->objectName(), QString("previewModePdf")); QVERIFY(actions[2]->isSeparator());
+    QCOMPARE(actions[3], liveZoom); QVERIFY(actions[0]->isChecked());
+    // The placeholder shown before a PDF exists keeps a way back to Live.
+    actions[1]->trigger(); QCOMPARE(panel.mode(), ViewerPanel::Pdf);
+    auto placeholder = panel.currentViewer(); QVERIFY(placeholder != live);
+    QVERIFY(modeActions(placeholder).contains(actions[0]));
+    panel.addPdf("a", pdf); panel.addPdf("a", pdf);
+    QCOMPARE(modeActions(pdf).size(), 4); QCOMPARE(modeActions(pdf)[3], pdfZoom);
+    QCOMPARE(panel.currentViewer(), pdf); QVERIFY(actions[1]->isChecked());
+    actions[0]->trigger(); QCOMPARE(panel.mode(), ViewerPanel::Live); QCOMPARE(panel.currentViewer(), live);
+    panel.setPdfSupported(false); QVERIFY(!actions[0]->isVisible()); QVERIFY(!actions[1]->isVisible());
 }
 void ViewerPanelTest::hiddenPreviewKeepsCompilerWarm()
 {

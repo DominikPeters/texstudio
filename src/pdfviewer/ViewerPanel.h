@@ -5,9 +5,10 @@
 
 class QSettings;
 class QStackedWidget;
-class QToolButton;
+class QAction;
 
-// One embedded preview area. Renderers keep their own tools and view state.
+// One embedded preview area. Renderers keep their own tools and view state;
+// the Live/PDF switch is added to the front of each renderer's toolbar.
 class ViewerPanel : public QWidget
 {
     Q_OBJECT
@@ -38,10 +39,11 @@ protected:
 private:
     void refresh(bool requestPdf = false);
     void updateLiveVisibility();
+    void addModeActions(QWidget *viewer);
     QString settingsKey() const;
     QSettings *settings;
     QStackedWidget *stack;
-    QToolButton *liveButton, *pdfButton;
+    QAction *liveAction, *pdfAction;
     QWidget *emptyPdf;
     QPointer<QWidget> live;
     QHash<QString, QPointer<QWidget>> pdfs;

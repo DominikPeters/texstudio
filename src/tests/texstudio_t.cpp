@@ -14,6 +14,7 @@
 #ifndef NO_POPPLER_PREVIEW
 #include "PDFDocument.h"
 #include <QPdfWriter>
+#include <QToolBar>
 #include <QPainter>
 #endif
 #endif
@@ -77,12 +78,19 @@ void TexStudioTest::unifiedPreviewPanel()
     pdfA->widget()->zoom(1.25); pdfA->goToPage(1);
     QTRY_COMPARE(pdfA->widget()->getPageIndex(), 1);
     const double scale = pdfA->widget()->totalScaleFactor();
+    // The Live/PDF switch leads each viewer's toolbar; the panel has no header row.
+    for (auto toolbar : {pdfA->findChild<QToolBar *>("toolBar"), txs->texpressoWidget->findChild<QToolBar *>("texpressoViewerToolbar")}) {
+        QVERIFY(toolbar); QVERIFY(toolbar->actions().size() > 2);
+        QCOMPARE(toolbar->actions()[0]->objectName(), QString("previewModeLive"));
+        QCOMPARE(toolbar->actions()[1]->objectName(), QString("previewModePdf"));
+    }
     const auto artifacts = qEnvironmentVariable("TEXPRESSO_PREVIEW_TEST_ARTIFACTS");
     if (!artifacts.isEmpty()) {
         QVERIFY(QDir().mkpath(artifacts)); QTest::qWait(200);
         QVERIFY(txs->grab().save(artifacts + "/pdf-mode.png"));
     }
     panel->setMode(ViewerPanel::Live); QVERIFY(panel->liveVisible());
+    if (!artifacts.isEmpty()) { QTest::qWait(200); QVERIFY(txs->grab().save(artifacts + "/live-mode.png")); }
     txs->currentEditor()->setFocus(); auto focus = QApplication::focusWidget();
     pdfA->loadFile(firstPdf, QFileInfo(first), PDFDocument::NoDisplayFlags);
     QCoreApplication::processEvents();
