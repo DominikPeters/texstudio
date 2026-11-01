@@ -39,12 +39,17 @@ require quitting the installed app. Installation/restart and interactive launch
 are separate, explicitly requested operations; do not open a native file dialog
 to perform routine verification.
 
-It refuses to overwrite an existing output. Quit the test app, move the previous
-bundle outside Applications (for example, into the ignored repository directory
-`.native-sources/retired-test-apps/`), then rebuild at the same default path.
-Do not move a running app: its editor and engine may still need bundle resources.
-Keep only the current test app in Applications. To start
-with fresh settings, quit the test app and move that directory aside.
+It refuses to overwrite an existing output. Build and verify the staged update
+first. Once installation is authorized and the app is closed, keep the previous
+bundle only as a temporary rollback copy, move the verified update to the default
+path, and verify its installed signature/dependencies. Remove the rollback copy
+after those checks pass. Do not move a running app: its editor and engine may
+still need bundle resources. Keep one installed app and at most one current
+staged update awaiting installation. Remove superseded staging/retired apps,
+obsolete engine bundles/ZIPs and finished experiments before ending work; preserve
+active build inputs and explicitly retained comparison evidence. See
+[the cleanup instructions](../AGENTS.md#generated-artifact-cleanup).
+To start with fresh settings, quit the test app and move its settings directory aside.
 
 The script reuses the configured CMake cache. After switching branches or when
 refreshing the About dialog's Git version, first run `cmake -S . -B build-cursor-app` to

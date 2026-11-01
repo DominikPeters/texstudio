@@ -77,6 +77,11 @@ Build and verify first. Leave the new app staged and report that it is ready;
 routine testing does not authorize replacing or restarting the user's running
 app. Install/restart only on an explicit request. Keep one installed test app;
 staging directories are build inputs, not additional interactive installations.
+Keep only the current staged candidate while it awaits installation. After a
+verified replacement, remove its rollback copy and superseded staging bundles,
+engine archives and completed experiment directories. Preserve inputs referenced
+by active builds and evidence explicitly needed for review; follow
+[the cleanup instructions](../AGENTS.md#generated-artifact-cleanup).
 
 Offscreen tests cannot establish physical trackpad delivery, native cursor/focus
 behavior, Dock icon caching, or actual compositor presentation. Report those
