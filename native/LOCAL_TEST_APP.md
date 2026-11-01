@@ -50,6 +50,22 @@ The script reuses the configured CMake cache. After switching branches or when
 refreshing the About dialog's Git version, first run `cmake -S . -B build-cursor-app` to
 refresh the configuration and version metadata.
 
+The native bundle must use the compact static MuPDF build from
+`native/scripts/build.py`. macOS configuration rejects bundles carrying the
+general-purpose MuPDF dylib or its OCR/HTML/JavaScript dependencies. When
+switching `TEXPRESSO_BUNDLE_DIR`, the staging target replaces the entire helper
+directory so libraries from an older bundle cannot remain in the app.
+The current local compact bundle can be selected with:
+
+```sh
+cmake -S . -B build-cursor-app \
+  -DTEXPRESSO_BUNDLE_DIR="$PWD/native/.bundles/darwin-arm64-compact"
+```
+
+The compact arm64 runtime is approximately 31 MB, compared with 88 MB for the
+previous general-purpose MuPDF runtime. Its manifest retains the engine pin,
+filtered ICU and PNG compression metadata, and records the compact archive hashes.
+
 For a new build directory, first build the engine as described in
 [the native README](README.md), and configure TeXstudio with the matching
 Poppler/Qt development dependencies, for example:

@@ -30,6 +30,14 @@ def validate(bundle, revision, system, architecture):
         names.add(name)
         if sha256(path) != entry['sha256']:
             raise ValueError('Bundle hash mismatch: ' + name)
+    if system == 'darwin':
+        # The macOS builder links the compact MuPDF archive statically. A host
+        # MuPDF dylib pulls its unused OCR/HTML/JavaScript stack into the app.
+        libraries = bundle / 'lib'
+        if libraries.is_dir():
+            for path in libraries.iterdir():
+                if path.name.startswith(('libmupdf', 'libtesseract', 'libleptonica', 'libmujs', 'libgumbo')):
+                    raise ValueError('macOS requires the compact static MuPDF build; unexpected library: ' + path.name)
     for name in ('bin/texpresso', 'bin/texpresso-xetex'):
         if name not in names or not (bundle / name).stat().st_mode & 0o111:
             raise ValueError('Missing executable in bundle: ' + name)

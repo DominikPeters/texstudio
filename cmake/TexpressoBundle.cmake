@@ -40,6 +40,7 @@ function(texstudio_bundle_texpresso)
         install(DIRECTORY "${TEXPRESSO_BUNDLE_DIR}/" DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}/texstudio/texpresso" USE_SOURCE_PERMISSIONS)
     endif()
     add_custom_target(texpresso_bundle ALL
+        COMMAND "${CMAKE_COMMAND}" -E remove_directory "${_destination}"
         COMMAND "${CMAKE_COMMAND}" -E copy_directory "${TEXPRESSO_BUNDLE_DIR}" "${_destination}"
         COMMENT "Staging bundled TeXpresso runtime")
     add_dependencies(texpresso_bundle texstudio)

@@ -25,9 +25,26 @@ class BundleTests(unittest.TestCase):
         self.manifest = {'engineRevision': 'pinned', 'platform': 'linux', 'architecture': 'aarch64',
                          'capabilities': {'previewProtocol': 1, 'codecs': ['png']}, 'files': entries}
 
-    def check(self):
+    def check(self, system='linux'):
         (self.root / 'build-manifest.json').write_text(json.dumps(self.manifest))
-        return validate(self.root, 'pinned', 'linux', 'arm64')
+        return validate(self.root, 'pinned', system, 'arm64')
+
+    def test_macos_compact_runtime(self):
+        self.manifest['platform'] = 'darwin'
+        self.check('darwin')
+
+    def test_macos_rejects_general_purpose_mupdf_dependencies(self):
+        self.manifest['platform'] = 'darwin'
+        libraries = self.root / 'lib'
+        libraries.mkdir()
+        for name in ('libmupdf.dylib', 'libtesseract.5.dylib', 'libleptonica.6.dylib',
+                     'libmujs.dylib', 'libgumbo.4.dylib'):
+            with self.subTest(name=name):
+                path = libraries / name
+                path.write_bytes(b'leftover library')
+                with self.assertRaisesRegex(ValueError, 'compact static MuPDF'):
+                    self.check('darwin')
+                path.unlink()
 
     def test_matching_runtime(self):
         self.assertEqual(self.check()['engineRevision'], 'pinned')
