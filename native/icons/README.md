@@ -46,3 +46,17 @@ automatically. To try it in a
 separate app bundle, copy that directory's `Assets.car` and `AppIconCoffee.icns`
 into Resources, change both `CFBundleIconName` and `CFBundleIconFile` to
 `AppIconCoffee`, then re-sign the bundle.
+
+## Splash screen
+
+`images/splash.png` and `images/splash_large.png` have the same cup burned into
+their top-right corner. `SplashCup.svg` is the inner SVG of `Coffee.svg`,
+unscaled. To regenerate, composite it onto the original images from commit
+`d9e64a4bc` at 92 and 184 px height:
+
+```sh
+rsvg-convert -h 92 native/icons/SplashCup.svg -o cup1x.png
+rsvg-convert -h 184 native/icons/SplashCup.svg -o cup2x.png
+git show d9e64a4bc:images/splash.png | magick - cup1x.png -geometry +397+4 -composite images/splash.png
+git show d9e64a4bc:images/splash_large.png | magick - cup2x.png -geometry +794+8 -composite images/splash_large.png
+```

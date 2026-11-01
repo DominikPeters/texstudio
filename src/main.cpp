@@ -73,10 +73,18 @@ TexstudioApp::TexstudioApp(QString &id, int &argc, char **argv) : QtSingleApplic
 	initialized = false;
 }
 
+// Both splash images are 500×300 logical pixels; the large one is for high DPI.
+static QPixmap splashPixmap()
+{
+	const bool highDpi = qApp->devicePixelRatio() > 1;
+	QPixmap pixmap(highDpi ? ":/images/splash_large.png" : ":/images/splash.png");
+	pixmap.setDevicePixelRatio(pixmap.width() / 500.0);
+	return pixmap;
+}
+
 void TexstudioApp::init(QStringList &cmdLine)
 {
-	QPixmap pixmap(":/images/splash.png");
-	QSplashScreen *splash = new QSplashScreen(pixmap);
+	QSplashScreen *splash = new QSplashScreen(splashPixmap());
 	splash->show();
 	processEvents();
 
