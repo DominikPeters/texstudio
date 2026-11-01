@@ -2,6 +2,7 @@
 """Build and package a persistent, isolated macOS development app."""
 import argparse
 import json
+import os
 import platform
 import plistlib
 import shutil
@@ -86,6 +87,9 @@ exec "$app_dir/texstudio" --start-always --disable-tests --config "$config_dir" 
          ROOT / 'native/profiles/texstudio.entitlements', output])
     run(['codesign', '--verify', '--deep', '--strict', output])
     verify_dependencies(output)
+    # ditto preserves the original bundle directory's date even when nested
+    # resources change. Give Finder fresh package metadata for replacement builds.
+    os.utime(output, None)
     print('Test app:', output)
     print('Settings: ~/Library/Application Support/TeXstudio TeXpresso Test')
 
