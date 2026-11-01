@@ -51,6 +51,26 @@ for routine checks and PR screenshots. Offscreen preview captures are suitable
 for layout/pixel assertions and can be reviewed as files without activating the
 editor.
 
+## Dictionary compression
+
+The full editor's dictionary regression uses generated dictionaries and a
+disposable cache to cover language discovery, spelling/suggestions, ignored-word
+persistence, plain user dictionaries, thesaurus lookup, damaged archives,
+concurrent extraction, cache repair and changed archive contents. It also loads
+the packaged English and German dictionaries when present. Run it twice in
+separate processes to check cache reuse across launches:
+
+```sh
+python3 native/scripts/test_dictionaries.py \
+  --app ".native-sources/app-updates/feature/TeXstudio Espresso.app/Contents/MacOS/texstudio" \
+  --output /tmp/texstudio-dictionary-verification
+```
+
+Use a Debug build with internal tests enabled. The runner invokes only the real
+executable with offscreen widgets, disposable settings and cache; logs and
+`result.json` remain in the output directory. Packaging round trips and archive
+determinism are covered by `python3 -m unittest discover -s native/tests`.
+
 ## Installation and visible checks
 
 Build and verify first. Leave the new app staged and report that it is ready;

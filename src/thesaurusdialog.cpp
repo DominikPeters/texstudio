@@ -1,4 +1,5 @@
 #include "thesaurusdialog.h"
+#include "dictionaryarchive.h"
 #include "smallUsefulFunctions.h"
 #include "universalinputdialog.h"
 #include <QMutex>
@@ -212,7 +213,7 @@ ThesaurusDialog::~ThesaurusDialog()
 void ThesaurusDialog::prepareDatabase(const QString &filename)
 {
 	if (filename == globalThesaurusNeededFileName) return;
-	if (!QFile(filename).exists()) {
+	if (!DictionaryArchive::exists(filename)) {
 		thesaurusLock.lock();
 		globalThesaurusNeededFileName = "";
 		globalThesaurus.clear();
@@ -415,15 +416,18 @@ void ThesaurusDialog::removeUserWordClicked()
 
 void ThesaurusDialog::loadDatabase(const QString &fileName )
 {
-	QFile file(fileName);
+	QString error;
+    const QString extracted = DictionaryArchive::materialize(fileName, &error);
+    if (extracted.isEmpty()) { qWarning() << error; return; }
+	QFile file(extracted);
 	if (!file.open(QIODevice::ReadOnly)) return;
-	QFileInfo fi(fileName);
+	QFileInfo fi(DictionaryArchive::logicalPath(fileName));
 
 	ThesaurusDatabaseType result;
 	result.fileName = fileName;
 
 	result.userFileName = fi.absolutePath() + "/" + fi.completeBaseName() + ".my";
-	if (!isFileRealWritable(result.userFileName))
+	if (DictionaryArchive::isCompressed(fileName) || !isFileRealWritable(result.userFileName))
 		result.userFileName = userPath + fi.completeBaseName() + ".my";
 	if (!isFileRealWritable(result.userFileName))
 		result.userFileName.clear();

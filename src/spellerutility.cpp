@@ -12,6 +12,7 @@
 #include "spellerutility.h"
 #include "smallUsefulFunctions.h"
 #include "JlCompress.h"
+#include "dictionaryarchive.h"
 
 int SpellerUtility::spellcheckErrorFormat = -1;
 bool SpellerUtility::inlineSpellChecking = true;
@@ -25,7 +26,10 @@ bool SpellerUtility::loadDictionary(QString dic, QString ignoreFilePrefix)
 {
 	if (dic == currentDic) return true;
 	else unload();
-	QString base = dic.left(dic.length() - 4);
+	const QString materialized = DictionaryArchive::materialize(dic, &mLastError);
+	if (materialized.isEmpty()) { emit dictionaryLoaded(); return false; }
+	const bool compressed = DictionaryArchive::isCompressed(dic);
+	QString base = materialized.left(materialized.length() - 4);
 	QString dicFile = base + ".dic";
 	QString affFile = base + ".aff";
 	if (!QFileInfo(dicFile).exists() || !QFileInfo(affFile).exists()) {
@@ -56,7 +60,9 @@ bool SpellerUtility::loadDictionary(QString dic, QString ignoreFilePrefix)
 	ignoredWords.clear();
 	ignoredWordList.clear();
 	ignoredWordsModel.setStringList(QStringList());
-	ignoreListFileName = base + ".ign";
+	// Ignored words belong to the user's settings, never an expendable cache.
+	ignoreListFileName = compressed ? ignoreFilePrefix + QFileInfo(DictionaryArchive::logicalPath(dic)).baseName() + ".ign"
+        : base + ".ign";
 	if (!isFileRealWritable(ignoreListFileName))
 		ignoreListFileName = ignoreFilePrefix + QFileInfo(dic).baseName() + ".ign";
 	if (!isFileRealWritable(ignoreListFileName)) {
@@ -299,12 +305,13 @@ void SpellerManager::scanForDictionaries(const QString &path, bool scansubdirs)
 	while (iterator.hasNext()) {
 		iterator.next();
 		if (!iterator.fileInfo().isDir()) {
-			if (iterator.fileName().endsWith(".dic") && !iterator.fileName().startsWith("hyph_")) {
+			if ((iterator.fileName().endsWith(".dic") || iterator.fileName().endsWith(".dic.zip")) && !iterator.fileName().startsWith("hyph_")) {
 				QFileInfo fi(iterator.fileInfo());
-				QString realDictFile = (fi.isSymLink()) ? QFileInfo(fi.symLinkTarget()).canonicalFilePath() : fi.canonicalFilePath();
-				if (dictFiles.contains(fi.baseName()))
+				QString realDictFile = DictionaryArchive::locate(fi.absoluteFilePath());
+                const QString name = QFileInfo(DictionaryArchive::logicalPath(fi.fileName())).baseName();
+				if (dictFiles.contains(name) || realDictFile.isEmpty())
 					continue;
-				dictFiles.insert(fi.baseName(), realDictFile);
+				dictFiles.insert(name, realDictFile);
 			}
 		} else if (scansubdirs) {
 			scanForDictionaries(iterator.filePath(), false);

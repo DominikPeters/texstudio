@@ -1,5 +1,6 @@
 
 #include "configmanager.h"
+#include "dictionaryarchive.h"
 
 #include "configdialog.h"
 #include "filedialog.h"
@@ -921,7 +922,7 @@ QSettings *ConfigManager::readSettings(bool reread)
         // non-existent or invalid settings for dictionary
 		// try restore from old format where there was only one dictionary - spell_dic can be removed later when users have migrated to the new version
 		QString dic = spell_dic;
-        if (!QFileInfo::exists(dic)) {
+		if (!DictionaryArchive::exists(dic)) {
 			// fallback to defaults
 			QStringList temp;
 			QStringList fallBackPaths;
@@ -947,7 +948,7 @@ QSettings *ConfigManager::readSettings(bool reread)
             if (dic == "") dic = findResourceFile("de_DE.dic", true, temp, fallBackPaths);
 		}
 		QFileInfo fi(dic);
-		if (fi.exists()) {
+		if (DictionaryArchive::exists(dic)) {
 			spellDictDir = QDir::toNativeSeparators(fi.absolutePath());
 			if (portableMode) {
 				spellDictDir = reverseParseDir(spellDictDir);
@@ -966,7 +967,7 @@ QSettings *ConfigManager::readSettings(bool reread)
 	}
 	if (thesaurus_database != "") {
 		QFileInfo fi(parseDir(thesaurus_database));
-		if (!fi.exists()) { // try finding the file in other directories (e.g. after update tmx->txs
+		if (!DictionaryArchive::exists(fi.filePath())) { // try finding the file in other directories (e.g. after update tmx->txs
 			thesaurus_database = findResourceFile(fi.fileName(), true, QStringList(), QStringList() << parseDir(thesaurus_database));
 		}
 	}

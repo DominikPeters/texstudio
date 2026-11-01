@@ -84,6 +84,7 @@ set(RESOURCE_FILES
 	completion.qrc
 	images.qrc
 )
+include(cmake/CompressedDictionaries.cmake)
 if(APPLE)
     file(GLOB manual
         utilities/manual/build/html/*.html
@@ -110,9 +111,6 @@ if(APPLE)
     file(GLOB_RECURSE translation
        translation/*.qm
     )
-    file(GLOB_RECURSE dictionaries
-       utilities/dictionaries/*
-    )
 
     set(OSX_FILES
         texstudio.icns
@@ -123,7 +121,7 @@ if(APPLE)
 		utilities/list.png
 		utilities/manual/source/CHANGELOG.md
         ${templates}
-        ${dictionaries}
+        ${TEXSTUDIO_DICTIONARY_FILES}
         ${translation}
     )
 else()
@@ -339,6 +337,7 @@ if(${TEXSTUDIO_ENABLE_TESTS})
 		src/tests/tablemanipulation_t.cpp
 		src/tests/testmanager.cpp
 		src/tests/testutil.cpp
+                src/tests/dictionaries_t.cpp
                 src/tests/texstudio_t.cpp
                 src/tests/texpresso_soak_t.cpp
 		src/tests/usermacro_t.cpp
@@ -387,6 +386,16 @@ endif()
 # Build texstudio application
 add_executable(texstudio ${SOURCE_FILES} ${HEADER_FILES} ${RESOURCE_FILES} ${FORM_FILES} ${OSX_FILES} ${manual} ${images} ${static} ${static_scripts} ${static_styles} ${design_static}
 )
+target_sources(texstudio PRIVATE src/dictionaryarchive.cpp src/dictionaryarchive.h)
+if(TEXSTUDIO_COMPRESS_DICTIONARIES)
+    add_dependencies(texstudio dictionary_archives)
+    if(APPLE)
+        add_custom_command(TARGET texstudio POST_BUILD
+            COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/native/scripts/pack_dictionaries.py"
+                --source "${PROJECT_SOURCE_DIR}/utilities/dictionaries"
+                --prune-bundle "$<TARGET_BUNDLE_DIR:texstudio>/Contents/Resources")
+    endif()
+endif()
 target_link_libraries(texstudio PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui
@@ -528,11 +537,7 @@ if(UNIX)
 		FILES_MATCHING
 		PATTERN *
 	)
-	install(DIRECTORY utilities/dictionaries/
-		DESTINATION ${CMAKE_INSTALL_DATADIR}/texstudio
-		FILES_MATCHING
-		PATTERN *
-	)
+	install(FILES ${TEXSTUDIO_DICTIONARY_FILES} DESTINATION ${CMAKE_INSTALL_DATADIR}/texstudio)
 	install(DIRECTORY utilities/manual/build/html/
                 DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/texstudio
 		FILES_MATCHING

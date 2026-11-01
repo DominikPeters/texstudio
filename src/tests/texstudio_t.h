@@ -21,6 +21,7 @@ private slots:
     void sharedCompilationOutput();
     void liveBuildAndRefresh();
     void unifiedPreviewPanel();
+    void compressedDictionaries();
     void liveEditingSoak();
     void liveEditorBuffers();
     void liveEditingBufferBenchmark();

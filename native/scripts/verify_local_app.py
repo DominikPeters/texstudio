@@ -27,7 +27,7 @@ def main():
     output.mkdir(parents=True)
     # Do not inherit GUI plugin overrides, private paper opt-ins, or soak flags.
     env = {k: v for k, v in os.environ.items()
-           if not k.startswith(('QT_', 'DYLD_', 'TEXPRESSO_TEST_', 'TEXPRESSO_UI_'))}
+           if not k.startswith(('QT_', 'DYLD_', 'TEXPRESSO_TEST_', 'TEXPRESSO_UI_', 'TEXSTUDIO_TEST_'))}
     env.update(QT_QPA_PLATFORM='offscreen', SDL_VIDEODRIVER='dummy',
                TEXPRESSO_TEST_ENGINE=str(engine))
     result = {'passed': False, 'app': str(app), 'platform': 'offscreen', 'tests': args.tests}

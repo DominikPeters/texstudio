@@ -66,6 +66,17 @@ The compact arm64 runtime is approximately 31 MB, compared with 88 MB for the
 previous general-purpose MuPDF runtime. Its manifest retains the engine pin,
 filtered ICU and PNG compression metadata, and records the compact archive hashes.
 
+Bundled spelling dictionaries/affix pairs and thesauri are stored as ZIPs by
+default (`TEXSTUDIO_COMPRESS_DICTIONARIES`). CMake generates them under the build
+directory and removes the previous raw copies from incremental macOS app builds.
+Licenses, word lists and other dictionary resources stay available uncompressed.
+The runtime lists languages without extracting them and materializes only selected
+languages under Qt's user cache location, in `dictionaries/v1/<archive-sha256>`.
+Extracted files are verified and reused across launches; a missing or damaged
+cache is rebuilt. Settings retain the original language and dictionary paths.
+User-supplied plain dictionaries still load directly, while ignored words and
+custom thesaurus entries stay in the settings location, outside the cache.
+
 For a new build directory, first build the engine as described in
 [the native README](README.md), and configure TeXstudio with the matching
 Poppler/Qt development dependencies, for example:

@@ -894,7 +894,7 @@ void ConfigDialog::comboBoxWithPathHighlighted(const QString &newText)
 
 void ConfigDialog::browseThesaurus()
 {
-	UtilsUi::browse(ui.comboBoxThesaurusFileName, tr("Select thesaurus database"), "Database (*.dat)");
+	UtilsUi::browse(ui.comboBoxThesaurusFileName, tr("Select thesaurus database"), "Database (*.dat *.dat.zip)");
 }
 
 void ConfigDialog::browseGrammarWordListsDir()

@@ -51,6 +51,8 @@ QString TestManager::performTest(QObject* obj){
         method = "liveEditingSoak"; argv[argc++] = method.data();
     } else if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_PREVIEW_PANEL") == 1) {
         method = "unifiedPreviewPanel"; argv[argc++] = method.data();
+    } else if (qEnvironmentVariableIntValue("TEXSTUDIO_TEST_DICTIONARIES") == 1) {
+        method = "compressedDictionaries"; argv[argc++] = method.data();
     } else if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_BENCHMARK") == 1) {
         method = "liveEditingBufferBenchmark"; argv[argc++] = method.data();
     }
@@ -87,6 +89,7 @@ QString TestManager::execute(TestLevel level, LatexEditorView* edView, QCodeEdit
 	QList<QObject*> tests;
     if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_SOAK") == 1
         || qEnvironmentVariableIntValue("TEXPRESSO_TEST_PREVIEW_PANEL") == 1
+        || qEnvironmentVariableIntValue("TEXSTUDIO_TEST_DICTIONARIES") == 1
         || qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_BENCHMARK") == 1)
         tests << new TexStudioTest(level==TL_ALL);
     else tests=QList<QObject*>()

@@ -1,4 +1,5 @@
 #include "utilsSystem.h"
+#include "dictionaryarchive.h"
 #include "unixutils.h"
 #include "smallUsefulFunctions.h"
 #include <QSvgRenderer>
@@ -230,16 +231,14 @@ QString findResourceFile(const QString &fileName, bool allowOverride, QStringLis
 		else searchFiles << s + "/";
 
 	foreach (const QString &fn, searchFiles) {
-		QFileInfo fic(fn + fileName);
-		if (fic.exists() && fic.isReadable())
-			return fic.canonicalFilePath();
+		const auto found = DictionaryArchive::locate(fn + fileName);
+		if (!found.isEmpty()) return found;
 	}
 	QString newFileName = fileName.split("/").last();
 	if (!newFileName.isEmpty()) {
 		foreach (const QString &fn, searchFiles) {
-			QFileInfo fic(fn + newFileName);
-			if (fic.exists() && fic.isReadable())
-				return fic.canonicalFilePath();
+			const auto found = DictionaryArchive::locate(fn + newFileName);
+			if (!found.isEmpty()) return found;
 		}
 	}
 	return "";
