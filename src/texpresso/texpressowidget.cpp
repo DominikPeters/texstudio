@@ -471,7 +471,6 @@ void TexpressoWidget::refresh()
     }
     canvas->setPreview(session ? &session->preview : nullptr);
     if (switched) canvas->resetTools();
-    const QFileInfo root(session ? session->root() : QString());
     for (auto action : actions) action->setEnabled(session != nullptr);
     pages.number->setEnabled(session); zoomControls.scale->setEnabled(session); zoomControls.slider->setEnabled(session);
     {
@@ -510,11 +509,6 @@ void TexpressoWidget::refresh()
             : discover ? tr("Compile through the end to find the last page and total page count.") : tr("Go to the last page."));
         const bool running = !session->userStopped && !session->failed();
         actions["pause"]->setVisible(running); actions["stop"]->setVisible(running); actions["restart"]->setVisible(!running);
-#ifdef Q_OS_MACOS
-        const QString liveHint = tr("Live preview of %1 · Command-click to open source").arg(root.fileName());
-#else
-        const QString liveHint = tr("Live preview of %1 · Ctrl-click to open source").arg(root.fileName());
-#endif
         const QString details = QStringList{session->compilerError, session->compilerWarning, session->previewError}.join('\n').trimmed();
         if (session->failed()) setStatus(session->status, StatusError);
         else if (session->userStopped || session->userPaused || session->externalBuildRunning()) setStatus(session->status);
@@ -523,7 +517,9 @@ void TexpressoWidget::refresh()
         else if (!session->previewError.isEmpty()) setStatus(session->previewError, StatusError, details);
         else if (preview.findingLastPage()) setStatus(tr("Finding last page…"), StatusPlain, session->root());
         else if (!session->compilerWarning.isEmpty()) setStatus(session->compilerWarning, StatusWarning, details);
-        else setStatus(preview.valid() ? liveHint : tr("Updating preview…"), StatusPlain, session->root());
+        // Ordinary edits should not flash between a filename and progress text.
+        // Keep this space available for actionable diagnostics and explicit tasks.
+        else setStatus(QString());
         updateCanvas(canvas, preview.page());
         shownInvert = config->invertColors; shownGray = config->grayscale;
         actions["gotoSource"]->setEnabled(canvas->fresh);
