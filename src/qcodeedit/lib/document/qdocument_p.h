@@ -55,6 +55,7 @@ Q_DECLARE_TYPEINFO(QDocumentSelection, Q_PRIMITIVE_TYPE);
 class QCE_EXPORT QDocumentPrivate
 {
 	friend class QEditConfig;
+    friend class QEditorTest;
 	
 	friend class QDocument;
 	friend class QDocumentCommand;

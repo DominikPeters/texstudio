@@ -7,6 +7,12 @@
 #include "smallUsefulFunctions.h"
 #include "qdocument_p.h"
 #include <QtTest/QtTest>
+#include <QCryptographicHash>
+#include <QJsonDocument>
+#include <QJsonObject>
+#ifdef Q_OS_MACOS
+#include <mach/mach.h>
+#endif
 
 QEditorTest::QEditorTest(QEditor* ed, bool executeAllTests):allTests(executeAllTests)
 {
@@ -26,6 +32,75 @@ bool QEditorTest::checkIsOpen(QDocument *doc, int lineIndex)
 {
 	QFoldedLineIterator fli = doc->languageDefinition()->foldedLineIterator(doc, lineIndex);
 	return(fli.open && !fli.collapsedBlockStart);
+}
+
+// Repainting a highlighted wrapped source line used to leak its temporary
+// pixmap on every paint, even with no edits and a bounded line-cache count.
+void QEditorTest::repaintMemory()
+{
+#if !defined(Q_OS_MACOS) && !defined(Q_OS_LINUX)
+    QSKIP("Memory regression requires macOS task_info or Linux /proc");
+#else
+    const auto footprint = []() -> qint64 {
+#ifdef Q_OS_MACOS
+        task_vm_info_data_t info{};
+        mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
+        return task_info(mach_task_self(), TASK_VM_INFO, reinterpret_cast<task_info_t>(&info), &count) == KERN_SUCCESS
+            ? qint64(info.phys_footprint) : -1;
+#else
+        QFile file("/proc/self/status");
+        if (!file.open(QIODevice::ReadOnly)) return -1;
+        const auto match = QRegularExpression("VmRSS:\\s+(\\d+)").match(QString::fromUtf8(file.readAll()));
+        return match.hasMatch() ? match.captured(1).toLongLong() * 1024 : -1;
+#endif
+    };
+    QEditor view(false);
+    view.resize(700, 300);
+    view.setLineWrapping(true);
+    view.setText(QString("A wrapped paragraph exercises source editor rendering and cursor highlighting. ").repeated(80), false);
+    view.setCursorPosition(0, 20);
+    view.show();
+    QCoreApplication::processEvents();
+    QVERIFY(view.document()->height() > view.height());
+    QVERIFY(!QDocument::hasWorkAround(QDocument::DisableLineCache));
+    QImage image(view.size() * 2, QImage::Format_ARGB32_Premultiplied);
+    image.setDevicePixelRatio(2);
+    const auto paint = [&] { image.fill(Qt::white); view.render(&image); };
+    for (int i = 0; i < 4; ++i) paint(); // Warm font/layout/raster allocations.
+    const auto hash = [&] { return QCryptographicHash::hash(
+        QByteArray::fromRawData(reinterpret_cast<const char *>(image.constBits()), image.sizeInBytes()), QCryptographicHash::Sha256).toHex(); };
+    const auto first = hash();
+    const auto before = footprint(); QVERIFY(before > 0);
+    for (int i = 0; i < 32; ++i) paint();
+    const auto after = footprint(); QVERIFY(after > 0);
+    QCOMPARE(hash(), first);
+    const QJsonObject report{{"beforeBytes", double(before)}, {"afterBytes", double(after)},
+        {"growthBytes", double(after - before)}, {"repaints", 32}, {"pixelSha256", QString::fromLatin1(first)}};
+    qInfo().noquote() << QJsonDocument(report).toJson(QJsonDocument::Compact);
+    const auto output = qEnvironmentVariable("TEXSTUDIO_EDITOR_MEMORY_REPORT");
+    if (!output.isEmpty()) {
+        QFile file(output); QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(QJsonDocument(report).toJson());
+    }
+    QVERIFY2(after - before < 24 * 1024 * 1024, "Repeated source repaints retained more than 24 MiB after warm-up");
+    // Visit many other long wrapped lines with the cursor elsewhere. Counting
+    // cache entries alone does not bound the memory of these very large rows.
+    const auto paragraph = view.text();
+    QStringList paragraphs;
+    for (int i = 0; i < 32; ++i) paragraphs << QString::number(i) + paragraph;
+    view.setText(paragraphs.join('\n') + "\nCursor here.", false);
+    view.setCursorPosition(32, 0);
+    for (int i = 0; i < 32; ++i) { view.scrollToFirstLine(i + 1); paint(); }
+    const auto &cache = view.document()->impl()->m_LineCache;
+    QVERIFY(!cache.isEmpty());
+    qint64 cachedBytes = 0;
+    for (auto line : cache.keys()) {
+        const auto pixmap = cache.object(line);
+        cachedBytes += qint64(pixmap->width()) * pixmap->height() * ((pixmap->depth() + 7) / 8);
+    }
+    qInfo() << "Retained source-line rasters:" << cache.size() << "entries," << cachedBytes << "bytes";
+    QVERIFY2(cachedBytes <= 16 * 1024 * 1024, "Source-line cache exceeded its decoded raster budget");
+#endif
 }
 
 void QEditorTest::setText_data(){

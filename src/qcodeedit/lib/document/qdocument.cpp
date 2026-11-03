@@ -26,6 +26,8 @@
 #include "latexparser/latexparser.h"
 #include <QtMath>
 #include <QSysInfo>
+#include <memory>
+#include <limits>
 
 // returns the number of chars/columns from column to the next tab location
 // for a given tabstop periodicity
@@ -6534,6 +6536,7 @@ QDocumentPrivate::QDocumentPrivate(QDocument *d)
 	m_lineEnding(m_defaultLineEnding),
 	m_codec(m_defaultCodec),
 	m_readOnly(false),
+    m_LineCache(16 * 1024), // KiB: bound wrapped/Retina source-line rasters to 16 MiB per document.
 	m_lineCacheXOffset(0), m_lineCacheWidth(0),
 	m_instanceCachesLogicalDpiY(-1),
 	m_forceLineWrapCalculation(false),
@@ -6971,12 +6974,11 @@ void QDocumentPrivate::drawTextLine(QPainter *p, QDocument::PaintContext &cxt, D
         p->drawPixmap(QPointF(cxt.xoffset, 0), *m_LineCache.object(dlh));
 	} else {
         qreal ht = m_lineSpacing*(wrap+1 - pseudoWrap);
-		QImage *image = nullptr;
-		QPixmap *pixmap = nullptr;
+        std::unique_ptr<QPixmap> pixmap;
 		QPainter *pr = nullptr;
 		if (useLineCache) {
             qreal pixelRatio = p->device()->devicePixelRatio();
-            pixmap = new QPixmap(qCeil(pixelRatio * m_lineCacheWidth), qCeil(pixelRatio * ht));
+            pixmap = std::make_unique<QPixmap>(qCeil(pixelRatio * m_lineCacheWidth), qCeil(pixelRatio * ht));
             pixmap->setDevicePixelRatio(pixelRatio);
             // TODO: The pixmap always has a logicalDpi of the primary screen. This needs to be fixed for
             // correct drawing on secondary screens with different scaling factors.
@@ -6986,7 +6988,7 @@ void QDocumentPrivate::drawTextLine(QPainter *p, QDocument::PaintContext &cxt, D
             } else {
                 pixmap->fill(background.color());
             }
-            pr = new QPainter(pixmap);
+            pr = new QPainter(pixmap.get());
 			pr->setRenderHints(p->renderHints());
 			pr->setFont(p->font());
 		} else {
@@ -7027,9 +7029,12 @@ void QDocumentPrivate::drawTextLine(QPainter *p, QDocument::PaintContext &cxt, D
             p->drawPixmap(QPointF(cxt.xoffset, 0), *pixmap);
             delete pr;
             if(!currentLine){
-                m_LineCache.insert(dlh, pixmap);
+                const qint64 bytes = qint64(pixmap->width()) * pixmap->height() * ((pixmap->depth() + 7) / 8);
+                const int cost = int(qBound<qint64>(qint64(1), (bytes + 1023) / 1024, qint64(std::numeric_limits<int>::max())));
+                m_LineCache.insert(dlh, pixmap.release(), cost);
             }else{
-                // remove current line from cache, because it has special background (alternate)
+                // The current-line raster is temporary: release it after drawing.
+                // Remove its old cache entry because the highlight is different.
                 m_LineCache.remove(dlh);
                 m_LineCacheAlternative.remove(dlh);
             }

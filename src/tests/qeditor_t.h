@@ -19,6 +19,7 @@ private:
 	QEditor* editor;
 	QTextCodec* defaultCodec;
 private slots:
+    void repaintMemory();
 	void setText_data();
 	void setText();
 	void loadSave_data();
