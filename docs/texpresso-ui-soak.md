@@ -52,7 +52,8 @@ Artifacts include:
   (also on failure), plus the final buffers used for independent compilation.
 - `ui-result.json`: input deadlines, applied times, source-ready and Qt paint
   completion observations, source probes and periodic UI/session checkpoints.
-- `processes.jsonl`: once-per-second app/owned-worker process states and RSS.
+- `processes.jsonl`: once-per-second app/owned-worker process states, RSS and
+  macOS physical footprint or Linux proportional footprint including swap.
 - `cycle-*.png`: the actual Qt preview captured after each recovery cycle.
 - `oracle/` and `result.json`: independent compilation, probe results, phase
   summaries and process cleanup checks. Failures retain available evidence.
@@ -69,6 +70,22 @@ RSS sums include shared/COW pages and profiling state, and are not unique RAM
 or PSS. The report records resource history without imposing an unsupported
 universal memory-growth threshold. A ten-minute pass is evidence for that
 finite workload, not proof of hours-long stability.
+
+For memory investigations, add `--max-editor-mib 512` to stop the disposable
+workload early if its editor footprint exceeds that budget. The budget is for
+the generated fixture, not a universal limit on user projects. macOS footprint
+includes compressed/swapped memory that a low RSS reading can conceal. Per-task
+footprints of forked compiler checkpoints can still double-count COW pages, so
+they must not be presented as unique physical RAM. `result.json` reports peak
+and final editor footprint separately from the aggregate RSS metric.
+
+`--external-updates` also changes a disk-only included file each cycle, waits
+for its new compiler marker, then simulates successful full-build completion
+with refreshed auxiliary output. Each reset must recover the unsaved overlays
+and leave no workers in the old process group. The ordinary mode still keeps
+the compiler alive across intervening cycles; this optional mode deliberately
+restarts it after each external-build event. It tests the lifecycle used after
+TeX/Biber builds; it does not execute or benchmark Biber itself.
 
 The `TeXpresso live preview` workflow exposes an optional manual soak duration
 of 1, 10 or 30 minutes. It builds a Debug application and uploads the evidence;

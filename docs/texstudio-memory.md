@@ -26,6 +26,11 @@ Visiting 32 other wrapped paragraphs retained seven cached rasters totaling
 14,818,496 bytes. These measurements reproduce a real leak and show its removal;
 they do not establish the exact composition of the user's earlier 45 GB peak.
 
+The same allocation audit found smaller leaks in accessibility notifications
+for caret movement and content changes. Those events now have scoped lifetime,
+following [Qt's notification example](https://doc.qt.io/qt-6/accessible-qwidget.html#qaccessiblewidget-example),
+while preserving the notifications and their payloads.
+
 Run the focused Debug-editor regression without opening a visible window or
 using the normal profile:
 

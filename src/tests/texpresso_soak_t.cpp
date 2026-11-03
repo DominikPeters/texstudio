@@ -156,6 +156,12 @@ void TexStudioTest::liveEditingSoak()
     QString source = QString::fromUtf8(read(QString(TESTDATADIR)
         + QString("/../../texpresso/tests/sustained/varied-%1/varied.tex").arg(targetPages)));
     QVERIFY(!source.isEmpty());
+    const bool externalUpdates = qEnvironmentVariableIntValue("TEXPRESSO_UI_SOAK_EXTERNAL_UPDATES") == 1;
+    const auto external = output + "/project/external.tex";
+    if (externalUpdates) {
+        source.replace("\\begin{document}", "\\input{external}\n\\begin{document}");
+        QVERIFY(save(external, "\\typeout{UIEXTERNAL0000}\n"));
+    }
     const QStringList tokens{"UIEARLY", "UIMIDDLE", "UILATE", "UIINCLUDE"};
     for (const auto &anchor : {QString("early"), QString("middle"), QString("late")}) {
         const auto token = "UI" + anchor.toUpper();
@@ -282,6 +288,24 @@ void TexStudioTest::liveEditingSoak()
             sustainedPid = mainSession->processId(); observer.checkpoint("sustained-session-started");
         }
         QCOMPARE(mainSession->processId(), sustainedPid);
+        if (externalUpdates) {
+            observer.phase = "external-file-change";
+            const auto marker = QString("UIEXTERNAL%1").arg(cycles + 1, 4, 10, QChar('0'));
+            QVERIFY(save(external, ("\\typeout{" + marker + "}\n").toUtf8()));
+            QTRY_VERIFY_WITH_TIMEOUT(ready() && mainSession->compilerOutput.contains(marker), 30000);
+            observer.checkpoint("external-file-recompiled");
+            observer.phase = "external-build-reset";
+            const auto oldPid = mainSession->processId();
+            manager->beginExternalBuild(root);
+            QVERIFY(mainSession->externalBuildRunning());
+            QVERIFY(save(QFileInfo(root).path() + "/main.aux", "\\relax\n% Auxiliary output from the simulated full build.\n"));
+            manager->endExternalBuild(root, true);
+            QTRY_VERIFY_WITH_TIMEOUT(ready() && mainSession->processId() != oldPid, 30000);
+            QTRY_VERIFY_WITH_TIMEOUT(::kill(-oldPid, 0) == -1 && errno == ESRCH, 5000);
+            QTRY_VERIFY_WITH_TIMEOUT(mainSession->compilerOutput.contains(marker), 30000);
+            sustainedPid = mainSession->processId();
+            observer.checkpoint("external-build-recovered");
+        }
         QVERIFY(read(child) == diskChild); observer.checkpoint("cycle-settled");
         observer.capturing = true; QVERIFY(preview->grab().save(output + QString("/cycle-%1.png").arg(cycles))); observer.capturing = false;
         ++cycles;
@@ -302,6 +326,7 @@ void TexStudioTest::liveEditingSoak()
             {"line1", lineAt(text, at) + 1}, {"token", text.mid(at, token.size() + 4)}, {"page", s->preview.page()}});
     }
     for (auto view : views) QVERIFY(save(output + "/final/" + QFileInfo(view->document->getFileName()).fileName(), view->editor->text().toUtf8()));
+    if (externalUpdates) QVERIFY(save(output + "/final/external.tex", read(external)));
     QVERIFY(mainView->editor->isContentModified()); QVERIFY(childView->editor->isContentModified());
     QVERIFY(read(child) == diskChild); QVERIFY(!observer.inputs.isEmpty());
     int painted = 0; for (const auto &value : observer.inputs) painted += value.toObject().contains("paintCompletedMs");

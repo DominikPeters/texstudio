@@ -2477,7 +2477,8 @@ void QEditor::emitCursorPositionChanged()
 	// screen readers (NVDA, JAWS, Narrator) announce the new position.
 	if (QAccessible::isActive()) {
 		const int cursorOffset = documentOffsetFromPosition(m_cursor.lineNumber(), m_cursor.columnNumber());
-		QAccessible::updateAccessibility(new QAccessibleTextCursorEvent(this, cursorOffset));
+        QAccessibleTextCursorEvent event(this, cursorOffset);
+        QAccessible::updateAccessibility(&event);
 	}
 }
 
@@ -6550,8 +6551,10 @@ void QEditor::updateContent (int i, int n)
 	repaintContent(i, n>1 ? -1 : n);
 
 	// Notify AT tools that the document content has changed.
-	if (QAccessible::isActive())
-		QAccessible::updateAccessibility(new QAccessibleValueChangeEvent(this, QVariant()));
+    if (QAccessible::isActive()) {
+        QAccessibleValueChangeEvent event(this, QVariant());
+        QAccessible::updateAccessibility(&event);
+    }
 }
 
 /*!

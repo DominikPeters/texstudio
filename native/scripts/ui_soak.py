@@ -12,6 +12,8 @@ import statistics
 import subprocess
 import time
 
+from process_memory import memory
+
 
 def processes():
     result = subprocess.run(['ps', '-axo', 'pid=,ppid=,pgid=,rss=,stat='],
@@ -85,10 +87,14 @@ def summary(ui, samples):
                        'observedMedianMs': statistics.median(latencies) if latencies else None,
                        'observedP95Ms': latencies[min(len(latencies) - 1, int(.95 * len(latencies)))] if latencies else None,
                        'observedMaxMs': max(latencies) if latencies else None})
-    return {'phases': timing, 'resourceSamples': len(samples),
+    editor_memory = [s['editorFootprintKiB'] for s in samples if 'editorFootprintKiB' in s]
+    return {'editorFootprintSamples': len(editor_memory),
+            'peakEditorFootprintKiB': max(editor_memory, default=None),
+            'finalEditorFootprintKiB': editor_memory[-1] if editor_memory else None,
+            'phases': timing, 'resourceSamples': len(samples),
             'peakOwnedTasks': max((len(s['processes']) for s in samples), default=0),
             'peakOwnedRssKiB': max((sum(p['rssKiB'] for p in s['processes']) for s in samples), default=0),
-            'resourceAccounting': 'RSS sum includes shared/COW pages and harness state; not unique RAM or PSS. Finite run does not prove bounded long-term memory.',
+            'resourceAccounting': 'macOS physical footprint includes compressed/swapped memory; Linux proportional footprint includes PSS + SwapPss. RSS and summed per-task footprints can double-count shared/COW checkpoint pages. Finite run does not prove bounded long-term memory.',
             'latencyAccounting': ui['endpoint'] + '; observed subset only; superseded/unobserved inputs remain counted. Cadence misses invalidate phase timing claims.'}
 
 
@@ -99,7 +105,11 @@ def main():
     parser.add_argument('--seconds', type=int, default=600, help='Minimum workload duration; completes the final cycle (10–3600)')
     parser.add_argument('--platform', default='offscreen', help='Qt platform: offscreen, cocoa, or xcb')
     parser.add_argument('--pages', type=int, choices=(30, 100), default=30)
+    parser.add_argument('--external-updates', action='store_true', help='Also change a disk-only include and simulate full-build auxiliary refresh each cycle')
+    parser.add_argument('--max-editor-mib', type=int, help='Abort this disposable workload if editor footprint exceeds this budget')
     args = parser.parse_args()
+    if args.max_editor_mib is not None and args.max_editor_mib <= 0:
+        parser.error('--max-editor-mib must be positive')
     if not 10 <= args.seconds <= 3600:
         parser.error('--seconds must be between 10 and 3600')
     app = args.app.resolve(); folder = args.output.resolve()
@@ -113,10 +123,12 @@ def main():
     env = dict(os.environ, QT_QPA_PLATFORM=args.platform, SDL_VIDEODRIVER='dummy',
                TEXPRESSO_TEST_UI_SOAK='1', TEXPRESSO_UI_SOAK_SECONDS=str(args.seconds),
                TEXPRESSO_UI_SOAK_PAGES=str(args.pages),
+               TEXPRESSO_UI_SOAK_EXTERNAL_UPDATES='1' if args.external_updates else '0',
                TEXPRESSO_UI_SOAK_ARTIFACTS=str(folder), QTEST_FUNCTION_TIMEOUT=str((args.seconds + 300) * 1000))
     started = time.monotonic(); samples = []; groups = set()
     result = {'passed': False, 'appSha256': hashlib.sha256(app.read_bytes()).hexdigest(),
-              'requestedSeconds': args.seconds, 'targetPages': args.pages, 'platform': args.platform}
+              'requestedSeconds': args.seconds, 'targetPages': args.pages, 'platform': args.platform,
+              'maxEditorMiB': args.max_editor_mib, 'externalUpdates': args.external_updates}
     child = None
     try:
         with (folder / 'app.log').open('wb') as log, (folder / 'processes.jsonl').open('w') as resource_log:
@@ -130,6 +142,19 @@ def main():
                 if elapsed > 30 and not (folder / 'heartbeat.json').exists():
                     raise RuntimeError('Soak did not start: use a Debug build with application tests enabled; see app.log')
                 row = {'atSeconds': elapsed, 'processes': owned(processes(), child.pid, groups)}
+                for process in row['processes']:
+                    process.update(memory(process['pid']))
+                    if process['pid'] == child.pid:
+                        footprint = process.get('physicalFootprintKiB', process.get('proportionalFootprintKiB'))
+                        if footprint is not None:
+                            row['editorFootprintKiB'] = footprint
+                if args.max_editor_mib is not None:
+                    footprint = row.get('editorFootprintKiB')
+                    if footprint is None and child.poll() is None:
+                        raise RuntimeError('Cannot enforce editor memory budget: footprint sampling unavailable')
+                    if footprint is not None and footprint > args.max_editor_mib * 1024:
+                        samples.append(row); resource_log.write(json.dumps(row) + '\n'); resource_log.flush()
+                        raise RuntimeError(f'Editor footprint exceeded {args.max_editor_mib} MiB; see processes.jsonl')
                 try:
                     row['ui'] = json.loads((folder / 'heartbeat.json').read_text())
                 except (FileNotFoundError, json.JSONDecodeError):
@@ -154,6 +179,9 @@ def main():
     except Exception as error:
         result['error'] = str(error)
     finally:
+        if samples and 'peakEditorFootprintKiB' not in result:
+            footprints = [s['editorFootprintKiB'] for s in samples if 'editorFootprintKiB' in s]
+            result['peakEditorFootprintKiB'] = max(footprints, default=None)
         if child and (child.poll() is None or not result['passed']):
             live = owned(processes(), child.pid, groups)
             cleanup_groups = {p['pgid'] for p in live}

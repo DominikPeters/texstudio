@@ -73,6 +73,7 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
         }
         child.setProgram(program);
         QStringList arguments = {"-texlive", "-headless", "-json", "-lines"};
+        if (features["parentWatch"].toBool()) arguments << "-watch-parent";
         if (features["maxPreviewPixels"].toInt() > 4000000)
             arguments << "-preview-max-pixels" << QString::number(std::min(features["maxPreviewPixels"].toInt(), previewPixelLimit));
         for (const auto &directory : inclusionDirectories) arguments << "-I" << directory;
