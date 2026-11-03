@@ -5,6 +5,7 @@ import json
 import os
 import platform
 import plistlib
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -72,6 +73,62 @@ def refresh_engine_manifest(app, signing=None):
     path.write_text(json.dumps(manifest, indent=2) + '\n')
 
 
+def remove_virtual_keyboard(app):
+    """Drop macdeployqt's optional touch keyboard, retaining shared dependencies.
+
+    TeXstudio uses the native desktop input method. macdeployqt nevertheless
+    copies every platforminputcontexts plugin. Do not remove QtQml itself: the
+    editor uses its JavaScript engine for macros.
+    """
+    plugin = app / 'Contents/PlugIns/platforminputcontexts/libqtvirtualkeyboardplugin.dylib'
+    plugin.unlink(missing_ok=True)
+    candidates = {'QtVirtualKeyboard', 'QtVirtualKeyboardQml', 'QtQuick',
+                  'QtQmlModels', 'QtQmlWorkerScript'}
+    links = {}
+    roots = set()
+    for file in macho_files(app):
+        owner = next((p.removesuffix('.framework') for p in file.parts
+                      if p.endswith('.framework')), None)
+        used = set(re.findall(r'/(Qt\w+)\.framework/',
+                              run(['otool', '-L', file], capture=True)))
+        used.discard(owner)  # otool also prints a dylib's own install ID.
+        if owner in candidates:
+            links.setdefault(owner, set()).update(used & candidates)
+        else:
+            roots.update(used & candidates)
+    needed = set()
+    pending = list(roots)
+    while pending:
+        name = pending.pop()
+        if name not in needed:
+            needed.add(name)
+            pending.extend(links.get(name, ()))
+    if needed & {'QtVirtualKeyboard', 'QtVirtualKeyboardQml'}:
+        raise ValueError('Unexpected dependency on Qt Virtual Keyboard')
+    removed = []
+    for name in sorted(candidates - needed):
+        framework = app / 'Contents/Frameworks' / (name + '.framework')
+        if framework.exists():
+            shutil.rmtree(framework)
+            removed.append(name)
+    return removed
+
+
+def collect_license_inventory(app, macdeployqt, library_paths, refresh=False):
+    from license_inventory import inventory
+    destination = app / 'Contents/Resources/licenses'
+    if refresh:
+        shutil.rmtree(destination)
+    qt_prefix = Path(macdeployqt).parent.parent
+    receipt = next((p for p in Path(macdeployqt).resolve().parents
+                    if (p / 'INSTALL_RECEIPT.json').is_file()), None)
+    if receipt is None:
+        raise ValueError('Cannot identify Qt package provenance for inventory')
+    return inventory(app, destination, qt_prefix, receipt.parent.parent,
+                     [p.resolve() for p in library_paths],
+                     hash_stage='before final code signing; signatures and engine manifest hashes will change')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--app', type=Path, required=True)
@@ -110,6 +167,7 @@ def main():
     run([args.macdeployqt, app, '-verbose=2', '-no-codesign',
          '-executable=' + str(offscreen),
          *['-libpath=' + str(path.resolve()) for path in args.library_path]])
+    remove_virtual_keyboard(app)
     # A release may not fall back to the runner's Homebrew/temporary prefixes.
     for file in macho_files(app):
         lines = run(['otool', '-l', file], capture=True).splitlines()
@@ -130,6 +188,10 @@ def main():
         'engineRevision': runtime['engineRevision'], 'architecture': platform.machine(),
         'requires': 'User-installed TeX Live',
     }, indent=2) + '\n')
+    # Preserve the actual distributed code/data inventory, not just the engine's
+    # dynamic dependencies. This records incomplete evidence without claiming
+    # that a development bundle is cleared for public redistribution.
+    collect_license_inventory(app, args.macdeployqt, args.library_path)
     # Finish a local ad-hoc seal for deployment checks. CI replaces it with
     # timestamped Developer ID signatures and hardened runtime afterwards.
     from notarize_app import sign_app

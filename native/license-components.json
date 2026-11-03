@@ -1,0 +1,129 @@
+[
+  {
+    "name": "TeXstudio / Texmaker and local Espresso integration",
+    "license": "GPL-3.0 distribution baseline; inherited per-file notices remain applicable",
+    "evidence": ["COPYING", "src/aboutdialog.cpp"],
+    "notes": "Older GPL-2.0-or-later headers permit GPLv3; do not mistake old utilities/license.txt (mislabelled Library GPLv2) for the app's license. Publish exact modified source and build scripts."
+  },
+  {
+    "name": "QCodeEdit",
+    "license": "GPL-3.0-only headers (some older files GPL-2.0-or-later)",
+    "evidence": ["src/qcodeedit/COPYING", "src/qcodeedit/README.txt"],
+    "notes": "Luc Bruant and contributors; retained source headers are authoritative."
+  },
+  {
+    "name": "TeXworks PDF viewer, KILE output parser, Qt Creator-derived code, single-application helpers",
+    "license": "GPL-family and Qt Solutions per-file terms; inherited attribution must remain",
+    "evidence": ["src/aboutdialog.cpp", "src/qtsingleapplication/qtlocalpeer.cpp"],
+    "notes": "Not separate dylibs. Review source headers and Qt Solutions exception in addition to main GPL text."
+  },
+  {
+    "name": "QuaZip and embedded MiniZip",
+    "license": "LGPL-2.1 with static linking exception; MiniZip zlib-style terms",
+    "evidence": ["src/quazip/COPYING", "src/quazip/quazip/zip.h", "src/quazip/quazip/unzip.h"]
+  },
+  {
+    "name": "QMarkedScrollBar",
+    "license": "LGPL-3.0; review source headers for later-version permission",
+    "evidence": ["src/libqmarkedscrollbar/COPYING", "src/libqmarkedscrollbar/COPYING.LESSER", "src/libqmarkedscrollbar/AUTHORS"]
+  },
+  {
+    "name": "adwaita-qt compiled style",
+    "license": "GPL-2.0-or-later / LGPL per-file terms (not GPL2-only merely because COPYING is GPL2)",
+    "evidence": ["src/adwaita-qt/COPYING", "src/adwaita-qt/LICENSE.GPL2", "src/adwaita-qt/LICENSE.LGPL2"]
+  },
+  {
+    "name": "SyncTeX editor integration",
+    "license": "MIT",
+    "evidence": ["src/pdfviewer/synctex/LICENSE"]
+  },
+  {
+    "name": "Qt example flowlayout, To Title Case, TexTablet",
+    "license": "BSD-3-Clause / MIT respectively; preserve notices for included code",
+    "evidence": ["src/flowlayout.cpp", "utilities/TexTablet/license.txt", "src/aboutdialog.cpp"],
+    "notes": "TexTablet is not a macOS executable dependency; do not redistribute its Windows binary without separate platform inventory. To Title Case copyright notice is embedded in src/texstudio.cpp."
+  },
+  {
+    "name": "TeXpresso and behavior adapted from texpresso-vscode",
+    "license": "MIT for original project code; combined engine includes copyleft dependencies",
+    "evidence": ["native/texpresso/LICENSE", "native/notices/texpresso-vscode-LICENSE"]
+  },
+  {
+    "name": "XeTeX / Tectonic compiler worker and SyncTeX",
+    "license": "MIT/X11-style and other per-file terms; not covered solely by TeXpresso MIT",
+    "evidence": ["native/texpresso/src/engine/layout/xetex-XeTeXFontMgr.cpp", "native/texpresso/src/engine/engine/xetex-synctex.c"],
+    "notes": "Generated engine, XeTeX layout, Tectonic bridge and worker sources must be included in corresponding source. Preserve notices from every contributing file."
+  },
+  {
+    "name": "dvipdfmx code statically compiled into compiler worker",
+    "license": "GPL-2.0-or-later and per-file permissive terms",
+    "evidence": ["native/texpresso/src/engine/dpx/dpx-dvi.c", "native/texpresso/src/engine/dpx/dpx-pdfobj.c", "utilities/COPYING"],
+    "notes": "Important additional copyleft dependency even apart from MuPDF. Publish matching worker source."
+  },
+  {
+    "name": "MuPDF compact renderer",
+    "license": "AGPL-3.0; commercial alternative exists",
+    "evidence": ["native/profiles/mupdf.mk", "native/dependencies.lock.json", "native/notices/mupdf/upstream-license.md"],
+    "notes": "Actual COPYING is already in engine notices. Compact build disables modules, not license obligations. Exact archive members and retained font symbols are recorded in native/license-static-components.json."
+  },
+  {
+    "name": "MuPDF retained URW fonts, Droid fallback, Adobe CMaps and static LCMS2",
+    "license": "OFL-1.1; Apache-2.0; Adobe BSD-style; MIT respectively",
+    "evidence": ["native/notices/mupdf/urw-OFL.txt", "native/notices/mupdf/droid-NOTICE", "native/notices/mupdf/cmap-notices.txt", "native/notices/mupdf/lcms2-LICENSE"],
+    "notes": "15 linked font payloads found in the unstripped frontend: 14 URW CFF fonts and DroidSansFallbackFull.ttf. libmupdf-third.a contains only LCMS2. Snapshot is valid only for the recorded archive hashes."
+  },
+  {
+    "name": "jbig2dec and libb2 dynamic libraries",
+    "license": "jbig2dec: AGPL-3.0-or-later; libb2: CC0-1.0 (installed LICENSE/COPYING evidence)",
+    "evidence": [],
+    "notes": "Homebrew source metadata is NOASSERTION for these packages; inspect the collected license text. jbig2dec is an additional AGPL dependency independent of static MuPDF."
+  },
+  {
+    "name": "zlib-ng static PNG encoder and private ICU data",
+    "license": "zlib-style plus upstream bundled-code notices; ICU Unicode license",
+    "evidence": ["native/dependencies.lock.json"],
+    "notes": "Full license texts already in engine notices; preserve zlib-ng/LICENSE.md and ICU license at pinned versions, including their third-party notices."
+  },
+  {
+    "name": "Poppler library and bundled CMap data",
+    "license": "Library: GPL-2.0-only OR GPL-3.0-only (upstream package metadata); CMaps: mixed Adobe permissive/GPL terms",
+    "evidence": ["utilities/poppler-data/COPYING", "utilities/poppler-data/COPYING.adobe", "utilities/poppler-data/COPYING.gpl2"],
+    "notes": "Use GPLv3 option for library; bundled data is inventoried independently. User-installed TeX Live is not shipped."
+  },
+  {
+    "name": "Hunspell dictionaries and MyThes thesauri",
+    "license": "Mixed per-language licenses; exact 92 dictionary and 4 thesaurus payloads need provenance reconciliation",
+    "evidence": ["utilities/dictionaries/README_others.txt", "utilities/dictionaries/README_it_IT.txt", "utilities/dictionaries/README_es_ES.txt", "utilities/dictionaries/README_DIC_fr_FR.txt", "utilities/dictionaries/README_hu_HU.txt", "utilities/dictionaries/README_pt_BR.TXT"],
+    "notes": "Dictionary license is independent of Hunspell library. inventory.json records each archive and each decompressed member SHA256. Existing generic URL does not establish exact payload license."
+  },
+  {
+    "name": "TeXstudio icon, cup overlay and splash screen",
+    "license": "Original app artwork provenance retained; cup v3 attribution/license confirmation required",
+    "evidence": ["native/icons/README.md"],
+    "notes": "Cup extracted from texpresso_logo_v3.svg. Older texpresso_logo.svg has CC0 metadata, but do not silently assume it licenses the v3 file. Native asset-catalog build tools are not redistributed."
+  },
+  {
+    "name": "Crystal, Oxygen, Colibre icons and Alexander Klink image",
+    "license": "About dialog declares LGPL / CC-BY-SA-3.0 / CC0 respectively; map exact assets and include attribution/license texts",
+    "evidence": ["src/aboutdialog.cpp"],
+    "notes": "Embedded QRC input inventory includes hashes; SVG metadata and original provenance must be reconciled for modifications."
+  },
+  {
+    "name": "Generated LaTeX symbols, previews, templates, completion data, translations",
+    "license": "Inherited TeXstudio/per-file terms; generator/package artwork exceptions require review",
+    "evidence": ["symbols-ng/README", "src/aboutdialog.cpp"],
+    "notes": "Build-time TeX packages are not necessarily distributed code, but generated artwork and font-derived outputs can have their own terms. All QRC resources are inventoried by hash."
+  },
+  {
+    "name": "TeXstudio manual, latex2e reference, HTML/CSS/JS dependencies",
+    "license": "Per-document permission notices and third-party script licenses; not uniformly GPL",
+    "evidence": ["utilities/manual/Readme.md", "utilities/manual/build/html/_static/scripts/furo.js.LICENSE.txt"],
+    "notes": "latex2e.html contains its copying permission near the start. Review bundled generated manual dependencies (theme, JavaScript, CSS, fonts) separately; resource inventory covers all shipped files."
+  },
+  {
+    "name": "URW font source assets",
+    "license": "Font-specific terms; source README alone is insufficient",
+    "evidence": ["utilities/fonts/README"],
+    "notes": "These source .pfb files are not standalone files in the current macOS package. Retained MuPDF embedded fonts require a separate exact list; Linux packaging must be checked independently."
+  }
+]

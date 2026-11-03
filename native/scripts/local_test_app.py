@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 from common import ROOT, run, sha256
-from deploy_macos import verify_dependencies
+from deploy_macos import collect_license_inventory, verify_dependencies
 
 
 def main():
@@ -82,6 +82,9 @@ exec "$app_dir/texstudio" --start-always --disable-tests --config "$config_dir" 
         'generator': 'native/scripts/local_test_app.py',
         'iconName': 'AppIconCoffee',
     }, indent=2) + '\n')
+    # The test launcher/icon/metadata differ from the release layout inventoried
+    # by deploy_macos. Refresh after all those changes and before the final seal.
+    collect_license_inventory(output, args.macdeployqt, args.library_path, refresh=True)
     run(['codesign', '--force', '--options', '0', '--sign', '-', output / 'Contents/MacOS/texstudio'])
     run(['codesign', '--force', '--options', '0', '--sign', '-', '--entitlements',
          ROOT / 'native/profiles/texstudio.entitlements', output])

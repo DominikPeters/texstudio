@@ -78,6 +78,39 @@ class MacOSApp(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'escapes'):
             deploy_macos.refresh_engine_manifest(self.app)
 
+    def test_keyboard_removal_keeps_frameworks_used_by_other_plugins(self):
+        plugin = self.app / 'Contents/PlugIns/platforminputcontexts/libqtvirtualkeyboardplugin.dylib'
+        plugin.parent.mkdir(parents=True)
+        plugin.write_text('optional keyboard')
+        names = ('QtVirtualKeyboard', 'QtVirtualKeyboardQml', 'QtQuick',
+                 'QtQmlModels', 'QtQmlWorkerScript')
+        images = {}
+        for name in names:
+            image = self.app / f'Contents/Frameworks/{name}.framework/Versions/A/{name}'
+            image.parent.mkdir(parents=True)
+            image.write_bytes(bytes.fromhex('cffaedfe'))
+            images[name] = image
+        # A future unrelated plugin uses Quick; Quick needs QmlModels. Those
+        # must survive, but the keyboard and unused worker script must not.
+        def links(args, **options):
+            file = args[-1]
+            if file == self.main:
+                return '/QtQuick.framework/Versions/A/QtQuick'
+            if file == images['QtQuick']:
+                return '/QtQmlModels.framework/Versions/A/QtQmlModels'
+            return ''
+        with patch.object(deploy_macos, 'run', side_effect=links):
+            removed = deploy_macos.remove_virtual_keyboard(self.app)
+        self.assertFalse(plugin.exists())
+        self.assertEqual(set(removed), {'QtVirtualKeyboard', 'QtVirtualKeyboardQml', 'QtQmlWorkerScript'})
+        self.assertTrue(images['QtQuick'].exists())
+        self.assertTrue(images['QtQmlModels'].exists())
+
+    def test_keyboard_direct_dependency_fails_packaging(self):
+        with patch.object(deploy_macos, 'run', return_value='/QtVirtualKeyboard.framework/Versions/A/QtVirtualKeyboard'):
+            with self.assertRaisesRegex(ValueError, 'Unexpected dependency'):
+                deploy_macos.remove_virtual_keyboard(self.app)
+
     def test_stapling_retries_ticket_service_and_preserves_stdout(self):
         reports = Path(self.temp.name)
         responses = [subprocess.CompletedProcess([], 65, 'Record not found', ''),
