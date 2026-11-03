@@ -1,0 +1,3951 @@
+{
+  "schema": 1,
+  "dictionaries": [
+    {
+      "name": "bg_BG-Bulgarian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/bg",
+      "members": [
+        {
+          "name": "bg_BG-Bulgarian.dic",
+          "sha256": "44408b1ee50301e8f9a133b0ec92565bb8be49818c444d91821876d447f58906",
+          "upstreamPath": "dictionaries/bg/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "bg_BG-Bulgarian.aff",
+          "sha256": "cb6bfc56d6b1e70c812061086d7ec5ad6aaf6d35acd927a035f1cee0188ea477",
+          "upstreamPath": "dictionaries/bg/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/bg_BG-Bulgarian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/bg/license",
+          "gitBlob": "16a050610d54a18b6e80107e7a0312d105176659"
+        },
+        {
+          "path": "native/notices/dictionaries/bg_BG-Bulgarian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/bg/package.json",
+          "gitBlob": "21f887f9791ea8774013e03dc73fa0ad298330ab"
+        },
+        {
+          "path": "native/notices/dictionaries/bg_BG-Bulgarian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/bg/readme.md",
+          "gitBlob": "5032d333d16759a66fc395ca34521bb4efb7c486"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)"
+    },
+    {
+      "name": "br_BR-Breton.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6",
+      "upstreamDirectory": "dictionaries/br",
+      "members": [
+        {
+          "name": "br_BR-Breton.dic",
+          "sha256": "235241afc01c0726d32427e1411f96bee1a5f536bd1bdb7f083a311e6f0d780b",
+          "upstreamPath": "dictionaries/br/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "br_BR-Breton.aff",
+          "sha256": "8c05d6c1e2a9279f67407018145cf7f0b8b6da4f3a8ed83939a55f8e32af27cd",
+          "upstreamPath": "dictionaries/br/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/br_BR-Breton/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/br/license",
+          "gitBlob": "3a873a17885465f9bef651ae906cbe11b8b7c121"
+        },
+        {
+          "path": "native/notices/dictionaries/br_BR-Breton/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/br/package.json",
+          "gitBlob": "7048b5e04c3bf7077ad99f478b7b6dda18c9e2d0"
+        },
+        {
+          "path": "native/notices/dictionaries/br_BR-Breton/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/br/readme.md",
+          "gitBlob": "45959562ea074423201ba003741217cc882bc7bf"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)"
+    },
+    {
+      "name": "ca_CAVA-CatalanValencian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6",
+      "upstreamDirectory": "dictionaries/ca-valencia",
+      "members": [
+        {
+          "name": "ca_CAVA-CatalanValencian.dic",
+          "sha256": "d563c06562c09d6661add56486ecf04e5120486b2e2269c303b5d01885b160f4",
+          "upstreamPath": "dictionaries/ca-valencia/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "ca_CAVA-CatalanValencian.aff",
+          "sha256": "4f972e74c7891c4a16cc391547a83bec79f9a899d964e65874b210dc9a252b56",
+          "upstreamPath": "dictionaries/ca-valencia/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ca_CAVA-CatalanValencian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/ca-valencia/license",
+          "gitBlob": "8f7e11b4f413b9da4440645b9f94d352dc7ae620"
+        },
+        {
+          "path": "native/notices/dictionaries/ca_CAVA-CatalanValencian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/ca-valencia/package.json",
+          "gitBlob": "6d66ab6fef591b221df137a03f33b4bfafa786f3"
+        },
+        {
+          "path": "native/notices/dictionaries/ca_CAVA-CatalanValencian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/ca-valencia/readme.md",
+          "gitBlob": "6ff6322332a4f24f52f8d8ea28f4233f0bf8529d"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1)"
+    },
+    {
+      "name": "ca_ES-Catalan.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6",
+      "upstreamDirectory": "dictionaries/ca",
+      "members": [
+        {
+          "name": "ca_ES-Catalan.dic",
+          "sha256": "14f724133c509de7d7c06f119ef6ff1680c256cdb98f1a353562bda1da3c0684",
+          "upstreamPath": "dictionaries/ca/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "ca_ES-Catalan.aff",
+          "sha256": "cd28cc86ea76c814bf77c77e48904a239e491900d49dfdf6fd6eaae08b6aacb1",
+          "upstreamPath": "dictionaries/ca/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ca_ES-Catalan/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/ca/license",
+          "gitBlob": "8f7e11b4f413b9da4440645b9f94d352dc7ae620"
+        },
+        {
+          "path": "native/notices/dictionaries/ca_ES-Catalan/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/ca/package.json",
+          "gitBlob": "1427d7d4bb2b2bd9f3bd3d2029f3167be5dccc34"
+        },
+        {
+          "path": "native/notices/dictionaries/ca_ES-Catalan/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/ca/readme.md",
+          "gitBlob": "e8c2fddcf91154624b5b44e180372cbdc76fb771"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1)"
+    },
+    {
+      "name": "cs_CS-Czech.dic",
+      "repository": "https://github.com/texstudio-org/texstudio/issues/1630",
+      "sourceArchive": {
+        "url": "https://github.com/texstudio-org/texstudio/files/6521585/hunspell_cs.zip",
+        "sha256": "fa6a9c73fef141b85621f694a84f6cfdcd54fa5b1c9bd65f395c22e213456ef6"
+      },
+      "members": [
+        {
+          "name": "cs_CS-Czech.dic",
+          "sha256": "559486d16e8c117cc47c1e4d4be1784bfb2265e660582c008485f994c6ac9397",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        },
+        {
+          "name": "cs_CS-Czech.aff",
+          "sha256": "6e9bfc6d9d76c6d9ba76f8035a60cf497c38eb98913d77673cdbc4645e18ad90",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/cs_CS-Czech/readme.txt",
+          "url": "https://github.com/texstudio-org/texstudio/files/6521585/hunspell_cs.zip",
+          "archiveMember": "readme.txt"
+        },
+        {
+          "path": "native/notices/dictionaries/cs_CS-Czech/readme_balicek.txt",
+          "url": "https://github.com/texstudio-org/texstudio/files/6521585/hunspell_cs.zip",
+          "archiveMember": "readme_balicek.txt"
+        }
+      ],
+      "verification": "exact-contributor-archive",
+      "license": "GNU GPL; full version text in original readme.txt"
+    },
+    {
+      "name": "da_DA-Danish.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6",
+      "upstreamDirectory": "dictionaries/da",
+      "members": [
+        {
+          "name": "da_DA-Danish.dic",
+          "sha256": "ee22a1beaeec06384068317a66522d0a1ed9c6ad288d9a8e4db948fbf24a66a7",
+          "upstreamPath": "dictionaries/da/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "da_DA-Danish.aff",
+          "sha256": "9fd88657b21c09fc7501e6b3a02069315591dd5b03cad3a705403c906af2843c",
+          "upstreamPath": "dictionaries/da/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/da_DA-Danish/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/da/license",
+          "gitBlob": "3a54c91fd5480920d9fd7fd28ffba2a1ccbb1ad1"
+        },
+        {
+          "path": "native/notices/dictionaries/da_DA-Danish/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/da/package.json",
+          "gitBlob": "bff14765fe7f220506e5e8dcd754e09701d257a9"
+        },
+        {
+          "path": "native/notices/dictionaries/da_DA-Danish/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/da/readme.md",
+          "gitBlob": "e79fda741a3d0cf2fe2f96e5e5f78da3932533cc"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)"
+    },
+    {
+      "name": "de_AT-GermanAustria.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/de-AT",
+      "members": [
+        {
+          "name": "de_AT-GermanAustria.dic",
+          "sha256": "b7d1fe9830909dcca3ab6d75fe25ebd8bedd9dbf12fcb415f79b576392b1b980",
+          "upstreamPath": "dictionaries/de-AT/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "de_AT-GermanAustria.aff",
+          "sha256": "04ebc966a0b1130d8fc62886bb801e77bf7d6a11accf205954c364d3c0c68864",
+          "upstreamPath": "dictionaries/de-AT/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/de_AT-GermanAustria/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/de-AT/license",
+          "gitBlob": "3702ed2564d457d437533173a38cdc844843026b"
+        },
+        {
+          "path": "native/notices/dictionaries/de_AT-GermanAustria/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/de-AT/package.json",
+          "gitBlob": "60326bc1e5ed5d37b64fdfd5cb1fe6b05ae3a08a"
+        },
+        {
+          "path": "native/notices/dictionaries/de_AT-GermanAustria/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/de-AT/readme.md",
+          "gitBlob": "a7c23e5d012cd994733f39a375db118935b1a7c1"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR GPL-3.0)"
+    },
+    {
+      "name": "de_CH-GermanSwitzerland.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/de-CH",
+      "members": [
+        {
+          "name": "de_CH-GermanSwitzerland.dic",
+          "sha256": "56eb32b42cbaf15c45ea9cb8e1ef40beae74359397be58859412d5a827ded0c3",
+          "upstreamPath": "dictionaries/de-CH/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "de_CH-GermanSwitzerland.aff",
+          "sha256": "11d773a903ece02c71b5094d71dcf3afe27cad0383cfe063fddbde26b8443785",
+          "upstreamPath": "dictionaries/de-CH/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/de_CH-GermanSwitzerland/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/de-CH/license",
+          "gitBlob": "3702ed2564d457d437533173a38cdc844843026b"
+        },
+        {
+          "path": "native/notices/dictionaries/de_CH-GermanSwitzerland/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/de-CH/package.json",
+          "gitBlob": "5d46a05bc9436b73eaf816bbe025d21040caaa15"
+        },
+        {
+          "path": "native/notices/dictionaries/de_CH-GermanSwitzerland/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/de-CH/readme.md",
+          "gitBlob": "8f9752beb1c30ca1fb358dfdb722c4163eb554ed"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR GPL-3.0)"
+    },
+    {
+      "name": "de_DE.dic",
+      "repository": "https://github.com/LibreOffice/dictionaries",
+      "revision": "87ca82e1a22bfc40c6fef0ddaa210053cf79f25f",
+      "upstreamDirectory": "de",
+      "members": [
+        {
+          "name": "de_DE.dic",
+          "sha256": "52d2484a70681386d979e958f2f828a976f0dcdaa680038f371bc70abcf7463a",
+          "upstreamPath": "de/de_DE_frami.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "de_DE.aff",
+          "sha256": "089a1b446a91d51b19d9b7b9529c3d2ee48678e0443bd50e56cc9ec2155a4c38",
+          "upstreamPath": "de/de_DE_frami.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/de_DE/COPYING_GPLv2",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/COPYING_GPLv2",
+          "gitBlob": "a8cab0356b0b9656dd1a988d524772166016c4ec"
+        },
+        {
+          "path": "native/notices/dictionaries/de_DE/COPYING_GPLv3",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/COPYING_GPLv3",
+          "gitBlob": "94a9ed024d3859793618152ea559a168bbcbb5e2"
+        },
+        {
+          "path": "native/notices/dictionaries/de_DE/COPYING_LGPL_v2.0.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/COPYING_LGPL_v2.0.txt",
+          "gitBlob": "5bc8fb2c8f757e34a0d8f4644f589d57609e213f"
+        },
+        {
+          "path": "native/notices/dictionaries/de_DE/COPYING_LGPL_v2.1.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/COPYING_LGPL_v2.1.txt",
+          "gitBlob": "4362b49151d7b34ef83b3067a8f9c9f877d72a0e"
+        },
+        {
+          "path": "native/notices/dictionaries/de_DE/COPYING_OASIS.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/COPYING_OASIS.txt",
+          "gitBlob": "47c1c2bb4384852191c28a47685f2b59e08dadd3"
+        },
+        {
+          "path": "native/notices/dictionaries/de_DE/README_de_DE_frami.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/README_de_DE_frami.txt",
+          "gitBlob": "43d6c6c45ea75016b8b912d87a29e99a90a38635"
+        },
+        {
+          "path": "native/notices/dictionaries/de_DE/README_extension_owner.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/README_extension_owner.txt",
+          "gitBlob": "822409cc8828a7a519111b0462efbb3df35c5b56"
+        },
+        {
+          "path": "native/notices/dictionaries/de_DE/README_hyph_de.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/README_hyph_de.txt",
+          "gitBlob": "8921caef8669a6da5df523fa3491dde3624db5ea"
+        },
+        {
+          "path": "native/notices/dictionaries/de_DE/README_thesaurus.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/README_thesaurus.txt",
+          "gitBlob": "9bdaebf7c4dae96502fafd7084169fe4e6c76566"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "See collected upstream notices"
+    },
+    {
+      "name": "el_EL-ModernGreek.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/el",
+      "members": [
+        {
+          "name": "el_EL-ModernGreek.dic",
+          "sha256": "f08daefb302600beb1b345e4fd77f4ecf6617aa080a72efe6ae7eec0ad5b2ac7",
+          "upstreamPath": "dictionaries/el/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "el_EL-ModernGreek.aff",
+          "sha256": "5d2e3580af6d3523ac4470335a4b05968e59dddc58e1a7f2b260c81342e80063",
+          "upstreamPath": "dictionaries/el/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/el_EL-ModernGreek/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/el/license",
+          "gitBlob": "c67a49438619db7709c80161b7faf6f2e537fa3c"
+        },
+        {
+          "path": "native/notices/dictionaries/el_EL-ModernGreek/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/el/package.json",
+          "gitBlob": "a94bdb8f4acb44b2ff3c2080bb6336710813cc32"
+        },
+        {
+          "path": "native/notices/dictionaries/el_EL-ModernGreek/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/el/readme.md",
+          "gitBlob": "568f785a14af36b875c299c2b30d3e2faa7c9b19"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)"
+    },
+    {
+      "name": "el_POL-ModerGreekPolytonicGreek.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/el-polyton",
+      "members": [
+        {
+          "name": "el_POL-ModerGreekPolytonicGreek.dic",
+          "sha256": "2368557909c26a368234623c199a70f4322e62a4c933dd32da43cb55bb26efa8",
+          "upstreamPath": "dictionaries/el-polyton/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "el_POL-ModerGreekPolytonicGreek.aff",
+          "sha256": "e734b5c534d9f5f48fc9edce2e75ac695b3620ebd1f9817cd43fda887f81107f",
+          "upstreamPath": "dictionaries/el-polyton/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/el_POL-ModerGreekPolytonicGreek/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/el-polyton/license",
+          "gitBlob": "2d794f3e16df3cdb68ac4320b470639b71ae8856"
+        },
+        {
+          "path": "native/notices/dictionaries/el_POL-ModerGreekPolytonicGreek/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/el-polyton/package.json",
+          "gitBlob": "bb5935506b3580c3ce021d104c3233add7e11919"
+        },
+        {
+          "path": "native/notices/dictionaries/el_POL-ModerGreekPolytonicGreek/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/el-polyton/readme.md",
+          "gitBlob": "cac99c717b55f6145ee76245a9a6840e3723cf9e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-3.0"
+    },
+    {
+      "name": "en_AU-EnglishAustralia.dic",
+      "repository": "https://github.com/LibreOffice/dictionaries",
+      "revision": "87ca82e1a22bfc40c6fef0ddaa210053cf79f25f",
+      "upstreamDirectory": "en",
+      "members": [
+        {
+          "name": "en_AU-EnglishAustralia.dic",
+          "sha256": "f8094a6bd24b600518704062e6fd96682cdcb3220d74eff3dd04b99b2ebbb304",
+          "upstreamPath": "en/en_AU.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "en_AU-EnglishAustralia.aff",
+          "sha256": "c7a8c4d08c29d237880844b1623099f59092602f189be38ce3912e457ff38bc1",
+          "upstreamPath": "en/en_AU.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/en_AU-EnglishAustralia/README.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README.txt",
+          "gitBlob": "16ef20b51bac8b73e625836ec71ee90a717409cb"
+        },
+        {
+          "path": "native/notices/dictionaries/en_AU-EnglishAustralia/README_en_AU.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_AU.txt",
+          "gitBlob": "014749c2cd838b6daf6ecba05f2a068eb1fc74ff"
+        },
+        {
+          "path": "native/notices/dictionaries/en_AU-EnglishAustralia/README_en_CA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_CA.txt",
+          "gitBlob": "e0be02d8d6ea98f4a18ffd2b536082b1d781df08"
+        },
+        {
+          "path": "native/notices/dictionaries/en_AU-EnglishAustralia/README_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB.txt",
+          "gitBlob": "acdc128899436aac36c082ca48e429efa42d75cb"
+        },
+        {
+          "path": "native/notices/dictionaries/en_AU-EnglishAustralia/README_en_GB_thes.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB_thes.txt",
+          "gitBlob": "aff398af91e906243d3ac6e0e579a9827352abc9"
+        },
+        {
+          "path": "native/notices/dictionaries/en_AU-EnglishAustralia/README_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_US.txt",
+          "gitBlob": "ce9b1a692e7df890e4f163202f4f776f729ce12b"
+        },
+        {
+          "path": "native/notices/dictionaries/en_AU-EnglishAustralia/README_en_ZA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_ZA.txt",
+          "gitBlob": "436b56e306a198cd4c8e947375ad0cfc83b1635e"
+        },
+        {
+          "path": "native/notices/dictionaries/en_AU-EnglishAustralia/README_hyph_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_GB.txt",
+          "gitBlob": "4afac7b60bad9d8ba42b964706837834201ec321"
+        },
+        {
+          "path": "native/notices/dictionaries/en_AU-EnglishAustralia/README_hyph_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_US.txt",
+          "gitBlob": "8420172ba48044f75f8b85dc498657caba8abf95"
+        },
+        {
+          "path": "native/notices/dictionaries/en_AU-EnglishAustralia/README_lightproof_en.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_lightproof_en.txt",
+          "gitBlob": "43c91fe4068f9050162127837cbdac9b1ffd9569"
+        },
+        {
+          "path": "native/notices/dictionaries/en_AU-EnglishAustralia/license.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/license.txt",
+          "gitBlob": "e37680cf1385db400bff88ac103d30e876a5103e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "See collected upstream notices"
+    },
+    {
+      "name": "en_CA-EnglishCanada.dic",
+      "repository": "https://github.com/LibreOffice/dictionaries",
+      "revision": "87ca82e1a22bfc40c6fef0ddaa210053cf79f25f",
+      "upstreamDirectory": "en",
+      "members": [
+        {
+          "name": "en_CA-EnglishCanada.dic",
+          "sha256": "55677b9facf26a8b7b9d0c1099fdf7105c7ed54f8ca9fb85d285c484a996cef0",
+          "upstreamPath": "en/en_CA.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "en_CA-EnglishCanada.aff",
+          "sha256": "c7a8c4d08c29d237880844b1623099f59092602f189be38ce3912e457ff38bc1",
+          "upstreamPath": "en/en_AU.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/en_CA-EnglishCanada/README.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README.txt",
+          "gitBlob": "16ef20b51bac8b73e625836ec71ee90a717409cb"
+        },
+        {
+          "path": "native/notices/dictionaries/en_CA-EnglishCanada/README_en_AU.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_AU.txt",
+          "gitBlob": "014749c2cd838b6daf6ecba05f2a068eb1fc74ff"
+        },
+        {
+          "path": "native/notices/dictionaries/en_CA-EnglishCanada/README_en_CA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_CA.txt",
+          "gitBlob": "e0be02d8d6ea98f4a18ffd2b536082b1d781df08"
+        },
+        {
+          "path": "native/notices/dictionaries/en_CA-EnglishCanada/README_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB.txt",
+          "gitBlob": "acdc128899436aac36c082ca48e429efa42d75cb"
+        },
+        {
+          "path": "native/notices/dictionaries/en_CA-EnglishCanada/README_en_GB_thes.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB_thes.txt",
+          "gitBlob": "aff398af91e906243d3ac6e0e579a9827352abc9"
+        },
+        {
+          "path": "native/notices/dictionaries/en_CA-EnglishCanada/README_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_US.txt",
+          "gitBlob": "ce9b1a692e7df890e4f163202f4f776f729ce12b"
+        },
+        {
+          "path": "native/notices/dictionaries/en_CA-EnglishCanada/README_en_ZA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_ZA.txt",
+          "gitBlob": "436b56e306a198cd4c8e947375ad0cfc83b1635e"
+        },
+        {
+          "path": "native/notices/dictionaries/en_CA-EnglishCanada/README_hyph_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_GB.txt",
+          "gitBlob": "4afac7b60bad9d8ba42b964706837834201ec321"
+        },
+        {
+          "path": "native/notices/dictionaries/en_CA-EnglishCanada/README_hyph_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_US.txt",
+          "gitBlob": "8420172ba48044f75f8b85dc498657caba8abf95"
+        },
+        {
+          "path": "native/notices/dictionaries/en_CA-EnglishCanada/README_lightproof_en.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_lightproof_en.txt",
+          "gitBlob": "43c91fe4068f9050162127837cbdac9b1ffd9569"
+        },
+        {
+          "path": "native/notices/dictionaries/en_CA-EnglishCanada/license.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/license.txt",
+          "gitBlob": "e37680cf1385db400bff88ac103d30e876a5103e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "See collected upstream notices"
+    },
+    {
+      "name": "en_EN-EnglishUnitedKingdom.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/en",
+      "members": [
+        {
+          "name": "en_EN-EnglishUnitedKingdom.dic",
+          "sha256": "e2aec1aff3e2b840c59e2a4f49f7eb9388b6078c681d960153fc72ce183086cc",
+          "upstreamPath": "dictionaries/en/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "en_EN-EnglishUnitedKingdom.aff",
+          "sha256": "8ae1f19d4840d957728ad90555d5a8dff6cc5c046279c95ff0c00fc0a0136c7b",
+          "upstreamPath": "dictionaries/en/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/en_EN-EnglishUnitedKingdom/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/en/license",
+          "gitBlob": "5704e782b3cc828195d029f9209780a1443900f1"
+        },
+        {
+          "path": "native/notices/dictionaries/en_EN-EnglishUnitedKingdom/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/en/package.json",
+          "gitBlob": "e1d20bdf4be3d6edde194b17b591b817d7d280a8"
+        },
+        {
+          "path": "native/notices/dictionaries/en_EN-EnglishUnitedKingdom/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/en/readme.md",
+          "gitBlob": "a29b838724e52c93963142f67fe24811e1100e6e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(MIT AND BSD)"
+    },
+    {
+      "name": "en_GB.dic",
+      "repository": "https://github.com/LibreOffice/dictionaries",
+      "revision": "87ca82e1a22bfc40c6fef0ddaa210053cf79f25f",
+      "upstreamDirectory": "en",
+      "members": [
+        {
+          "name": "en_GB.dic",
+          "sha256": "3460dbf70e42199cd7fb8a2ee881dafc8cedda05a2bc0d2240e40e1e64b652e7",
+          "upstreamPath": "en/en_GB.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "en_GB.aff",
+          "sha256": "7f2b1e9c363dbc3f104153bcd95f2fae5d03749b9352863dc54e97cfbe78ecf7",
+          "upstreamPath": "en/en_GB.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/en_GB/README.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README.txt",
+          "gitBlob": "16ef20b51bac8b73e625836ec71ee90a717409cb"
+        },
+        {
+          "path": "native/notices/dictionaries/en_GB/README_en_AU.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_AU.txt",
+          "gitBlob": "014749c2cd838b6daf6ecba05f2a068eb1fc74ff"
+        },
+        {
+          "path": "native/notices/dictionaries/en_GB/README_en_CA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_CA.txt",
+          "gitBlob": "e0be02d8d6ea98f4a18ffd2b536082b1d781df08"
+        },
+        {
+          "path": "native/notices/dictionaries/en_GB/README_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB.txt",
+          "gitBlob": "acdc128899436aac36c082ca48e429efa42d75cb"
+        },
+        {
+          "path": "native/notices/dictionaries/en_GB/README_en_GB_thes.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB_thes.txt",
+          "gitBlob": "aff398af91e906243d3ac6e0e579a9827352abc9"
+        },
+        {
+          "path": "native/notices/dictionaries/en_GB/README_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_US.txt",
+          "gitBlob": "ce9b1a692e7df890e4f163202f4f776f729ce12b"
+        },
+        {
+          "path": "native/notices/dictionaries/en_GB/README_en_ZA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_ZA.txt",
+          "gitBlob": "436b56e306a198cd4c8e947375ad0cfc83b1635e"
+        },
+        {
+          "path": "native/notices/dictionaries/en_GB/README_hyph_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_GB.txt",
+          "gitBlob": "4afac7b60bad9d8ba42b964706837834201ec321"
+        },
+        {
+          "path": "native/notices/dictionaries/en_GB/README_hyph_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_US.txt",
+          "gitBlob": "8420172ba48044f75f8b85dc498657caba8abf95"
+        },
+        {
+          "path": "native/notices/dictionaries/en_GB/README_lightproof_en.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_lightproof_en.txt",
+          "gitBlob": "43c91fe4068f9050162127837cbdac9b1ffd9569"
+        },
+        {
+          "path": "native/notices/dictionaries/en_GB/license.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/license.txt",
+          "gitBlob": "e37680cf1385db400bff88ac103d30e876a5103e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "See collected upstream notices"
+    },
+    {
+      "name": "en_US.dic",
+      "repository": "https://github.com/LibreOffice/dictionaries",
+      "revision": "87ca82e1a22bfc40c6fef0ddaa210053cf79f25f",
+      "upstreamDirectory": "en",
+      "members": [
+        {
+          "name": "en_US.dic",
+          "sha256": "e2aec1aff3e2b840c59e2a4f49f7eb9388b6078c681d960153fc72ce183086cc",
+          "upstreamPath": "en/en_US.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "en_US.aff",
+          "sha256": "c7a8c4d08c29d237880844b1623099f59092602f189be38ce3912e457ff38bc1",
+          "upstreamPath": "en/en_AU.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/en_US/README.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README.txt",
+          "gitBlob": "16ef20b51bac8b73e625836ec71ee90a717409cb"
+        },
+        {
+          "path": "native/notices/dictionaries/en_US/README_en_AU.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_AU.txt",
+          "gitBlob": "014749c2cd838b6daf6ecba05f2a068eb1fc74ff"
+        },
+        {
+          "path": "native/notices/dictionaries/en_US/README_en_CA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_CA.txt",
+          "gitBlob": "e0be02d8d6ea98f4a18ffd2b536082b1d781df08"
+        },
+        {
+          "path": "native/notices/dictionaries/en_US/README_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB.txt",
+          "gitBlob": "acdc128899436aac36c082ca48e429efa42d75cb"
+        },
+        {
+          "path": "native/notices/dictionaries/en_US/README_en_GB_thes.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB_thes.txt",
+          "gitBlob": "aff398af91e906243d3ac6e0e579a9827352abc9"
+        },
+        {
+          "path": "native/notices/dictionaries/en_US/README_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_US.txt",
+          "gitBlob": "ce9b1a692e7df890e4f163202f4f776f729ce12b"
+        },
+        {
+          "path": "native/notices/dictionaries/en_US/README_en_ZA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_ZA.txt",
+          "gitBlob": "436b56e306a198cd4c8e947375ad0cfc83b1635e"
+        },
+        {
+          "path": "native/notices/dictionaries/en_US/README_hyph_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_GB.txt",
+          "gitBlob": "4afac7b60bad9d8ba42b964706837834201ec321"
+        },
+        {
+          "path": "native/notices/dictionaries/en_US/README_hyph_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_US.txt",
+          "gitBlob": "8420172ba48044f75f8b85dc498657caba8abf95"
+        },
+        {
+          "path": "native/notices/dictionaries/en_US/README_lightproof_en.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_lightproof_en.txt",
+          "gitBlob": "43c91fe4068f9050162127837cbdac9b1ffd9569"
+        },
+        {
+          "path": "native/notices/dictionaries/en_US/license.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/license.txt",
+          "gitBlob": "e37680cf1385db400bff88ac103d30e876a5103e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "See collected upstream notices"
+    },
+    {
+      "name": "en_ZA-EnglishSouthAfrica.dic",
+      "repository": "https://github.com/LibreOffice/dictionaries",
+      "revision": "87ca82e1a22bfc40c6fef0ddaa210053cf79f25f",
+      "upstreamDirectory": "en",
+      "members": [
+        {
+          "name": "en_ZA-EnglishSouthAfrica.dic",
+          "sha256": "5928244f918bfcbea2794fac365c0f29de102bd05494115da8301d48ba660571",
+          "upstreamPath": "en/en_ZA.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "en_ZA-EnglishSouthAfrica.aff",
+          "sha256": "d55fec64561931b08961e632191c24380679c67fb1a79d7cc2d2af7c25a8d932",
+          "upstreamPath": "en/en_ZA.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/en_ZA-EnglishSouthAfrica/README.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README.txt",
+          "gitBlob": "16ef20b51bac8b73e625836ec71ee90a717409cb"
+        },
+        {
+          "path": "native/notices/dictionaries/en_ZA-EnglishSouthAfrica/README_en_AU.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_AU.txt",
+          "gitBlob": "014749c2cd838b6daf6ecba05f2a068eb1fc74ff"
+        },
+        {
+          "path": "native/notices/dictionaries/en_ZA-EnglishSouthAfrica/README_en_CA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_CA.txt",
+          "gitBlob": "e0be02d8d6ea98f4a18ffd2b536082b1d781df08"
+        },
+        {
+          "path": "native/notices/dictionaries/en_ZA-EnglishSouthAfrica/README_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB.txt",
+          "gitBlob": "acdc128899436aac36c082ca48e429efa42d75cb"
+        },
+        {
+          "path": "native/notices/dictionaries/en_ZA-EnglishSouthAfrica/README_en_GB_thes.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB_thes.txt",
+          "gitBlob": "aff398af91e906243d3ac6e0e579a9827352abc9"
+        },
+        {
+          "path": "native/notices/dictionaries/en_ZA-EnglishSouthAfrica/README_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_US.txt",
+          "gitBlob": "ce9b1a692e7df890e4f163202f4f776f729ce12b"
+        },
+        {
+          "path": "native/notices/dictionaries/en_ZA-EnglishSouthAfrica/README_en_ZA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_ZA.txt",
+          "gitBlob": "436b56e306a198cd4c8e947375ad0cfc83b1635e"
+        },
+        {
+          "path": "native/notices/dictionaries/en_ZA-EnglishSouthAfrica/README_hyph_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_GB.txt",
+          "gitBlob": "4afac7b60bad9d8ba42b964706837834201ec321"
+        },
+        {
+          "path": "native/notices/dictionaries/en_ZA-EnglishSouthAfrica/README_hyph_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_US.txt",
+          "gitBlob": "8420172ba48044f75f8b85dc498657caba8abf95"
+        },
+        {
+          "path": "native/notices/dictionaries/en_ZA-EnglishSouthAfrica/README_lightproof_en.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_lightproof_en.txt",
+          "gitBlob": "43c91fe4068f9050162127837cbdac9b1ffd9569"
+        },
+        {
+          "path": "native/notices/dictionaries/en_ZA-EnglishSouthAfrica/license.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/license.txt",
+          "gitBlob": "e37680cf1385db400bff88ac103d30e876a5103e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "See collected upstream notices"
+    },
+    {
+      "name": "eo_EO-Esperanto.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/eo",
+      "members": [
+        {
+          "name": "eo_EO-Esperanto.dic",
+          "sha256": "75b09812254cd6b49c2849ed3b92f1c252117906f5a2ce281d25e1798c437ac1",
+          "upstreamPath": "dictionaries/eo/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "eo_EO-Esperanto.aff",
+          "sha256": "a668bb25baccb39a758692a94325c47195a70fe723fe9875d1b3a3b4545412a5",
+          "upstreamPath": "dictionaries/eo/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/eo_EO-Esperanto/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/eo/license",
+          "gitBlob": "3912109b5cd65a68039d473c11c9f7ac2303e06d"
+        },
+        {
+          "path": "native/notices/dictionaries/eo_EO-Esperanto/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/eo/package.json",
+          "gitBlob": "318d08ebbf3f5b9b50136609af3efe34a4aabbf5"
+        },
+        {
+          "path": "native/notices/dictionaries/eo_EO-Esperanto/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/eo/readme.md",
+          "gitBlob": "efcad678207618bfd91453687faf1be48c3a992f"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-2.0"
+    },
+    {
+      "name": "es_AR-SpanishArgentina.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-AR",
+      "members": [
+        {
+          "name": "es_AR-SpanishArgentina.dic",
+          "sha256": "34f566cbf6a73f0e2e309feea99d6ae90a2f893ceef3d3652632c7a326fe6724",
+          "upstreamPath": "dictionaries/es-AR/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_AR-SpanishArgentina.aff",
+          "sha256": "288559f2821a7a9ca17cf59cadb764e16c072f0254972e9fb6fae448a479cf0d",
+          "upstreamPath": "dictionaries/es-AR/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_AR-SpanishArgentina/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-AR/license",
+          "gitBlob": "9686c3cb8c5e7895ee47bf24f3792431106b45be"
+        },
+        {
+          "path": "native/notices/dictionaries/es_AR-SpanishArgentina/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-AR/package.json",
+          "gitBlob": "48e8fdbe74b75e1d8316dae07eb1cfaf31360d52"
+        },
+        {
+          "path": "native/notices/dictionaries/es_AR-SpanishArgentina/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-AR/readme.md",
+          "gitBlob": "464dcb5c2e5dfb1741a4585ec0823b784ac8a940"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_BO-SpanishBolivia.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-BO",
+      "members": [
+        {
+          "name": "es_BO-SpanishBolivia.dic",
+          "sha256": "8cb875ef018de7e35341f351ced64d25e6c2596d5ae31beb4edb3164a3288437",
+          "upstreamPath": "dictionaries/es-BO/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_BO-SpanishBolivia.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-BO/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_BO-SpanishBolivia/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-BO/license",
+          "gitBlob": "ed58f8cafeff5627d0fe9c486e8672bf003583b3"
+        },
+        {
+          "path": "native/notices/dictionaries/es_BO-SpanishBolivia/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-BO/package.json",
+          "gitBlob": "2ac8c8c011cb535634d0c7650d69e4fe63d2ca6c"
+        },
+        {
+          "path": "native/notices/dictionaries/es_BO-SpanishBolivia/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-BO/readme.md",
+          "gitBlob": "87c78138a0bcce4220361bd6a231bb488b9d3009"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_CL-SpanishChile.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-CL",
+      "members": [
+        {
+          "name": "es_CL-SpanishChile.dic",
+          "sha256": "ffabe12bcc6224b278e1f9d134ee1598134579ecf6cc24dd39dd48f42c6f5c1c",
+          "upstreamPath": "dictionaries/es-CL/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_CL-SpanishChile.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-CL/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_CL-SpanishChile/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CL/license",
+          "gitBlob": "60605aef532a3374a19eb816416b16b4f29f9865"
+        },
+        {
+          "path": "native/notices/dictionaries/es_CL-SpanishChile/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CL/package.json",
+          "gitBlob": "fa55d6f27149ddf929e99f1363a584e83b3cfd71"
+        },
+        {
+          "path": "native/notices/dictionaries/es_CL-SpanishChile/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CL/readme.md",
+          "gitBlob": "f1e44e6fd9c088465a8035eb98aed1d153d5057f"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_CO-SpanishColombia.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-CO",
+      "members": [
+        {
+          "name": "es_CO-SpanishColombia.dic",
+          "sha256": "8d8a7ada740d86d0f1eac168c845d1f9722231efdbcae9085dfb23e2f146eedf",
+          "upstreamPath": "dictionaries/es-CO/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_CO-SpanishColombia.aff",
+          "sha256": "1042eb7f6023e81671e731a417ac5df243e51922d019a495a75d8f88b2229f90",
+          "upstreamPath": "dictionaries/es-CO/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_CO-SpanishColombia/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CO/license",
+          "gitBlob": "763fac8d4ce8e276fc954017863e2090c7f41020"
+        },
+        {
+          "path": "native/notices/dictionaries/es_CO-SpanishColombia/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CO/package.json",
+          "gitBlob": "5a185157e90af80f260dc1263c298eef7c3b3725"
+        },
+        {
+          "path": "native/notices/dictionaries/es_CO-SpanishColombia/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CO/readme.md",
+          "gitBlob": "3510f3149c280da72496b54f75c087915835e8d4"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_CR-SpanishCostaRica.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-CR",
+      "members": [
+        {
+          "name": "es_CR-SpanishCostaRica.dic",
+          "sha256": "d528fedf3abc62c84cdfd224a39f355ab3955367a61d40adf313c02a27a98891",
+          "upstreamPath": "dictionaries/es-CR/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_CR-SpanishCostaRica.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-CR/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_CR-SpanishCostaRica/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CR/license",
+          "gitBlob": "e8d2c5434d35625e9ffdad88fdc11433a5749e23"
+        },
+        {
+          "path": "native/notices/dictionaries/es_CR-SpanishCostaRica/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CR/package.json",
+          "gitBlob": "4249a42f00546c1ceac11e204023037692f98940"
+        },
+        {
+          "path": "native/notices/dictionaries/es_CR-SpanishCostaRica/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CR/readme.md",
+          "gitBlob": "6e494710353784c279b81109818eb5471e012fb1"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_CU-SpanishCuba.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-CU",
+      "members": [
+        {
+          "name": "es_CU-SpanishCuba.dic",
+          "sha256": "9aa6aa4994000d8c202b3aef9c45d7fec46df00bed4dd09f1f259f926236a3a1",
+          "upstreamPath": "dictionaries/es-CU/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_CU-SpanishCuba.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-CU/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_CU-SpanishCuba/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CU/license",
+          "gitBlob": "0c82682a193de6b1515a489d1645b14ac12493b7"
+        },
+        {
+          "path": "native/notices/dictionaries/es_CU-SpanishCuba/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CU/package.json",
+          "gitBlob": "376dde71a02e056c3d5efe83192772a587d1228c"
+        },
+        {
+          "path": "native/notices/dictionaries/es_CU-SpanishCuba/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-CU/readme.md",
+          "gitBlob": "8284c1b9ee187292728e3b59f9e0342379911415"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_DO-SpanishDominicanRepublic.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-DO",
+      "members": [
+        {
+          "name": "es_DO-SpanishDominicanRepublic.dic",
+          "sha256": "6e1a1c59b942370e4f3288457f0049cad2b663011a21f640580cfc9159a12d04",
+          "upstreamPath": "dictionaries/es-DO/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_DO-SpanishDominicanRepublic.aff",
+          "sha256": "e1217e29c0f509bfdb411e7da0b144d5903a1ca9b08f9d0993070537c14e620c",
+          "upstreamPath": "dictionaries/es-DO/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_DO-SpanishDominicanRepublic/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-DO/license",
+          "gitBlob": "11ada1c58db5fc48d35fd7e0e97af7b229dc4e2c"
+        },
+        {
+          "path": "native/notices/dictionaries/es_DO-SpanishDominicanRepublic/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-DO/package.json",
+          "gitBlob": "25bb96e9b6229ac11075a30bc5d18106963dadf9"
+        },
+        {
+          "path": "native/notices/dictionaries/es_DO-SpanishDominicanRepublic/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-DO/readme.md",
+          "gitBlob": "1b67b5ec9d5acb56a40b9c9b734043c23465c967"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_EC-SpanishEcuador.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-EC",
+      "members": [
+        {
+          "name": "es_EC-SpanishEcuador.dic",
+          "sha256": "3af7effe9c5b3803c97cb23a7888d71b9c511eedcb77443cb291ad7b8a8087d7",
+          "upstreamPath": "dictionaries/es-EC/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_EC-SpanishEcuador.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-EC/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_EC-SpanishEcuador/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-EC/license",
+          "gitBlob": "d766935ce5753ddbb7b03a7f034c504811c3b1cc"
+        },
+        {
+          "path": "native/notices/dictionaries/es_EC-SpanishEcuador/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-EC/package.json",
+          "gitBlob": "755ce081d881caa63e6b239f23b40c1f5ac7a616"
+        },
+        {
+          "path": "native/notices/dictionaries/es_EC-SpanishEcuador/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-EC/readme.md",
+          "gitBlob": "f8ebeda6a155738b526ca84cacdbbcc81e4325cf"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_ES.dic",
+      "repository": "https://github.com/texstudio-org/texstudio",
+      "revision": "Inherited in-tree payload and accompanying language-specific license notice",
+      "members": [
+        {
+          "name": "es_ES.dic",
+          "sha256": "875a33c342ccab0aab1c840adaf7083b161550cde71882b68db3fc354591c6f3",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        },
+        {
+          "name": "es_ES.aff",
+          "sha256": "a9b23f30f9391300b59cd8efb70c215afcf14d54256a4ed8d2b9175f3be524e9",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_ES/README_es_ES.txt"
+        },
+        {
+          "path": "native/notices/dictionaries/es_ES/affix-header.txt"
+        }
+      ],
+      "verification": "in-tree-license-notice",
+      "license": "GPL-2.0-or-later (in-tree README)",
+      "notes": "License declaration and copyright notice retained with the imported payload; no claim of a byte-for-byte match to a separate upstream snapshot."
+    },
+    {
+      "name": "es_GT-SpanishGuatemala.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-GT",
+      "members": [
+        {
+          "name": "es_GT-SpanishGuatemala.dic",
+          "sha256": "698a7e481f48a7439980171f579fcece8249d71b1678c0f8a93c1cedf79d7992",
+          "upstreamPath": "dictionaries/es-GT/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_GT-SpanishGuatemala.aff",
+          "sha256": "bbed656f4150c2379ccfae32ecfeb5bd7c97cbd5023bbc026bbec5393c45b716",
+          "upstreamPath": "dictionaries/es-GT/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_GT-SpanishGuatemala/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-GT/license",
+          "gitBlob": "9b998592be1580d5a7035ebf07767e5b2fa626f9"
+        },
+        {
+          "path": "native/notices/dictionaries/es_GT-SpanishGuatemala/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-GT/package.json",
+          "gitBlob": "224c57241394237442e819fb13c6e0abf346c027"
+        },
+        {
+          "path": "native/notices/dictionaries/es_GT-SpanishGuatemala/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-GT/readme.md",
+          "gitBlob": "b1e5abcfa60a5d105bf03a87d3488706aaba73e5"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_HN-SpanishHonduras.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-HN",
+      "members": [
+        {
+          "name": "es_HN-SpanishHonduras.dic",
+          "sha256": "00fb2d00c17c0a28a1f1aedd0e5a7ec9fabc2de0f0a441afaadbfe447d3eaf5b",
+          "upstreamPath": "dictionaries/es-HN/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_HN-SpanishHonduras.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-HN/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_HN-SpanishHonduras/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-HN/license",
+          "gitBlob": "40294e5822d4542152940555bff3c6b982c129f2"
+        },
+        {
+          "path": "native/notices/dictionaries/es_HN-SpanishHonduras/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-HN/package.json",
+          "gitBlob": "15ac47dc1005a733c4903d1a4ada7a00cdf116fa"
+        },
+        {
+          "path": "native/notices/dictionaries/es_HN-SpanishHonduras/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-HN/readme.md",
+          "gitBlob": "e377741766c8e35d565efed65d81aa49d862cb4a"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_MX-SpanishMexico.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-MX",
+      "members": [
+        {
+          "name": "es_MX-SpanishMexico.dic",
+          "sha256": "c64234571d1c7908f3d3ea4ca4e72db61261c63c629252c53a0c0786ae6456f2",
+          "upstreamPath": "dictionaries/es-MX/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_MX-SpanishMexico.aff",
+          "sha256": "1042eb7f6023e81671e731a417ac5df243e51922d019a495a75d8f88b2229f90",
+          "upstreamPath": "dictionaries/es-MX/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_MX-SpanishMexico/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-MX/license",
+          "gitBlob": "0156593d541388e1173cbad30e8be33c13ed8925"
+        },
+        {
+          "path": "native/notices/dictionaries/es_MX-SpanishMexico/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-MX/package.json",
+          "gitBlob": "f711b7781d8eeb1fe030f2c79855c709d325b28d"
+        },
+        {
+          "path": "native/notices/dictionaries/es_MX-SpanishMexico/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-MX/readme.md",
+          "gitBlob": "26c5ceae36a8692af2d4ec0bd285d70cf26993a4"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_NI-SpanishNicaragua.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-NI",
+      "members": [
+        {
+          "name": "es_NI-SpanishNicaragua.dic",
+          "sha256": "a27ff43b635e3afcd3d3dcf98aebeb728e0d41cfb908ee681d91d727561704d7",
+          "upstreamPath": "dictionaries/es-NI/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_NI-SpanishNicaragua.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-NI/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_NI-SpanishNicaragua/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-NI/license",
+          "gitBlob": "2ab8f9c19b7a01c8053b082dc234d4bd036a7a21"
+        },
+        {
+          "path": "native/notices/dictionaries/es_NI-SpanishNicaragua/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-NI/package.json",
+          "gitBlob": "a0016acb8f8b53261eb84fb9bfdcc6f33524e970"
+        },
+        {
+          "path": "native/notices/dictionaries/es_NI-SpanishNicaragua/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-NI/readme.md",
+          "gitBlob": "fd0f8f3513867516de5095d15830288c947ebf3e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_PA-SpanishPanama.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-PA",
+      "members": [
+        {
+          "name": "es_PA-SpanishPanama.dic",
+          "sha256": "a25b207c77caf8b4ecdb4acceebd0fe065b101edf90b69f845f83723ae115685",
+          "upstreamPath": "dictionaries/es-PA/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_PA-SpanishPanama.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-PA/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_PA-SpanishPanama/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PA/license",
+          "gitBlob": "0a416d88fb35e44e3509d1626622f53168b7117d"
+        },
+        {
+          "path": "native/notices/dictionaries/es_PA-SpanishPanama/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PA/package.json",
+          "gitBlob": "4e68aaa9796aae7b45ffc2a0c71cbee1d19d99a6"
+        },
+        {
+          "path": "native/notices/dictionaries/es_PA-SpanishPanama/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PA/readme.md",
+          "gitBlob": "e86f4afc39fe2f966d5f982b411d201a9fa68859"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_PE-SpanishPeru.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-PE",
+      "members": [
+        {
+          "name": "es_PE-SpanishPeru.dic",
+          "sha256": "a3c40143c6e1521c3e559f6fe24b0ec66bb4f5429bef492fae6a6308c10dce35",
+          "upstreamPath": "dictionaries/es-PE/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_PE-SpanishPeru.aff",
+          "sha256": "1042eb7f6023e81671e731a417ac5df243e51922d019a495a75d8f88b2229f90",
+          "upstreamPath": "dictionaries/es-PE/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_PE-SpanishPeru/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PE/license",
+          "gitBlob": "cdc0dd8578a07fc5b6ba36431c7f846a0139fee0"
+        },
+        {
+          "path": "native/notices/dictionaries/es_PE-SpanishPeru/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PE/package.json",
+          "gitBlob": "a1deab4cb15f863a7f3f890817ed9c6134702c1c"
+        },
+        {
+          "path": "native/notices/dictionaries/es_PE-SpanishPeru/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PE/readme.md",
+          "gitBlob": "63e936afa9f2d9a8893a08effec59abf04a173ba"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_PH-SpanishPhilippines.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-PH",
+      "members": [
+        {
+          "name": "es_PH-SpanishPhilippines.dic",
+          "sha256": "eb84f48e55f3f672efc470b3f0094e625d2afcaf4d61049a5c69fca55d3a347a",
+          "upstreamPath": "dictionaries/es-PH/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_PH-SpanishPhilippines.aff",
+          "sha256": "3d1d97d8aa48cf1f6d4be968da19c347d9d12a461c2016680ade27d4bfd56e75",
+          "upstreamPath": "dictionaries/es-PH/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_PH-SpanishPhilippines/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PH/license",
+          "gitBlob": "4838710492834b5c1b1dcd5b5cf01af4a3038995"
+        },
+        {
+          "path": "native/notices/dictionaries/es_PH-SpanishPhilippines/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PH/package.json",
+          "gitBlob": "b531bb942fa383836fcd8684c0c4718ce9247d50"
+        },
+        {
+          "path": "native/notices/dictionaries/es_PH-SpanishPhilippines/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PH/readme.md",
+          "gitBlob": "c70bde3db481c8776fcba167fce17e766059dbf7"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_PR-SpanishPuertoRico.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-PR",
+      "members": [
+        {
+          "name": "es_PR-SpanishPuertoRico.dic",
+          "sha256": "16978777263ba5f85277915134a66c186ce9717662c303f797a7a1d8b1eb2e9f",
+          "upstreamPath": "dictionaries/es-PR/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_PR-SpanishPuertoRico.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-PR/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_PR-SpanishPuertoRico/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PR/license",
+          "gitBlob": "b303351bf7bc5db97d8195088d2efec52d0c3674"
+        },
+        {
+          "path": "native/notices/dictionaries/es_PR-SpanishPuertoRico/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PR/package.json",
+          "gitBlob": "b8bf2a2733bfb20f7782f39c8a992b116d0189d2"
+        },
+        {
+          "path": "native/notices/dictionaries/es_PR-SpanishPuertoRico/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PR/readme.md",
+          "gitBlob": "825254820f9bad8b167494112ee1c2298f6e726c"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_PY-SpanishParaguay.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-PY",
+      "members": [
+        {
+          "name": "es_PY-SpanishParaguay.dic",
+          "sha256": "322a7b7ba862f8f4d76d222f657b067a9f6679c6a6a91014afddd2383ae4f16b",
+          "upstreamPath": "dictionaries/es-PY/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_PY-SpanishParaguay.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-PY/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_PY-SpanishParaguay/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PY/license",
+          "gitBlob": "c1a1ec9e5f12dcb6ec0ab84ebf37b13ae832f4db"
+        },
+        {
+          "path": "native/notices/dictionaries/es_PY-SpanishParaguay/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PY/package.json",
+          "gitBlob": "1cea07a56d34b4dac929941e5730eb0ea5275df4"
+        },
+        {
+          "path": "native/notices/dictionaries/es_PY-SpanishParaguay/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-PY/readme.md",
+          "gitBlob": "7eed4dce92cb7c3e34a35553144d68b4a842977b"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_SV-SpanishElSalvador.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-SV",
+      "members": [
+        {
+          "name": "es_SV-SpanishElSalvador.dic",
+          "sha256": "8ee31559042a1a12a13922b2fbb86dfa558d74e7b22470f8e4ce1227127997ae",
+          "upstreamPath": "dictionaries/es-SV/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_SV-SpanishElSalvador.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-SV/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_SV-SpanishElSalvador/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-SV/license",
+          "gitBlob": "334f83a723b1500456cabadfa81bb82952f3910d"
+        },
+        {
+          "path": "native/notices/dictionaries/es_SV-SpanishElSalvador/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-SV/package.json",
+          "gitBlob": "80914591ee232811872bb4c55faaeec7a0616409"
+        },
+        {
+          "path": "native/notices/dictionaries/es_SV-SpanishElSalvador/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-SV/readme.md",
+          "gitBlob": "66435538c79b0c5407d4161396c2aa895a0d79f5"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_US-SpanishUnitedStates.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-US",
+      "members": [
+        {
+          "name": "es_US-SpanishUnitedStates.dic",
+          "sha256": "de4a2cdb7880b6545a2db72532fdece49d8c831895d450ac82df4a68a208bc5f",
+          "upstreamPath": "dictionaries/es-US/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_US-SpanishUnitedStates.aff",
+          "sha256": "3d1d97d8aa48cf1f6d4be968da19c347d9d12a461c2016680ade27d4bfd56e75",
+          "upstreamPath": "dictionaries/es-US/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_US-SpanishUnitedStates/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-US/license",
+          "gitBlob": "b92fd5d2faf898f5c6ef9c7c4f11549aaa190eee"
+        },
+        {
+          "path": "native/notices/dictionaries/es_US-SpanishUnitedStates/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-US/package.json",
+          "gitBlob": "06cb795d8d476539f4d5c64c4cc0ad7cb1cd6786"
+        },
+        {
+          "path": "native/notices/dictionaries/es_US-SpanishUnitedStates/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-US/readme.md",
+          "gitBlob": "a498f5e4fc6df881ec873946ba2f41a80702acda"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_UY-SpanishUruguay.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-UY",
+      "members": [
+        {
+          "name": "es_UY-SpanishUruguay.dic",
+          "sha256": "4a6287d1affd717b068167496b66f5140fc1f8c59f5f1cb89c15ae030683a677",
+          "upstreamPath": "dictionaries/es-UY/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_UY-SpanishUruguay.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db",
+          "upstreamPath": "dictionaries/es-UY/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_UY-SpanishUruguay/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-UY/license",
+          "gitBlob": "8b9b628bebc75b39e9a2080b13bdd3ce1b4876e8"
+        },
+        {
+          "path": "native/notices/dictionaries/es_UY-SpanishUruguay/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-UY/package.json",
+          "gitBlob": "20b0045dac71ca4c1c89f7ed98e1946f8a81e688"
+        },
+        {
+          "path": "native/notices/dictionaries/es_UY-SpanishUruguay/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-UY/readme.md",
+          "gitBlob": "f99964d86b1a57e0b7cfa30168c822c74c872099"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "es_VE-SpanishVenezuela.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/es-VE",
+      "members": [
+        {
+          "name": "es_VE-SpanishVenezuela.dic",
+          "sha256": "dfca3e8fd5033af54a96e3beda4ec0f0408f0851fa3acbf9923f16c52b91919d",
+          "upstreamPath": "dictionaries/es-VE/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "es_VE-SpanishVenezuela.aff",
+          "sha256": "1042eb7f6023e81671e731a417ac5df243e51922d019a495a75d8f88b2229f90",
+          "upstreamPath": "dictionaries/es-VE/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/es_VE-SpanishVenezuela/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-VE/license",
+          "gitBlob": "6793bd72ae9a1fc9f99dffa34c783d1c622e780b"
+        },
+        {
+          "path": "native/notices/dictionaries/es_VE-SpanishVenezuela/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-VE/package.json",
+          "gitBlob": "2f5182e4760a27ed365efe78acafeb4545b529ae"
+        },
+        {
+          "path": "native/notices/dictionaries/es_VE-SpanishVenezuela/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/es-VE/readme.md",
+          "gitBlob": "d56567f47fea5d9dec3b23976b312eb6f41967ef"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)"
+    },
+    {
+      "name": "et_ET-Estonian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/et",
+      "members": [
+        {
+          "name": "et_ET-Estonian.dic",
+          "sha256": "237ff31093ec03c7f992919b8e7c9a4d3df90cdef9859edab571ebff42c9f5e8",
+          "upstreamPath": "dictionaries/et/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "et_ET-Estonian.aff",
+          "sha256": "f568a1003d9d49d377e87e35a4b712a243b4490ef0647992c85169d46ed948e3",
+          "upstreamPath": "dictionaries/et/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/et_ET-Estonian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/et/package.json",
+          "gitBlob": "7aa06829837e49c665fa82ddc3cddcc1cd872388"
+        },
+        {
+          "path": "native/notices/dictionaries/et_ET-Estonian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/et/readme.md",
+          "gitBlob": "d12ffc90c7c803bf675bae905fdf84054e4df0ef"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "LGPL-2.1"
+    },
+    {
+      "name": "eu_EU-Basque.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/eu",
+      "members": [
+        {
+          "name": "eu_EU-Basque.dic",
+          "sha256": "2f046ed070c11f9dc6f502577462bdc11a0966be50e0d9750823922a22d9e948",
+          "upstreamPath": "dictionaries/eu/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "eu_EU-Basque.aff",
+          "sha256": "ba68948c642828c80e5b5fc7ea19876bd38ce6f874f4453c662395adca8fef2a",
+          "upstreamPath": "dictionaries/eu/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/eu_EU-Basque/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/eu/package.json",
+          "gitBlob": "380af4dfebc4aa0b355774f56f30aa78db062342"
+        },
+        {
+          "path": "native/notices/dictionaries/eu_EU-Basque/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/eu/readme.md",
+          "gitBlob": "6c47212e100084d9f2e5687c0b26e2818552c993"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-2.0"
+    },
+    {
+      "name": "fa_FA-Persian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/fa",
+      "members": [
+        {
+          "name": "fa_FA-Persian.dic",
+          "sha256": "314f31e059994f26e8016c834b14dfd10f74834b3f623a6040265b8f2a9dddab",
+          "upstreamPath": "dictionaries/fa/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "fa_FA-Persian.aff",
+          "sha256": "dba0980816354ad969aa46dda0c040eeebda4a9381be331e17eae8647a2a1e1c",
+          "upstreamPath": "dictionaries/fa/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/fa_FA-Persian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fa/license",
+          "gitBlob": "9fd8f99b343e8cace93348c91c197ecd602350f7"
+        },
+        {
+          "path": "native/notices/dictionaries/fa_FA-Persian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fa/package.json",
+          "gitBlob": "6cafa4b80a10418423375b585963300c3e040571"
+        },
+        {
+          "path": "native/notices/dictionaries/fa_FA-Persian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fa/readme.md",
+          "gitBlob": "b09252abf1dbec02b2576f5539b8c6825b8bc412"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "fo_FO-Faroese.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/fo",
+      "members": [
+        {
+          "name": "fo_FO-Faroese.dic",
+          "sha256": "3b62983af6b5c093e2ec020ff35869cc3068167e7cc7f8cc9585456a6b1368db",
+          "upstreamPath": "dictionaries/fo/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "fo_FO-Faroese.aff",
+          "sha256": "6e459e5a3346ee0b7ad3ddc98dd0a412226060c6e7be6e096cfdf039f877b491",
+          "upstreamPath": "dictionaries/fo/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/fo_FO-Faroese/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fo/license",
+          "gitBlob": "68a8bdc0731518edae52dbfc0e87d7ccb9f5479b"
+        },
+        {
+          "path": "native/notices/dictionaries/fo_FO-Faroese/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fo/package.json",
+          "gitBlob": "3e86887869ab569c89b20915f35bf1fb5f8bd5ea"
+        },
+        {
+          "path": "native/notices/dictionaries/fo_FO-Faroese/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fo/readme.md",
+          "gitBlob": "13d964e7798fa0e8ae86d2cfc1b101f2fd4b54b9"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)"
+    },
+    {
+      "name": "fr_FR.dic",
+      "repository": "https://github.com/texstudio-org/texstudio",
+      "revision": "Inherited in-tree payload and accompanying language-specific license notice",
+      "members": [
+        {
+          "name": "fr_FR.dic",
+          "sha256": "b988750ac2b3a139a8fb87940946b81a928b14d8eca28283b48727658c8e4f2f",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        },
+        {
+          "name": "fr_FR.aff",
+          "sha256": "23169184f8584d618e83de0a3c93a8d894d076bbd7cd911d1ebda9a401396215",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/fr_FR/README_DIC_fr_FR.txt"
+        },
+        {
+          "path": "native/notices/dictionaries/fr_FR/affix-header.txt"
+        }
+      ],
+      "verification": "in-tree-license-notice",
+      "license": "GPL-2.0-or-later OR LGPL-2.1-or-later OR MPL-1.1-or-later (in-tree README)",
+      "notes": "License declaration and copyright notice retained with the imported payload; no claim of a byte-for-byte match to a separate upstream snapshot."
+    },
+    {
+      "name": "fur_FUR-Friulian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/fur",
+      "members": [
+        {
+          "name": "fur_FUR-Friulian.dic",
+          "sha256": "f1ac6d1029915bc749c8b4f4d454a28c977992328c541bd362266b6fc630988f",
+          "upstreamPath": "dictionaries/fur/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "fur_FUR-Friulian.aff",
+          "sha256": "9b59cc525dec3a8580259e94493fd450a409835a0c35a19ac64b86fe9b750ec9",
+          "upstreamPath": "dictionaries/fur/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/fur_FUR-Friulian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fur/license",
+          "gitBlob": "4baf4313ef33196ceb11f65f0a2d88addbdec1d2"
+        },
+        {
+          "path": "native/notices/dictionaries/fur_FUR-Friulian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fur/package.json",
+          "gitBlob": "e5a8ae8dd984264a107e2dd3be080fbae2da1b69"
+        },
+        {
+          "path": "native/notices/dictionaries/fur_FUR-Friulian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fur/readme.md",
+          "gitBlob": "b1461cd06f45f36b682bac573f5fa6c66bef2ad1"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-2.0"
+    },
+    {
+      "name": "fy_FY-WesternFrisian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/fy",
+      "members": [
+        {
+          "name": "fy_FY-WesternFrisian.dic",
+          "sha256": "5cc839a5dce2c0e54b2da7bb5a66d4c59b980438c7964b11e1c8b834f322b7f9",
+          "upstreamPath": "dictionaries/fy/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "fy_FY-WesternFrisian.aff",
+          "sha256": "8eace0ccacec1d508d3267064aa665724712dbded65043d775a14be5a79ddbe5",
+          "upstreamPath": "dictionaries/fy/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/fy_FY-WesternFrisian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fy/license",
+          "gitBlob": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7"
+        },
+        {
+          "path": "native/notices/dictionaries/fy_FY-WesternFrisian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fy/package.json",
+          "gitBlob": "6febb36f3e6d48d286aa3c2d23f1d4cc932cd924"
+        },
+        {
+          "path": "native/notices/dictionaries/fy_FY-WesternFrisian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/fy/readme.md",
+          "gitBlob": "1b7c59eec8167d5921daa04888cb387a0b7e96c1"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-3.0"
+    },
+    {
+      "name": "ga_GA-Irish.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/ga",
+      "members": [
+        {
+          "name": "ga_GA-Irish.dic",
+          "sha256": "3ca59ca30da8875020f83697d9f817d44b4efa02d78fe9fb52a2c5a86527349d",
+          "upstreamPath": "dictionaries/ga/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "ga_GA-Irish.aff",
+          "sha256": "1c48edbeb0e4225e612bb92d21f819fec58c9121b236db5ac0bba458982623b7",
+          "upstreamPath": "dictionaries/ga/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ga_GA-Irish/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ga/license",
+          "gitBlob": "874e5cdabe6420f48516dba74d5be7e8c76ed6ad"
+        },
+        {
+          "path": "native/notices/dictionaries/ga_GA-Irish/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ga/package.json",
+          "gitBlob": "04be0c8b99fc649a1a323d6c79106ae6fe8e40bc"
+        },
+        {
+          "path": "native/notices/dictionaries/ga_GA-Irish/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ga/readme.md",
+          "gitBlob": "743247e8c787d903e75749a7ad23a64d79a962bd"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-2.0"
+    },
+    {
+      "name": "gd_GD-Gaelic.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/gd",
+      "members": [
+        {
+          "name": "gd_GD-Gaelic.dic",
+          "sha256": "cf134101bafb03147685949bf9acf031c9e3ec56993d1b695aa4fbfe331d9181",
+          "upstreamPath": "dictionaries/gd/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "gd_GD-Gaelic.aff",
+          "sha256": "cee685b3aae9e9d4b794791eb6b113da1a0d6e8c452b39351088f758686866b4",
+          "upstreamPath": "dictionaries/gd/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/gd_GD-Gaelic/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/gd/license",
+          "gitBlob": "5f8a522accefe22bbf42cf33bc9e0efecb1ade1b"
+        },
+        {
+          "path": "native/notices/dictionaries/gd_GD-Gaelic/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/gd/package.json",
+          "gitBlob": "2a3eceac7fe2c6ff668866cb6ed1a31467e07409"
+        },
+        {
+          "path": "native/notices/dictionaries/gd_GD-Gaelic/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/gd/readme.md",
+          "gitBlob": "fc839ef44d41fb71d3ee2c28845c79ebd73fda36"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-3.0"
+    },
+    {
+      "name": "gl_GL-Galician.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/gl",
+      "members": [
+        {
+          "name": "gl_GL-Galician.dic",
+          "sha256": "ca5f8d735a13225c1dabab042ddac8c58fd5e820ffba807ba8024d0fa0a68170",
+          "upstreamPath": "dictionaries/gl/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "gl_GL-Galician.aff",
+          "sha256": "e2abc4122548c5f9e914fbbbcbebad3486b1492ac352fef72b95be93e32a0617",
+          "upstreamPath": "dictionaries/gl/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/gl_GL-Galician/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/gl/license",
+          "gitBlob": "94a9ed024d3859793618152ea559a168bbcbb5e2"
+        },
+        {
+          "path": "native/notices/dictionaries/gl_GL-Galician/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/gl/package.json",
+          "gitBlob": "5cb32c26d93fc4576600fcd630eb9c448e51bec9"
+        },
+        {
+          "path": "native/notices/dictionaries/gl_GL-Galician/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/gl/readme.md",
+          "gitBlob": "808cb1ffc3f2d79bdbb012b41e9cefff24112193"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-3.0"
+    },
+    {
+      "name": "he_HE-Hebrew.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/he",
+      "members": [
+        {
+          "name": "he_HE-Hebrew.dic",
+          "sha256": "9bd95042a927e13ab422231e355caa8a7018456e7c49b889f2e6c62ddb5a0552",
+          "upstreamPath": "dictionaries/he/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "he_HE-Hebrew.aff",
+          "sha256": "e115a0a5014d17a8e904f9d4a67d7992039b396c5fa031eb036a13bf63dfb037",
+          "upstreamPath": "dictionaries/he/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/he_HE-Hebrew/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/he/license",
+          "gitBlob": "174f77be61c84bdfcf404e1a28c21fd6d49f7096"
+        },
+        {
+          "path": "native/notices/dictionaries/he_HE-Hebrew/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/he/package.json",
+          "gitBlob": "82c78912a16794eda186a527ed180e95dcf13adb"
+        },
+        {
+          "path": "native/notices/dictionaries/he_HE-Hebrew/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/he/readme.md",
+          "gitBlob": "1afa12409e6472866b0de5cabb51254fd2da200d"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "AGPL-3.0"
+    },
+    {
+      "name": "hr_HR-Croatian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/hr",
+      "members": [
+        {
+          "name": "hr_HR-Croatian.dic",
+          "sha256": "dad20d613174815f5d553d6ccdc106d026ee06c4eff68a23b8d5c37571639871",
+          "upstreamPath": "dictionaries/hr/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "hr_HR-Croatian.aff",
+          "sha256": "c55dc55e252fd5a2f9fd4baba28239342aec1bd3cc60556d8aea6cb24f2f26a6",
+          "upstreamPath": "dictionaries/hr/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/hr_HR-Croatian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/hr/license",
+          "gitBlob": "8b513db246fb06fceab8d7cdb55cea785f718d3d"
+        },
+        {
+          "path": "native/notices/dictionaries/hr_HR-Croatian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/hr/package.json",
+          "gitBlob": "58f624bc0795267dffdfc87a31c2a2c90f957e5a"
+        },
+        {
+          "path": "native/notices/dictionaries/hr_HR-Croatian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/hr/readme.md",
+          "gitBlob": "65526ee426dfe8fe1775894c010543859bf38ef1"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(LGPL-2.1 OR SISSL)"
+    },
+    {
+      "name": "hu_HU.dic",
+      "repository": "https://github.com/texstudio-org/texstudio",
+      "revision": "Inherited in-tree payload and accompanying language-specific license notice",
+      "members": [
+        {
+          "name": "hu_HU.dic",
+          "sha256": "499e0bb7cb98815e646a69908ac1ea96c900ff2ff40e7dfa9a47e9653df0a497",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        },
+        {
+          "name": "hu_HU.aff",
+          "sha256": "03465ee40bd86ce2f77865cc303685975a9493f3276159cb859ad1b89acf62a0",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/hu_HU/README_hu_HU.txt"
+        },
+        {
+          "path": "native/notices/dictionaries/hu_HU/affix-header.txt"
+        }
+      ],
+      "verification": "in-tree-license-notice",
+      "license": "GPL-2.0-or-later OR LGPL-2.1-or-later OR MPL-1.1 (in-tree README)",
+      "notes": "License declaration and copyright notice retained with the imported payload; no claim of a byte-for-byte match to a separate upstream snapshot."
+    },
+    {
+      "name": "hy_HY-Armenian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/hy",
+      "members": [
+        {
+          "name": "hy_HY-Armenian.dic",
+          "sha256": "53530792b4937e4b8cd387e28ff45884e42742c8218d8ba4510804efcfb81084",
+          "upstreamPath": "dictionaries/hy/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "hy_HY-Armenian.aff",
+          "sha256": "aa8b49f32350a0136d112f62ee697c87cdc452256d12a70ef1fea2e7a13b32fb",
+          "upstreamPath": "dictionaries/hy/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/hy_HY-Armenian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/hy/license",
+          "gitBlob": "7f43cfe538efb6beca35cbaa3335b4b0d542728f"
+        },
+        {
+          "path": "native/notices/dictionaries/hy_HY-Armenian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/hy/package.json",
+          "gitBlob": "24ff29488f2b1138028a8e0d44521ddd59eae239"
+        },
+        {
+          "path": "native/notices/dictionaries/hy_HY-Armenian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/hy/readme.md",
+          "gitBlob": "df27b0bdbcc085e655abbd85ec01a77f663be313"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)"
+    },
+    {
+      "name": "hyw_HYW-WesternArmenian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/hyw",
+      "members": [
+        {
+          "name": "hyw_HYW-WesternArmenian.dic",
+          "sha256": "ecfbc8af694532bfb2a40654608d8e0d6cad0b55520543d84c97d2ae8b710694",
+          "upstreamPath": "dictionaries/hyw/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "hyw_HYW-WesternArmenian.aff",
+          "sha256": "4223fd49fb82891911f65270982beb5b929e44763476895706567596819dcd3e",
+          "upstreamPath": "dictionaries/hyw/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/hyw_HYW-WesternArmenian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/hyw/license",
+          "gitBlob": "7f43cfe538efb6beca35cbaa3335b4b0d542728f"
+        },
+        {
+          "path": "native/notices/dictionaries/hyw_HYW-WesternArmenian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/hyw/package.json",
+          "gitBlob": "2272c08956701a7f28b01d0ccfb3bd1f59637429"
+        },
+        {
+          "path": "native/notices/dictionaries/hyw_HYW-WesternArmenian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/hyw/readme.md",
+          "gitBlob": "ec36309440d577bd3dc09d7e649856265971c343"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)"
+    },
+    {
+      "name": "ia_IA-Interlingua.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/ia",
+      "members": [
+        {
+          "name": "ia_IA-Interlingua.dic",
+          "sha256": "22ee44726f058c904541b83db9bc3f4652e51186188fadd475619e3a596ada47",
+          "upstreamPath": "dictionaries/ia/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "ia_IA-Interlingua.aff",
+          "sha256": "08fa657fc641f6b2db0e9179d4219a14a0e7091a23471b794a5c5e9805283d18",
+          "upstreamPath": "dictionaries/ia/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ia_IA-Interlingua/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ia/license",
+          "gitBlob": "75e750d972531f3cc7e70bc44b8983842ad5d75f"
+        },
+        {
+          "path": "native/notices/dictionaries/ia_IA-Interlingua/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ia/package.json",
+          "gitBlob": "4907d8ee57b1b8c09a719560181153e1c5dc1071"
+        },
+        {
+          "path": "native/notices/dictionaries/ia_IA-Interlingua/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ia/readme.md",
+          "gitBlob": "8343e2f25f4b6e79c6cd1f5398bb650eb6911ba5"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-3.0"
+    },
+    {
+      "name": "ie_IE-Interlingue.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/ie",
+      "members": [
+        {
+          "name": "ie_IE-Interlingue.dic",
+          "sha256": "b406301278a04f89764c0fbc0d9ae4cd6de511c43a3a9ca2351eb32403eca88d",
+          "upstreamPath": "dictionaries/ie/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "ie_IE-Interlingue.aff",
+          "sha256": "d43698829bc2cc2b8c14890aa454db980c8d71ea07ada1af2711bc055f564f1d",
+          "upstreamPath": "dictionaries/ie/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ie_IE-Interlingue/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ie/license",
+          "gitBlob": "8f71f43fee3f78649d238238cbde51e6d7055c82"
+        },
+        {
+          "path": "native/notices/dictionaries/ie_IE-Interlingue/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ie/package.json",
+          "gitBlob": "6ad770aeddc9a07c89bbcccd996b68640d247271"
+        },
+        {
+          "path": "native/notices/dictionaries/ie_IE-Interlingue/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ie/readme.md",
+          "gitBlob": "ca7f74bfa8d2182f13f69a70a5c73072adad654d"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "is_IS-Icelandic.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/is",
+      "members": [
+        {
+          "name": "is_IS-Icelandic.dic",
+          "sha256": "8447594fd7eb1d6d43725c4ca49b00d3f00c4c4f3ac2f2b6dfe3f56eb211d280",
+          "upstreamPath": "dictionaries/is/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "is_IS-Icelandic.aff",
+          "sha256": "0168050c64a369c55b5aeb61f9dfe484d2aa7512d78bb3fa36779ea24b467c50",
+          "upstreamPath": "dictionaries/is/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/is_IS-Icelandic/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/is/license",
+          "gitBlob": "05929f92466869d7c9f76364455f44b9ebc0e413"
+        },
+        {
+          "path": "native/notices/dictionaries/is_IS-Icelandic/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/is/package.json",
+          "gitBlob": "0fb55d7ab02a3479ddc02551f1a0e3d730c68903"
+        },
+        {
+          "path": "native/notices/dictionaries/is_IS-Icelandic/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/is/readme.md",
+          "gitBlob": "423d2ab94e413e45abf56f890e5da219e94a549a"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "CC-BY-SA-3.0"
+    },
+    {
+      "name": "it_IT.dic",
+      "repository": "https://github.com/texstudio-org/texstudio",
+      "revision": "Inherited in-tree payload and accompanying language-specific license notice",
+      "members": [
+        {
+          "name": "it_IT.dic",
+          "sha256": "0e11513d21973cabc62b226e920227dbed9413d38f87d28ebba8c69cd6b72312",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        },
+        {
+          "name": "it_IT.aff",
+          "sha256": "dd4de7d82eddecf2d0c0f7ecfc97696775f3ace19c65d16e6f20dfb3d0653ff1",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/it_IT/README_it_IT.txt"
+        },
+        {
+          "path": "native/notices/dictionaries/it_IT/affix-header.txt"
+        }
+      ],
+      "verification": "in-tree-license-notice",
+      "license": "GPL-3.0-only (explicit affix header)",
+      "notes": "License declaration and copyright notice retained with the imported payload; no claim of a byte-for-byte match to a separate upstream snapshot."
+    },
+    {
+      "name": "ka_KA-Georgian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/ka",
+      "members": [
+        {
+          "name": "ka_KA-Georgian.dic",
+          "sha256": "5963f268e996f1e27e17163873b4d32f41fae2a1e5bef0117126caefe62f5857",
+          "upstreamPath": "dictionaries/ka/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "ka_KA-Georgian.aff",
+          "sha256": "f5c39986659f13d703d0bae0ac8856d58768ce2b8d1f5ab6fb1ca3487c5ede5a",
+          "upstreamPath": "dictionaries/ka/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ka_KA-Georgian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ka/license",
+          "gitBlob": "f2d5a563387ff4b5b0c916acf0dfcd1ece0b3107"
+        },
+        {
+          "path": "native/notices/dictionaries/ka_KA-Georgian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ka/package.json",
+          "gitBlob": "2c931c9038b05526d88ad0a5158fd499a3c0bf06"
+        },
+        {
+          "path": "native/notices/dictionaries/ka_KA-Georgian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ka/readme.md",
+          "gitBlob": "059a158349f66846fd0a02b5e7a4eb043a08c15e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "MIT"
+    },
+    {
+      "name": "ko_KO-Korean.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/ko",
+      "members": [
+        {
+          "name": "ko_KO-Korean.dic",
+          "sha256": "dcc90cbc9ffaded58f74b6f29266da6f0d724b9f8059de43a9f449bc4c139570",
+          "upstreamPath": "dictionaries/ko/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "ko_KO-Korean.aff",
+          "sha256": "43a984d8f1e2309490b69cfde31832d217a0b31164c67661e293efc096083688",
+          "upstreamPath": "dictionaries/ko/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ko_KO-Korean/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ko/license",
+          "gitBlob": "71f8efeeb4fa727e7a146278109773b6a4fb12b6"
+        },
+        {
+          "path": "native/notices/dictionaries/ko_KO-Korean/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ko/package.json",
+          "gitBlob": "873a32cfd4be4b98baae4be1cd8aaca3c6ba5b7b"
+        },
+        {
+          "path": "native/notices/dictionaries/ko_KO-Korean/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ko/readme.md",
+          "gitBlob": "b77750a8af617a34f71618175b693f16a74c967c"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)"
+    },
+    {
+      "name": "la_LA-Latin.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/la",
+      "members": [
+        {
+          "name": "la_LA-Latin.dic",
+          "sha256": "8e0910e623800110cf9cc70b6adaea813857d02916b7c9a7dd9d9e9dd72a98ef",
+          "upstreamPath": "dictionaries/la/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "la_LA-Latin.aff",
+          "sha256": "6d78952f21ddd6158227544d573958a3d05b759c6219a2e1ac924daf24210e71",
+          "upstreamPath": "dictionaries/la/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/la_LA-Latin/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/la/license",
+          "gitBlob": "307815354fc46ac31a6ed56820fc48ff7020ff10"
+        },
+        {
+          "path": "native/notices/dictionaries/la_LA-Latin/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/la/package.json",
+          "gitBlob": "f001e43dd23c1dc486367fee95edb61a72ed6551"
+        },
+        {
+          "path": "native/notices/dictionaries/la_LA-Latin/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/la/readme.md",
+          "gitBlob": "34f2a2f4ae4b65c486c22dfb24c5f807c1f2038e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-2.0"
+    },
+    {
+      "name": "lb_LB-Luxembourgish.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/lb",
+      "members": [
+        {
+          "name": "lb_LB-Luxembourgish.dic",
+          "sha256": "117744e5fabce1575ef5d290f31ce51859c02f2097f916a29f3a07b23cf7e4c8",
+          "upstreamPath": "dictionaries/lb/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "lb_LB-Luxembourgish.aff",
+          "sha256": "5c39f6e7c06573a759163746d6722149152ca05f0054d5b4633a6f83aca7cd1a",
+          "upstreamPath": "dictionaries/lb/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/lb_LB-Luxembourgish/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/lb/license",
+          "gitBlob": "33093be473e4c033e87f1ecd05806ded5e9d6e26"
+        },
+        {
+          "path": "native/notices/dictionaries/lb_LB-Luxembourgish/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/lb/package.json",
+          "gitBlob": "9a5fb2597c64b3f8537e81049c99a946e04d16cb"
+        },
+        {
+          "path": "native/notices/dictionaries/lb_LB-Luxembourgish/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/lb/readme.md",
+          "gitBlob": "a8d99811bb28c51c3b91a39921653e73eaf216f4"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "EUPL-1.1"
+    },
+    {
+      "name": "lt_LT-Lithuanian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/lt",
+      "members": [
+        {
+          "name": "lt_LT-Lithuanian.dic",
+          "sha256": "3c3d651a9f2a0505dbceff152d1f073117b9994a572fbdb8c8aa4409baf2152a",
+          "upstreamPath": "dictionaries/lt/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "lt_LT-Lithuanian.aff",
+          "sha256": "0cb625d3a5939b8c31e0d566b0e6e06030e7aca69027bb6bcc23f35636d4c2b5",
+          "upstreamPath": "dictionaries/lt/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/lt_LT-Lithuanian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/lt/license",
+          "gitBlob": "5bf5024e7a3df8f84f204b6d85bfc2122f8db7d5"
+        },
+        {
+          "path": "native/notices/dictionaries/lt_LT-Lithuanian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/lt/package.json",
+          "gitBlob": "0748fb965c48f37af4f6282bacda54487af46db5"
+        },
+        {
+          "path": "native/notices/dictionaries/lt_LT-Lithuanian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/lt/readme.md",
+          "gitBlob": "dad7e74d0ac71700a69c72e2f6d50a083c1c863f"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "BSD-3-Clause"
+    },
+    {
+      "name": "ltg_LTG-Latgalian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/ltg",
+      "members": [
+        {
+          "name": "ltg_LTG-Latgalian.dic",
+          "sha256": "0f99a93abe86adfe8304967e9e3e8af45dc0d39ba734b42dd49243acf6f8e7fd",
+          "upstreamPath": "dictionaries/ltg/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "ltg_LTG-Latgalian.aff",
+          "sha256": "ffe84b7e9fca7157d4f423f246ac3f4da42a78e41d21c64886f9632df00b35ff",
+          "upstreamPath": "dictionaries/ltg/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ltg_LTG-Latgalian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ltg/license",
+          "gitBlob": "0cb75ba600dd8f39ac6045fec3a5882160823fb4"
+        },
+        {
+          "path": "native/notices/dictionaries/ltg_LTG-Latgalian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ltg/package.json",
+          "gitBlob": "f1db7826576c28f8ff9d0c760180ad9f34f72acb"
+        },
+        {
+          "path": "native/notices/dictionaries/ltg_LTG-Latgalian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ltg/readme.md",
+          "gitBlob": "b35a32afe80ec779310e8e91b134fc45dc6d68d5"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "LGPL-2.1"
+    },
+    {
+      "name": "lv_LV-Latvian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/lv",
+      "members": [
+        {
+          "name": "lv_LV-Latvian.dic",
+          "sha256": "7b1983d832ba8f85e7bee0d9dc3abc110d9a9976fc6da9d0bc2a9dcad9c36c51",
+          "upstreamPath": "dictionaries/lv/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "lv_LV-Latvian.aff",
+          "sha256": "b701a4e2401904f63f913f615026ee28a31413ff5f2dc3414895beb93c015d67",
+          "upstreamPath": "dictionaries/lv/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/lv_LV-Latvian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/lv/license",
+          "gitBlob": "fdf6fcb86beca47497d6bf89590a0abd17befbf2"
+        },
+        {
+          "path": "native/notices/dictionaries/lv_LV-Latvian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/lv/package.json",
+          "gitBlob": "a61d6c0602bbdb261f589a466db721ef89291062"
+        },
+        {
+          "path": "native/notices/dictionaries/lv_LV-Latvian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/lv/readme.md",
+          "gitBlob": "9b4529d7bf730274321c7174255d620650e5c7af"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "LGPL-2.1"
+    },
+    {
+      "name": "mk_MK-Macedonian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/mk",
+      "members": [
+        {
+          "name": "mk_MK-Macedonian.dic",
+          "sha256": "5008053d3b4e4be163c32b23a9d0551ae7aefceaa7d0760c07f2ebc10af7afb5",
+          "upstreamPath": "dictionaries/mk/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "mk_MK-Macedonian.aff",
+          "sha256": "4774871b7cafa2d59bd2f539be7a2293f4aa2b2e2a331f1d11f8bcb849b4105e",
+          "upstreamPath": "dictionaries/mk/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/mk_MK-Macedonian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/mk/license",
+          "gitBlob": "6a71356cd4b30f3ae137d35ce14f67ac5fd9c20d"
+        },
+        {
+          "path": "native/notices/dictionaries/mk_MK-Macedonian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/mk/package.json",
+          "gitBlob": "c49dd262c53288af11360606e568635513382c96"
+        },
+        {
+          "path": "native/notices/dictionaries/mk_MK-Macedonian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/mk/readme.md",
+          "gitBlob": "365d21e7c82dea2de6b8ff36346065e40654a6ab"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-3.0"
+    },
+    {
+      "name": "mn_MN-Mongolian.dic",
+      "repository": "https://github.com/bataak/dict-mn",
+      "revision": "2026.05.18 (payload declaration)",
+      "members": [
+        {
+          "name": "mn_MN-Mongolian.dic",
+          "sha256": "593a38d65e790eba032962c9e9ea2d53d4aeea919694bd14211bc695c460b304",
+          "upstreamPath": "Declared in payload; version 2026.05.18",
+          "transformation": "none"
+        },
+        {
+          "name": "mn_MN-Mongolian.aff",
+          "sha256": "d90ee189fbe990dc912c8857184f3871addb79eaa492af149c22ca1d6ad39895",
+          "upstreamPath": "Declared in payload; version 2026.05.18",
+          "transformation": "none"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/mn_MN-Mongolian/NOTICE.txt"
+        },
+        {
+          "path": "native/notices/dictionaries/mn_MN-Mongolian/LPPL-1.3c.txt",
+          "url": "https://www.latex-project.org/lppl/lppl-1-3c.txt",
+          "sha256": "3d262cdf34dafa6955f703c634a8c238ec44109bc8dd6ef34fb7aa54809f7e66"
+        }
+      ],
+      "verification": "explicit-payload-license",
+      "license": "LPPL-1.3-or-later"
+    },
+    {
+      "name": "nb_NB-NorwegianBokmal.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/nb",
+      "members": [
+        {
+          "name": "nb_NB-NorwegianBokmal.dic",
+          "sha256": "e97fdf7f441b3c46e1d0761a8ad25fa1883d0977d70ea8cb04751cb1c47fa10e",
+          "upstreamPath": "dictionaries/nb/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "nb_NB-NorwegianBokmal.aff",
+          "sha256": "515a1e5f32ffa555d253c827830420dc5bb1d9a59ea9f720729acb0874c6a8c3",
+          "upstreamPath": "dictionaries/nb/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/nb_NB-NorwegianBokmal/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nb/license",
+          "gitBlob": "e36af0fe1fd2f806def49e4e9ecb99a51a4a03d5"
+        },
+        {
+          "path": "native/notices/dictionaries/nb_NB-NorwegianBokmal/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nb/package.json",
+          "gitBlob": "92e91b62cbc57951c7237af2f28e08a3e24f8f85"
+        },
+        {
+          "path": "native/notices/dictionaries/nb_NB-NorwegianBokmal/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nb/readme.md",
+          "gitBlob": "68535744846ea9035d9a19f03c8c44a477733c5c"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-2.0"
+    },
+    {
+      "name": "nds_NDS-LowGerman.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/nds",
+      "members": [
+        {
+          "name": "nds_NDS-LowGerman.dic",
+          "sha256": "d8c380bed2182b1ac36bcef33a9391d9d77232045aaf43b59fe1cb492f378a95",
+          "upstreamPath": "dictionaries/nds/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "nds_NDS-LowGerman.aff",
+          "sha256": "3bede75cd7db3b8262778e6a5cc673bfee37cb703702e412682d806429ae1073",
+          "upstreamPath": "dictionaries/nds/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/nds_NDS-LowGerman/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nds/license",
+          "gitBlob": "a75ca3e062dd9c4045d12f3ace0571c21bbae7c6"
+        },
+        {
+          "path": "native/notices/dictionaries/nds_NDS-LowGerman/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nds/package.json",
+          "gitBlob": "cc60d78b029ceaa5613b5e657f9230cbb4e57892"
+        },
+        {
+          "path": "native/notices/dictionaries/nds_NDS-LowGerman/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nds/readme.md",
+          "gitBlob": "b30cae3d83ca4e38e96b5b139b49d097802504b4"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-3.0"
+    },
+    {
+      "name": "ne_NE-Nepali.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/ne",
+      "members": [
+        {
+          "name": "ne_NE-Nepali.dic",
+          "sha256": "76c5dbcae6af15ca474213d6e67585e5247304edaa13cc5ee326dfcaf4918f88",
+          "upstreamPath": "dictionaries/ne/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "ne_NE-Nepali.aff",
+          "sha256": "0e07d48fbebb6cb7f40d686a9eb9540a949922360d71c6d423a0384ee65f3fc2",
+          "upstreamPath": "dictionaries/ne/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ne_NE-Nepali/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ne/license",
+          "gitBlob": "e74bcdc80ba3408f9fd62838d5e2050afdd1d3cf"
+        },
+        {
+          "path": "native/notices/dictionaries/ne_NE-Nepali/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ne/package.json",
+          "gitBlob": "7a9d9c92f2acfee5d544dc8dd12563a034f26af6"
+        },
+        {
+          "path": "native/notices/dictionaries/ne_NE-Nepali/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ne/readme.md",
+          "gitBlob": "93beacd0d3b037655ad81a9697d4fd6492a96410"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "LGPL-2.1"
+    },
+    {
+      "name": "nl_NL-Dutch.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/nl",
+      "members": [
+        {
+          "name": "nl_NL-Dutch.dic",
+          "sha256": "2c2a0ff6461ab1bd9620b9422dc9368c15dc45d1a50973671b19516a1afcf5f8",
+          "upstreamPath": "dictionaries/nl/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "nl_NL-Dutch.aff",
+          "sha256": "6c64e3b07177000517df3b6a06ca2c44931c0a362618cf3bdff9aa137b59e0d7",
+          "upstreamPath": "dictionaries/nl/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/nl_NL-Dutch/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nl/license",
+          "gitBlob": "f6493c87e82c1737623fc4996cbaca9207e63ba0"
+        },
+        {
+          "path": "native/notices/dictionaries/nl_NL-Dutch/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nl/package.json",
+          "gitBlob": "547c9f7b6fc562ef7b1a2fd3bbbe1cfe1c665383"
+        },
+        {
+          "path": "native/notices/dictionaries/nl_NL-Dutch/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nl/readme.md",
+          "gitBlob": "870398ceb0ed31f774c6d2daae98154610cba8ed"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(BSD-3-Clause OR CC-BY-3.0)"
+    },
+    {
+      "name": "nn_NN-NorwegianNynorsk.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/nn",
+      "members": [
+        {
+          "name": "nn_NN-NorwegianNynorsk.dic",
+          "sha256": "eaf1dc7ee7c848358df9aa231640b054ca4e388f2a870185528e4b229626faa6",
+          "upstreamPath": "dictionaries/nn/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "nn_NN-NorwegianNynorsk.aff",
+          "sha256": "e50821655063f5680a3e4cf775b0a69c87de74bd6d2bbbb5da14ff8de4633beb",
+          "upstreamPath": "dictionaries/nn/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/nn_NN-NorwegianNynorsk/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nn/license",
+          "gitBlob": "f583569359ea348f67e206bde284529ff9e379b7"
+        },
+        {
+          "path": "native/notices/dictionaries/nn_NN-NorwegianNynorsk/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nn/package.json",
+          "gitBlob": "9c6e10e00c373aa8d9afbde6670882688cc4dfd9"
+        },
+        {
+          "path": "native/notices/dictionaries/nn_NN-NorwegianNynorsk/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/nn/readme.md",
+          "gitBlob": "e44e12df0c985b5688cbc0c766b79317b45eef64"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-2.0"
+    },
+    {
+      "name": "pl_PL-Polish.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/pl",
+      "members": [
+        {
+          "name": "pl_PL-Polish.dic",
+          "sha256": "74b6155391025419967c26913541b55b36d58e80b1028037d4a0b8ddcb18d0b7",
+          "upstreamPath": "dictionaries/pl/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "pl_PL-Polish.aff",
+          "sha256": "de7b54a8fa37562d58b481cf3d87a63e3dcc2d74021f6403eb0e4f5df9ecc225",
+          "upstreamPath": "dictionaries/pl/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/pl_PL-Polish/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/pl/license",
+          "gitBlob": "b6e1f9e6ce96f73d221a3c1ac06c548684f321b3"
+        },
+        {
+          "path": "native/notices/dictionaries/pl_PL-Polish/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/pl/package.json",
+          "gitBlob": "80b8257f321c21707e35015c5f147b41314e07c3"
+        },
+        {
+          "path": "native/notices/dictionaries/pl_PL-Polish/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/pl/readme.md",
+          "gitBlob": "92e88f0f8abb6dd6f96dabd2cf0996a1fa80d76a"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-2.0)"
+    },
+    {
+      "name": "pt_BR.dic",
+      "repository": "https://github.com/texstudio-org/texstudio",
+      "revision": "Inherited in-tree payload and accompanying language-specific license notice",
+      "members": [
+        {
+          "name": "pt_BR.dic",
+          "sha256": "bc9410b115fb717773585658dc14c0d98d0933db87ae175c160c2321f4a9c273",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        },
+        {
+          "name": "pt_BR.aff",
+          "sha256": "8427837d0ce374c628e8e90fbffab55f617f345d1774e9f9d1e2bef489b0508a",
+          "upstreamPath": "In-tree imported source, retained without changes",
+          "transformation": "none"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/pt_BR/README_pt_BR.TXT"
+        },
+        {
+          "path": "native/notices/dictionaries/pt_BR/affix-header.txt"
+        }
+      ],
+      "verification": "in-tree-license-notice",
+      "license": "LGPL-2.1-only (explicit affix header and README)",
+      "notes": "License declaration and copyright notice retained with the imported payload; no claim of a byte-for-byte match to a separate upstream snapshot."
+    },
+    {
+      "name": "pt_PT-Portuguese.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/pt",
+      "members": [
+        {
+          "name": "pt_PT-Portuguese.dic",
+          "sha256": "3d4100daed9e2a8108d1620129a9cd03a31585d5b4f14f2eecc18c8a767713fc",
+          "upstreamPath": "dictionaries/pt/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "pt_PT-Portuguese.aff",
+          "sha256": "1c6250e256c287fa860c15095d31cdffb1939de690ed2fd5d814408ecf0b52eb",
+          "upstreamPath": "dictionaries/pt/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/pt_PT-Portuguese/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/pt/license",
+          "gitBlob": "bfc16998d97662b7cd52ac2042e402acaf6980be"
+        },
+        {
+          "path": "native/notices/dictionaries/pt_PT-Portuguese/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/pt/package.json",
+          "gitBlob": "34ce8657cf5ffcd9123ee2485487184eccb86ad8"
+        },
+        {
+          "path": "native/notices/dictionaries/pt_PT-Portuguese/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/pt/readme.md",
+          "gitBlob": "bf15876a2525ffa890a8a9b68818027e5748cd2b"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(LGPL-3.0 OR MPL-2.0)"
+    },
+    {
+      "name": "pt_PT2-PortuguesePortugal.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/pt-PT",
+      "members": [
+        {
+          "name": "pt_PT2-PortuguesePortugal.dic",
+          "sha256": "e43c67b439ede72ed5fe33acbd4413e0a1320af7a94728a331db84e27122228e",
+          "upstreamPath": "dictionaries/pt-PT/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "pt_PT2-PortuguesePortugal.aff",
+          "sha256": "975a209fcc892cb382fa5f34a28c391a39668661ce373ae071287809c5fcae24",
+          "upstreamPath": "dictionaries/pt-PT/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/pt_PT2-PortuguesePortugal/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/pt-PT/license",
+          "gitBlob": "bddcadcfa7cd99ff57e004946a29fd9a9ba02fc6"
+        },
+        {
+          "path": "native/notices/dictionaries/pt_PT2-PortuguesePortugal/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/pt-PT/package.json",
+          "gitBlob": "b91861300134aaf5f88666554bbe36c2872de53f"
+        },
+        {
+          "path": "native/notices/dictionaries/pt_PT2-PortuguesePortugal/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/pt-PT/readme.md",
+          "gitBlob": "14e9f6bcfd5bfe2bdc5a239ed1707540b54c2950"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)"
+    },
+    {
+      "name": "ro_RO-Romanian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/ro",
+      "members": [
+        {
+          "name": "ro_RO-Romanian.dic",
+          "sha256": "c26a9356f598a0ae89e7be650f6bdd9ba70acce66b41d7ab14c0c68639b6ed33",
+          "upstreamPath": "dictionaries/ro/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "ro_RO-Romanian.aff",
+          "sha256": "3ee127a667bdec829faee546ae32033e8f10f7c63117f9b572ef03ad9df2b76b",
+          "upstreamPath": "dictionaries/ro/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ro_RO-Romanian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ro/license",
+          "gitBlob": "57aea88c095e83ced12cfd68e058ecc067b4cee3"
+        },
+        {
+          "path": "native/notices/dictionaries/ro_RO-Romanian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ro/package.json",
+          "gitBlob": "0feab6bebd48092ce2f8a48115fecd2522ac2f8e"
+        },
+        {
+          "path": "native/notices/dictionaries/ro_RO-Romanian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ro/readme.md",
+          "gitBlob": "3e21470653d27c82c4e6bffa3d3962f6727b2b2e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)"
+    },
+    {
+      "name": "ru_RU-Russian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/ru",
+      "members": [
+        {
+          "name": "ru_RU-Russian.dic",
+          "sha256": "754bedd3b21ce2edecade002cfa6ffaf7493d6e93ccdc6282e71bd4bf6247f35",
+          "upstreamPath": "dictionaries/ru/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "ru_RU-Russian.aff",
+          "sha256": "b9d4ec53d513b3d56e8ce025ef02f950393a35830949893700e570238e09a9c4",
+          "upstreamPath": "dictionaries/ru/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ru_RU-Russian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ru/license",
+          "gitBlob": "0ded5e1495072d6a413837128ba1b9d358b92254"
+        },
+        {
+          "path": "native/notices/dictionaries/ru_RU-Russian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ru/package.json",
+          "gitBlob": "474eba6fd225f719acfc59f4bb12b86da5126176"
+        },
+        {
+          "path": "native/notices/dictionaries/ru_RU-Russian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/ru/readme.md",
+          "gitBlob": "57cfca8462feeb040392258883547262ca3be79b"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "LGPL-3.0"
+    },
+    {
+      "name": "sk_SK-Slovak.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/sk",
+      "members": [
+        {
+          "name": "sk_SK-Slovak.dic",
+          "sha256": "b6cdb6fb512c44881cc91329aea0b179840f5f9a3e6cb024c2ab8547f96f5d94",
+          "upstreamPath": "dictionaries/sk/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "sk_SK-Slovak.aff",
+          "sha256": "a79dc992b849aa2355db38eea9c4722239993639d77bc81c9c1aa79f213e723c",
+          "upstreamPath": "dictionaries/sk/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/sk_SK-Slovak/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sk/license",
+          "gitBlob": "1f9ddbe512489661794467ac56fabd18a3273527"
+        },
+        {
+          "path": "native/notices/dictionaries/sk_SK-Slovak/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sk/package.json",
+          "gitBlob": "9835eef0c98e0739f78181a708e700d4c0c62b02"
+        },
+        {
+          "path": "native/notices/dictionaries/sk_SK-Slovak/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sk/readme.md",
+          "gitBlob": "bfa880f01a46d13b975af617aa9b789a63a6fd9e"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)"
+    },
+    {
+      "name": "sl_SL-Slovenian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/sl",
+      "members": [
+        {
+          "name": "sl_SL-Slovenian.dic",
+          "sha256": "5bac615dbd301ddbefbdaafdae242a89e46605916d77958df22778e770a95b9e",
+          "upstreamPath": "dictionaries/sl/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "sl_SL-Slovenian.aff",
+          "sha256": "511043a4f9c64a966599e3d53fa1f4e9a172a87de4a7a0c2cf327098a3a605d1",
+          "upstreamPath": "dictionaries/sl/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/sl_SL-Slovenian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sl/license",
+          "gitBlob": "3559b4d2b8e39e9299774f4809dcc0ef4a5036c3"
+        },
+        {
+          "path": "native/notices/dictionaries/sl_SL-Slovenian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sl/package.json",
+          "gitBlob": "368ebbad70d3ad9256b9ffcd996cdb1a5bc37298"
+        },
+        {
+          "path": "native/notices/dictionaries/sl_SL-Slovenian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sl/readme.md",
+          "gitBlob": "63715d17ff965f443a3e48bc2bdebb196636c5cb"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-2.1)"
+    },
+    {
+      "name": "sr_LATN-SerbianLatin.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/sr-Latn",
+      "members": [
+        {
+          "name": "sr_LATN-SerbianLatin.dic",
+          "sha256": "a41302b3e707c7a344560bc7df6db739db254f87be0442108a68f4ed2a34782d",
+          "upstreamPath": "dictionaries/sr-Latn/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "sr_LATN-SerbianLatin.aff",
+          "sha256": "9112fdbd53c8a20ac06397e736884450d61df0c6c5be6f5512210ed58229f939",
+          "upstreamPath": "dictionaries/sr-Latn/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/sr_LATN-SerbianLatin/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sr-Latn/license",
+          "gitBlob": "6b0005ac74fcf646241af51384f19a2be796f457"
+        },
+        {
+          "path": "native/notices/dictionaries/sr_LATN-SerbianLatin/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sr-Latn/package.json",
+          "gitBlob": "f87185c8b4fb032d8d27fb0993cae1d4136bd1b0"
+        },
+        {
+          "path": "native/notices/dictionaries/sr_LATN-SerbianLatin/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sr-Latn/readme.md",
+          "gitBlob": "14e16efeb821f3830cf92dc9686724fa966c8249"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1 OR CC-BY-SA-3.0)"
+    },
+    {
+      "name": "sr_SR-Serbian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/sr",
+      "members": [
+        {
+          "name": "sr_SR-Serbian.dic",
+          "sha256": "8bdbbe464f20a5a600ccad1ff0257883c42bb6170a55440d45b4b39e002f433a",
+          "upstreamPath": "dictionaries/sr/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "sr_SR-Serbian.aff",
+          "sha256": "10e11edbd55742975f0720b26a2b6669187e9b91fabc5063ee81f0db2f73279f",
+          "upstreamPath": "dictionaries/sr/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/sr_SR-Serbian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sr/license",
+          "gitBlob": "69796def42b1c69ec78e9033d2e8fa67382a53f4"
+        },
+        {
+          "path": "native/notices/dictionaries/sr_SR-Serbian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sr/package.json",
+          "gitBlob": "671e245ba35bad4e7da8a3a44ee3a184fbc0f6d9"
+        },
+        {
+          "path": "native/notices/dictionaries/sr_SR-Serbian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sr/readme.md",
+          "gitBlob": "00a2e20539d7a77bb774eb782dca482012f6b000"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1 OR CC-BY-SA-3.0)"
+    },
+    {
+      "name": "sv_FI-SwedishFinland.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/sv-FI",
+      "members": [
+        {
+          "name": "sv_FI-SwedishFinland.dic",
+          "sha256": "62874b2ca0080ae663c5e241940097161bb277e5b99bbc40f2cdda1548b38eaa",
+          "upstreamPath": "dictionaries/sv-FI/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "sv_FI-SwedishFinland.aff",
+          "sha256": "1a8fa2740a552b9d9fbc99c034d0a70eff80fa3f8a1c1603033867220220bd38",
+          "upstreamPath": "dictionaries/sv-FI/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/sv_FI-SwedishFinland/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sv-FI/license",
+          "gitBlob": "ec1c9d868268109508610a49c4bf3be2b585f245"
+        },
+        {
+          "path": "native/notices/dictionaries/sv_FI-SwedishFinland/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sv-FI/package.json",
+          "gitBlob": "fa06953b34285acd5508df8d343ab9daaee8ad18"
+        },
+        {
+          "path": "native/notices/dictionaries/sv_FI-SwedishFinland/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sv-FI/readme.md",
+          "gitBlob": "f02e9d4eb9e2c17d2a8a83c8f1950b33307c3559"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "LGPL-3.0"
+    },
+    {
+      "name": "sv_SV-Swedish.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/sv",
+      "members": [
+        {
+          "name": "sv_SV-Swedish.dic",
+          "sha256": "540ff8d0d9b05aae66dd919625d3a0bd25026d1e157027e6602e5dd11a07b645",
+          "upstreamPath": "dictionaries/sv/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "sv_SV-Swedish.aff",
+          "sha256": "ff8ddb979daa9f128e7489ece5edd666ada7af787933221543b7cecb2b3ed478",
+          "upstreamPath": "dictionaries/sv/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/sv_SV-Swedish/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sv/license",
+          "gitBlob": "ec1c9d868268109508610a49c4bf3be2b585f245"
+        },
+        {
+          "path": "native/notices/dictionaries/sv_SV-Swedish/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sv/package.json",
+          "gitBlob": "e5b02161f3690dac6829809f91f487d82061c7e8"
+        },
+        {
+          "path": "native/notices/dictionaries/sv_SV-Swedish/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/sv/readme.md",
+          "gitBlob": "7b2c4e63dc22daf8c4a3fea1f07359355a19d411"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "LGPL-3.0"
+    },
+    {
+      "name": "th_de_DE_v2.dat",
+      "repository": "https://github.com/LibreOffice/dictionaries",
+      "revision": "87ca82e1a22bfc40c6fef0ddaa210053cf79f25f",
+      "upstreamDirectory": "de",
+      "members": [
+        {
+          "name": "th_de_DE_v2.dat",
+          "sha256": "cae18340c59738350b8abe7d7822edb76a8f26d177c3f7cdc68fb0187ca25693",
+          "upstreamPath": "de/th_de_DE_v2.dat",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/th_de_DE_v2/COPYING_GPLv2",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/COPYING_GPLv2",
+          "gitBlob": "a8cab0356b0b9656dd1a988d524772166016c4ec"
+        },
+        {
+          "path": "native/notices/dictionaries/th_de_DE_v2/COPYING_GPLv3",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/COPYING_GPLv3",
+          "gitBlob": "94a9ed024d3859793618152ea559a168bbcbb5e2"
+        },
+        {
+          "path": "native/notices/dictionaries/th_de_DE_v2/COPYING_LGPL_v2.0.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/COPYING_LGPL_v2.0.txt",
+          "gitBlob": "5bc8fb2c8f757e34a0d8f4644f589d57609e213f"
+        },
+        {
+          "path": "native/notices/dictionaries/th_de_DE_v2/COPYING_LGPL_v2.1.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/COPYING_LGPL_v2.1.txt",
+          "gitBlob": "4362b49151d7b34ef83b3067a8f9c9f877d72a0e"
+        },
+        {
+          "path": "native/notices/dictionaries/th_de_DE_v2/COPYING_OASIS.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/COPYING_OASIS.txt",
+          "gitBlob": "47c1c2bb4384852191c28a47685f2b59e08dadd3"
+        },
+        {
+          "path": "native/notices/dictionaries/th_de_DE_v2/README_de_DE_frami.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/README_de_DE_frami.txt",
+          "gitBlob": "43d6c6c45ea75016b8b912d87a29e99a90a38635"
+        },
+        {
+          "path": "native/notices/dictionaries/th_de_DE_v2/README_extension_owner.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/README_extension_owner.txt",
+          "gitBlob": "822409cc8828a7a519111b0462efbb3df35c5b56"
+        },
+        {
+          "path": "native/notices/dictionaries/th_de_DE_v2/README_hyph_de.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/README_hyph_de.txt",
+          "gitBlob": "8921caef8669a6da5df523fa3491dde3624db5ea"
+        },
+        {
+          "path": "native/notices/dictionaries/th_de_DE_v2/README_thesaurus.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/de/README_thesaurus.txt",
+          "gitBlob": "9bdaebf7c4dae96502fafd7084169fe4e6c76566"
+        }
+      ],
+      "verification": "exact-payload",
+      "license": "See collected upstream notices"
+    },
+    {
+      "name": "th_en_US_v2.dat",
+      "repository": "https://github.com/LibreOffice/dictionaries",
+      "revision": "87ca82e1a22bfc40c6fef0ddaa210053cf79f25f",
+      "upstreamDirectory": "en",
+      "members": [
+        {
+          "name": "th_en_US_v2.dat",
+          "sha256": "8a3e4637450b7277428da248f0a604b5c92942bc30507220c051181462340f39",
+          "upstreamPath": "en/th_en_US_v2.dat",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/th_en_US_v2/README.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README.txt",
+          "gitBlob": "16ef20b51bac8b73e625836ec71ee90a717409cb"
+        },
+        {
+          "path": "native/notices/dictionaries/th_en_US_v2/README_en_AU.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_AU.txt",
+          "gitBlob": "014749c2cd838b6daf6ecba05f2a068eb1fc74ff"
+        },
+        {
+          "path": "native/notices/dictionaries/th_en_US_v2/README_en_CA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_CA.txt",
+          "gitBlob": "e0be02d8d6ea98f4a18ffd2b536082b1d781df08"
+        },
+        {
+          "path": "native/notices/dictionaries/th_en_US_v2/README_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB.txt",
+          "gitBlob": "acdc128899436aac36c082ca48e429efa42d75cb"
+        },
+        {
+          "path": "native/notices/dictionaries/th_en_US_v2/README_en_GB_thes.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_GB_thes.txt",
+          "gitBlob": "aff398af91e906243d3ac6e0e579a9827352abc9"
+        },
+        {
+          "path": "native/notices/dictionaries/th_en_US_v2/README_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_US.txt",
+          "gitBlob": "ce9b1a692e7df890e4f163202f4f776f729ce12b"
+        },
+        {
+          "path": "native/notices/dictionaries/th_en_US_v2/README_en_ZA.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_en_ZA.txt",
+          "gitBlob": "436b56e306a198cd4c8e947375ad0cfc83b1635e"
+        },
+        {
+          "path": "native/notices/dictionaries/th_en_US_v2/README_hyph_en_GB.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_GB.txt",
+          "gitBlob": "4afac7b60bad9d8ba42b964706837834201ec321"
+        },
+        {
+          "path": "native/notices/dictionaries/th_en_US_v2/README_hyph_en_US.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_hyph_en_US.txt",
+          "gitBlob": "8420172ba48044f75f8b85dc498657caba8abf95"
+        },
+        {
+          "path": "native/notices/dictionaries/th_en_US_v2/README_lightproof_en.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/README_lightproof_en.txt",
+          "gitBlob": "43c91fe4068f9050162127837cbdac9b1ffd9569"
+        },
+        {
+          "path": "native/notices/dictionaries/th_en_US_v2/license.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/en/license.txt",
+          "gitBlob": "e37680cf1385db400bff88ac103d30e876a5103e"
+        }
+      ],
+      "verification": "exact-payload",
+      "license": "See collected upstream notices"
+    },
+    {
+      "name": "th_fr_FR_v2.dat",
+      "repository": "https://github.com/LibreOffice/dictionaries",
+      "revision": "87ca82e1a22bfc40c6fef0ddaa210053cf79f25f",
+      "upstreamDirectory": "fr_FR",
+      "members": [
+        {
+          "name": "th_fr_FR_v2.dat",
+          "sha256": "a28216ddcf499f377979ec1d876472a53527a6450744cd1219b4d04a3c854318",
+          "upstreamPath": "fr_FR/thes_fr.dat",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/th_fr_FR_v2/README_fr.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/fr_FR/README_fr.txt",
+          "gitBlob": "e7ec832a1ab358470b93edfbadcc9514d25c1cc5"
+        },
+        {
+          "path": "native/notices/dictionaries/th_fr_FR_v2/README_hyph_fr.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/fr_FR/README_hyph_fr.txt",
+          "gitBlob": "dbb721075015a32aebef914b32efe1a0e1f94997"
+        },
+        {
+          "path": "native/notices/dictionaries/th_fr_FR_v2/README_thes_fr.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/fr_FR/README_thes_fr.txt",
+          "gitBlob": "fafdbadd35354e879bd49e29026b3c027251b3b9"
+        }
+      ],
+      "verification": "exact-payload",
+      "license": "See collected upstream notices"
+    },
+    {
+      "name": "th_it_IT_v2.dat",
+      "repository": "https://github.com/LibreOffice/dictionaries",
+      "revision": "87ca82e1a22bfc40c6fef0ddaa210053cf79f25f",
+      "upstreamDirectory": "it_IT",
+      "members": [
+        {
+          "name": "th_it_IT_v2.dat",
+          "sha256": "17fa1b397088df564c38eb55f3cf6413bed1760bdd316f81eb398f3446812717",
+          "upstreamPath": "it_IT/th_it_IT_v2.dat",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/th_it_IT_v2/README_hyph_it_IT.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/it_IT/README_hyph_it_IT.txt",
+          "gitBlob": "5965123bc91905894f013323683adbb635f10ff9"
+        },
+        {
+          "path": "native/notices/dictionaries/th_it_IT_v2/README_it_IT.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/it_IT/README_it_IT.txt",
+          "gitBlob": "ea0ee5f5f01e5d4460c9250383a26fbc09d65c0e"
+        },
+        {
+          "path": "native/notices/dictionaries/th_it_IT_v2/README_th_it_IT.txt",
+          "url": "https://raw.githubusercontent.com/LibreOffice/dictionaries/87ca82e1a22bfc40c6fef0ddaa210053cf79f25f/it_IT/README_th_it_IT.txt",
+          "gitBlob": "517f617028f1b257d33bf6e0f7932a968bcae463"
+        }
+      ],
+      "verification": "exact-payload",
+      "license": "See collected upstream notices"
+    },
+    {
+      "name": "tk_TK-Turkmen.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/tk",
+      "members": [
+        {
+          "name": "tk_TK-Turkmen.dic",
+          "sha256": "4c75d6e1c9f4e4780bd1a00828b37b8826232db4b204a96b30b841f94d2a0b81",
+          "upstreamPath": "dictionaries/tk/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "tk_TK-Turkmen.aff",
+          "sha256": "c55a9e98cab463d6095920bc2f8f682837beb971c21a8ea37d8ef60d80133755",
+          "upstreamPath": "dictionaries/tk/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/tk_TK-Turkmen/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tk/license",
+          "gitBlob": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64"
+        },
+        {
+          "path": "native/notices/dictionaries/tk_TK-Turkmen/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tk/package.json",
+          "gitBlob": "889344673cf4f29fb9d703f453c362d458c6a4a7"
+        },
+        {
+          "path": "native/notices/dictionaries/tk_TK-Turkmen/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tk/readme.md",
+          "gitBlob": "de455fd3c8e1ccbcb549f5a6632fa36214206e34"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "tlh_LATN-KlingonLatin.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/tlh-Latn",
+      "members": [
+        {
+          "name": "tlh_LATN-KlingonLatin.dic",
+          "sha256": "250ad66287d1202421296b7b582a4eaf5b291b6c3da3afff7520299551e2fd1b",
+          "upstreamPath": "dictionaries/tlh-Latn/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "tlh_LATN-KlingonLatin.aff",
+          "sha256": "2f3d1b8f6a7372537343df625771438e6d6f95e7bc2f255ef4eea1d90b06cc06",
+          "upstreamPath": "dictionaries/tlh-Latn/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/tlh_LATN-KlingonLatin/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tlh-Latn/license",
+          "gitBlob": "57bc88a15a0ee8266c259b2667e64608d3f7e292"
+        },
+        {
+          "path": "native/notices/dictionaries/tlh_LATN-KlingonLatin/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tlh-Latn/package.json",
+          "gitBlob": "97fa6bae78e5da5c283b1c0167d4a4a35240e27c"
+        },
+        {
+          "path": "native/notices/dictionaries/tlh_LATN-KlingonLatin/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tlh-Latn/readme.md",
+          "gitBlob": "e017bdfa72d5f1e62621e2d43ab56cb102795f7d"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "tlh_TLH-Klingon.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/tlh",
+      "members": [
+        {
+          "name": "tlh_TLH-Klingon.dic",
+          "sha256": "7d7d4f1477cf445fabdb50eca7690bb8f6da0b1a221d01bdffac25fc710c4550",
+          "upstreamPath": "dictionaries/tlh/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "tlh_TLH-Klingon.aff",
+          "sha256": "3fef00afd2470c0504592e1b18fe65b3e3cba3939dd1bb6e54dc0d5c76879491",
+          "upstreamPath": "dictionaries/tlh/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/tlh_TLH-Klingon/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tlh/license",
+          "gitBlob": "57bc88a15a0ee8266c259b2667e64608d3f7e292"
+        },
+        {
+          "path": "native/notices/dictionaries/tlh_TLH-Klingon/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tlh/package.json",
+          "gitBlob": "bf2c9eaa5024d2cc6607f428a5a9e6d7d729f996"
+        },
+        {
+          "path": "native/notices/dictionaries/tlh_TLH-Klingon/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tlh/readme.md",
+          "gitBlob": "6d810ab33d1eb2b1266d02247f11b478e3b069f7"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "tr_TR-Turkish.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/tr",
+      "members": [
+        {
+          "name": "tr_TR-Turkish.dic",
+          "sha256": "dc1d8f7724f4aefd117274678de431e4ea1765f2e02e6983b6ca48cbf5a7fc7c",
+          "upstreamPath": "dictionaries/tr/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "tr_TR-Turkish.aff",
+          "sha256": "6a390c79b054ad427cf9a6bf6de43463953cc1918e7f727e9dd4ebd4f9702f42",
+          "upstreamPath": "dictionaries/tr/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/tr_TR-Turkish/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tr/license",
+          "gitBlob": "31821280dc22483b1df9974d941472501a564f30"
+        },
+        {
+          "path": "native/notices/dictionaries/tr_TR-Turkish/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tr/package.json",
+          "gitBlob": "f04a4d0f85649e5f522fd84b46ce4dcafb1d592c"
+        },
+        {
+          "path": "native/notices/dictionaries/tr_TR-Turkish/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/tr/readme.md",
+          "gitBlob": "a77d2e9052e5cebf13156f04e4fa47dc89f12e6f"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "MIT"
+    },
+    {
+      "name": "ug_CN-China.dic",
+      "repository": "https://github.com/texstudio-org/texstudio",
+      "revision": "5571d0fe6cd51aced4cfe5490a6071e7bf56b231",
+      "license": "GPL-3.0-only (TeXstudio repository contribution)",
+      "verification": "repository-contribution-license",
+      "members": [
+        {
+          "name": "ug_CN-China.aff",
+          "sha256": "10f8e6cf84dd2172c08501b16da4c69b97f4f5d33683532411aa87e2688460ca",
+          "upstreamPath": "utilities/dictionaries/ug_CN-China.aff",
+          "transformation": "none; exact original TeXstudio contribution"
+        },
+        {
+          "name": "ug_CN-China.dic",
+          "sha256": "901ae08baef8cd5b3827f412f74b8a5ef83006a01c3f2e6ef13a6dd5ed77c21a",
+          "upstreamPath": "utilities/dictionaries/ug_CN-China.dic",
+          "transformation": "none; exact original TeXstudio contribution"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/ug_CN-China/NOTICE.txt"
+        },
+        {
+          "path": "native/notices/dictionaries/ug_CN-China/GPL-3.0.txt"
+        }
+      ],
+      "notes": "Direct original pull request to GPLv3 project; missing per-file header alone is not treated as absence of permission. No incompatible or separately declared third-party terms found."
+    },
+    {
+      "name": "uk_UK-Ukrainian.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6",
+      "upstreamDirectory": "dictionaries/uk",
+      "members": [
+        {
+          "name": "uk_UK-Ukrainian.dic",
+          "sha256": "680b904950feb431436f8fbe0ed7360bc200725fdd9386e8c76c0d57b3e4e9b5",
+          "upstreamPath": "dictionaries/uk/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "uk_UK-Ukrainian.aff",
+          "sha256": "dec92bbd75c478a9f414cb349b528e2f94d281c3da99678c91a7c902379c696d",
+          "upstreamPath": "dictionaries/uk/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/uk_UK-Ukrainian/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/uk/license",
+          "gitBlob": "733c072369ca77331f392c40da7404c85c36542c"
+        },
+        {
+          "path": "native/notices/dictionaries/uk_UK-Ukrainian/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/uk/package.json",
+          "gitBlob": "561463f30b03a54f1c568c8159f9210c06c938fa"
+        },
+        {
+          "path": "native/notices/dictionaries/uk_UK-Ukrainian/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/4099de3374bc8f0fabaeddbbffbc7ba75c1a96c6/dictionaries/uk/readme.md",
+          "gitBlob": "fe80158a00b0d8415d373700ff6cea004ce8c638"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-3.0"
+    },
+    {
+      "name": "vi_VI-Vietnamese.dic",
+      "repository": "https://github.com/wooorm/dictionaries",
+      "revision": "5ede45bb705d3f9f525ea779f7b487f9fc062013",
+      "upstreamDirectory": "dictionaries/vi",
+      "members": [
+        {
+          "name": "vi_VI-Vietnamese.dic",
+          "sha256": "9c56725b43e66de33d28aac8e58124e38247c8b2be34a8469b3113169110256c",
+          "upstreamPath": "dictionaries/vi/index.dic",
+          "transformation": "none; exact Git blob match"
+        },
+        {
+          "name": "vi_VI-Vietnamese.aff",
+          "sha256": "0d836ebf1d4f1e9964d931fbb76464b24037b71995c73784166a07c43e2a7ae5",
+          "upstreamPath": "dictionaries/vi/index.aff",
+          "transformation": "none; exact Git blob match"
+        }
+      ],
+      "notices": [
+        {
+          "path": "native/notices/dictionaries/vi_VI-Vietnamese/license",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/vi/license",
+          "gitBlob": "8be25028d722c31b71042043e5766f46eb1a33aa"
+        },
+        {
+          "path": "native/notices/dictionaries/vi_VI-Vietnamese/package.json",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/vi/package.json",
+          "gitBlob": "e462609530d9a6594348ae771652e5979c4fe9dc"
+        },
+        {
+          "path": "native/notices/dictionaries/vi_VI-Vietnamese/readme.md",
+          "url": "https://raw.githubusercontent.com/wooorm/dictionaries/5ede45bb705d3f9f525ea779f7b487f9fc062013/dictionaries/vi/readme.md",
+          "gitBlob": "f0aa1d18b6dc467f7da759bb5a6b5a26126a61fc"
+        }
+      ],
+      "verification": "exact-pair",
+      "license": "GPL-2.0"
+    }
+  ],
+  "unresolved": []
+}

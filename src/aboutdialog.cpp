@@ -13,6 +13,7 @@
 #include "utilsVersion.h"
 #include "utilsSystem.h"
 #include "updatechecker.h"
+#include <QUrl>
 
 AboutDialog::AboutDialog(QWidget *parent)
 	: QDialog(parent)
@@ -44,6 +45,12 @@ void AboutDialog::largeLogo()
 }
 
 void AboutDialog::setText(QString latestVersion) {
+    const QString licensesPath = findResourceFile("licenses/index.html");
+    QString licensingLinks;
+    if (!licensesPath.isEmpty()) {
+        licensingLinks = "<a href=\"" + QUrl::fromLocalFile(licensesPath).toString().toHtmlEscaped()
+                + "\">" + tr("Licenses and corresponding source") + "</a><br>";
+    }
     QString changelogPath = findResourceFile("CHANGELOG.md");
     if(changelogPath.isEmpty()){
         changelogPath="https://texstudio-org.github.io/CHANGELOG.html";
@@ -60,6 +67,7 @@ void AboutDialog::setText(QString latestVersion) {
                             tr("Project home site:") + " <a href=\"https://texstudio.org/\">https://texstudio.org/</a><br>" +
                             tr("Latest stable version: %1").arg(latestVersion)+"<br>" +
                             "<a href=\""+changelogPath+"\">"+tr("Changelog")+"</a><br><br>"+
+                            licensingLinks +
 	                        "Copyright (c)<br>" +
 	                        TEXSTUDIO + ": Benito van der Zander, Jan Sundermeyer, Daniel Braun, Tim Hoffmann<br>" +
 	                        "Texmaker: Pascal Brachet<br>" +

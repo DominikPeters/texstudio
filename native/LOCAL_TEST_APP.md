@@ -3,6 +3,18 @@
 Use this for local development builds. The default application is
 `~/Applications/TeXstudio Espresso.app`. Keep this single path
 for subsequent builds rather than creating additional feature-named apps.
+Build the locked Poppler dependency once into the repository's ignored area:
+
+```sh
+python3 native/scripts/build_poppler.py --cache .native-sources/distribution-sources \
+  --work native/.work/poppler-provenance --prefix .native-sources/dependencies/poppler \
+  --qt-prefix "$(brew --prefix qt)" --jobs 3 --fetch
+```
+
+This writes a source/configuration/binary-hash receipt used by the licensing
+inventory. Use new work/prefix paths when replacing an active dependency; update
+the editor's CMake/PkgConfig paths before removing superseded inputs.
+
 Its launcher uses separate,
 persistent settings in `~/Library/Application Support/TeXstudio TeXpresso Test`,
 allows it to run beside the normal editor, and disables Debug-build self-tests
@@ -13,13 +25,13 @@ Run from the repository root with an existing configured CMake build:
 ```sh
 python3 native/scripts/local_test_app.py --build-dir build-cursor-app \
   --macdeployqt "$(brew --prefix qt)/bin/macdeployqt" \
-  --library-path /tmp/texstudio-poppler/lib \
+  --library-path "$PWD/.native-sources/dependencies/poppler/lib" \
   --library-path "$(brew --prefix)/lib" \
   --poppler-data "$(brew --prefix)/share/poppler"
 ```
 
 This is the current development machine's command. Change
-`/tmp/texstudio-poppler/lib` if your Poppler prefix is elsewhere. It is a
+`.native-sources/dependencies/poppler/lib` if your Poppler prefix is elsewhere. It is a
 **build input**: the packaging step copies
 the libraries and encoding data into the app, rewrites library references,
 removes build-machine search paths, and rejects non-system dependencies outside
@@ -33,7 +45,7 @@ and adds the isolated launcher and the larger, unlettered coffee-cup icon from
 notarization. See [signed macOS builds](MACOS_RELEASE.md) for distributed builds.
 
 For routine development, set `--output` to an ignored staging path such as
-`.native-sources/app-updates/feature/TeXstudio Espresso.app` and verify it with
+`.native-sources/app-updates/current/TeXstudio Espresso.app` and verify it with
 [the background testing workflow](TESTING.md). Building and verification do not
 require quitting the installed app. Installation/restart and interactive launch
 are separate, explicitly requested operations; do not open a native file dialog

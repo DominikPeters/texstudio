@@ -1,0 +1,45 @@
+SET ISO8859-1
+TRY áàãâéêíóõôúüçesianrtolcdugmphbyfvkwjqxz
+
+#   Copyright (C) 2006 - 2010  por Raimundo Santos Moura
+#   <raimundomoura@openoffice.org>
+#   Colaboradores deste projeto: http://www.openoffice.org.br/?q=creditos
+#   Brasil - Setembro 2010
+#   Este é um dicionário para correção ortográfica da língua Portuguesa   
+#   para o Hunspell.                                                       
+#   Este programa é livre e pode ser redistribuído e/ou modificado nos    
+#   termos da  GNU Lesser General Public License (LGPL) versão 2.1.       
+
+
+MAP 6
+MAP aáãâAÁÃÂ
+MAP eéêEÉÊ
+MAP iíIÍ
+MAP oóõôOÓÕÔ
+MAP uúüUÚÜ
+MAP cçCÇ
+
+BREAK 67
+BREAK BREAK
+BREAK ^-
+BREAK -$
+BREAK ^ex-
+BREAK ^Ex-
+BREAK ^EX-
+BREAK ^recém-
+BREAK ^Recém-
+BREAK ^RECÉM-
+BREAK ^pós-
+BREAK ^Pós-
+BREAK ^PÓS-
+BREAK ^pró-
+BREAK ^Pró-
+BREAK ^PRÓ-
+BREAK -alvo$
+BREAK -chave$
+BREAK -piloto$
+BREAK -padrão$
+BREAK -chefe$
+BREAK ^Vice-
+BREAK ^vice-
+BREAK ^VICE-

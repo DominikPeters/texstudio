@@ -1,0 +1,90 @@
+[
+  {
+    "path": "native/notices/assets/CC-BY-3.0.html",
+    "url": "https://raw.githubusercontent.com/cc-archive/legalcode-pre-2014-06-26/main/by_3.0.html",
+    "sha256": "5bc82b0d879ca2318db96d69d1893627c0d117d041d3708cddb5d16ea6af563a"
+  },
+  {
+    "path": "native/notices/assets/CC-BY-4.0.html",
+    "url": "https://raw.githubusercontent.com/cc-archive/legalcode-pre-2014-06-26/main/by_4.0.html",
+    "sha256": "c06ccb3a64feb9a70855b58f0aa4d36d14104f56887b3f2a1037c15e9c1fb6c9"
+  },
+  {
+    "path": "native/notices/assets/CC-BY-SA-3.0.html",
+    "url": "https://raw.githubusercontent.com/cc-archive/legalcode-pre-2014-06-26/main/by-sa_3.0.html",
+    "sha256": "1bdb6d210afa2aa72799154e4df733283baeb014c29bc70588192ff81603be96"
+  },
+  {
+    "path": "native/notices/assets/CC0-1.0.txt",
+    "url": "https://raw.githubusercontent.com/cc-archive/legalcode-pre-2014-06-26/main/zero_1.0.txt",
+    "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+  },
+  {
+    "path": "native/notices/assets/fontawesome-free-5.15.4-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.15.4/LICENSE.txt",
+    "sha256": "e779748dfe75e84f974df3c7bc07f842011a100159158b0f1f49b2f2a5a515cb"
+  },
+  {
+    "path": "native/notices/assets/jquery-3.6.0-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/jquery/jquery/3.6.0/LICENSE.txt",
+    "sha256": "d4db9ebe6f29f5168eac45ad713f055623ac5d0dcd5ba92da23d650ae012020d"
+  },
+  {
+    "path": "native/notices/assets/snowball-3.0.1-COPYING",
+    "url": "https://raw.githubusercontent.com/snowballstem/snowball/v3.0.1/COPYING",
+    "sha256": "f6f9e4c0e737728ca980de8595ded046d5e077017c1bb0ee05dc794a01434dae"
+  },
+  {
+    "path": "native/notices/assets/sphinx-LICENSE.rst",
+    "url": "https://raw.githubusercontent.com/sphinx-doc/sphinx/v9.1.0/LICENSE.rst",
+    "sha256": "64c96919bbaf3a13baa0f10e418cc1fc88768ce1b9c07f5b7bf49f0fb23db106"
+  },
+  {
+    "path": "native/notices/assets/sphinx-design-LICENSE",
+    "url": "https://raw.githubusercontent.com/executablebooks/sphinx-design/v0.6.1/LICENSE",
+    "sha256": "c06768f1f47e305f8161f514091c433400832617135ce4e49f5287cadec9041f"
+  },
+  {
+    "path": "native/notices/assets/sphinx-inline-tabs-LICENSE",
+    "url": "https://raw.githubusercontent.com/pradyunsg/sphinx-inline-tabs/main/LICENSE",
+    "sha256": "eead43859a75f77da25f85b9a1493523283476624a11dff7a3a8f08018485cd1"
+  },
+  {
+    "path": "native/notices/assets/underscore-1.13.1-LICENSE",
+    "url": "https://raw.githubusercontent.com/jashkenas/underscore/1.13.1/LICENSE",
+    "sha256": "708bd87d08b48ffd427ee2717fe76efeb63c09c5bdf64e3dae4674e20986bc6c"
+  },
+  {
+    "path": "native/notices/assets/LPPL-1.3c.txt",
+    "url": "https://www.latex-project.org/lppl/lppl-1-3c.txt",
+    "sha256": "3d262cdf34dafa6955f703c634a8c238ec44109bc8dd6ef34fb7aa54809f7e66"
+  },
+  {
+    "path": "native/notices/assets/furo.js.LICENSE.txt",
+    "url": "https://github.com/pradyunsg/furo",
+    "sha256": "3eba718c98abe0ad8dd4401edc9ddfabf979f9bb9b8ac446460b61b03694970d"
+  },
+  {
+    "path": "native/notices/assets/pygments-LICENSE",
+    "url": "https://raw.githubusercontent.com/pygments/pygments/2.20.0/LICENSE",
+    "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17"
+  },
+  {
+    "path": "native/notices/assets/CC-BY-3.0.txt",
+    "source": "native/notices/assets/CC-BY-3.0.html",
+    "sha256": "c989bba1df3bcf24eaef4f430e058186ba77f055f64406096ce368ea2bfd40e5",
+    "transformation": "Plain text rendering; original unchanged HTML retained alongside"
+  },
+  {
+    "path": "native/notices/assets/CC-BY-SA-3.0.txt",
+    "source": "native/notices/assets/CC-BY-SA-3.0.html",
+    "sha256": "cc548c9f4146a0670289dce654259e42044c3f087e3d9e69d08ba1a3c5f4135a",
+    "transformation": "Plain text rendering; original unchanged HTML retained alongside"
+  },
+  {
+    "path": "native/notices/assets/CC-BY-4.0.txt",
+    "source": "native/notices/assets/CC-BY-4.0.html",
+    "sha256": "caba38c5b618b82f8677720fd0c85cd9368f2c9a1d85401822192b53e6546cd1",
+    "transformation": "Plain text rendering; original unchanged HTML retained alongside"
+  }
+]

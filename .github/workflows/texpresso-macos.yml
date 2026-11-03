@@ -87,30 +87,17 @@ jobs:
           python3 native/scripts/validate_bundle.py "native/.bundles/darwin-$(uname -m)"
       - name: Fetch and build Poppler with Qt preview support
         run: |
+          python3 native/scripts/build_poppler.py \
+            --cache .native-sources/distribution-sources --work build-poppler-provenance \
+            --prefix "$RUNNER_TEMP/poppler" --qt-prefix "$(brew --prefix qt)" --jobs 3 --fetch
           python3 - <<'PY'
           import hashlib, json, pathlib, urllib.request
-          locks = json.load(open('native/macos-dependencies.lock.json'))
-          for name, suffix in [('poppler', 'tar.xz'), ('poppler-data', 'tar.gz')]:
-              lock = locks[name]
-              archive = pathlib.Path(f'.native-sources/{name}.{suffix}')
-              urllib.request.urlretrieve(lock['url'], archive)
-              if hashlib.file_digest(archive.open('rb'), 'sha256').hexdigest() != lock['sha256']:
-                  raise SystemExit(f'{name} checksum mismatch')
+          lock = json.load(open('native/macos-dependencies.lock.json'))['poppler-data']
+          archive = pathlib.Path('.native-sources/poppler-data.tar.gz')
+          urllib.request.urlretrieve(lock['url'], archive)
+          if hashlib.file_digest(archive.open('rb'), 'sha256').hexdigest() != lock['sha256']:
+              raise SystemExit('poppler-data checksum mismatch')
           PY
-          mkdir -p .native-sources/poppler
-          tar -xf .native-sources/poppler.tar.xz -C .native-sources/poppler --strip-components=1
-          cmake -S .native-sources/poppler -B build-poppler -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/poppler" \
-            -DCMAKE_PREFIX_PATH="$(brew --prefix qt)" \
-            -DENABLE_QT6=ON -DENABLE_QT5=OFF -DENABLE_CPP=ON \
-            -DENABLE_UNSTABLE_API_ABI_HEADERS=ON -DENABLE_GLIB=OFF \
-            -DENABLE_GOBJECT_INTROSPECTION=OFF -DENABLE_BOOST=OFF \
-            -DENABLE_LIBCURL=OFF -DENABLE_NSS3=OFF -DENABLE_GPGME=OFF \
-            -DENABLE_PGP_SIGNATURES=OFF -DENABLE_UTILS=OFF \
-            -DBUILD_GTK_TESTS=OFF -DBUILD_QT5_TESTS=OFF -DBUILD_QT6_TESTS=OFF \
-            -DBUILD_CPP_TESTS=OFF -DBUILD_MANUAL_TESTS=OFF
-          cmake --build build-poppler --parallel 3
-          cmake --install build-poppler
           mkdir -p .native-sources/poppler-data
           tar -xf .native-sources/poppler-data.tar.gz -C .native-sources/poppler-data --strip-components=1
           make -C .native-sources/poppler-data install prefix="$RUNNER_TEMP/poppler"
@@ -148,6 +135,15 @@ jobs:
             --macdeployqt "$(brew --prefix qt)/bin/macdeployqt" \
             --library-path "$RUNNER_TEMP/poppler/lib" --library-path "$(brew --prefix)/lib" \
             --poppler-data "$RUNNER_TEMP/poppler/share/poppler"
+      - name: Assemble complete corresponding source
+        run: |
+          python3 native/scripts/source_release.py \
+            --plan .native-sources/source-release-plan \
+            --inventory "$RUNNER_TEMP/deploy/texstudio.app/Contents/Resources/licenses/inventory.json"
+          python3 native/scripts/source_release.py \
+            --assemble .native-sources/source-release-plan \
+            --cache .native-sources/distribution-sources --fetch \
+            --output "dist/texstudio-texpresso-macos-${{ matrix.architecture }}-sources.zip"
       - name: Sign, notarize, staple, and verify the complete app
         timeout-minutes: 45
         env:

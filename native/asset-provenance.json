@@ -1,0 +1,764 @@
+{
+  "schema": 1,
+  "artworkMetadata": [
+    {
+      "path": "images-ng/back.svg",
+      "sha256": "9073236cbc3c6f9d90410ab8670a785e1f201809021e041ccc1a9b63aacdf0f3",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/bookmark-new.svg",
+      "sha256": "d3e132744183bd270c5927002ba0a3c852b40506396f8a34079a2a46f5efea9c",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Andreas Nilsson"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/convert-dvipdf.svgz",
+      "sha256": "efc609ed560a25edb211355b62b8ee9dac3420595c72d348dccd8b984e0f2529",
+      "licenseDeclarations": [
+        "http://en.wikipedia.org/wiki/Public_domain"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": [
+        "Jakub Steiner"
+      ]
+    },
+    {
+      "path": "images-ng/convert-dvips.svgz",
+      "sha256": "4f7a36c21b8b87ba3964b351ff4d84f12e9c5ca76ceb55404e92b16e929a290c",
+      "licenseDeclarations": [
+        "http://en.wikipedia.org/wiki/Public_domain"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": [
+        "Jakub Steiner"
+      ]
+    },
+    {
+      "path": "images-ng/convert-pspdf.svgz",
+      "sha256": "a9524371e9e4dad22778652a28782d6ffafc83415c7bc53581cc4d177e3a655e",
+      "licenseDeclarations": [
+        "http://en.wikipedia.org/wiki/Public_domain"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": [
+        "Jakub Steiner"
+      ]
+    },
+    {
+      "path": "images-ng/dialog-error.svg",
+      "sha256": "23f3a8dabf440be7f07e186b07de6d29de0b9088b03cdfaf01f5919135169bc9",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Rodney Dawes"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/document-locked.svg",
+      "sha256": "e03bf72be30e4b27dd9c21658e9e0fd80ff5e512a366680ef54a208d1a8074be",
+      "licenseDeclarations": [
+        "http://creativecommons.org/publicdomain/zero/1.0/"
+      ],
+      "authors": [
+        "Tim Hoffmann"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/edit-redo.svg",
+      "sha256": "68299b630e813ac2218465c9df40d54b47100f7c66ea445e374f3216225a5a55",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/edit-undo.svg",
+      "sha256": "9c81f5f14aa7a1457faf14ecd1bfc255ed16cef15a661b5f30d23f0d385450c9",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/embedded-viewer.svg",
+      "sha256": "cfcd1ce03258b3228f75cc63972c6c8a54f1fcdfdd2872c56e418f5c7a0660e8",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/by/3.0/"
+      ],
+      "authors": [
+        "Tim Hoffmann"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/errornext.svg",
+      "sha256": "f0231d62ff29cb54eea5ab22d16aac373855393a04309965bf8f52a27c2196d3",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/errorprev.svg",
+      "sha256": "528f60480aa44aaadbc63323829f74131725baf125c2a8fc94df5d714a0156c5",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/format-justify-center.svg",
+      "sha256": "b9c8e0180e1cc8dbedf59aeea964f8119301ae10ab2570fe892a5931a6069e1d",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Andreas Nilsson"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/format-justify-fill.svg",
+      "sha256": "5d169bc9b8ba7f95101a4f60541a19c34d3dfe57c4dfd1a2c426c2dd455e9d8d",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Andreas Nilsson"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/format-justify-left.svg",
+      "sha256": "501b1fd64cee286b419bc34d04929da60363d6c5611d4786122d36b91de2839c",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Andreas Nilsson"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/format-justify-right.svg",
+      "sha256": "cac1dbd571cb8a7d6df2a612fc8c80b2606407bb60850306375eb60ebdfcc469",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Andreas Nilsson"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/format-text-bold.svg",
+      "sha256": "ffd0a48b3421b766b22994909ee855cdd36b7c09e33a90445c05d6aa2e993d49",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Lapo Calamandrei"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/format-text-italic.svg",
+      "sha256": "ff11766fec187bafcd804c4bf7a89994bab12d17f35a991faf959d1ee5864c47",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Lapo Calamandrei"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/format-text-underline.svg",
+      "sha256": "1ddd11a427c9f7568221f720d959a6080218241556b41bd09b6f1941c48d2fc2",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Lapo Calamandrei"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/forward.svg",
+      "sha256": "728ea4156fdf47b84519fefa3ee7ceb2141e25a86cf11e1b75076774568c447e",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/go-first.svg",
+      "sha256": "465eba822a18240e059c1ad6d68c120ca9dfe134692b160897597bff9b2712f5",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/go-last.svg",
+      "sha256": "5a24d27249a5b557c4be774e322a642a299c0908412d52b6de847e2f2c8a9d82",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/go-next.svg",
+      "sha256": "e7e79d37fb27d42437e0449affe7b8effbc3391e4450f53f0f88602049f7b30c",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/go-previous.svg",
+      "sha256": "75269150414f9bdfb0eee741ad36209c500d27c0b2d8462b134e0cf7b6d8f7d8",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/goto.svg",
+      "sha256": "1f3387d29cf88adf6e269e5ea41a999c715ad6d931697c59a5e5f6d8ea7aa80b",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/home.svg",
+      "sha256": "d2efceb512de09e1f335b00290d0d2e575d48fa59cf2e2fa1b00eaa20bba5918",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/magnifier.svgz",
+      "sha256": "31034de5265d72d4eee0674a5c7554205be5f15dd0e961f077f397ac09cdf75f",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/GPL/2.0/"
+      ],
+      "authors": [],
+      "rights": []
+    },
+    {
+      "path": "images-ng/modern/embedded-viewer.svg",
+      "sha256": "5a4861223b6258c363348db9637de04d1d84cfa543ea5c00b928b64c78405dc9",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/by/4.0/"
+      ],
+      "authors": [
+        "Tim Hoffmann"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/preferences-system.svg",
+      "sha256": "12c8cf88a3c5c23667243eeab6aeb499c699039433b23ddf766cca8bf11a1990",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/replaceall.svg",
+      "sha256": "f38f80ef4256bdac184528ae283630ee7737cd9b658c56f160eaf7ea48ed3c3c",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/by-sa/3.0/ or http://creativecommons.org/licenses/LGPL/2.1/"
+      ],
+      "authors": [],
+      "rights": []
+    },
+    {
+      "path": "images-ng/view-doc-dvi.svg",
+      "sha256": "440d73834d2b58681b8e6c62670e7efb74e7aced852c9460d197fdc85ab2be11",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/by-sa/3.0/ or http://creativecommons.org/licenses/LGPL/2.1/"
+      ],
+      "authors": [],
+      "rights": []
+    },
+    {
+      "path": "images-ng/view-doc-pdf.svgz",
+      "sha256": "dfb9f7e85f0b54d78511bcfd42f5774873bc7a64c01851faaf42a82cdb220c4e",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/by-sa/3.0/ or http://creativecommons.org/licenses/LGPL/2.1/"
+      ],
+      "authors": [],
+      "rights": []
+    },
+    {
+      "path": "images-ng/view-doc-ps.svg",
+      "sha256": "88496a68d778be1400f0b272d2706d545685cc5c0c51139e48fb0843b2339ece",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/by-sa/3.0/ or http://creativecommons.org/licenses/LGPL/2.1/"
+      ],
+      "authors": [],
+      "rights": []
+    },
+    {
+      "path": "images-ng/view-fullscreen.svg",
+      "sha256": "b8780e8d56497b87e2966c9e85136ed097e26f33c4b2097bc34cfc6508ff0108",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/view-pages-overview.svg",
+      "sha256": "ef291a6bda23f49998a91057167c62fd6c0aa411e59c1718d5be263bca883b85",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/publicdomain/"
+      ],
+      "authors": [
+        "Jakub Steiner"
+      ],
+      "rights": []
+    },
+    {
+      "path": "images-ng/viewlog.svgz",
+      "sha256": "3d6e7b8f0bc5288610fe05e784e815315098d4fb4244032b5b6e2f644c65b6e5",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/by-sa/3.0/ or http://creativecommons.org/licenses/LGPL/2.1/"
+      ],
+      "authors": [],
+      "rights": []
+    },
+    {
+      "path": "images-ng/zoom-fit-text-width.svgz",
+      "sha256": "7b561eafa32fef848e13d81d3db8f7f3e274a6267c943578c742648b1aa02470",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/by-sa/3.0/ or http://creativecommons.org/licenses/LGPL/2.1/"
+      ],
+      "authors": [],
+      "rights": []
+    },
+    {
+      "path": "images-ng/zoom-original.svgz",
+      "sha256": "054989580dd7b83a8c5ba7855190c5cc4dc55b1d4ef64461099c27f5f99cbb10",
+      "licenseDeclarations": [
+        "http://creativecommons.org/licenses/by-sa/3.0/ or http://creativecommons.org/licenses/LGPL/2.1/"
+      ],
+      "authors": [],
+      "rights": []
+    }
+  ],
+  "templates": [
+    {
+      "metadataPath": "templates/template_Article.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "17.8.2009",
+      "files": [
+        {
+          "path": "templates/template_Article.json",
+          "sha256": "ea9e5cba169377e35096cd04a89a56d7698a5e82bb32e983297a8cd3602d718d"
+        },
+        {
+          "path": "templates/template_Article.png",
+          "sha256": "cbf027d4c6c7d3f9d4648d7467a966d29195ae5b1e91c73d8a7f1b12667c84ad"
+        },
+        {
+          "path": "templates/template_Article.tex",
+          "sha256": "446520dfc7292deafa78bad4b6ede75bdd82a6c5747f986169af30b73eb928b0"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Article_French.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "24.9.2014",
+      "files": [
+        {
+          "path": "templates/template_Article_French.json",
+          "sha256": "6d76f350a72cc0a2697d025e1649d92846ac204d0d9a5af6ad522efc8317931c"
+        },
+        {
+          "path": "templates/template_Article_French.png",
+          "sha256": "cbf027d4c6c7d3f9d4648d7467a966d29195ae5b1e91c73d8a7f1b12667c84ad"
+        },
+        {
+          "path": "templates/template_Article_French.tex",
+          "sha256": "0d953f7c5fab04678ebbf80f6e739458f44b071609ff81691dd62dd00dc9d625"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Article_LuaLaTeX_French.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "2021-10-20",
+      "files": [
+        {
+          "path": "templates/template_Article_LuaLaTeX_French.json",
+          "sha256": "72747df21c25f78d883f9233215ba502fd57a30d4739e23e65f69b9483fa8fa1"
+        },
+        {
+          "path": "templates/template_Article_LuaLaTeX_French.png",
+          "sha256": "cbf027d4c6c7d3f9d4648d7467a966d29195ae5b1e91c73d8a7f1b12667c84ad"
+        },
+        {
+          "path": "templates/template_Article_LuaLaTeX_French.tex",
+          "sha256": "da0cd73b96d76bd311bab3b5dbf9c8f04c889896b228c13ba9c87e18bc00301e"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Beamer.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "17.8.2009",
+      "files": [
+        {
+          "path": "templates/template_Beamer.json",
+          "sha256": "52cd3636a6ce5bebdc991ffc1337a8879fc9412a851ef9a1d9ebb64020c313ae"
+        },
+        {
+          "path": "templates/template_Beamer.png",
+          "sha256": "eba141077b71352d72d2b20c95e9a4ad1de2caa01c31e0473867da7a84c9c798"
+        },
+        {
+          "path": "templates/template_Beamer.tex",
+          "sha256": "42244a97621fe71acd07036077402d67546abd63deb9622aa5fc75a268f2eae6"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Book.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "04.01.2013",
+      "files": [
+        {
+          "path": "templates/template_Book.json",
+          "sha256": "7a7d8962cf817c6f174770f82272a717f0c7f82af5b1306745e228812c2c0e79"
+        },
+        {
+          "path": "templates/template_Book.png",
+          "sha256": "5c46432b0dab1eab3a273e5931daaeee491cfc9098e97d433a8283bce1ecae46"
+        },
+        {
+          "path": "templates/template_Book.zip",
+          "sha256": "a382f94ab0b6b39d71bf927cffcc2348f33a275271495a944f8e56235f025ae3"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_HA-prosper.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "17.8.2009",
+      "files": [
+        {
+          "path": "templates/template_HA-prosper.json",
+          "sha256": "0a4ede2bf4de3b61a92cd31d834b53ef96170e9ba61793bbba58abbfd3153566"
+        },
+        {
+          "path": "templates/template_HA-prosper.tex",
+          "sha256": "8d9061a30ab472718c57671d4eeceba44aa63e1e3f27790ed58c4eedfffc8d1a"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Letter.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "17.8.2009",
+      "files": [
+        {
+          "path": "templates/template_Letter.json",
+          "sha256": "295a9dd2ab25d49a34e20f73403b08a04b649a3e3fee578a8a84250e51bb9a1d"
+        },
+        {
+          "path": "templates/template_Letter.png",
+          "sha256": "ad3c378905fa8cfe6d2bc711118e2fcff5c919511a0b2b54033cbe7dbe0dc2d8"
+        },
+        {
+          "path": "templates/template_Letter.tex",
+          "sha256": "bf597c6ab316178bf05d176957c5e4562ceeca156ffd88b9ef79eb02ddbe7dbb"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Moderncv.json",
+      "author": "Denis Bitouz\u00e9",
+      "license": "LaTeX Project Public License (LPPL)",
+      "date": "2013-03-03",
+      "files": [
+        {
+          "path": "templates/template_Moderncv.json",
+          "sha256": "d9dba4c85aa5135f10da0d7c66c1b3c33ac2c6b484a8093319ef3a8f5f43aa3d"
+        },
+        {
+          "path": "templates/template_Moderncv.png",
+          "sha256": "02dc5a92c317c8444cc087520f3f8171aa590bc7cedf517a6a91b4e90860b6ca"
+        },
+        {
+          "path": "templates/template_Moderncv.tex",
+          "sha256": "1de2b7db625bc2d240954e73842cc1099c95b567502ef0ca445c711273485c89"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Moderncv_French.json",
+      "author": "Denis Bitouz\u00e9",
+      "license": "LaTeX Project Public License (LPPL)",
+      "date": "2013-03-03",
+      "files": [
+        {
+          "path": "templates/template_Moderncv_French.json",
+          "sha256": "38c0d1847262e4ae65f3b9d46550ce5682507370e466834eceaeae243df5423e"
+        },
+        {
+          "path": "templates/template_Moderncv_French.png",
+          "sha256": "ddaea7ee0510794ebb81ed5ed3ff5dbe0aad10ab82f885ca1f93d363e615b210"
+        },
+        {
+          "path": "templates/template_Moderncv_French.tex",
+          "sha256": "6f4471d136bba9f97be1d28a3815c22b21fb3bd726c89e229c352a46cc6eb721"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Prosper.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "17.8.2009",
+      "files": [
+        {
+          "path": "templates/template_Prosper.json",
+          "sha256": "f87d8f2ebd49a3f29b671430d27509814baf855719a4eacb3cf9ecd48274e8db"
+        },
+        {
+          "path": "templates/template_Prosper.tex",
+          "sha256": "9402a6b3c666e0d2edab948b466630f906c8c030dbc95a673a5f750b80a5ca10"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Report.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "17.8.2009",
+      "files": [
+        {
+          "path": "templates/template_Report.json",
+          "sha256": "fa9ebfa37675472439abbe58de3d4af8401b0967e91bb6bf730e0d1c3832d6d9"
+        },
+        {
+          "path": "templates/template_Report.png",
+          "sha256": "896ce8881610144d7a24fa6db9068a7feca439177ba26ac6c371e39f7f94263d"
+        },
+        {
+          "path": "templates/template_Report.tex",
+          "sha256": "8dbf2df6a092a8697a70ae8138dfd78cf47fd559e59d550475642eb897cbfa88"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Scrartcl.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "17.8.2009",
+      "files": [
+        {
+          "path": "templates/template_Scrartcl.json",
+          "sha256": "6252216ae1d9bc6c84e4ee21f437036d33a3ac070db803bc81054a8bf6035ae8"
+        },
+        {
+          "path": "templates/template_Scrartcl.png",
+          "sha256": "a0fe6500700c568982bf40ce04dd8543ede108b1192c997c08e194c9b9bfe31e"
+        },
+        {
+          "path": "templates/template_Scrartcl.tex",
+          "sha256": "3401373e5c2cf2a600635f2114f605b6825f6daf339aa879a272977722ddbf14"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Scrbook.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "17.8.2009",
+      "files": [
+        {
+          "path": "templates/template_Scrbook.json",
+          "sha256": "86210b8d4685e32231b22ad496b86fd715131e0a81e26ba65b0906c58013d55b"
+        },
+        {
+          "path": "templates/template_Scrbook.tex",
+          "sha256": "476eeb4e3c92165335d615c0ed9769c86fc8e4d78c0b7abab361ccea2bdf29bc"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Scrlttr2.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "17.8.2009",
+      "files": [
+        {
+          "path": "templates/template_Scrlttr2.json",
+          "sha256": "67b19728bac986ec79d3733fd18a1e8272804d48cfeaa8109aa110f9995879f2"
+        },
+        {
+          "path": "templates/template_Scrlttr2.tex",
+          "sha256": "3850f98a5a1b5aba85b7aed519dbb07a1c753812305094f7ee51972405c21579"
+        }
+      ]
+    },
+    {
+      "metadataPath": "templates/template_Scrreprt.json",
+      "author": "TXS built-in",
+      "license": "Public Domain",
+      "date": "17.8.2009",
+      "files": [
+        {
+          "path": "templates/template_Scrreprt.json",
+          "sha256": "0c0793dcdfd4427d8afebfc18a1c2aabf3205b94f5925333b73c92109a999c42"
+        },
+        {
+          "path": "templates/template_Scrreprt.tex",
+          "sha256": "1b78a14cea699b7e834f0d27bcd5994bfbb073ec3933f1a58cdbba21938d6d49"
+        }
+      ]
+    }
+  ],
+  "cup": {
+    "source": "native/texpresso/doc/texpresso_logo_v3.svg",
+    "sha256": "17429cbae0121b31b193565bbff9773eefe997280bc6b6fca4ef33691b331ead",
+    "license": "MIT (TeXpresso repository LICENSE, no file-specific override)",
+    "copyright": "Fr\u00e9d\u00e9ric Bour and TeXpresso contributors",
+    "modifications": "Removed background and TeX lettering; cropped, scaled and composited cup and steam onto existing TeXstudio icon/splash",
+    "evidence": [
+      "native/texpresso/LICENSE",
+      "native/icons/README.md"
+    ],
+    "note": "Uses the v3 file under the project MIT license; does not infer CC0 from a different older logo."
+  },
+  "fontawesome": {
+    "scope": "symbols-ng/fontawesome5 SVG glyphs",
+    "license": "CC-BY-4.0 for icons; OFL-1.1 for source fonts; MIT for code",
+    "copyright": "Fonticons, Inc.; Font Awesome Free authors",
+    "notice": "native/notices/assets/fontawesome-free-5.15.4-LICENSE.txt"
+  },
+  "documentation": [
+    {
+      "scope": "utilities/latex2e.html",
+      "license": "Verbatim/modified/translated copying permission embedded in document header",
+      "copyright": "Karl Berry, Stephen Gilmore, Torsten Martinsen and credited contributors"
+    },
+    {
+      "scope": "Generated TeXstudio manual and translations",
+      "license": "Project GPLv3 baseline; third-party scripts/styles retain their own notices",
+      "copyright": "TeXstudio Team and contributors"
+    },
+    {
+      "scope": "jQuery 3.6.0",
+      "license": "MIT",
+      "notice": "native/notices/assets/jquery-3.6.0-LICENSE.txt"
+    },
+    {
+      "scope": "Underscore 1.13.1",
+      "license": "MIT",
+      "notice": "native/notices/assets/underscore-1.13.1-LICENSE"
+    },
+    {
+      "scope": "Sphinx JavaScript/CSS",
+      "license": "BSD-2-Clause and retained third-party terms",
+      "notice": "native/notices/assets/sphinx-LICENSE.rst"
+    },
+    {
+      "scope": "Snowball 3.0.1 search stemmer",
+      "license": "BSD-3-Clause",
+      "notice": "native/notices/assets/snowball-3.0.1-COPYING"
+    },
+    {
+      "scope": "sphinx-design and sphinx-inline-tabs",
+      "license": "MIT",
+      "notices": [
+        "native/notices/assets/sphinx-design-LICENSE",
+        "native/notices/assets/sphinx-inline-tabs-LICENSE"
+      ]
+    },
+    {
+      "scope": "Furo bundled theme",
+      "license": "MIT and included third-party terms",
+      "notice": "utilities/manual/build/html/_static/scripts/furo.js.LICENSE.txt"
+    }
+  ],
+  "scopeNotes": [
+    "Explicit SVG metadata and template declarations are preserved verbatim; contradictory declarations remain visible rather than normalized away.",
+    "Crystal/Oxygen/Colibre artwork credits from About remain in force; the licenses page includes per-file metadata and full collected license texts.",
+    "Other inherited project assets retain the TeXstudio license baseline unless their file-specific terms say otherwise; generated symbol sources and original SVG data accompany corresponding source.",
+    "This records declarations and attribution, not a claim that each simple mathematical glyph creates a separate copyright."
+  ]
+}

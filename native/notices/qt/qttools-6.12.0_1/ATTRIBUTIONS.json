@@ -1,0 +1,83 @@
+[
+  {
+    "metadataPath": "src/assistant/qlitehtml/src/3rdparty/qt_attribution.json",
+    "Id": "litehtml-gumbo",
+    "Name": "Gumbo",
+    "QDocModule": "qtassistant",
+    "QtParts": [
+      "tools"
+    ],
+    "QtUsage": "Used in Qt Assistant.",
+    "Path": "litehtml/src/gumbo",
+    "Description": "Gumbo is an implementation of the HTML5 parsing algorithm implemented as a pure C99 library with no outside dependencies.",
+    "Homepage": "https://github.com/google/gumbo-parser",
+    "PURL": [
+      "pkg:github/google/gumbo-parser@v$<VERSION>"
+    ],
+    "Comment": "No relevant CPE found",
+    "Version": "0.10.1",
+    "LicenseId": "Apache-2.0 AND MIT",
+    "License": "Apache License 2.0 AND MIT",
+    "CopyrightFile": "GUMBO-AUTHORS.txt"
+  },
+  {
+    "metadataPath": "src/assistant/qlitehtml/src/3rdparty/qt_attribution.json",
+    "Id": "litehtml",
+    "Name": "litehtml",
+    "QDocModule": "qtassistant",
+    "QtParts": [
+      "tools"
+    ],
+    "QtUsage": "Used in Qt Assistant.",
+    "Path": "litehtml",
+    "Description": "litehtml is the lightweight HTML rendering engine with CSS2/CSS3 support.",
+    "Homepage": "https://github.com/litehtml/litehtml",
+    "PURL": [
+      "pkg:github/litehtml/litehtml@v$<VERSION>"
+    ],
+    "Comment": "No relevant CPE found",
+    "Version": "0.10",
+    "LicenseId": "BSD-3-Clause",
+    "License": "BSD 3-Clause \"New\" or \"Revised\" License",
+    "LicenseFile": "litehtml/LICENSE",
+    "Copyright": "Copyright (c) 2013, Yuri Kobets (tordex)"
+  },
+  {
+    "metadataPath": "src/qdoc/catch/qt_attribution.json",
+    "Id": "catch2",
+    "Name": "Catch2",
+    "QDocModule": "qdoc",
+    "QtUsage": "Used for testing of QDoc",
+    "QtParts": [
+      "tests"
+    ],
+    "Files": "include/catch/catch.hpp",
+    "Description": "Catch2 is a multi-paradigm test framework for C++.",
+    "Homepage": "https://github.com/catchorg/Catch2",
+    "Comment": "no relevant PURL or CPE set, because the dependency is only for tests",
+    "Version": "2.13.10",
+    "License": "Boost Software License 1.0",
+    "LicenseId": "BSL-1.0",
+    "LicenseFile": "LICENSE.CATCH.txt",
+    "Copyright": "Copyright (c) 2022 Two Blue Cubes Ltd. All rights reserved."
+  },
+  {
+    "metadataPath": "src/qdoc/qdoc/src/qdoc/clang/AST/qt_attribution.json",
+    "Id": "llvm_clang_typename_namespace",
+    "Name": "QualTypeNames",
+    "QDocModule": "qdoc",
+    "QtUsage": "Used to have access to a version of clang::TypeName::getFullyQualifiedName that does not expand templates to an instance.",
+    "QtParts": [
+      "tools"
+    ],
+    "Files": "QualTypeNames.h",
+    "Description": "A part of Clang's C++ API that deals with fully qualifying types.",
+    "Homepage": "https://github.com/llvm/llvm-project",
+    "Comment": "no relevant PURL or CPE set, because the dependency is a single file",
+    "Version": "16.0",
+    "License": "Apache License 2.0",
+    "LicenseId": "Apache-2.0 WITH LLVM-exception",
+    "LicenseFile": "LICENSE.LLVM.txt",
+    "Copyright": "Copyright assigned to LLVM project contributors."
+  }
+]

@@ -38,7 +38,8 @@ uses QJSEngine; native TeX helpers do not receive it.
 The workflow submits a temporary ZIP to Apple and requires explicit `Accepted`
 status. It then staples and validates the ticket, checks Gatekeeper and strict
 code signatures, exercises the signed engine, and uploads the final ZIP plus
-SHA-256 checksum. Failed or timed-out notarization does not publish an app.
+SHA-256 checksum and matching complete corresponding-source ZIP. Source
+assembly runs before signing and fails if a required archive or patch is missing. Failed or timed-out notarization does not publish an app.
 Diagnostics are uploaded separately. Both artifacts expire after 14 days.
 Ticket stapling and validation retry temporary ticket-service failures for a
 bounded time, recording verbose output from each attempt in the diagnostics.
@@ -65,3 +66,14 @@ Deployment verifies every non-system Mach-O dependency, removes build-machine
 rpaths, checks internal symlinks, and tests app/engine startup. The temporary
 local seal is ad-hoc; the CI signer replaces it with Developer ID signatures.
 The platform plugins include `offscreen` for CI checks as well as Cocoa for users.
+
+## Corresponding source and notices
+
+`Contents/Resources/licenses/index.html` is linked from About. It includes the
+app/engine source revisions, original license texts and third-party attribution,
+per-payload dictionary provenance, and artwork/template notices. Public binary
+distributions must retain the matching `*-sources.zip` and checksum alongside
+the app ZIP; do not upload the binary alone. The source ZIP includes recursive
+engine sources, exact dependency archives and patches, and build recipes. It
+does not require the engine revision to be separately published as a Git branch.
+See [licensing and source preparation](../docs/distribution-licensing.md).

@@ -1,0 +1,16 @@
+Uyghur dictionary contribution to TeXstudio
+
+Contributor: Abdusalamstd (GitHub user), 2021-08-30.
+Original contribution: https://github.com/texstudio-org/texstudio/pull/1743
+Commit: 5571d0fe6cd51aced4cfe5490a6071e7bf56b231
+Files: ug_CN-China.aff, ug_CN-China.dic (renamed from original repository paths only in this notice).
+
+Licensing basis: TeXstudio repository's GPL version 3 license at the point of
+contribution, with no file-specific alternative declaration. GitHub's repository
+contribution terms describe inbound=outbound licensing:
+https://docs.github.com/en/site-policy/github-terms/github-terms-of-service#6-contributions-under-repository-license
+
+This records the project/contribution licensing basis. It does not claim a
+separately authored copyright header existed in the dictionary, or override any
+third-party rights. No conflicting third-party license was found in this audit.
+The original exact payload bytes accompany the corresponding source.

@@ -9,6 +9,7 @@ import argparse
 from collections import defaultdict
 from functools import lru_cache
 import hashlib
+import html
 import json
 from pathlib import Path
 import re
@@ -16,9 +17,11 @@ import shutil
 import subprocess
 import xml.etree.ElementTree as ET
 import zipfile
+from urllib.parse import quote
 
 from common import ROOT, sha256
 from deploy_macos import macho_files
+from license_evidence import copy_dictionary_notices, copy_library_notices, copy_qt_notices, dictionary_evidence
 
 
 def spdx_records(text):
@@ -71,8 +74,21 @@ def notice_files(prefix):
 def package_metadata(prefix):
     path = prefix / 'sbom.spdx.json'
     if not path.is_file():
-        return {'name': prefix.parent.name, 'version': prefix.name,
-                'license': 'NOASSERTION', 'source': 'NOASSERTION'}
+        result = {'name': prefix.parent.name, 'version': prefix.name,
+                  'license': 'NOASSERTION', 'source': 'NOASSERTION'}
+        recipe = prefix / '.brew' / (prefix.parent.name + '.rb')
+        if recipe.is_file():
+            # Old Homebrew installs predate SPDX receipts. These two simple
+            # top-level fields are evidence, never Ruby code to execute.
+            text = recipe.read_text()
+            source = re.search(r'^  url "([^"]+)"\s*\n  sha256 "([0-9a-f]{64})"', text, re.M)
+            license = re.search(r'^  license "([^"]+)"', text, re.M)
+            if source:
+                result.update(source=source[1], sourceChecksums=[{'algorithm': 'SHA256', 'checksumValue': source[2]}])
+            if license:
+                result['license'] = license[1]
+            result['evidence'] = 'Installed Homebrew formula, retained alongside notices'
+        return result
     data = json.loads(path.read_text())
     packages = [p for p in data.get('packages', [])
                 if p.get('name') == prefix.parent.name and 'Archive' in p.get('SPDXID', '')]
@@ -157,6 +173,13 @@ def inventory(app, output, qt_prefix, cellar, library_paths=(), hash_stage='as i
         spdx = prefix / 'sbom.spdx.json'
         if spdx.is_file():
             shutil.copyfile(spdx, destination / spdx.name)
+        recipe = prefix / '.brew' / (prefix.parent.name + '.rb')
+        if recipe.is_file():
+            shutil.copyfile(recipe, destination / 'homebrew-formula.rb')
+        for file in copy_qt_notices(key, record, destination):
+            record['noticeFiles'].append(str(file.relative_to(output)))
+        for file in copy_library_notices(key, record, destination):
+            record['noticeFiles'].append(str(file.relative_to(output)))
         if not record['noticeFiles']:
             issues.append(f'{key}: installed package has no collected license/attribution text')
         copied_packages[key] = record
@@ -193,8 +216,25 @@ def inventory(app, output, qt_prefix, cellar, library_paths=(), hash_stage='as i
                 if prefix:
                     entry['package'] = collect(prefix)
                 else:
-                    issues.append(f'{relative}: source matched, but no package receipt')
-                    entry['provenanceStatus'] = 'Local build: preserve exact source/configuration separately'
+                    local = next((p for p in origin.parents
+                                  if (p / 'share/texstudio-build-provenance.json').is_file()), None)
+                    if local:
+                        receipt = json.loads((local / 'share/texstudio-build-provenance.json').read_text())
+                        if receipt['files'].get(str(origin.relative_to(local))) != sha256(origin):
+                            raise ValueError(f'Local dependency changed since recorded build: {origin}')
+                        key = receipt['package'] + '-' + receipt['version'] + '-local'
+                        entry.update(package=key, provenanceStatus='Source checksum, configuration and original binary hash verified')
+                        if key not in copied_packages:
+                            destination = notices / key
+                            shutil.copytree(local / 'share/texstudio-build', destination)
+                            shutil.copyfile(local / 'share/texstudio-build-provenance.json', destination / 'build-provenance.json')
+                            copied_packages[key] = {'name': receipt['package'], 'version': receipt['version'],
+                                'license': receipt['license'], 'source': receipt['source']['url'],
+                                'sourceChecksums': [{'algorithm': 'SHA256', 'checksumValue': receipt['source']['sha256']}],
+                                'noticeFiles': [str(p.relative_to(output)) for p in destination.rglob('*') if p.is_file()]}
+                    else:
+                        issues.append(f'{relative}: source matched, but no package receipt')
+                        entry['provenanceStatus'] = 'Local build: preserve exact source/configuration separately'
                 matches = qt_files.get(file.name, []) if (framework or relative.startswith('Contents/PlugIns/')) else []
                 if len(matches) == 1:
                     document, record, upstream_path = matches[0]
@@ -226,6 +266,23 @@ def inventory(app, output, qt_prefix, cellar, library_paths=(), hash_stage='as i
                 shutil.copyfile(file, target)
                 component['noticeFiles'].append(str(target.relative_to(output)))
 
+    assets = json.loads((ROOT / 'native/asset-provenance.json').read_text())
+    for entry in assets['artworkMetadata']:
+        if sha256(ROOT / entry['path']) != entry['sha256']:
+            raise ValueError(f'Artwork changed without refreshing metadata: {entry["path"]}')
+    for template in assets['templates']:
+        for entry in template['files']:
+            if sha256(ROOT / entry['path']) != entry['sha256']:
+                raise ValueError(f'Template changed without refreshing metadata: {entry["path"]}')
+    asset_notices = ROOT / 'native/notices/assets'
+    for entry in json.loads((asset_notices / 'manifest.json').read_text()):
+        if sha256(ROOT / entry['path']) != entry['sha256']:
+            raise ValueError(f'Asset notice changed: {entry["path"]}')
+    shutil.copytree(asset_notices, notices / 'assets')
+    (output / 'assets.json').write_text(json.dumps(assets, indent=2) + '\n')
+
+    provenance = json.loads((ROOT / 'native/dictionary-provenance.json').read_text())
+    dictionary_records = provenance['dictionaries']
     resources = []
     code_paths = {b['path'] for b in binaries}
     for file in sorted(app.rglob('*')):
@@ -240,7 +297,13 @@ def inventory(app, output, qt_prefix, cellar, library_paths=(), hash_stage='as i
             with zipfile.ZipFile(file) as archive:
                 record['members'] = [{'name': n, 'sha256': hashlib.sha256(archive.read(n)).hexdigest()}
                                      for n in sorted(archive.namelist())]
-            record['licenseStatus'] = 'Per-file provenance/license reconciliation required; see dictionary READMEs'
+                evidence = dictionary_evidence(archive, dictionary_records)
+            if evidence:
+                record.update(licenseStatus=evidence['verification'], license=evidence['license'], provenance=evidence)
+                copy_dictionary_notices(evidence, notices / 'source')
+            else:
+                record['licenseStatus'] = 'Unresolved license; public release must omit or obtain permission'
+                issues.append(f'{file.name}: no verified dictionary license notice')
         resources.append(record)
 
     embedded = []
@@ -258,18 +321,14 @@ def inventory(app, output, qt_prefix, cellar, library_paths=(), hash_stage='as i
             {name: record['sha256'] for name, record in static['archives'].items()}):
         issues.append('Static renderer snapshot does not match this build: repeat archive/link/font inventory')
     issues.extend([
-        'Dictionaries/thesauri: reconcile each exact payload with its upstream license and copyright notice; generic URL is insufficient evidence',
-        'Qt: retained SPDX documents include build tools/unshipped targets; only binaries[].qt selects shipped targets. Collect full standard license texts and applicable third-party attributions from matching Qt sources',
-        'Static MuPDF: reconcile archive members and font data with final linker retention; engine MIT and MuPDF AGPL notices alone are incomplete',
-        'Publish complete corresponding source matching editor, engine, dependency binaries, data, patches and build scripts; verify submodule commits are publicly accessible',
-        'Artwork, generated symbols, templates, bundled documentation and translations: preserve upstream attribution and reconcile file-level exceptions before release',
+        'Publish complete corresponding source matching editor, engine, dependency binaries, data, patches and build scripts alongside the binary; source archives include recursive submodule contents',
     ])
     result = {'schema': 1, 'scope': 'macOS app inventory; evidence, not release clearance',
               'hashStage': hash_stage,
               'release': json.loads(release.read_text()) if release.exists() else {},
               'engineManifest': engine_manifest, 'staticRendererSnapshot': static,
               'binaries': binaries, 'packages': copied_packages,
-              'sourceComponents': source_components, 'resources': resources,
+              'sourceComponents': source_components, 'assets': assets, 'resources': resources,
               'embeddedResources': embedded, 'releaseWorkRemaining': issues}
     (output / 'inventory.json').write_text(json.dumps(result, indent=2) + '\n')
     lines = ['# TeXstudio Espresso distribution inventory', '',
@@ -291,7 +350,52 @@ def inventory(app, output, qt_prefix, cellar, library_paths=(), hash_stage='as i
         lines.append(f"| {component['name']} | {component['license']} |")
     lines += ['', '## Work remaining before distribution', ''] + ['- ' + issue for issue in issues]
     (output / 'README.md').write_text('\n'.join(lines) + '\n')
+    write_index(output, result)
     return result
+
+
+def write_index(output, result):
+    """Human-readable, local entry point; no external scripts/fonts/network."""
+    escape = lambda text: html.escape(str(text))
+    link = lambda path, label: '<a href="' + quote(str(path), safe='/') + '">' + escape(label) + '</a>'
+    rows = ['<!doctype html><html lang="en"><meta charset="utf-8">',
+            '<meta name="viewport" content="width=device-width"><title>TeXstudio Espresso — Licenses and Source</title>',
+            '<style>body{font:16px/1.5 system-ui,sans-serif;max-width:70rem;margin:2rem auto;padding:0 1rem}td,th{text-align:left;vertical-align:top;padding:.4rem;border-bottom:1px solid #bbb}table{border-collapse:collapse;width:100%}code{overflow-wrap:anywhere}</style>',
+            '<h1>TeXstudio Espresso — Licenses and Source</h1>',
+            '<p>TeXstudio is distributed under GPLv3. The bundled TeXpresso engine also includes AGPLv3 components. Individual libraries, dictionaries, artwork and documentation keep their own terms below.</p>',
+            '<p>Editor source revision: <code>' + escape(result['release'].get('sourceRevision', 'unrecorded')) + '</code><br>',
+            'Engine source revision: <code>' + escape(result['release'].get('engineRevision', 'unrecorded')) + '</code></p>',
+            '<p>Matching complete source archives must accompany distributed binaries. They include the editor, engine, dependency sources, patches, build recipes and installation instructions. ',
+            '<a href="https://github.com/DominikPeters/texstudio">Fork source repository</a> · ',
+            '<a href="https://github.com/DominikPeters/texpresso">Engine source repository</a>. ',
+            'A repository branch alone may differ from this build; use the matching source archive supplied with the binary.</p>',
+            '<p>' + link('inventory.json', 'Detailed distribution inventory') + ' · ' + link('assets.json', 'Artwork/template attribution and modifications') + '</p>',
+            '<h2>Editor, engine and inherited components</h2><table><tr><th>Component</th><th>License and attribution evidence</th></tr>']
+    for component in result['sourceComponents']:
+        files = '<br>'.join(link(path, Path(path).name) for path in component['noticeFiles'])
+        rows.append('<tr><td>' + escape(component['name']) + '</td><td>' + escape(component['license']) + '<br>' + files + '</td></tr>')
+    rows += ['</table><h2>Shared libraries and Qt modules</h2><p>Full Qt module notices include a superset of third-party components; the inventory identifies targets actually shipped.</p><table><tr><th>Package</th><th>License evidence</th></tr>']
+    for key, package in sorted(result['packages'].items()):
+        files = '<br>'.join(link(path, str(Path(path).relative_to('notices/' + key))) for path in package['noticeFiles'])
+        rows.append('<tr><td>' + escape(key) + '</td><td>' + escape(package['license']) + '<details><summary>License texts and notices</summary>' + files + '</details></td></tr>')
+    rows += ['</table><h2>Dictionaries and thesauri</h2><table><tr><th>Payload</th><th>License and notices</th></tr>']
+    for resource in result['resources']:
+        if resource['category'] != 'dictionary/thesaurus':
+            continue
+        evidence = resource.get('provenance', {})
+        files = '<br>'.join(link('notices/source/' + n['path'], Path(n['path']).name) for n in evidence.get('notices', []))
+        rows.append('<tr><td>' + escape(Path(resource['path']).name) + '</td><td>' + escape(resource.get('license', resource['licenseStatus'])) + '<br>' + files + '</td></tr>')
+    rows += ['</table><h2>Artwork, templates and documentation</h2>',
+             '<p>Crystal Project: LGPL; Oxygen: CC-BY-SA 3.0 / file-specific alternatives; Colibre: CC0. Authors and original per-file declarations are preserved in the attribution record. Alexander Klink is credited for the inherited image. TeXstudio artwork retains its project license.</p>',
+             '<p>Font Awesome Free icons: Fonticons, Inc. and contributors, CC-BY 4.0. Source fonts: OFL 1.1. The cup is adapted from the TeXpresso v3 logo under the repository MIT license: background and lettering removed, cropped/scaled and composited. These changes are described in the attribution record.</p>']
+    rows += ['<p>This software is based in part on the work of the Independent JPEG Group. Portions of this software are copyright © The FreeType Project (www.freetype.org). All rights reserved.</p>']
+    for file in sorted((output / 'notices/assets').iterdir()):
+        if file.is_file():
+            if file.suffix == '.html' and file.with_suffix('.txt').exists():
+                continue  # Prefer offline plain text; retain original HTML as evidence.
+            rows.append('<p>' + link(file.relative_to(output), file.name) + '</p>')
+    rows += ['<h2>Distribution information</h2><p>The user supplies TeX Live. No TeX Live distribution or Apple signing credentials are included. Modified local builds can be ad-hoc signed; see the supplied source/build instructions.</p>', '</html>']
+    (output / 'index.html').write_text('\n'.join(rows) + '\n')
 
 
 if __name__ == '__main__':

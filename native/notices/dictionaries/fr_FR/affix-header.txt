@@ -1,0 +1,45 @@
+SET ISO8859-15
+TRY eiarsntolucéÉmpdgbhfvqjyxèÈzâÂkêÊçÇîÎïÏwûÛôÔàÀëËüÜöÖóÓíÍùÙáÁäÄœæŒÆ
+
+WORDCHARS -
+
+NOSUGGEST Z
+
+MAP 12
+MAP aàâä
+MAP eéèêë
+MAP iîïy
+MAP oôö
+MAP uùûü
+MAP cç
+MAP AÀÂÄ
+MAP EÉÈÊË
+MAP IÎÏY
+MAP OÔÖ
+MAP UÙÛÜ
+MAP CÇ
+
+REP 44
+REP f ph
+REP ph f
+REP c qu
+REP qu c
+REP bb b
+REP b bb
+REP cc c
+REP c cc
+REP ff f
+REP f ff
+REP ll l
+REP l ll
+REP mm m
+REP m mm
+REP nn n
+REP n nn
+REP pp p
+REP p pp
+REP rr r
+REP r rr
+REP ss s
+REP s ss
+REP ss c
