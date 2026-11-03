@@ -1160,5 +1160,34 @@
     ],
     "attributions": 2,
     "scope": "Matching Qt source-module license and attribution superset; shipped targets remain selected by Qt SBOM"
+  },
+  {
+    "package": "qttranslations-6.12.0",
+    "url": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qttranslations-everywhere-src-6.12.0.tar.xz",
+    "sha256": "85929c0c30d6f273f23bd879bb69803ea17b010ab73cab2f8abf95357f6f6bbb",
+    "files": [
+      {
+        "path": "LICENSES/BSD-3-Clause.txt",
+        "sha256": "9f0490f18656c6f2435bd14f603ef0c96434d1825615363dce43abb42ed1dcce"
+      },
+      {
+        "path": "LICENSES/GPL-3.0-only.txt",
+        "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+      },
+      {
+        "path": "LICENSES/LicenseRef-Qt-Commercial.txt",
+        "sha256": "9b1f50aae6267f9d5e0ceb6775ee86450262c25ec7c0573e151fe5d3f18a4700"
+      },
+      {
+        "path": "LICENSES/Qt-GPL-exception-1.0.txt",
+        "sha256": "40678d338ce53cd93f8b22b281a2ecbcaa3ee65ce60b25ffb0c462b0530846b2"
+      },
+      {
+        "path": "ATTRIBUTIONS.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      }
+    ],
+    "attributions": 0,
+    "scope": "Matching Qt source-module license and attribution superset; shipped targets remain selected by Qt SBOM"
   }
 ]

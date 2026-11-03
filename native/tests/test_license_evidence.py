@@ -1,9 +1,11 @@
 import hashlib
+from concurrent.futures import ThreadPoolExecutor
 import io
 import json
 from pathlib import Path
 import sys
 import tempfile
+import threading
 import unittest
 from unittest.mock import patch
 import zipfile
@@ -62,6 +64,28 @@ class LicenseEvidence(unittest.TestCase):
             (root / ('input-' + 'a' * 12)).write_bytes(b'wrong source')
             with self.assertRaisesRegex(ValueError, 'Cached source checksum mismatch'):
                 source_release.fetch_record(record, root, False)
+
+    def test_source_downloads_with_dotted_versions_have_distinct_temporary_files(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            barrier = threading.Barrier(2)
+            observed = set()
+            data = b'complete source input'
+            class Response(io.BytesIO):
+                def read(self, count):
+                    if self.tell() == 0:
+                        barrier.wait(timeout=3)
+                        observed.update(p.name for p in root.glob('*.partial'))
+                    return super().read(count)
+            records = [{'name': 'qtbase-6.12.0-patch-' + str(i),
+                        'url': 'https://example.org/patch' + str(i),
+                        'sha256': hashlib.sha256(data).hexdigest()} for i in range(2)]
+            with patch.object(source_release.urllib.request, 'urlopen', side_effect=lambda *a, **kw: Response(data)):
+                with ThreadPoolExecutor(max_workers=2) as pool:
+                    files = list(pool.map(lambda r: source_release.fetch_record(r, root, True), records))
+            self.assertEqual(len(observed), 2)
+            self.assertTrue(all(file.read_bytes() == data for file in files))
+            self.assertEqual(list(root.glob('*.partial')), [])
 
 
 if __name__ == '__main__':

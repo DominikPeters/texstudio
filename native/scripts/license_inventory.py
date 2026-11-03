@@ -283,6 +283,8 @@ def inventory(app, output, qt_prefix, cellar, library_paths=(), hash_stage='as i
 
     provenance = json.loads((ROOT / 'native/dictionary-provenance.json').read_text())
     dictionary_records = provenance['dictionaries']
+    qt_translation_path = app / 'Contents/Resources/qt-translation-provenance.json'
+    qt_translations = {r['path']: r for r in json.loads(qt_translation_path.read_text())} if qt_translation_path.exists() else {}
     resources = []
     code_paths = {b['path'] for b in binaries}
     for file in sorted(app.rglob('*')):
@@ -293,6 +295,11 @@ def inventory(app, output, qt_prefix, cellar, library_paths=(), hash_stage='as i
             continue
         record = {'path': relative, 'bytes': file.stat().st_size,
                   'sha256': sha256(file), 'category': classify_resource(file)}
+        if relative in qt_translations:
+            origin = qt_translations[relative]
+            if origin['sha256'] != record['sha256'] or sha256(Path(origin['origin'])) != record['sha256']:
+                raise ValueError(f'Qt translation changed since deployment: {relative}')
+            record.update(package=collect(Path(origin['packagePrefix'])), provenance=origin)
         if record['category'] == 'dictionary/thesaurus':
             with zipfile.ZipFile(file) as archive:
                 record['members'] = [{'name': n, 'sha256': hashlib.sha256(archive.read(n)).hexdigest()}

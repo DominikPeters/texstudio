@@ -21,6 +21,32 @@ import zipfile
 from common import ROOT, sha256
 
 
+def export_editor_source(directory, revision, output):
+    """Exclude unused legacy binary Qt translations; current TS sources are supplied.
+
+    Do not remove these historical files from the user's checkout. They are no
+    longer app build inputs, and are not corresponding source for the new bundle.
+    """
+    excluded = []
+    process = subprocess.Popen(['git', 'archive', '--format=tar', revision], cwd=directory, stdout=subprocess.PIPE)
+    try:
+        with tarfile.open(fileobj=process.stdout, mode='r|') as source, tarfile.open(output, mode='w|gz', compresslevel=1) as target:
+            for member in source:
+                path = Path(member.name)
+                if len(path.parts) == 2 and path.parts[0] == 'translation' and path.name.startswith('qt_') and path.suffix == '.qm':
+                    excluded.append(member.name)
+                    continue
+                target.addfile(member, source.extractfile(member) if member.isfile() else None)
+        if process.wait() != 0:
+            raise ValueError('Editor Git export failed')
+    finally:
+        if process.poll() is None:
+            process.terminate()
+            process.wait()
+        process.stdout.close()
+    return excluded
+
+
 def archive_record(name, url, checksums, **extra):
     digest = next((c['checksumValue'] for c in checksums if c['algorithm'] == 'SHA256'), None)
     if not digest or not url.startswith('https://'):
@@ -28,7 +54,7 @@ def archive_record(name, url, checksums, **extra):
     return {'name': name, 'url': url, 'sha256': digest, **extra}
 
 
-def plan(inventory, destination):
+def plan(inventory, destination, evidence_directory=None, build_directory=None):
     if destination.exists():
         raise ValueError('Source plan output already exists')
     destination.mkdir(parents=True)
@@ -103,6 +129,11 @@ def plan(inventory, destination):
               'unresolved': unresolved, 'recipes': sorted(p.name for p in recipes.iterdir()),
               'scope': 'Source/build inputs for inspected binary distribution; release licensing review remains separate'}
     (destination / 'manifest.json').write_text(json.dumps(result, indent=2) + '\n')
+    (destination / 'binary-inventory.json').write_text(json.dumps(inventory, indent=2) + '\n')
+    if evidence_directory:
+        shutil.copytree(evidence_directory, destination / 'distribution-evidence')
+    if build_directory:
+        shutil.copyfile(build_directory / 'CMakeCache.txt', destination / 'editor-CMakeCache.txt')
     return result
 
 
@@ -118,16 +149,19 @@ def fetch_record(record, cache, allow_fetch):
         if not allow_fetch:
             raise ValueError(f'Missing cached source: {record["name"]}; use --fetch')
         temporary = file.with_name(file.name + '.partial')
-        deadline = time.monotonic() + 900
-        with urllib.request.urlopen(record['url'], timeout=60) as response, temporary.open('wb') as stream:
-            while chunk := response.read(1024 * 1024):
-                if time.monotonic() > deadline:
-                    raise TimeoutError(f'Source download exceeded 15 minutes: {record["name"]}')
-                stream.write(chunk)
-        if record.get('sha256') and sha256(temporary) != record['sha256']:
-            temporary.unlink()
-            raise ValueError(f'Source checksum mismatch: {record["name"]}')
-        temporary.rename(file)
+        try:
+            deadline = time.monotonic() + 900
+            with urllib.request.urlopen(record['url'], timeout=60) as response, temporary.open('wb') as stream:
+                while chunk := response.read(1024 * 1024):
+                    if time.monotonic() > deadline:
+                        raise TimeoutError(f'Source download exceeded 15 minutes: {record["name"]}')
+                    stream.write(chunk)
+            if record.get('sha256') and sha256(temporary) != record['sha256']:
+                raise ValueError(f'Source checksum mismatch: {record["name"]}')
+            temporary.rename(file)
+        except BaseException:
+            temporary.unlink(missing_ok=True)
+            raise
     if record.get('sha256') and sha256(file) != record['sha256']:
         raise ValueError(f'Cached source checksum mismatch: {record["name"]}')
     if record.get('revision'):
@@ -161,8 +195,11 @@ def assemble(plan_dir, cache, output, allow_fetch=False):
                 for name, directory, revision in [('texstudio', ROOT, manifest['editorRevision']),
                                                   ('texpresso', ROOT / 'native/texpresso', manifest['engineRevision'])]:
                     file = temp / (name + '.tar.gz')
-                    subprocess.run(['git', 'archive', '--format=tar.gz', '--output=' + str(file), revision],
-                                   cwd=directory, check=True)
+                    if name == 'texstudio':
+                        manifest['excludedUnusedLegacyQtBinaries'] = export_editor_source(directory, revision, file)
+                    else:
+                        subprocess.run(['git', 'archive', '--format=tar.gz', '--output=' + str(file), revision],
+                                       cwd=directory, check=True)
                     archive.write(file, 'project/' + file.name)
                 inputs = []
                 for index, (record, file) in enumerate(entries):
@@ -172,6 +209,13 @@ def assemble(plan_dir, cache, output, allow_fetch=False):
                 manifest['inputs'] = inputs
                 for file in (plan_dir / 'recipes').iterdir():
                     archive.write(file, 'recipes/' + file.name)
+                for name in ('binary-inventory.json', 'editor-CMakeCache.txt'):
+                    if (plan_dir / name).is_file():
+                        archive.write(plan_dir / name, name)
+                if (plan_dir / 'distribution-evidence').is_dir():
+                    for file in (plan_dir / 'distribution-evidence').rglob('*'):
+                        if file.is_file():
+                            archive.write(file, str(file.relative_to(plan_dir)))
                 archive.writestr('SOURCE-MANIFEST.json', json.dumps(manifest, indent=2) + '\n')
                 archive.writestr('README.md', SOURCE_README)
         with zipfile.ZipFile(temporary) as archive:
@@ -189,6 +233,9 @@ SOURCE-MANIFEST.json identifies the editor, recursive engine snapshot, dependenc
 sources, patches, checksums and original build recipes for the inspected app.
 project/ contains Git exports at the app's recorded revisions; the separate
 texpresso export belongs at texstudio/native/texpresso after extraction.
+Unused historical binary Qt4 translations are excluded from the editor export;
+their paths are recorded. The app uses current QtBase translations instead, with
+editable TS source in the supplied Qt translations source archive.
 upstream/ contains original source archives and patches; formats are preserved.
 The Git snapshots' extractTo fields identify MuPDF, LCMS2's submodule and zlib-ng.
 Verify each archive member against its recorded SHA256 before extraction.
@@ -220,11 +267,13 @@ def main():
     parser.add_argument('--cache', type=Path)
     parser.add_argument('--output', type=Path)
     parser.add_argument('--fetch', action='store_true')
+    parser.add_argument('--build-dir', type=Path, help='Include the exact editor CMake cache')
     args = parser.parse_args()
     if args.plan:
         if args.inventory is None:
             parser.error('--plan requires --inventory')
-        result = plan(json.loads(args.inventory.read_text()), args.plan)
+        result = plan(json.loads(args.inventory.read_text()), args.plan,
+                      args.inventory.parent, args.build_dir)
         print(json.dumps({'archives': len(result['archives']), 'gitSources': len(result['gitSources']),
                           'unresolved': result['unresolved']}))
     else:

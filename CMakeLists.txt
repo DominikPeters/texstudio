@@ -109,7 +109,7 @@ if(APPLE)
        templates/*
     )
     file(GLOB_RECURSE translation
-       translation/*.qm
+       translation/texstudio_*.qm
     )
 
     set(OSX_FILES

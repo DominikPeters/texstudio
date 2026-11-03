@@ -139,6 +139,7 @@ jobs:
         run: |
           python3 native/scripts/source_release.py \
             --plan .native-sources/source-release-plan \
+            --build-dir build \
             --inventory "$RUNNER_TEMP/deploy/texstudio.app/Contents/Resources/licenses/inventory.json"
           python3 native/scripts/source_release.py \
             --assemble .native-sources/source-release-plan \

@@ -130,6 +130,21 @@ class MacOSApp(unittest.TestCase):
             self.assertNotIn('QtPdf', deploy_macos.remove_optional_qt_modules(self.app))
         self.assertTrue(image.exists())
 
+    def test_current_qtbase_translations_replace_legacy_catalogs(self):
+        prefix = Path(self.temp.name) / 'qttranslations/6.12.0'
+        directory = prefix / 'share/qt/translations'
+        directory.mkdir(parents=True)
+        (prefix / 'INSTALL_RECEIPT.json').write_text('{}')
+        for language in ('cs', 'de', 'es', 'fr', 'hu', 'ja', 'pl', 'ru', 'zh_CN'):
+            (directory / ('qtbase_' + language + '.qm')).write_text('current QtBase ' + language)
+        deploy_macos.bundle_qt_translations(self.app, prefix)
+        resources = self.app / 'Contents/Resources'
+        self.assertEqual((resources / 'qt_de.qm').read_text(), 'current QtBase de')
+        self.assertEqual((resources / 'qt_zh.qm').read_text(), 'current QtBase zh_CN')
+        records = json.loads((resources / 'qt-translation-provenance.json').read_text())
+        self.assertEqual(len(records), 9)
+        self.assertTrue(all(r['sha256'] == sha256(self.app / r['path']) for r in records))
+
     def test_stapling_retries_ticket_service_and_preserves_stdout(self):
         reports = Path(self.temp.name)
         responses = [subprocess.CompletedProcess([], 65, 'Record not found', ''),

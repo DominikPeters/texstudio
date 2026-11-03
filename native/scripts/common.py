@@ -1,4 +1,4 @@
-"""Shared native build helpers. No command in this directory downloads sources."""
+"""Shared native build helpers; source preparation downloads require --fetch."""
 import hashlib
 import json
 import subprocess

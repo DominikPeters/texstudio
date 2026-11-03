@@ -132,6 +132,34 @@ def collect_license_inventory(app, macdeployqt, library_paths, refresh=False):
                      hash_stage='before final code signing; signatures and engine manifest hashes will change')
 
 
+def bundle_qt_translations(app, qt_prefix):
+    """Use current QtBase messages, not opaque legacy Qt4 translation binaries.
+
+    TeXstudio loads qt_<language>.qm. Qt6's qt_<language>.qm is a tiny dependency
+    loader; copy the actual QtBase translation under the application's expected
+    name so it remains self-contained without unshipped module translations.
+    """
+    resources = app / 'Contents/Resources'
+    resources.mkdir(parents=True, exist_ok=True)
+    directory = qt_prefix / 'share/qt/translations'
+    records = []
+    for language in ('cs', 'de', 'es', 'fr', 'hu', 'ja', 'pl', 'ru', 'zh'):
+        locale = 'zh_CN' if language == 'zh' else language
+        source = directory / ('qtbase_' + locale + '.qm')
+        if not source.is_file():
+            raise ValueError(f'Missing QtBase translation: {source}')
+        target = resources / ('qt_' + language + '.qm')
+        shutil.copyfile(source, target)
+        prefix = next((p for p in source.resolve().parents
+                       if (p / 'INSTALL_RECEIPT.json').is_file()), None)
+        if prefix is None:
+            raise ValueError(f'Qt translation package provenance unavailable: {source}')
+        records.append({'path': str(target.relative_to(app)), 'origin': str(source.resolve()),
+                        'packagePrefix': str(prefix), 'sha256': sha256(target),
+                        'upstreamFilename': source.name})
+    (resources / 'qt-translation-provenance.json').write_text(json.dumps(records, indent=2) + '\n')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--app', type=Path, required=True)
@@ -171,6 +199,7 @@ def main():
          '-executable=' + str(offscreen),
          *['-libpath=' + str(path.resolve()) for path in args.library_path]])
     remove_optional_qt_modules(app)
+    bundle_qt_translations(app, Path(args.macdeployqt).parent.parent)
     # A release may not fall back to the runner's Homebrew/temporary prefixes.
     for file in macho_files(app):
         lines = run(['otool', '-l', file], capture=True).splitlines()
