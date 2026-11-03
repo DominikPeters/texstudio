@@ -1,0 +1,100 @@
+{
+  "date": "2026-11-03",
+  "platform": "macOS 15.7.9 arm64, Qt 6.12.0",
+  "codeRevision": "b2bccd8ab8cdc0b21b6a53035cb6ed739a044283",
+  "engineRevision": "90b211349960b406267b44642c7be49b584d1f4c",
+  "repaint": {
+    "before": {
+      "afterBytes": 139446400,
+      "beforeBytes": 71207040,
+      "growthBytes": 68239360,
+      "pixelSha256": "6fd6dc74425d25c89e7a3e84dddddc7bb49ecc131a9c1597bddb4660f6152175",
+      "repaints": 32
+    },
+    "after": {
+      "afterBytes": 57002048,
+      "beforeBytes": 56756224,
+      "growthBytes": 245824,
+      "pixelSha256": "6fd6dc74425d25c89e7a3e84dddddc7bb49ecc131a9c1597bddb4660f6152175",
+      "repaints": 32
+    },
+    "packaged": {
+      "afterBytes": 60672064,
+      "beforeBytes": 59820096,
+      "growthBytes": 851968,
+      "pixelSha256": "6fd6dc74425d25c89e7a3e84dddddc7bb49ecc131a9c1597bddb4660f6152175",
+      "repaints": 32
+    },
+    "cacheRetainedBytes": 14818496,
+    "cacheBudgetBytes": 16777216
+  },
+  "soaks": [
+    {
+      "passed": true,
+      "requestedSeconds": 600,
+      "targetPages": 100,
+      "platform": "offscreen",
+      "externalUpdates": true,
+      "inputs": 4864,
+      "elapsedSeconds": 625.0978164999979,
+      "peakEditorFootprintKiB": 156898,
+      "finalEditorFootprintKiB": 150066,
+      "peakOwnedTasks": 42,
+      "leftoverProcesses": [],
+      "appSha256": "b0c6b3e95c94a1fa18466b37aaa3c34af0fcc02a2e74378cd8cc599ce789ed03",
+      "mode": "external-long",
+      "cycles": 38,
+      "oracleProbeCount": 5,
+      "allOracleProbesMatched": true,
+      "uiWorkloadMs": 612544.704208
+    },
+    {
+      "passed": true,
+      "requestedSeconds": 180,
+      "targetPages": 30,
+      "platform": "offscreen",
+      "externalUpdates": false,
+      "inputs": 1664,
+      "elapsedSeconds": 203.8011921250727,
+      "peakEditorFootprintKiB": 127954,
+      "finalEditorFootprintKiB": 104882,
+      "peakOwnedTasks": 40,
+      "leftoverProcesses": [],
+      "appSha256": "f6dacf51f111f02931319d479b776a4b78d7967a9f03653833d5ace72e5e0bfa",
+      "mode": "retained-session",
+      "cycles": 13,
+      "oracleProbeCount": 5,
+      "allOracleProbesMatched": true,
+      "uiWorkloadMs": 192081.763167
+    }
+  ],
+  "checks": {
+    "nativeToolingTests": 36,
+    "nativeParentWatcherScenarios": [
+      "frontend crash",
+      "frontend stdin EOF",
+      "launcher crash"
+    ],
+    "nativeLaunchLimitCases": 12,
+    "qtSuites": [
+      "rendering",
+      "rerun",
+      "scrolling",
+      "prewarm",
+      "source-follow",
+      "startup",
+      "pagination"
+    ],
+    "packagedAppVerification": true
+  },
+  "cleanup": {
+    "abandonedWorkersRemoved": 176,
+    "abandonedGroupsRemoved": 10
+  },
+  "limitations": [
+    "Finite generated workloads do not prove hours-long memory bounds or identify every byte of the earlier 45 GB peak.",
+    "External-build mode simulates auxiliary refresh and session reset; it does not execute Biber.",
+    "Tests ran offscreen on macOS; physical compositor and Linux execution were not exercised.",
+    "macOS physical footprint includes compression/swap; RSS and summed task charges can double-count shared/COW memory."
+  ]
+}

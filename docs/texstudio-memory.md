@@ -47,3 +47,32 @@ memory after warming, repeated-paint pixel equality and the actual total bytes
 of cached long-line rasters. It uses macOS physical footprint (including memory
 that RSS can miss after compression/swapping), or Linux RSS for this short,
 isolated regression. Other platforms skip the memory test.
+
+## Compiler lifetime and sustained checks
+
+The Qt client now opts into the engine's `parentWatch` capability. Before SDL
+or document state is initialized, a small supervisor watches the launching
+editor and the actual frontend, in the isolated group created by the client.
+If either exits, the group is released, including forked compiler checkpoints.
+Normal source updates, rendering, prewarming and inactive-project retention
+keep their existing behavior. The native lifecycle regression covers frontend
+crash, normal stdin closure and launcher crash, and refuses a non-isolated group.
+
+The updated soak runner records macOS physical footprint, or Linux PSS plus
+SwapPss, in addition to RSS. Its optional memory budget stops runaway disposable
+tests. See [the soak instructions](texpresso-ui-soak.md) for external-file and
+full-build reset coverage.
+
+The final offscreen macOS runs passed with no surviving test processes:
+
+| Workload | Edits | Editor peak | Editor at exit |
+| --- | ---: | ---: | ---: |
+| 100 pages, 10 minutes, 38 external-file/build-reset cycles | 4,864 | 153.2 MiB | 146.5 MiB |
+| 30 pages, 3 minutes, retained compiler between recovery cycles | 1,664 | 125.0 MiB | 102.4 MiB |
+
+Five final probes per run matched clean XeLaTeX/PDF text and standalone SyncTeX.
+The packaged app also passed the repaint/cache regression (0.81 MiB growth,
+same pixels), signature/dependency verification and preview suites. The tests
+cover finite generated workloads; they do not establish hours-long bounds or
+execute Biber itself. [Compact measurements](texstudio-memory-validation-2026-11-03.json)
+record the source/engine revisions and test limits.
