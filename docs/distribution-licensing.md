@@ -5,6 +5,20 @@ of what we distribute and the available licensing evidence, not a declaration
 that a development build is ready for public distribution. A Linux release must
 be inventoried separately against its actual binaries and system/bundled split.
 
+The [2026-11-04 inspected build snapshot](distribution-inventory-macos-2026-11-04.json)
+records all 98 code images, 33 installed dependency packages and the hashes of all
+96 dictionary/thesaurus payloads, with verification results and remaining review
+items. All dependency code origins matched by UUID, including three local Poppler
+libraries whose exact source/build provenance still needs archiving. The full
+post-sign report is retained in `.native-sources/license-inventory/`.
+The packaged app passed signature/dependency and preview protocol checks, all 40
+native tooling tests passed, and a disposable offscreen editor smoke test made
+128 edits across a 30-page fixture with five independent PDF/SyncTeX probes and
+no leftover test processes. This is packaging/startup evidence, not a new
+long-session performance measurement. The verified candidate is staged at
+`.native-sources/app-updates/current/TeXstudio Espresso.app`; installation remains
+separate.
+
 ## Reproduce and inspect
 
 `native/scripts/deploy_macos.py` now puts the inventory and collected notices in
@@ -98,6 +112,8 @@ retains **14 URW CFF font payloads** (OFL1.1) and **DroidSansFallbackFull.ttf**
 (Apache2). The larger source tree includes many fonts that are absent from this
 frontend; do not describe all of them as shipped. The hyphenation archive is in
 libmupdf.a, but its resource symbol was not present in the unstripped frontend.
+The 15 retained font symbols were also mapped to Mach-O file offsets and their
+actual payload bytes matched the source font files exactly.
 
 Unmodified URW/Droid/LCMS2 license files and the source CMaps' individual Adobe
 copyright/license blocks are retained in `native/notices/mupdf/` and collected

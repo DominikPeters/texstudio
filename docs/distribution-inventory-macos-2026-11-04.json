@@ -1,0 +1,3487 @@
+{
+  "date": "2026-11-04",
+  "sourceRevision": "574e89c6fc14768a6a52a7db507c123b6d407a67",
+  "engineRevision": "90b211349960b406267b44642c7be49b584d1f4c",
+  "scope": "arm64 macOS local test app; not a release clearance or a Linux/Intel binary inventory",
+  "binariesBefore": 102,
+  "binariesAfter": 98,
+  "installedDependencyPackages": 33,
+  "removedCodeImages": [
+    "Contents/Frameworks/QtQuick.framework/Versions/A/QtQuick",
+    "Contents/Frameworks/QtVirtualKeyboard.framework/Versions/A/QtVirtualKeyboard",
+    "Contents/Frameworks/QtVirtualKeyboardQml.framework/Versions/A/QtVirtualKeyboardQml",
+    "Contents/PlugIns/platforminputcontexts/libqtvirtualkeyboardplugin.dylib"
+  ],
+  "bytesBefore": 275161647,
+  "bytesAfter": 275027198,
+  "binaries": [
+    {
+      "path": "Contents/Frameworks/QtConcurrent.framework/Versions/A/QtConcurrent",
+      "sha256": "7890cbd4c1e0b9a486d5f644b7c5d704a7d36c1105f9953e48ac25c4d3cf2cbb",
+      "uuid": [
+        "8312A04B-073E-31CA-B7A4-F93C16416B3E"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/lib/QtConcurrent.framework/Versions/A/QtConcurrent",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "Concurrent",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./lib/QtConcurrent.framework/Versions/A/QtConcurrent",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtCore.framework/Versions/A/QtCore",
+      "sha256": "064e4b1e725d816b271704dea5d559c49c5bee9216b300ea93932507436b1d18",
+      "uuid": [
+        "FABB2C86-E141-30AF-9661-0C7766D3D011"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/lib/QtCore.framework/Versions/A/QtCore",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "Core",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./lib/QtCore.framework/Versions/A/QtCore",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtCore5Compat.framework/Versions/A/QtCore5Compat",
+      "sha256": "94229a32d08220eb9e42de69c3b8f32fbb22de0f414e918d6d6eac456c501d1e",
+      "uuid": [
+        "B7BE0C49-9423-3705-8AF2-71223B79D924"
+      ],
+      "origin": "/opt/homebrew/Cellar/qt5compat/6.12.0_1/lib/QtCore5Compat.framework/Versions/A/QtCore5Compat",
+      "package": "qt5compat-6.12.0_1",
+      "qt": {
+        "module": "Core5Compat",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qt5compat.git",
+        "installedPath": "./lib/QtCore5Compat.framework/Versions/A/QtCore5Compat",
+        "evidence": "qt-sbom/qt5compat-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtDBus.framework/Versions/A/QtDBus",
+      "sha256": "358b607fb38cc361db808e950dcc2177d1f64cda77a878e54ab9a0651b40e2d4",
+      "uuid": [
+        "2C82D89F-AEA2-31B9-AC34-85FD19A5D796"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/lib/QtDBus.framework/Versions/A/QtDBus",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "DBus",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./lib/QtDBus.framework/Versions/A/QtDBus",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtGui.framework/Versions/A/QtGui",
+      "sha256": "50ab32ad6a5341479079b639f208f8d6368adadfd6cc3929770cddae6c1f40dd",
+      "uuid": [
+        "8FDA5C0E-BBA5-3DAB-BAF5-EB8595A00AEB"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/lib/QtGui.framework/Versions/A/QtGui",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "Gui",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./lib/QtGui.framework/Versions/A/QtGui",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtNetwork.framework/Versions/A/QtNetwork",
+      "sha256": "43e78cf78647242ef6b8f8d0c862f7b4224759748d1ca9a44d8e87cdf86faa9a",
+      "uuid": [
+        "94356D76-FC6C-3515-A524-A050F52E74CF"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/lib/QtNetwork.framework/Versions/A/QtNetwork",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "Network",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./lib/QtNetwork.framework/Versions/A/QtNetwork",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtOpenGL.framework/Versions/A/QtOpenGL",
+      "sha256": "909c72f56f7b7b4d7281f33efbe3f07c8715362d7d6e59f64ad271af5cae885a",
+      "uuid": [
+        "58116AEF-9A57-3D6B-9874-F963C0154155"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/lib/QtOpenGL.framework/Versions/A/QtOpenGL",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "OpenGL",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./lib/QtOpenGL.framework/Versions/A/QtOpenGL",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtOpenGLWidgets.framework/Versions/A/QtOpenGLWidgets",
+      "sha256": "98588ab934a387a17bc959cef1b2fa9abc3de6d07894f603aac552dae411dfd2",
+      "uuid": [
+        "C457475E-AEDF-30CF-B001-68DD3973A971"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/lib/QtOpenGLWidgets.framework/Versions/A/QtOpenGLWidgets",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "OpenGLWidgets",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./lib/QtOpenGLWidgets.framework/Versions/A/QtOpenGLWidgets",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtPdf.framework/Versions/A/QtPdf",
+      "sha256": "2c66144764e631c9f7ebe4c61bbad55387759750a1d79525c0dc49157ce8a2f9",
+      "uuid": [
+        "564069AE-1EAE-3B4E-98FB-E9D7242DF837"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtwebengine/6.11.2/lib/QtPdf.framework/Versions/A/QtPdf",
+      "package": "qtwebengine-6.11.2",
+      "qt": {
+        "module": "Pdf",
+        "version": "6.11.2",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtpdf.git",
+        "installedPath": "./lib/QtPdf.framework/Versions/A/QtPdf",
+        "evidence": "qt-sbom/qtpdf-6.11.2.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtPrintSupport.framework/Versions/A/QtPrintSupport",
+      "sha256": "0f6bec163644d006c83a8e7488c1bb0f4238296f0a1429d285afb18aeb0ea5b9",
+      "uuid": [
+        "B192BBBC-7E60-3C4A-B746-C27E9E11B8DF"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/lib/QtPrintSupport.framework/Versions/A/QtPrintSupport",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "PrintSupport",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./lib/QtPrintSupport.framework/Versions/A/QtPrintSupport",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtQml.framework/Versions/A/QtQml",
+      "sha256": "1f1d8127f9c45d84e8c7d97d783138bb6b17b86691b602e9805bcf5a89ece7f5",
+      "uuid": [
+        "75B10D13-7426-3012-AB4B-BFEF2D217CC6"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtdeclarative/6.12.0_1/lib/QtQml.framework/Versions/A/QtQml",
+      "package": "qtdeclarative-6.12.0_1",
+      "qt": {
+        "module": "Qml",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtdeclarative.git",
+        "installedPath": "./lib/QtQml.framework/Versions/A/QtQml",
+        "evidence": "qt-sbom/qtdeclarative-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtQmlMeta.framework/Versions/A/QtQmlMeta",
+      "sha256": "54577c704b0f71f9f33af7f6d3ff9f2d42144207a07c72079af9757ee13d69b6",
+      "uuid": [
+        "6338865D-6A72-368E-92B9-627351D44F90"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtdeclarative/6.12.0_1/lib/QtQmlMeta.framework/Versions/A/QtQmlMeta",
+      "package": "qtdeclarative-6.12.0_1",
+      "qt": {
+        "module": "QmlMeta",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtdeclarative.git",
+        "installedPath": "./lib/QtQmlMeta.framework/Versions/A/QtQmlMeta",
+        "evidence": "qt-sbom/qtdeclarative-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtQmlModels.framework/Versions/A/QtQmlModels",
+      "sha256": "f6a011100fc74d5f5902f522fed427f6a7c1c02106387ba798367aa3a1a2cff0",
+      "uuid": [
+        "5D3C4633-5781-3EA7-A5EE-1426B0BD99B0"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtdeclarative/6.12.0_1/lib/QtQmlModels.framework/Versions/A/QtQmlModels",
+      "package": "qtdeclarative-6.12.0_1",
+      "qt": {
+        "module": "QmlModels",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtdeclarative.git",
+        "installedPath": "./lib/QtQmlModels.framework/Versions/A/QtQmlModels",
+        "evidence": "qt-sbom/qtdeclarative-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtQmlWorkerScript.framework/Versions/A/QtQmlWorkerScript",
+      "sha256": "b9d8872d0fc997732e21c75bb83c59f395b9e97051ae4a0ca0617c52ac2fd2ab",
+      "uuid": [
+        "A2A9D288-8A41-3521-B48D-C8062C01194B"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtdeclarative/6.12.0_1/lib/QtQmlWorkerScript.framework/Versions/A/QtQmlWorkerScript",
+      "package": "qtdeclarative-6.12.0_1",
+      "qt": {
+        "module": "QmlWorkerScript",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtdeclarative.git",
+        "installedPath": "./lib/QtQmlWorkerScript.framework/Versions/A/QtQmlWorkerScript",
+        "evidence": "qt-sbom/qtdeclarative-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtSvg.framework/Versions/A/QtSvg",
+      "sha256": "41e71a8ff073b09616657c65003fb3934d8142082fb7cac40463d60d96286146",
+      "uuid": [
+        "1195EA7B-5388-3FA1-9D3C-7191313441E7"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtsvg/6.12.0_1/lib/QtSvg.framework/Versions/A/QtSvg",
+      "package": "qtsvg-6.12.0_1",
+      "qt": {
+        "module": "Svg",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtsvg.git",
+        "installedPath": "./lib/QtSvg.framework/Versions/A/QtSvg",
+        "evidence": "qt-sbom/qtsvg-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtTest.framework/Versions/A/QtTest",
+      "sha256": "cd3aec3cf469213ddc27e7cf4ccddbb72febdb5517f16e008c3cd753d5b05210",
+      "uuid": [
+        "33E7DB33-1E7A-33B5-8788-2FF13994CAC4"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/lib/QtTest.framework/Versions/A/QtTest",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "Test",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./lib/QtTest.framework/Versions/A/QtTest",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtUiTools.framework/Versions/A/QtUiTools",
+      "sha256": "d8e3f30779c41b06720e1e21bc1c4d9cdc82a19d74452ca89c0edad493321c6c",
+      "uuid": [
+        "FB044C59-7656-3FE4-A4CA-082E6917F183"
+      ],
+      "origin": "/opt/homebrew/Cellar/qttools/6.12.0_1/lib/QtUiTools.framework/Versions/A/QtUiTools",
+      "package": "qttools-6.12.0_1",
+      "qt": {
+        "module": "UiTools",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qttools.git",
+        "installedPath": "./lib/QtUiTools.framework/Versions/A/QtUiTools",
+        "evidence": "qt-sbom/qttools-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtWidgets.framework/Versions/A/QtWidgets",
+      "sha256": "7f595505eaa465ee081373dcd36b7c9883f78203f6665fb28a7f47f03ba37ef3",
+      "uuid": [
+        "24D93A9C-F956-336E-955C-2F2BD174F776"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/lib/QtWidgets.framework/Versions/A/QtWidgets",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "Widgets",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./lib/QtWidgets.framework/Versions/A/QtWidgets",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/QtXml.framework/Versions/A/QtXml",
+      "sha256": "8e7e2bf53232d1805bcc9e7ff41601ff279e93a41f4f1d81ddff5682dea4bbed",
+      "uuid": [
+        "29E464C7-F03B-332C-8DE9-FE5C115092D3"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/lib/QtXml.framework/Versions/A/QtXml",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "Xml",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./lib/QtXml.framework/Versions/A/QtXml",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Helpers/texpresso/bin/texpresso",
+      "sha256": "1bbbfae92875c0ec42dc5d8db3dedde7c5884b47753079b1a1bc881671bd4fe8",
+      "uuid": [
+        "2DC12B93-FDF5-33D4-BD9A-C27913F19EF8"
+      ],
+      "component": "TeXpresso frontend/worker (see engineManifest and sourceComponents)"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/bin/texpresso-xetex",
+      "sha256": "d281e64d77bf4c7f7556d6fdf66b7dc07938efdcd71765565b81a18061d5581f",
+      "uuid": [
+        "25FFC3AE-14EE-3AB9-8689-1727A1DCCBF9"
+      ],
+      "component": "TeXpresso frontend/worker (see engineManifest and sourceComponents)"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libSDL2-2.0.0.dylib",
+      "sha256": "51de0582d5a619ca132f7d5376d62ea255e5cd9f4796b2b4dbdc628141805132",
+      "uuid": [
+        "5F0C55C7-D6F5-3C41-902D-319C6CC009D2"
+      ],
+      "origin": "/opt/homebrew/Cellar/sdl2-compat/2.32.74/lib/libSDL2-2.0.0.dylib",
+      "package": "sdl2-compat-2.32.74"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libSDL3.dylib",
+      "sha256": "04d3462a84ebafe658e060846fc1a17b3bffd4130b33ee7f2d56bd7ca0107170",
+      "uuid": [
+        "DA9ADCBB-C273-36AD-BE97-A9A986C571EB"
+      ],
+      "origin": "/opt/homebrew/Cellar/sdl3/3.4.18/lib/libSDL3.0.dylib",
+      "package": "sdl3-3.4.18"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libbrotlicommon.1.2.0.dylib",
+      "sha256": "6104ff92e7689a6e215253478c94eaff38736f7fb08c158dafed412268bdc3ed",
+      "uuid": [
+        "7F8CEDA3-E294-3EE4-BC9D-E2E619FBAAED"
+      ],
+      "origin": "/opt/homebrew/Cellar/brotli/1.2.0/lib/libbrotlicommon.1.2.0.dylib",
+      "package": "brotli-1.2.0"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libbrotlidec.1.2.0.dylib",
+      "sha256": "d13a3bda0c44c41c9f7e109ffadc9200550380c2204612d19bd3cc77725f6b08",
+      "uuid": [
+        "43EB690D-1071-35E5-A6B2-9A5005643EA0"
+      ],
+      "origin": "/opt/homebrew/Cellar/brotli/1.2.0/lib/libbrotlidec.1.2.0.dylib",
+      "package": "brotli-1.2.0"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libbrotlienc.1.2.0.dylib",
+      "sha256": "9395e278b78ba861a188b98257101c36734c096c34a5d2683f8e14ceecf17840",
+      "uuid": [
+        "AC606EA3-96D5-39D0-A257-BA99D25FA281"
+      ],
+      "origin": "/opt/homebrew/Cellar/brotli/1.2.0/lib/libbrotlienc.1.2.0.dylib",
+      "package": "brotli-1.2.0"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libfontconfig.1.dylib",
+      "sha256": "08ae693ed3d49591fcdd0015c99cb8b7fb313543896c4aaf466dddbfbb08ed13",
+      "uuid": [
+        "247E2244-121E-3069-A378-8A41621BB394"
+      ],
+      "origin": "/opt/homebrew/Cellar/fontconfig/2.18.3/lib/libfontconfig.1.dylib",
+      "package": "fontconfig-2.18.3"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libfreetype.6.dylib",
+      "sha256": "4a1d90c58a5bdc8b0d39d7a23cf5493bf12c10ad970365eed0f42009228a4dd8",
+      "uuid": [
+        "15A54305-09C3-33F9-BB7F-5B42FD775C8E"
+      ],
+      "origin": "/opt/homebrew/Cellar/freetype/2.15.0/lib/libfreetype.6.dylib",
+      "package": "freetype-2.15.0"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libglib-2.0.0.dylib",
+      "sha256": "93f70b3a11841004cd16356f2a482bfba6ac0d12175aaf169642f9b8164388ab",
+      "uuid": [
+        "819B65CF-41DF-3FAA-AD46-A0F9D4B57412"
+      ],
+      "origin": "/opt/homebrew/Cellar/glib/2.90.1/lib/libglib-2.0.0.dylib",
+      "package": "glib-2.90.1"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libgraphite2.3.3.1.dylib",
+      "sha256": "00aad4cadff903e8203c112b2ebcd71299aeb5f6974958534783a9a10be45b99",
+      "uuid": [
+        "869B6AE6-F82B-3FE7-904D-D1AE97255561"
+      ],
+      "origin": "/opt/homebrew/Cellar/graphite2/1.3.15/lib/libgraphite2.3.3.1.dylib",
+      "package": "graphite2-1.3.15"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libharfbuzz.0.dylib",
+      "sha256": "f941b83bb7fa1f67a106d3e9817ced84ed890a3593c7b5b0371ba6b399dcd31b",
+      "uuid": [
+        "7CB752E3-7447-3350-A5BB-EF97F91025D9"
+      ],
+      "origin": "/opt/homebrew/Cellar/harfbuzz/14.6.0/lib/libharfbuzz.0.dylib",
+      "package": "harfbuzz-14.6.0"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libintl.8.dylib",
+      "sha256": "d8304d854f9ba9cedb004d3391e92db192640797d27a8a6f143d7dc291db0473",
+      "uuid": [
+        "EC7405AD-C6DD-353F-AC21-A1553D22F30D"
+      ],
+      "origin": "/opt/homebrew/Cellar/gettext/1.0/lib/libintl.8.dylib",
+      "package": "gettext-1.0"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libjbig2dec.0.dylib",
+      "sha256": "6590d9bad3da78a31d1e37e11a6b9f0b0540f01f83edadabf0296207b65380d3",
+      "uuid": [
+        "79584BFE-D04C-3922-BBF2-9EFAF8F7BAE0"
+      ],
+      "origin": "/opt/homebrew/Cellar/jbig2dec/0.20/lib/libjbig2dec.0.dylib",
+      "package": "jbig2dec-0.20"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libjpeg.8.3.2.dylib",
+      "sha256": "a4aec6660aa649fbccdad97aec4f8dc99549bdd92e54ce233a32e8cdbd70f6b2",
+      "uuid": [
+        "72835662-4F1F-33A6-8260-B6DFFE5A06A7"
+      ],
+      "origin": "/opt/homebrew/Cellar/jpeg-turbo/3.2.0/lib/libjpeg.8.3.2.dylib",
+      "package": "jpeg-turbo-3.2.0"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libopenjp2.2.5.4.dylib",
+      "sha256": "af922085d58428f36924547c6c435ed470cd5d5920e2779636f596c7d85b3368",
+      "uuid": [
+        "4E898FA8-838F-3550-AF36-2194EF61CF48"
+      ],
+      "origin": "/opt/homebrew/Cellar/openjpeg/2.5.4_1/lib/libopenjp2.2.5.4.dylib",
+      "package": "openjpeg-2.5.4_1"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libpcre2-8.0.dylib",
+      "sha256": "c66dc64ff645dd41b3d9cbec80e3f4916c023660b5cdca6a49df6b3499b09bac",
+      "uuid": [
+        "C1AE7163-E4BD-38C5-8CEF-B8E9952D676A"
+      ],
+      "origin": "/opt/homebrew/Cellar/pcre2/10.49/lib/libpcre2-8.0.dylib",
+      "package": "pcre2-10.49"
+    },
+    {
+      "path": "Contents/Helpers/texpresso/lib/libpng16.16.dylib",
+      "sha256": "c5ef4bcca1359bc75be8cbb049434b4dc90fe560c0d0cc728403ed9b96060580",
+      "uuid": [
+        "71FF9C24-B252-3AFB-93E1-89DAA2F8336C"
+      ],
+      "origin": "/opt/homebrew/Cellar/libpng/1.6.59/lib/libpng16.16.dylib",
+      "package": "libpng-1.6.59"
+    },
+    {
+      "path": "Contents/PlugIns/iconengines/libqsvgicon.dylib",
+      "sha256": "6817f48f1871fcb4188a3b97be00e5f29ec5fa2c8bbd60756fb7326a2e6cddcd",
+      "uuid": [
+        "965856C8-6DFC-3634-A7E1-D7E2DB0B06B3"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtsvg/6.12.0_1/share/qt/plugins/iconengines/libqsvgicon.dylib",
+      "package": "qtsvg-6.12.0_1",
+      "qt": {
+        "module": "QSvgIconPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtsvg.git",
+        "installedPath": "./share/qt/plugins/iconengines/libqsvgicon.dylib",
+        "evidence": "qt-sbom/qtsvg-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqgif.dylib",
+      "sha256": "3b1fc7c25202baa2ee5fb1a1f0347a59e03666f996595eff560c0c22c4f5665f",
+      "uuid": [
+        "0FA1F1E0-3DF4-3818-94BB-CE3BCE5F0056"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/share/qt/plugins/imageformats/libqgif.dylib",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "QGifPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqgif.dylib",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqicns.dylib",
+      "sha256": "85630e96bd10f4da8eb18974a2a9406991a482b53745a8eacb0231837b48763b",
+      "uuid": [
+        "14632A47-0B1D-3E70-BC5D-0F90CC487AF0"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtimageformats/6.12.0/share/qt/plugins/imageformats/libqicns.dylib",
+      "package": "qtimageformats-6.12.0",
+      "qt": {
+        "module": "QICNSPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtimageformats.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqicns.dylib",
+        "evidence": "qt-sbom/qtimageformats-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqico.dylib",
+      "sha256": "220acf85e3fe6be762e942468ef01879f58f2c83fbbf22f58dfecffa7aca42ca",
+      "uuid": [
+        "07B8E031-1A9C-339F-80B1-CD7B8F58E3CE"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/share/qt/plugins/imageformats/libqico.dylib",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "QICOPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqico.dylib",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqjpeg.dylib",
+      "sha256": "4ca3af4fbbedd41bdf189f5f4a305d63e268a782d44c7c2696200adf45214f35",
+      "uuid": [
+        "1AB8103E-126F-3BB2-B731-967EAFCFB3D5"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/share/qt/plugins/imageformats/libqjpeg.dylib",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "QJpegPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqjpeg.dylib",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqmacheif.dylib",
+      "sha256": "1eeb0d45de0c8da361e89664f4e78e44ab62120527975a52cf97b766a91a4613",
+      "uuid": [
+        "6020F3D6-7173-37F5-86D0-A113163CA227"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtimageformats/6.12.0/share/qt/plugins/imageformats/libqmacheif.dylib",
+      "package": "qtimageformats-6.12.0",
+      "qt": {
+        "module": "QMacHeifPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtimageformats.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqmacheif.dylib",
+        "evidence": "qt-sbom/qtimageformats-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqmacjp2.dylib",
+      "sha256": "8a13f73e2bf71dff30ea1fe2846f0a87522a6504200a9303c8f03d1fb49dbd3e",
+      "uuid": [
+        "356779C3-1CA6-32AD-8470-0AF0A56AC2E6"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtimageformats/6.12.0/share/qt/plugins/imageformats/libqmacjp2.dylib",
+      "package": "qtimageformats-6.12.0",
+      "qt": {
+        "module": "QMacJp2Plugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtimageformats.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqmacjp2.dylib",
+        "evidence": "qt-sbom/qtimageformats-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqpdf.dylib",
+      "sha256": "8415f5734010e1ce00c6af23e2f247ed6112674b6efc734bdc74d7d0a14a3d9f",
+      "uuid": [
+        "421EF8AD-DE9E-3A36-9146-53181FA0B9FE"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtwebengine/6.11.2/share/qt/plugins/imageformats/libqpdf.dylib",
+      "package": "qtwebengine-6.11.2",
+      "qt": {
+        "module": "QPdfPlugin",
+        "version": "6.11.2",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtpdf.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqpdf.dylib",
+        "evidence": "qt-sbom/qtpdf-6.11.2.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqsvg.dylib",
+      "sha256": "132564f2c9492d3d4ae7cfedd017aeb2c7dcfe03f646e9199c71cccccecd7eb0",
+      "uuid": [
+        "C7BEDE86-7F5D-37B3-BD8C-6A243DBF30A9"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtsvg/6.12.0_1/share/qt/plugins/imageformats/libqsvg.dylib",
+      "package": "qtsvg-6.12.0_1",
+      "qt": {
+        "module": "QSvgPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtsvg.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqsvg.dylib",
+        "evidence": "qt-sbom/qtsvg-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqtga.dylib",
+      "sha256": "30de00b4e7d54f0943b8a40e13f981f308eaa7285e92831fa04e36b11eed0a91",
+      "uuid": [
+        "6B2CB68B-C0B9-3E05-8C61-F211CACB07E6"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtimageformats/6.12.0/share/qt/plugins/imageformats/libqtga.dylib",
+      "package": "qtimageformats-6.12.0",
+      "qt": {
+        "module": "QTgaPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtimageformats.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqtga.dylib",
+        "evidence": "qt-sbom/qtimageformats-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqtiff.dylib",
+      "sha256": "c5cd500ee33efe3d2c1cdda4da779662a0717256defc39c8d6ca4047b2d96e87",
+      "uuid": [
+        "D3572763-17BD-35B7-B4CD-571CAB86EC33"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtimageformats/6.12.0/share/qt/plugins/imageformats/libqtiff.dylib",
+      "package": "qtimageformats-6.12.0",
+      "qt": {
+        "module": "QTiffPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtimageformats.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqtiff.dylib",
+        "evidence": "qt-sbom/qtimageformats-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqwbmp.dylib",
+      "sha256": "d4ead4ecbf9b73ef2e30c317d01805436d28e84ed2a9ad352b0b55bb87a46b72",
+      "uuid": [
+        "17629FE3-135A-31A9-AAED-09228D420A95"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtimageformats/6.12.0/share/qt/plugins/imageformats/libqwbmp.dylib",
+      "package": "qtimageformats-6.12.0",
+      "qt": {
+        "module": "QWbmpPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtimageformats.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqwbmp.dylib",
+        "evidence": "qt-sbom/qtimageformats-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/imageformats/libqwebp.dylib",
+      "sha256": "e8b123035f640b929b2a6390417dbe957cf26121fc7484565750c5618fe85cc6",
+      "uuid": [
+        "95AD6DED-85DC-3457-992A-CE24EC57327E"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtimageformats/6.12.0/share/qt/plugins/imageformats/libqwebp.dylib",
+      "package": "qtimageformats-6.12.0",
+      "qt": {
+        "module": "QWebpPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtimageformats.git",
+        "installedPath": "./share/qt/plugins/imageformats/libqwebp.dylib",
+        "evidence": "qt-sbom/qtimageformats-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/networkinformation/libqapplenetworkinformation.dylib",
+      "sha256": "9154f25e0e89de3d50e98c03c1375146866fac0e6a79755b5eb1931dbbaebcd3",
+      "uuid": [
+        "83853472-4FAA-39D8-9FCA-08729424FEA6"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/share/qt/plugins/networkinformation/libqapplenetworkinformation.dylib",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "QAppleNetworkInformationPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./share/qt/plugins/networkinformation/libqapplenetworkinformation.dylib",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/networkinformation/libqglib.dylib",
+      "sha256": "d559221457d3c4ac8f0beab00335b32ea1e8b7a7f7c55f8ce0be67a6812ef9d7",
+      "uuid": [
+        "F3915428-39C5-31B3-B367-6768CA3D0DC5"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/share/qt/plugins/networkinformation/libqglib.dylib",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "QGlibNetworkInformationPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./share/qt/plugins/networkinformation/libqglib.dylib",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/platforms/libqcocoa.dylib",
+      "sha256": "927f44d29bfb0b9f34e09c95482ff76b08da97bb08bd8cfa5d66b42e3c95e904",
+      "uuid": [
+        "8DC6CDDD-2917-3F24-BF8B-1FB2B007FCBD"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/share/qt/plugins/platforms/libqcocoa.dylib",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "QCocoaIntegrationPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./share/qt/plugins/platforms/libqcocoa.dylib",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/platforms/libqoffscreen.dylib",
+      "sha256": "0825332c4ebef60ce62465b5efbce2669191615386b5242971e4f3899ce9e709",
+      "uuid": [
+        "E1228534-878D-3516-8032-CFBABEE24382"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/share/qt/plugins/platforms/libqoffscreen.dylib",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "QOffscreenIntegrationPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./share/qt/plugins/platforms/libqoffscreen.dylib",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/styles/libqmacstyle.dylib",
+      "sha256": "223bb4fee83b8a1632b2acea7c4a4d10b86a645ebaa2312b0ab4499e81108346",
+      "uuid": [
+        "7E93B323-C32B-3122-8F28-58D79BD2BA9D"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/share/qt/plugins/styles/libqmacstyle.dylib",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "QMacStylePlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./share/qt/plugins/styles/libqmacstyle.dylib",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/tls/libqcertonlybackend.dylib",
+      "sha256": "47c5c3b85d20dbb88cae4031c8a5998dd18bdabec3b4671e38953c8ab3043908",
+      "uuid": [
+        "F5781F6C-1732-3B16-B770-64832416ADEA"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/share/qt/plugins/tls/libqcertonlybackend.dylib",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "QTlsBackendCertOnlyPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./share/qt/plugins/tls/libqcertonlybackend.dylib",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/tls/libqopensslbackend.dylib",
+      "sha256": "2e5652948c74e21a3fe8ea15843d35395cd001014f6484109ff9288fbd03e2c5",
+      "uuid": [
+        "3AFB79B6-282D-30CF-913C-FA3D1580799D"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/share/qt/plugins/tls/libqopensslbackend.dylib",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "QTlsBackendOpenSSLPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./share/qt/plugins/tls/libqopensslbackend.dylib",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/PlugIns/tls/libqsecuretransportbackend.dylib",
+      "sha256": "18a0f31c3e8a3f413cd0cda400b1932c6dcdb7e812dd81237d3341c9cc3e75f2",
+      "uuid": [
+        "7786E2E7-751A-328A-A68B-B6376767A987"
+      ],
+      "origin": "/opt/homebrew/Cellar/qtbase/6.12.0_1/share/qt/plugins/tls/libqsecuretransportbackend.dylib",
+      "package": "qtbase-6.12.0_1",
+      "qt": {
+        "module": "QSecureTransportBackendPlugin",
+        "version": "6.12.0",
+        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
+        "source": "git://code.qt.io/qt/qtbase.git",
+        "installedPath": "./share/qt/plugins/tls/libqsecuretransportbackend.dylib",
+        "evidence": "qt-sbom/qtbase-6.12.0.spdx"
+      }
+    },
+    {
+      "path": "Contents/Frameworks/libb2.1.dylib",
+      "sha256": "70cf0f9f1c150793efe5f6a22b671c5a8385eef2f47e9406e2675bd740c91809",
+      "uuid": [
+        "4E1C175B-9164-3156-8288-9521F88D4379"
+      ],
+      "origin": "/opt/homebrew/Cellar/libb2/0.98.1/lib/libb2.1.dylib",
+      "package": "libb2-0.98.1"
+    },
+    {
+      "path": "Contents/Frameworks/libbrotlicommon.1.dylib",
+      "sha256": "7ddd90c215d35131e2978720de1077db05906e4c44eaf6a77c05f2f210e52e53",
+      "uuid": [
+        "7F8CEDA3-E294-3EE4-BC9D-E2E619FBAAED"
+      ],
+      "origin": "/opt/homebrew/Cellar/brotli/1.2.0/lib/libbrotlicommon.1.2.0.dylib",
+      "package": "brotli-1.2.0"
+    },
+    {
+      "path": "Contents/Frameworks/libbrotlidec.1.dylib",
+      "sha256": "92b3ed7f141c655b80d8155019556da13cfc473806fc3f122322b3c2f93c7646",
+      "uuid": [
+        "43EB690D-1071-35E5-A6B2-9A5005643EA0"
+      ],
+      "origin": "/opt/homebrew/Cellar/brotli/1.2.0/lib/libbrotlidec.1.2.0.dylib",
+      "package": "brotli-1.2.0"
+    },
+    {
+      "path": "Contents/Frameworks/libcrypto.4.dylib",
+      "sha256": "340185fce6db1468a2ff42e122dc137122a37a22794a499a6057e7d77497357f",
+      "uuid": [
+        "87C6B3D2-38DF-35F1-84BD-70DF39099057"
+      ],
+      "origin": "/opt/homebrew/Cellar/openssl@4/4.1.0/lib/libcrypto.4.dylib",
+      "package": "openssl@4-4.1.0"
+    },
+    {
+      "path": "Contents/Frameworks/libdbus-1.3.dylib",
+      "sha256": "ce5108fdd15743ec2f4577b60415078cbdb4f42b355ea5978c6753144809ed76",
+      "uuid": [
+        "FB8085DC-9746-335C-90D0-429DFE91DD60"
+      ],
+      "origin": "/opt/homebrew/Cellar/dbus/1.16.2_1/lib/libdbus-1.3.dylib",
+      "package": "dbus-1.16.2_1"
+    },
+    {
+      "path": "Contents/Frameworks/libdouble-conversion.3.dylib",
+      "sha256": "c094731652c74702c4aba8de0a21e2d87e12a7ad151944e124c2d5a139c61cd9",
+      "uuid": [
+        "783457BD-DE5E-3F5D-AC39-E84316558704"
+      ],
+      "origin": "/opt/homebrew/Cellar/double-conversion/3.4.0/lib/libdouble-conversion.3.4.0.dylib",
+      "package": "double-conversion-3.4.0"
+    },
+    {
+      "path": "Contents/Frameworks/libfontconfig.1.dylib",
+      "sha256": "c4c3e93ddeaa0b94e84f69fbe7fbaf6e7def0fcc7c4ab33ea64b90a16cb7c993",
+      "uuid": [
+        "247E2244-121E-3069-A378-8A41621BB394"
+      ],
+      "origin": "/opt/homebrew/Cellar/fontconfig/2.18.3/lib/libfontconfig.1.dylib",
+      "package": "fontconfig-2.18.3"
+    },
+    {
+      "path": "Contents/Frameworks/libfreetype.6.dylib",
+      "sha256": "1b8be6f7f3376e15c51a109cd86062c024a726286dce5e8353f4aa76a389fc5e",
+      "uuid": [
+        "15A54305-09C3-33F9-BB7F-5B42FD775C8E"
+      ],
+      "origin": "/opt/homebrew/Cellar/freetype/2.15.0/lib/libfreetype.6.dylib",
+      "package": "freetype-2.15.0"
+    },
+    {
+      "path": "Contents/Frameworks/libgio-2.0.0.dylib",
+      "sha256": "9b75d2ba9a7e2adbba63a62c131bd5b205abe5e36e1f97e5e8ed07d39ae40d77",
+      "uuid": [
+        "93B79486-54F9-3B11-A633-F52A48538DC7"
+      ],
+      "origin": "/opt/homebrew/Cellar/glib/2.90.1/lib/libgio-2.0.0.dylib",
+      "package": "glib-2.90.1"
+    },
+    {
+      "path": "Contents/Frameworks/libglib-2.0.0.dylib",
+      "sha256": "b5d8cf306933ba7895370bb4f4ebc9fde7b08e37cc0d6991cf3c8ee8e82c7ef0",
+      "uuid": [
+        "819B65CF-41DF-3FAA-AD46-A0F9D4B57412"
+      ],
+      "origin": "/opt/homebrew/Cellar/glib/2.90.1/lib/libglib-2.0.0.dylib",
+      "package": "glib-2.90.1"
+    },
+    {
+      "path": "Contents/Frameworks/libgmodule-2.0.0.dylib",
+      "sha256": "40c61ec515b7a29734839f63af774df3207f5ac0a6f645103ee844628276c947",
+      "uuid": [
+        "95244FD7-AF4E-34C9-BCB8-84CF8E92B7E8"
+      ],
+      "origin": "/opt/homebrew/Cellar/glib/2.90.1/lib/libgmodule-2.0.0.dylib",
+      "package": "glib-2.90.1"
+    },
+    {
+      "path": "Contents/Frameworks/libgobject-2.0.0.dylib",
+      "sha256": "bffe40d9b1dd77eaa6f7779d573253b7ab8200ed56d75fdf9e3170f4f51349c7",
+      "uuid": [
+        "67955034-35CA-3BAF-89E6-2584483A6886"
+      ],
+      "origin": "/opt/homebrew/Cellar/glib/2.90.1/lib/libgobject-2.0.0.dylib",
+      "package": "glib-2.90.1"
+    },
+    {
+      "path": "Contents/Frameworks/libgraphite2.3.dylib",
+      "sha256": "e2853e51da9e91d63781a29296bf36bd24a71f1fab4106f36b6b19f15927cf78",
+      "uuid": [
+        "869B6AE6-F82B-3FE7-904D-D1AE97255561"
+      ],
+      "origin": "/opt/homebrew/Cellar/graphite2/1.3.15/lib/libgraphite2.3.3.1.dylib",
+      "package": "graphite2-1.3.15"
+    },
+    {
+      "path": "Contents/Frameworks/libgthread-2.0.0.dylib",
+      "sha256": "ce905a85ca35098ef1607fdcde57e0f95104835f7d734fec4ed5171680310f44",
+      "uuid": [
+        "12FA58B6-7279-369D-96ED-977486E98735"
+      ],
+      "origin": "/opt/homebrew/Cellar/glib/2.90.1/lib/libgthread-2.0.0.dylib",
+      "package": "glib-2.90.1"
+    },
+    {
+      "path": "Contents/Frameworks/libharfbuzz-subset.0.dylib",
+      "sha256": "2bcdb9019b4de78bc7107a599d9b60863e3de0773c3395988d40dfdc7f24ca23",
+      "uuid": [
+        "C114F77B-CC0F-3679-90DD-69765703D265"
+      ],
+      "origin": "/opt/homebrew/Cellar/harfbuzz/14.6.0/lib/libharfbuzz-subset.0.dylib",
+      "package": "harfbuzz-14.6.0"
+    },
+    {
+      "path": "Contents/Frameworks/libharfbuzz.0.dylib",
+      "sha256": "266d180a3e5e584411d321adf9c1588850380582f37a0f19a43b7a9c17a2f49c",
+      "uuid": [
+        "7CB752E3-7447-3350-A5BB-EF97F91025D9"
+      ],
+      "origin": "/opt/homebrew/Cellar/harfbuzz/14.6.0/lib/libharfbuzz.0.dylib",
+      "package": "harfbuzz-14.6.0"
+    },
+    {
+      "path": "Contents/Frameworks/libhunspell-1.7.0.dylib",
+      "sha256": "49fefb320823a9f4efe3e33ef03cad3e7499f12b6c62aba834139532d9caf83c",
+      "uuid": [
+        "81B2D2FA-7990-3D42-A5BE-FADFC1746F3F"
+      ],
+      "origin": "/opt/homebrew/Cellar/hunspell/1.7.5/lib/libhunspell-1.7.0.dylib",
+      "package": "hunspell-1.7.5"
+    },
+    {
+      "path": "Contents/Frameworks/libicudata.78.dylib",
+      "sha256": "760b55078ebd7ccefcfafcea62ecc0098dc845753a855564b97f9488510442fb",
+      "uuid": [
+        "49727AB2-B15D-300C-9552-20B09E560E90"
+      ],
+      "origin": "/opt/homebrew/Cellar/icu4c@78/78.3/lib/libicudata.78.3.dylib",
+      "package": "icu4c@78-78.3"
+    },
+    {
+      "path": "Contents/Frameworks/libicui18n.78.dylib",
+      "sha256": "bb4d6b42a7de5a2b2cf4c32d1a6d1e57911129265ed674ad3b803a7755564842",
+      "uuid": [
+        "A9E79767-5AED-36C6-86BE-C429489B3ED4"
+      ],
+      "origin": "/opt/homebrew/Cellar/icu4c@78/78.3/lib/libicui18n.78.3.dylib",
+      "package": "icu4c@78-78.3"
+    },
+    {
+      "path": "Contents/Frameworks/libicuuc.78.dylib",
+      "sha256": "5bcfc4f902f34e5ed8f993eeffdeabf44a81b5936ae7319173cd1f4804924e5d",
+      "uuid": [
+        "D44AF2B7-2539-3107-865F-97E3F9D4C779"
+      ],
+      "origin": "/opt/homebrew/Cellar/icu4c@78/78.3/lib/libicuuc.78.3.dylib",
+      "package": "icu4c@78-78.3"
+    },
+    {
+      "path": "Contents/Frameworks/libintl.8.dylib",
+      "sha256": "a69237bc155542a61638abaac9f610c7f2b3da27e6727eb51aed13fa19038f20",
+      "uuid": [
+        "EC7405AD-C6DD-353F-AC21-A1553D22F30D"
+      ],
+      "origin": "/opt/homebrew/Cellar/gettext/1.0/lib/libintl.8.dylib",
+      "package": "gettext-1.0"
+    },
+    {
+      "path": "Contents/Frameworks/libjpeg.8.dylib",
+      "sha256": "b106722350bf603b777a43f5c721401543ca76c2573bb3df4d1a2df9af5356fd",
+      "uuid": [
+        "72835662-4F1F-33A6-8260-B6DFFE5A06A7"
+      ],
+      "origin": "/opt/homebrew/Cellar/jpeg-turbo/3.2.0/lib/libjpeg.8.3.2.dylib",
+      "package": "jpeg-turbo-3.2.0"
+    },
+    {
+      "path": "Contents/Frameworks/liblcms2.2.dylib",
+      "sha256": "9c2d1bf3c9685c189ca6daa77158d523ae2a113f6edba084a32d0fc5584ca058",
+      "uuid": [
+        "5CE97B2B-53E0-3999-9255-D8D3EFB50EB8"
+      ],
+      "origin": "/opt/homebrew/Cellar/little-cms2/2.19.1/lib/liblcms2.2.dylib",
+      "package": "little-cms2-2.19.1"
+    },
+    {
+      "path": "Contents/Frameworks/liblzma.5.dylib",
+      "sha256": "128f2fe9a6d81b87f3d6589d4adc0f526ddfb62164ea4e5663ca31aaf54db053",
+      "uuid": [
+        "1132E0A6-0402-3462-A065-8BCDCCB9AFB7"
+      ],
+      "origin": "/opt/homebrew/Cellar/xz/5.8.4/lib/liblzma.5.dylib",
+      "package": "xz-5.8.4"
+    },
+    {
+      "path": "Contents/Frameworks/libmd4c.0.dylib",
+      "sha256": "8e8d149b4cf5fc1baa6365af94c7feaf564b41b391b59578652bb7fcf6053b47",
+      "uuid": [
+        "F5445F5E-1727-349B-96FF-4264D474CFA8"
+      ],
+      "origin": "/opt/homebrew/Cellar/md4c/0.6.0/lib/libmd4c.0.6.0.dylib",
+      "package": "md4c-0.6.0"
+    },
+    {
+      "path": "Contents/Frameworks/libopenjp2.7.dylib",
+      "sha256": "41625d66e7a89a04c97d49e1d3df1b8ffc8724f230c694804a7152906000cb43",
+      "uuid": [
+        "4E898FA8-838F-3550-AF36-2194EF61CF48"
+      ],
+      "origin": "/opt/homebrew/Cellar/openjpeg/2.5.4_1/lib/libopenjp2.2.5.4.dylib",
+      "package": "openjpeg-2.5.4_1"
+    },
+    {
+      "path": "Contents/Frameworks/libpcre2-16.0.dylib",
+      "sha256": "3d239419ddfc74826f34a7f0911a0ae7c81e24b59feb74906f363b58ef813a18",
+      "uuid": [
+        "E23E2814-5476-39AD-9B19-091852D40CEC"
+      ],
+      "origin": "/opt/homebrew/Cellar/pcre2/10.49/lib/libpcre2-16.0.dylib",
+      "package": "pcre2-10.49"
+    },
+    {
+      "path": "Contents/Frameworks/libpcre2-8.0.dylib",
+      "sha256": "e2e32013cd41eeab6c052eeb993a8b1380fb32ef316c15097b64a85b10b0958c",
+      "uuid": [
+        "C1AE7163-E4BD-38C5-8CEF-B8E9952D676A"
+      ],
+      "origin": "/opt/homebrew/Cellar/pcre2/10.49/lib/libpcre2-8.0.dylib",
+      "package": "pcre2-10.49"
+    },
+    {
+      "path": "Contents/Frameworks/libpng16.16.dylib",
+      "sha256": "3f4165eb0b1a09f3bafdd77ba02111c609650c7b0dbe3622b608f32ba264ec31",
+      "uuid": [
+        "71FF9C24-B252-3AFB-93E1-89DAA2F8336C"
+      ],
+      "origin": "/opt/homebrew/Cellar/libpng/1.6.59/lib/libpng16.16.dylib",
+      "package": "libpng-1.6.59"
+    },
+    {
+      "path": "Contents/Frameworks/libpoppler-cpp.3.dylib",
+      "sha256": "66a5ab5cc54986b8f6ac99e354c5cb2ee85438cd71225d1b011283e6b89581b2",
+      "uuid": [
+        "92BE0DA9-B56C-334B-AF42-5D484E80D559"
+      ],
+      "origin": "/private/tmp/texstudio-poppler/lib/libpoppler-cpp.3.1.0.dylib",
+      "provenanceStatus": "Local build: preserve exact source/configuration separately"
+    },
+    {
+      "path": "Contents/Frameworks/libpoppler-qt6.3.dylib",
+      "sha256": "1d68ecf4c445a2a5bfcdb4b7b6d6f2b58b6dfdaa1b39509a74d8e87cf14be046",
+      "uuid": [
+        "5DE96252-8712-368B-9B2E-A154FF542AEC"
+      ],
+      "origin": "/private/tmp/texstudio-poppler/lib/libpoppler-qt6.3.13.0.dylib",
+      "provenanceStatus": "Local build: preserve exact source/configuration separately"
+    },
+    {
+      "path": "Contents/Frameworks/libpoppler.165.dylib",
+      "sha256": "f94658826d3f929a303ca31ed3428d031559bd782ac3a5a780397b535576637e",
+      "uuid": [
+        "D00E5C6F-8DE4-3730-999E-FEDE1A024CCF"
+      ],
+      "origin": "/private/tmp/texstudio-poppler/lib/libpoppler.165.0.0.dylib",
+      "provenanceStatus": "Local build: preserve exact source/configuration separately"
+    },
+    {
+      "path": "Contents/Frameworks/libsharpyuv.0.dylib",
+      "sha256": "65b8f1ec388bc15f814d5a322dde9daf2b714f97e8e1bd629612eef4dd6f9e07",
+      "uuid": [
+        "C9262A37-4290-3A1C-B9FA-793D0404D712"
+      ],
+      "origin": "/opt/homebrew/Cellar/webp/1.6.0/lib/libsharpyuv.0.1.2.dylib",
+      "package": "webp-1.6.0"
+    },
+    {
+      "path": "Contents/Frameworks/libssl.4.dylib",
+      "sha256": "c853e1f932ecf1731a83a42a9f5e4b403ffe614f909c61834c567deb061f081f",
+      "uuid": [
+        "421F2C3D-2278-3CC8-A027-C4620D067D1B"
+      ],
+      "origin": "/opt/homebrew/Cellar/openssl@4/4.1.0/lib/libssl.4.dylib",
+      "package": "openssl@4-4.1.0"
+    },
+    {
+      "path": "Contents/Frameworks/libtiff.6.dylib",
+      "sha256": "958656c8c7f5810583d009b8084b2d25f64b9d68fa1f0a795056ded8a933682a",
+      "uuid": [
+        "90EAA54D-4A5F-3377-B035-76A63D866783"
+      ],
+      "origin": "/opt/homebrew/Cellar/libtiff/4.7.2/lib/libtiff.6.dylib",
+      "package": "libtiff-4.7.2"
+    },
+    {
+      "path": "Contents/Frameworks/libwebp.7.dylib",
+      "sha256": "8219db86a8992f0734338235a9f2779ab22cdda794419576b4ec35e715c0fc70",
+      "uuid": [
+        "125736F7-37E7-3884-8F27-B6E94E711760"
+      ],
+      "origin": "/opt/homebrew/Cellar/webp/1.6.0/lib/libwebp.7.2.0.dylib",
+      "package": "webp-1.6.0"
+    },
+    {
+      "path": "Contents/Frameworks/libwebpdemux.2.dylib",
+      "sha256": "2c6606df8be25e8714dc03c928322965607731297bf39b5afe5a9b868bd97566",
+      "uuid": [
+        "8F1FF548-EC66-34EA-B797-F10A04ACE3B4"
+      ],
+      "origin": "/opt/homebrew/Cellar/webp/1.6.0/lib/libwebpdemux.2.0.17.dylib",
+      "package": "webp-1.6.0"
+    },
+    {
+      "path": "Contents/Frameworks/libwebpmux.3.dylib",
+      "sha256": "da913f9a3272067400e198dfa96ca1aaa9a06fffa686fd9154fac230970236c2",
+      "uuid": [
+        "FE78D744-8517-3724-A827-9BBF058F020B"
+      ],
+      "origin": "/opt/homebrew/Cellar/webp/1.6.0/lib/libwebpmux.3.1.2.dylib",
+      "package": "webp-1.6.0"
+    },
+    {
+      "path": "Contents/Frameworks/libzstd.1.dylib",
+      "sha256": "022478f92a8ef50595618ff3d0279c2bc573ecc81506dde2b946c7eb15b9fa2b",
+      "uuid": [
+        "DACB053D-F62B-353F-A767-ED728BEA6A42"
+      ],
+      "origin": "/opt/homebrew/Cellar/zstd/1.5.7_1/lib/libzstd.1.5.7.dylib",
+      "package": "zstd-1.5.7_1"
+    },
+    {
+      "path": "Contents/MacOS/texstudio",
+      "sha256": "f6dacf51f111f02931319d479b776a4b78d7967a9f03653833d5ace72e5e0bfa",
+      "uuid": [
+        "A64CA45A-D85E-364A-94BC-3D9808C2C7F2"
+      ],
+      "component": "TeXstudio Espresso (see sourceComponents)"
+    }
+  ],
+  "packages": {
+    "qtbase-6.12.0_1": {
+      "name": "qtbase",
+      "version": "6.12.0_1",
+      "license": "(LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only) AND (GPL-3.0-only WITH Qt-GPL-exception-1.0) AND BSD-3-Clause AND GFDL-1.3-no-invariants-only",
+      "source": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": []
+    },
+    "qt5compat-6.12.0_1": {
+      "name": "qt5compat",
+      "version": "6.12.0_1",
+      "license": "(LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only) AND BSD-2-Clause AND BSD-3-Clause",
+      "source": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qt5compat-everywhere-src-6.12.0.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "78cf1c283795312a7fa31c73eb7f7f556b48374adc484f10ad5a3c0bcb59264e"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": []
+    },
+    "qtwebengine-6.11.2": {
+      "name": "qtwebengine",
+      "version": "6.11.2",
+      "license": "(LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only) AND (GPL-3.0-only WITH Qt-GPL-exception-1.0) AND BSD-3-Clause AND Apache-2.0 AND blessing AND BSD-2-Clause AND LGPL-2.1-or-later AND libpng-2.0 AND MIT AND MPL-1.1 AND NCL AND SGI-B-2.0 AND SunPro AND Zlib AND LicenseRef-Homebrew-public-domain",
+      "source": "https://download.qt.io/official_releases/qt/6.11/6.11.2/submodules/qtwebengine-everywhere-src-6.11.2.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6101c1aa00ff933d1b65ee5d167f76e8d71b9ac5b378b0111277723ebda7c163"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/qtwebengine-6.11.2/LICENSE.Chromium"
+      ]
+    },
+    "qtdeclarative-6.12.0_1": {
+      "name": "qtdeclarative",
+      "version": "6.12.0_1",
+      "license": "(LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only) AND (GPL-3.0-only WITH Qt-GPL-exception-1.0) AND BSD-2-Clause AND BSD-3-Clause",
+      "source": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "311f3a2603e1973bb59baef9dfa740a376de713157d4782ee043681e889c9260"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": []
+    },
+    "qtsvg-6.12.0_1": {
+      "name": "qtsvg",
+      "version": "6.12.0_1",
+      "license": "(LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only) AND BSD-3-Clause",
+      "source": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtsvg-everywhere-src-6.12.0.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e4ab39534ec97987b1b9b60ef7f4d3253d5912a69f8c713a01753174a4029331"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": []
+    },
+    "qttools-6.12.0_1": {
+      "name": "qttools",
+      "version": "6.12.0_1",
+      "license": "(LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only) AND (GPL-3.0-only WITH Qt-GPL-exception-1.0) AND BSD-3-Clause AND BSL-1.0",
+      "source": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qttools-everywhere-src-6.12.0.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "8dab8f3611496486a470ad5f115ceea584f36bc22a2b8b6f6ebdbafbb8160693"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": []
+    },
+    "sdl2-compat-2.32.74": {
+      "name": "sdl2-compat",
+      "version": "2.32.74",
+      "license": "Zlib",
+      "source": "https://github.com/libsdl-org/sdl2-compat/releases/download/release-2.32.74/sdl2-compat-2.32.74.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ec68abde77e2e459c8abc4f9587b8976b5d2a657b2bfda2fb3a079b0f8924588"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/sdl2-compat-2.32.74/LICENSE.txt",
+        "notices/sdl2-compat-2.32.74/share/licenses/sdl2-compat/LICENSE.txt"
+      ]
+    },
+    "sdl3-3.4.18": {
+      "name": "sdl3",
+      "version": "3.4.18",
+      "license": "Zlib",
+      "source": "https://github.com/libsdl-org/SDL/releases/download/release-3.4.18/SDL3-3.4.18.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "9c75cf16330322c217dedd2e0609f1124f1b54b8633e763467b4684d0f4334a3"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/sdl3-3.4.18/LICENSE.txt",
+        "notices/sdl3-3.4.18/share/licenses/SDL3/LICENSE.txt"
+      ]
+    },
+    "brotli-1.2.0": {
+      "name": "brotli",
+      "version": "1.2.0",
+      "license": "MIT",
+      "source": "https://github.com/google/brotli/archive/refs/tags/v1.2.0.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "816c96e8e8f193b40151dad7e8ff37b1221d019dbcb9c35cd3fadbfe6477dfec"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/brotli-1.2.0/LICENSE"
+      ]
+    },
+    "fontconfig-2.18.3": {
+      "name": "fontconfig",
+      "version": "2.18.3",
+      "license": "HPND-sell-variant AND Unicode-3.0 AND MIT-Modern-Variant AND MIT AND LicenseRef-Homebrew-public-domain",
+      "source": "https://gitlab.freedesktop.org/fontconfig/fontconfig/-/archive/2.18.3/fontconfig-2.18.3.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "9ae01e1d53acdef56010c5451cd34aa41d325b2faccd8606448d8fa01b2496b3"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/fontconfig-2.18.3/AUTHORS",
+        "notices/fontconfig-2.18.3/COPYING"
+      ]
+    },
+    "freetype-2.15.0": {
+      "name": "freetype",
+      "version": "2.15.0",
+      "license": "FTL",
+      "source": "https://downloads.sourceforge.net/project/freetype/freetype2/2.15.0/freetype-2.15.0.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "93cd47eb719c325107f2d3cf087d06299e944c3b48a40b55537302304dea1dd5"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/freetype-2.15.0/LICENSE.TXT"
+      ]
+    },
+    "glib-2.90.1": {
+      "name": "glib",
+      "version": "2.90.1",
+      "license": "LGPL-2.1-or-later",
+      "source": "https://download.gnome.org/sources/glib/2.90/glib-2.90.1.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "93c941aa17d5eb1d53fe838365f29a8b4e539c222a256d974ec8f30fc413e396"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/glib-2.90.1/glib-COPYING"
+      ]
+    },
+    "graphite2-1.3.15": {
+      "name": "graphite2",
+      "version": "1.3.15",
+      "license": "GPL-2.0-or-later OR LGPL-2.1-or-later OR MPL-1.1+",
+      "source": "https://github.com/silnrsi/graphite/releases/download/1.3.15/graphite2-1.3.15.tgz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "c6bc8b4252724665297f7cad0c55897285c673f9b8e6db3522ace833593fe0b1"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/graphite2-1.3.15/COPYING",
+        "notices/graphite2-1.3.15/LICENSE"
+      ]
+    },
+    "harfbuzz-14.6.0": {
+      "name": "harfbuzz",
+      "version": "14.6.0",
+      "license": "MIT",
+      "source": "https://github.com/harfbuzz/harfbuzz/releases/download/14.6.0/harfbuzz-14.6.0.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d07a007327277708a2a73ae437887cdbaf282937f6d03ca5467723e9099af586"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/harfbuzz-14.6.0/AUTHORS",
+        "notices/harfbuzz-14.6.0/COPYING"
+      ]
+    },
+    "gettext-1.0": {
+      "name": "gettext",
+      "version": "1.0",
+      "license": "GPL-3.0-or-later AND LGPL-2.1-or-later",
+      "source": "https://ftpmirror.gnu.org/gnu/gettext/gettext-1.0.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "85d99b79c981a404874c02e0342176cf75c7698e2b51fe41031cf6526d974f1a"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/gettext-1.0/AUTHORS",
+        "notices/gettext-1.0/COPYING"
+      ]
+    },
+    "jbig2dec-0.20": {
+      "name": "jbig2dec",
+      "version": "0.20",
+      "license": "NOASSERTION",
+      "source": "NOASSERTION",
+      "noticeFiles": [
+        "notices/jbig2dec-0.20/COPYING",
+        "notices/jbig2dec-0.20/LICENSE"
+      ]
+    },
+    "jpeg-turbo-3.2.0": {
+      "name": "jpeg-turbo",
+      "version": "3.2.0",
+      "license": "IJG AND Zlib AND BSD-3-Clause",
+      "source": "https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.2.0/libjpeg-turbo-3.2.0.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6f30092cef9fb839779646608f4ee14ae3cbac989c47fa05e841b0841f09878e"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/jpeg-turbo-3.2.0/LICENSE.md",
+        "notices/jpeg-turbo-3.2.0/share/doc/libjpeg-turbo/LICENSE.md"
+      ]
+    },
+    "openjpeg-2.5.4_1": {
+      "name": "openjpeg",
+      "version": "2.5.4_1",
+      "license": "BSD-2-Clause",
+      "source": "https://github.com/uclouvain/openjpeg/archive/refs/tags/v2.5.4.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a695fbe19c0165f295a8531b1e4e855cd94d0875d2f88ec4b61080677e27188a"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/openjpeg-2.5.4_1/AUTHORS.md",
+        "notices/openjpeg-2.5.4_1/LICENSE"
+      ]
+    },
+    "pcre2-10.49": {
+      "name": "pcre2",
+      "version": "10.49",
+      "license": "BSD-3-Clause",
+      "source": "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.49/pcre2-10.49.tar.bz2",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "53c156e1ba416a20da8e65395daa132da0d80e76910424caca3fcdae7831d384"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/pcre2-10.49/AUTHORS.md",
+        "notices/pcre2-10.49/COPYING",
+        "notices/pcre2-10.49/LICENCE.md",
+        "notices/pcre2-10.49/share/doc/pcre2/AUTHORS.md",
+        "notices/pcre2-10.49/share/doc/pcre2/COPYING",
+        "notices/pcre2-10.49/share/doc/pcre2/LICENCE.md"
+      ]
+    },
+    "libpng-1.6.59": {
+      "name": "libpng",
+      "version": "1.6.59",
+      "license": "libpng-2.0",
+      "source": "https://downloads.sourceforge.net/project/libpng/libpng16/1.6.59/libpng-1.6.59.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d80dd2a38a37f803cb9b6ac7b14bd6e74ddc3b654780a8380bdf93523fdb4389"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/libpng-1.6.59/AUTHORS",
+        "notices/libpng-1.6.59/LICENSE"
+      ]
+    },
+    "qtimageformats-6.12.0": {
+      "name": "qtimageformats",
+      "version": "6.12.0",
+      "license": "(LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only) AND BSD-3-Clause",
+      "source": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtimageformats-everywhere-src-6.12.0.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0943132b5db8de6b6a7f1d162682173e8763c7ed94e80fd39113292845f67762"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": []
+    },
+    "libb2-0.98.1": {
+      "name": "libb2",
+      "version": "0.98.1",
+      "license": "NOASSERTION",
+      "source": "NOASSERTION",
+      "noticeFiles": [
+        "notices/libb2-0.98.1/COPYING"
+      ]
+    },
+    "openssl@4-4.1.0": {
+      "name": "openssl@4",
+      "version": "4.1.0",
+      "license": "Apache-2.0",
+      "source": "https://github.com/openssl/openssl/releases/download/openssl-4.1.0/openssl-4.1.0.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "50c17baf54cb008f6ce42d50deb4b28050a1aad711636cabd4b241c7e90cc2fd"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/openssl@4-4.1.0/AUTHORS.md",
+        "notices/openssl@4-4.1.0/LICENSE.txt"
+      ]
+    },
+    "dbus-1.16.2_1": {
+      "name": "dbus",
+      "version": "1.16.2_1",
+      "license": "AFL-2.1 OR GPL-2.0-or-later",
+      "source": "https://dbus.freedesktop.org/releases/dbus/dbus-1.16.2.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0ba2a1a4b16afe7bceb2c07e9ce99a8c2c3508e5dec290dbb643384bd6beb7e2"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/dbus-1.16.2_1/AUTHORS",
+        "notices/dbus-1.16.2_1/COPYING"
+      ]
+    },
+    "double-conversion-3.4.0": {
+      "name": "double-conversion",
+      "version": "3.4.0",
+      "license": "BSD-3-Clause",
+      "source": "https://github.com/google/double-conversion/archive/refs/tags/v3.4.0.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "42fd4d980ea86426e457b24bdfa835a6f5ad9517ddb01cdb42b99ab9c8dd5dc9"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/double-conversion-3.4.0/AUTHORS",
+        "notices/double-conversion-3.4.0/COPYING",
+        "notices/double-conversion-3.4.0/LICENSE"
+      ]
+    },
+    "hunspell-1.7.5": {
+      "name": "hunspell",
+      "version": "1.7.5",
+      "license": "MPL-1.1 OR GPL-2.0-or-later OR LGPL-2.1-or-later",
+      "source": "https://github.com/hunspell/hunspell/releases/download/v1.7.5/hunspell-1.7.5.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "2e559f0c2a592ba48e421477f58e9bf7e01062277a4a7821afb52fc9401010ae"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/hunspell-1.7.5/AUTHORS",
+        "notices/hunspell-1.7.5/COPYING",
+        "notices/hunspell-1.7.5/COPYING.LESSER",
+        "notices/hunspell-1.7.5/COPYING.MPL",
+        "notices/hunspell-1.7.5/license.hunspell",
+        "notices/hunspell-1.7.5/license.myspell"
+      ]
+    },
+    "icu4c@78-78.3": {
+      "name": "icu4c@78",
+      "version": "78.3",
+      "license": "ICU",
+      "source": "https://github.com/unicode-org/icu/releases/download/release-78.3/icu4c-78.3-sources.tgz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "3a2e7a47604ba702f345878308e6fefeca612ee895cf4a5f222e7955fabfe0c0"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/icu4c@78-78.3/LICENSE",
+        "notices/icu4c@78-78.3/license.html"
+      ]
+    },
+    "little-cms2-2.19.1": {
+      "name": "little-cms2",
+      "version": "2.19.1",
+      "license": "MIT",
+      "source": "https://downloads.sourceforge.net/project/lcms/lcms/2.19.1/lcms2-2.19.1.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "bfc54f7bab59fbc921012014a8032e4cba4abd46db47d46b76416a8c0b2815c8"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/little-cms2-2.19.1/AUTHORS",
+        "notices/little-cms2-2.19.1/LICENSE"
+      ]
+    },
+    "xz-5.8.4": {
+      "name": "xz",
+      "version": "5.8.4",
+      "license": "0BSD AND GPL-2.0-or-later",
+      "source": "https://github.com/tukaani-project/xz/releases/download/v5.8.4/xz-5.8.4.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0014c7886930454fe8bd4228665b51af55eeae560ea135c9c4cd33f55b2591d9"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/xz-5.8.4/AUTHORS",
+        "notices/xz-5.8.4/COPYING",
+        "notices/xz-5.8.4/COPYING.0BSD",
+        "notices/xz-5.8.4/COPYING.GPLv2",
+        "notices/xz-5.8.4/COPYING.GPLv3",
+        "notices/xz-5.8.4/COPYING.LGPLv2.1",
+        "notices/xz-5.8.4/share/doc/xz/AUTHORS",
+        "notices/xz-5.8.4/share/doc/xz/COPYING",
+        "notices/xz-5.8.4/share/doc/xz/COPYING.0BSD",
+        "notices/xz-5.8.4/share/doc/xz/COPYING.GPLv2"
+      ]
+    },
+    "md4c-0.6.0": {
+      "name": "md4c",
+      "version": "0.6.0",
+      "license": "MIT",
+      "source": "https://github.com/mity/md4c/archive/refs/tags/v0.6.0.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "4d151298125a81da3b2efa2e0eed8bdb7a9318569804e4fa4d7a2375ab83ef70"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/md4c-0.6.0/LICENSE.md"
+      ]
+    },
+    "webp-1.6.0": {
+      "name": "webp",
+      "version": "1.6.0",
+      "license": "BSD-3-Clause",
+      "source": "https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.6.0.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e4ab7009bf0629fd11982d4c2aa83964cf244cffba7347ecd39019a9e38c4564"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/webp-1.6.0/AUTHORS",
+        "notices/webp-1.6.0/COPYING"
+      ]
+    },
+    "libtiff-4.7.2": {
+      "name": "libtiff",
+      "version": "4.7.2",
+      "license": "libtiff",
+      "source": "https://download.osgeo.org/libtiff/tiff-4.7.2.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "672bd7d10aee4606171afb864f3570b83340f6a33e2c186dc0512f7145ffdf6a"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/libtiff-4.7.2/LICENSE.md",
+        "notices/libtiff-4.7.2/share/doc/tiff-4.7.2/LICENSE.md",
+        "notices/libtiff-4.7.2/share/doc/tiff-4.7.2/manual/_sources/project/license.rst.txt",
+        "notices/libtiff-4.7.2/share/doc/tiff-4.7.2/manual/project/license.html"
+      ]
+    },
+    "zstd-1.5.7_1": {
+      "name": "zstd",
+      "version": "1.5.7_1",
+      "license": "(BSD-3-Clause OR GPL-2.0-only) AND BSD-2-Clause AND MIT",
+      "source": "https://github.com/facebook/zstd/archive/refs/tags/v1.5.7.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "37d7284556b20954e56e1ca85b80226768902e2edabd3b649e9e72c0c9012ee3"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFiles": [
+        "notices/zstd-1.5.7_1/COPYING",
+        "notices/zstd-1.5.7_1/LICENSE"
+      ]
+    }
+  },
+  "dictionaryAndThesaurusPayloads": [
+    {
+      "path": "Contents/Resources/bg_BG-Bulgarian.dic.zip",
+      "bytes": 296283,
+      "sha256": "21697c7c1bcb056e11c9d696fd67b9e01b4161de8ca227e7bcaecbfef720c1c8",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "bg_BG-Bulgarian.aff",
+          "sha256": "cb6bfc56d6b1e70c812061086d7ec5ad6aaf6d35acd927a035f1cee0188ea477"
+        },
+        {
+          "name": "bg_BG-Bulgarian.dic",
+          "sha256": "44408b1ee50301e8f9a133b0ec92565bb8be49818c444d91821876d447f58906"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/br_BR-Breton.dic.zip",
+      "bytes": 876151,
+      "sha256": "32359860cfb7f5a39ef3358d8ee4e64761dd153132355e6a84bc03189c3c401e",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "br_BR-Breton.aff",
+          "sha256": "8c05d6c1e2a9279f67407018145cf7f0b8b6da4f3a8ed83939a55f8e32af27cd"
+        },
+        {
+          "name": "br_BR-Breton.dic",
+          "sha256": "235241afc01c0726d32427e1411f96bee1a5f536bd1bdb7f083a311e6f0d780b"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ca_CAVA-CatalanValencian.dic.zip",
+      "bytes": 723975,
+      "sha256": "c5f2f74ab943c8978889848eddff13e303cea69f60aebfc0ffec787eee36bd0e",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ca_CAVA-CatalanValencian.aff",
+          "sha256": "4f972e74c7891c4a16cc391547a83bec79f9a899d964e65874b210dc9a252b56"
+        },
+        {
+          "name": "ca_CAVA-CatalanValencian.dic",
+          "sha256": "d563c06562c09d6661add56486ecf04e5120486b2e2269c303b5d01885b160f4"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ca_ES-Catalan.dic.zip",
+      "bytes": 722871,
+      "sha256": "485489b207997f22f65a1ac97a6703c4fd6df9048b7da3dd12fbb52958653628",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ca_ES-Catalan.aff",
+          "sha256": "cd28cc86ea76c814bf77c77e48904a239e491900d49dfdf6fd6eaae08b6aacb1"
+        },
+        {
+          "name": "ca_ES-Catalan.dic",
+          "sha256": "14f724133c509de7d7c06f119ef6ff1680c256cdb98f1a353562bda1da3c0684"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/cs_CS-Czech.dic.zip",
+      "bytes": 912165,
+      "sha256": "abe697029a4c0359b6ce41fa708c33b693348e92c669b219475f3df33b7f6c97",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "cs_CS-Czech.aff",
+          "sha256": "6e9bfc6d9d76c6d9ba76f8035a60cf497c38eb98913d77673cdbc4645e18ad90"
+        },
+        {
+          "name": "cs_CS-Czech.dic",
+          "sha256": "559486d16e8c117cc47c1e4d4be1784bfb2265e660582c008485f994c6ac9397"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/da_DA-Danish.dic.zip",
+      "bytes": 649325,
+      "sha256": "1381665addee670577a0929fe9c77f39b98d8e27ca2463f0d73eb4203febe610",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "da_DA-Danish.aff",
+          "sha256": "9fd88657b21c09fc7501e6b3a02069315591dd5b03cad3a705403c906af2843c"
+        },
+        {
+          "name": "da_DA-Danish.dic",
+          "sha256": "ee22a1beaeec06384068317a66522d0a1ed9c6ad288d9a8e4db948fbf24a66a7"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/de_AT-GermanAustria.dic.zip",
+      "bytes": 337908,
+      "sha256": "b441db8c2b4798b9b7f4f190513e86b2466f7a45ac90c99175827d831884b105",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "de_AT-GermanAustria.aff",
+          "sha256": "04ebc966a0b1130d8fc62886bb801e77bf7d6a11accf205954c364d3c0c68864"
+        },
+        {
+          "name": "de_AT-GermanAustria.dic",
+          "sha256": "b7d1fe9830909dcca3ab6d75fe25ebd8bedd9dbf12fcb415f79b576392b1b980"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/de_CH-GermanSwitzerland.dic.zip",
+      "bytes": 337203,
+      "sha256": "42dc7d621ad7410d01b051379c0ef76e98b0eddb390126d0353db68b6edfc64d",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "de_CH-GermanSwitzerland.aff",
+          "sha256": "11d773a903ece02c71b5094d71dcf3afe27cad0383cfe063fddbde26b8443785"
+        },
+        {
+          "name": "de_CH-GermanSwitzerland.dic",
+          "sha256": "56eb32b42cbaf15c45ea9cb8e1ef40beae74359397be58859412d5a827ded0c3"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/de_DE.dic.zip",
+      "bytes": 1226043,
+      "sha256": "12e3070c831f16e53fed164ac93f0e9a9091649db30f1f1bfeaef76f00545863",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "de_DE.aff",
+          "sha256": "089a1b446a91d51b19d9b7b9529c3d2ee48678e0443bd50e56cc9ec2155a4c38"
+        },
+        {
+          "name": "de_DE.dic",
+          "sha256": "52d2484a70681386d979e958f2f828a976f0dcdaa680038f371bc70abcf7463a"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/el_EL-ModernGreek.dic.zip",
+      "bytes": 2583550,
+      "sha256": "9a0961bb3bd949cac22319e670c2df1398a9a9b9396b984211c6d2f0f6b98089",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "el_EL-ModernGreek.aff",
+          "sha256": "5d2e3580af6d3523ac4470335a4b05968e59dddc58e1a7f2b260c81342e80063"
+        },
+        {
+          "name": "el_EL-ModernGreek.dic",
+          "sha256": "f08daefb302600beb1b345e4fd77f4ecf6617aa080a72efe6ae7eec0ad5b2ac7"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/el_POL-ModerGreekPolytonicGreek.dic.zip",
+      "bytes": 2339573,
+      "sha256": "8c49dce97e5be3ee316396970813e242fd527391fbdbe5242658faf1dd3e0d25",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "el_POL-ModerGreekPolytonicGreek.aff",
+          "sha256": "e734b5c534d9f5f48fc9edce2e75ac695b3620ebd1f9817cd43fda887f81107f"
+        },
+        {
+          "name": "el_POL-ModerGreekPolytonicGreek.dic",
+          "sha256": "2368557909c26a368234623c199a70f4322e62a4c933dd32da43cb55bb26efa8"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/en_AU-EnglishAustralia.dic.zip",
+      "bytes": 192777,
+      "sha256": "7da766dd840a907bfcf8f8185fa90c21b3a107dfb936eba0842d429efc3780ba",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "en_AU-EnglishAustralia.aff",
+          "sha256": "c7a8c4d08c29d237880844b1623099f59092602f189be38ce3912e457ff38bc1"
+        },
+        {
+          "name": "en_AU-EnglishAustralia.dic",
+          "sha256": "f8094a6bd24b600518704062e6fd96682cdcb3220d74eff3dd04b99b2ebbb304"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/en_CA-EnglishCanada.dic.zip",
+      "bytes": 191846,
+      "sha256": "84edf0a4720464c25a30bd49a706b3db38f2b2b1c73cd215f5dc7a7654f5525c",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "en_CA-EnglishCanada.aff",
+          "sha256": "c7a8c4d08c29d237880844b1623099f59092602f189be38ce3912e457ff38bc1"
+        },
+        {
+          "name": "en_CA-EnglishCanada.dic",
+          "sha256": "55677b9facf26a8b7b9d0c1099fdf7105c7ed54f8ca9fb85d285c484a996cef0"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/en_EN-EnglishUnitedKingdom.dic.zip",
+      "bytes": 191961,
+      "sha256": "4e52f6abb1dbbc5a2bfdb4a3231284750fbc8e181fd3f071af0b58491d63148c",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "en_EN-EnglishUnitedKingdom.aff",
+          "sha256": "8ae1f19d4840d957728ad90555d5a8dff6cc5c046279c95ff0c00fc0a0136c7b"
+        },
+        {
+          "name": "en_EN-EnglishUnitedKingdom.dic",
+          "sha256": "e2aec1aff3e2b840c59e2a4f49f7eb9388b6078c681d960153fc72ce183086cc"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/en_GB.dic.zip",
+      "bytes": 398402,
+      "sha256": "2c3b78b00c0b119e6061ab657ae442374b7c29faca942beb43a33beca040f642",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "en_GB.aff",
+          "sha256": "7f2b1e9c363dbc3f104153bcd95f2fae5d03749b9352863dc54e97cfbe78ecf7"
+        },
+        {
+          "name": "en_GB.dic",
+          "sha256": "3460dbf70e42199cd7fb8a2ee881dafc8cedda05a2bc0d2240e40e1e64b652e7"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/en_US.dic.zip",
+      "bytes": 191885,
+      "sha256": "1dbd4b31aef73f80bff4fca1695a012deed36b2ac95409e0e5318eeeb8623bb4",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "en_US.aff",
+          "sha256": "c7a8c4d08c29d237880844b1623099f59092602f189be38ce3912e457ff38bc1"
+        },
+        {
+          "name": "en_US.dic",
+          "sha256": "e2aec1aff3e2b840c59e2a4f49f7eb9388b6078c681d960153fc72ce183086cc"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/en_ZA-EnglishSouthAfrica.dic.zip",
+      "bytes": 272221,
+      "sha256": "9b01aec349066ec1c22bc34bf6fc2eec309a295789f2f77bb2116baef7107020",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "en_ZA-EnglishSouthAfrica.aff",
+          "sha256": "d55fec64561931b08961e632191c24380679c67fb1a79d7cc2d2af7c25a8d932"
+        },
+        {
+          "name": "en_ZA-EnglishSouthAfrica.dic",
+          "sha256": "5928244f918bfcbea2794fac365c0f29de102bd05494115da8301d48ba660571"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/eo_EO-Esperanto.dic.zip",
+      "bytes": 150732,
+      "sha256": "8885bd08fddfe062d366eb816b629754dd2a5b7565e055ba594893e23d5d55d2",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "eo_EO-Esperanto.aff",
+          "sha256": "a668bb25baccb39a758692a94325c47195a70fe723fe9875d1b3a3b4545412a5"
+        },
+        {
+          "name": "eo_EO-Esperanto.dic",
+          "sha256": "75b09812254cd6b49c2849ed3b92f1c252117906f5a2ce281d25e1798c437ac1"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_AR-SpanishArgentina.dic.zip",
+      "bytes": 229625,
+      "sha256": "cb8e4df6e303a8e6da013e98e8455b5138bf3ac45a2d337ac220c7e51a5da318",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_AR-SpanishArgentina.aff",
+          "sha256": "288559f2821a7a9ca17cf59cadb764e16c072f0254972e9fb6fae448a479cf0d"
+        },
+        {
+          "name": "es_AR-SpanishArgentina.dic",
+          "sha256": "34f566cbf6a73f0e2e309feea99d6ae90a2f893ceef3d3652632c7a326fe6724"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_BO-SpanishBolivia.dic.zip",
+      "bytes": 226647,
+      "sha256": "4f6136c095d23b677a0e133f66313df07031bc70b67612ae2b0ec8bf96951de8",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_BO-SpanishBolivia.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_BO-SpanishBolivia.dic",
+          "sha256": "8cb875ef018de7e35341f351ced64d25e6c2596d5ae31beb4edb3164a3288437"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_CL-SpanishChile.dic.zip",
+      "bytes": 227849,
+      "sha256": "6ccf3da7da4098475cfe228996910d0f6009504ceb429ad7db2e5b8687e5c624",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_CL-SpanishChile.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_CL-SpanishChile.dic",
+          "sha256": "ffabe12bcc6224b278e1f9d134ee1598134579ecf6cc24dd39dd48f42c6f5c1c"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_CO-SpanishColombia.dic.zip",
+      "bytes": 248257,
+      "sha256": "98128df5c1d169aaca9e413ac32962aa2769d144f53fbfb24b04e8f972819124",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_CO-SpanishColombia.aff",
+          "sha256": "1042eb7f6023e81671e731a417ac5df243e51922d019a495a75d8f88b2229f90"
+        },
+        {
+          "name": "es_CO-SpanishColombia.dic",
+          "sha256": "8d8a7ada740d86d0f1eac168c845d1f9722231efdbcae9085dfb23e2f146eedf"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_CR-SpanishCostaRica.dic.zip",
+      "bytes": 225638,
+      "sha256": "f28405f0b01f6269d9057695fd9de001969b0b1f70e80e6331125da7665c7095",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_CR-SpanishCostaRica.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_CR-SpanishCostaRica.dic",
+          "sha256": "d528fedf3abc62c84cdfd224a39f355ab3955367a61d40adf313c02a27a98891"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_CU-SpanishCuba.dic.zip",
+      "bytes": 225917,
+      "sha256": "93638ec58fa8f364667e4f4c1db41961cfbaa4c1344dff189c29cd3a563761ba",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_CU-SpanishCuba.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_CU-SpanishCuba.dic",
+          "sha256": "9aa6aa4994000d8c202b3aef9c45d7fec46df00bed4dd09f1f259f926236a3a1"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_DO-SpanishDominicanRepublic.dic.zip",
+      "bytes": 225351,
+      "sha256": "1a932ebbd946687254f05aa8225744280df0b59da0f35117711d1282fd910df7",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_DO-SpanishDominicanRepublic.aff",
+          "sha256": "e1217e29c0f509bfdb411e7da0b144d5903a1ca9b08f9d0993070537c14e620c"
+        },
+        {
+          "name": "es_DO-SpanishDominicanRepublic.dic",
+          "sha256": "6e1a1c59b942370e4f3288457f0049cad2b663011a21f640580cfc9159a12d04"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_EC-SpanishEcuador.dic.zip",
+      "bytes": 225817,
+      "sha256": "f61cf25f11cb88208fc96924f261706c5be5dc19c24b33de162fe3cef6329f65",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_EC-SpanishEcuador.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_EC-SpanishEcuador.dic",
+          "sha256": "3af7effe9c5b3803c97cb23a7888d71b9c511eedcb77443cb291ad7b8a8087d7"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_ES.dic.zip",
+      "bytes": 288753,
+      "sha256": "395d5419779ac6489bc2ced8f01f5188924ef9d00e7287cd315e68eab37a495e",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_ES.aff",
+          "sha256": "a9b23f30f9391300b59cd8efb70c215afcf14d54256a4ed8d2b9175f3be524e9"
+        },
+        {
+          "name": "es_ES.dic",
+          "sha256": "875a33c342ccab0aab1c840adaf7083b161550cde71882b68db3fc354591c6f3"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_GT-SpanishGuatemala.dic.zip",
+      "bytes": 225556,
+      "sha256": "ac4f689465860906af2c4c302af2a0d9036b90776d6bfbe60d49c4e10c37633c",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_GT-SpanishGuatemala.aff",
+          "sha256": "bbed656f4150c2379ccfae32ecfeb5bd7c97cbd5023bbc026bbec5393c45b716"
+        },
+        {
+          "name": "es_GT-SpanishGuatemala.dic",
+          "sha256": "698a7e481f48a7439980171f579fcece8249d71b1678c0f8a93c1cedf79d7992"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_HN-SpanishHonduras.dic.zip",
+      "bytes": 226061,
+      "sha256": "4be1d9a32ec8885be99076489b1240689730db602cd6d8f4de49a5713cbca131",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_HN-SpanishHonduras.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_HN-SpanishHonduras.dic",
+          "sha256": "00fb2d00c17c0a28a1f1aedd0e5a7ec9fabc2de0f0a441afaadbfe447d3eaf5b"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_MX-SpanishMexico.dic.zip",
+      "bytes": 236600,
+      "sha256": "168c2e2e70d2d52bbd9c16cab92834ab2e738cb26a0f47ac4a61bca91fc41bd9",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_MX-SpanishMexico.aff",
+          "sha256": "1042eb7f6023e81671e731a417ac5df243e51922d019a495a75d8f88b2229f90"
+        },
+        {
+          "name": "es_MX-SpanishMexico.dic",
+          "sha256": "c64234571d1c7908f3d3ea4ca4e72db61261c63c629252c53a0c0786ae6456f2"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_NI-SpanishNicaragua.dic.zip",
+      "bytes": 225790,
+      "sha256": "bac26c597bee995ead69cb0c13317f2a2524cb2441673c735f8825a1a0898805",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_NI-SpanishNicaragua.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_NI-SpanishNicaragua.dic",
+          "sha256": "a27ff43b635e3afcd3d3dcf98aebeb728e0d41cfb908ee681d91d727561704d7"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_PA-SpanishPanama.dic.zip",
+      "bytes": 225449,
+      "sha256": "ddd2cd5668c28c8f8ccb9ba97747f578dbfd397d77d509066a309601abd00c30",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_PA-SpanishPanama.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_PA-SpanishPanama.dic",
+          "sha256": "a25b207c77caf8b4ecdb4acceebd0fe065b101edf90b69f845f83723ae115685"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_PE-SpanishPeru.dic.zip",
+      "bytes": 233229,
+      "sha256": "b77f7cb2a9cae530869b683f291cdb0bc80b41a782f9aabed2dc2a8850eb62ac",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_PE-SpanishPeru.aff",
+          "sha256": "1042eb7f6023e81671e731a417ac5df243e51922d019a495a75d8f88b2229f90"
+        },
+        {
+          "name": "es_PE-SpanishPeru.dic",
+          "sha256": "a3c40143c6e1521c3e559f6fe24b0ec66bb4f5429bef492fae6a6308c10dce35"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_PH-SpanishPhilippines.dic.zip",
+      "bytes": 258989,
+      "sha256": "7e69006d9d022d5d263e8fa009cf6e76aace6a350b719faf23c9068764a4963c",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_PH-SpanishPhilippines.aff",
+          "sha256": "3d1d97d8aa48cf1f6d4be968da19c347d9d12a461c2016680ade27d4bfd56e75"
+        },
+        {
+          "name": "es_PH-SpanishPhilippines.dic",
+          "sha256": "eb84f48e55f3f672efc470b3f0094e625d2afcaf4d61049a5c69fca55d3a347a"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_PR-SpanishPuertoRico.dic.zip",
+      "bytes": 225360,
+      "sha256": "e7c863c69e30d3aebf62480f1b2f7d262ad1aa73901f359441a0f850bee3001f",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_PR-SpanishPuertoRico.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_PR-SpanishPuertoRico.dic",
+          "sha256": "16978777263ba5f85277915134a66c186ce9717662c303f797a7a1d8b1eb2e9f"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_PY-SpanishParaguay.dic.zip",
+      "bytes": 225528,
+      "sha256": "839687bee22c6d5508e4fb900b37a0b46a40a8fc8029fe6a1537d64a4fa77a58",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_PY-SpanishParaguay.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_PY-SpanishParaguay.dic",
+          "sha256": "322a7b7ba862f8f4d76d222f657b067a9f6679c6a6a91014afddd2383ae4f16b"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_SV-SpanishElSalvador.dic.zip",
+      "bytes": 225699,
+      "sha256": "ca74daddc666041a351e292e98f3d88e876cd36941ffeea6d16a101494c9382d",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_SV-SpanishElSalvador.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_SV-SpanishElSalvador.dic",
+          "sha256": "8ee31559042a1a12a13922b2fbb86dfa558d74e7b22470f8e4ce1227127997ae"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_US-SpanishUnitedStates.dic.zip",
+      "bytes": 225345,
+      "sha256": "1f1f2b3473e247ac9deb1dda5802afd2d6ef7827920434a48f082d3dd5be7ac0",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_US-SpanishUnitedStates.aff",
+          "sha256": "3d1d97d8aa48cf1f6d4be968da19c347d9d12a461c2016680ade27d4bfd56e75"
+        },
+        {
+          "name": "es_US-SpanishUnitedStates.dic",
+          "sha256": "de4a2cdb7880b6545a2db72532fdece49d8c831895d450ac82df4a68a208bc5f"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_UY-SpanishUruguay.dic.zip",
+      "bytes": 226055,
+      "sha256": "068aaa3b2c05fe95ab9df82a91f9a986a99139d8fab09e9a76cec830ae5bb8cc",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_UY-SpanishUruguay.aff",
+          "sha256": "118aaa8815d4aca0868f04faf34152abbc0d18630017eada779097033bbe96db"
+        },
+        {
+          "name": "es_UY-SpanishUruguay.dic",
+          "sha256": "4a6287d1affd717b068167496b66f5140fc1f8c59f5f1cb89c15ae030683a677"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/es_VE-SpanishVenezuela.dic.zip",
+      "bytes": 227170,
+      "sha256": "d795ba927b1d6361f5bf272f3d6317265877401559b4011db876fe03998d68d7",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "es_VE-SpanishVenezuela.aff",
+          "sha256": "1042eb7f6023e81671e731a417ac5df243e51922d019a495a75d8f88b2229f90"
+        },
+        {
+          "name": "es_VE-SpanishVenezuela.dic",
+          "sha256": "dfca3e8fd5033af54a96e3beda4ec0f0408f0851fa3acbf9923f16c52b91919d"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/et_ET-Estonian.dic.zip",
+      "bytes": 863365,
+      "sha256": "3c9c352aa5eacbf72dbe2ea3a828004520cfb19425cb827b144b07a94c0ed922",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "et_ET-Estonian.aff",
+          "sha256": "f568a1003d9d49d377e87e35a4b712a243b4490ef0647992c85169d46ed948e3"
+        },
+        {
+          "name": "et_ET-Estonian.dic",
+          "sha256": "237ff31093ec03c7f992919b8e7c9a4d3df90cdef9859edab571ebff42c9f5e8"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/eu_EU-Basque.dic.zip",
+      "bytes": 844477,
+      "sha256": "fa5a6c4de347738daf145a75115ac3b352d810678b79e45b34e31a202f96cab7",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "eu_EU-Basque.aff",
+          "sha256": "ba68948c642828c80e5b5fc7ea19876bd38ce6f874f4453c662395adca8fef2a"
+        },
+        {
+          "name": "eu_EU-Basque.dic",
+          "sha256": "2f046ed070c11f9dc6f502577462bdc11a0966be50e0d9750823922a22d9e948"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/fa_FA-Persian.dic.zip",
+      "bytes": 360302,
+      "sha256": "a3ad9a75ef202e1189befcc85d9cb90a9f10823da496796d8e126e4ce80df799",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "fa_FA-Persian.aff",
+          "sha256": "dba0980816354ad969aa46dda0c040eeebda4a9381be331e17eae8647a2a1e1c"
+        },
+        {
+          "name": "fa_FA-Persian.dic",
+          "sha256": "314f31e059994f26e8016c834b14dfd10f74834b3f623a6040265b8f2a9dddab"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/fo_FO-Faroese.dic.zip",
+      "bytes": 579012,
+      "sha256": "77bcbb4689e060e1e7fc92c2101019154039d7694a67dfa9f5045d2c204d4cf6",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "fo_FO-Faroese.aff",
+          "sha256": "6e459e5a3346ee0b7ad3ddc98dd0a412226060c6e7be6e096cfdf039f877b491"
+        },
+        {
+          "name": "fo_FO-Faroese.dic",
+          "sha256": "3b62983af6b5c093e2ec020ff35869cc3068167e7cc7f8cc9585456a6b1368db"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/fr_FR.dic.zip",
+      "bytes": 316079,
+      "sha256": "b3c1c2d619115b8e7d924fc74df7f2ce705bd453225e813c49dd182f3b193a06",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "fr_FR.aff",
+          "sha256": "23169184f8584d618e83de0a3c93a8d894d076bbd7cd911d1ebda9a401396215"
+        },
+        {
+          "name": "fr_FR.dic",
+          "sha256": "b988750ac2b3a139a8fb87940946b81a928b14d8eca28283b48727658c8e4f2f"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/fur_FUR-Friulian.dic.zip",
+      "bytes": 120165,
+      "sha256": "58a6e56ccf66cd0edbb523eb483828b655fbaddca24ff719c25765136bae5cf4",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "fur_FUR-Friulian.aff",
+          "sha256": "9b59cc525dec3a8580259e94493fd450a409835a0c35a19ac64b86fe9b750ec9"
+        },
+        {
+          "name": "fur_FUR-Friulian.dic",
+          "sha256": "f1ac6d1029915bc749c8b4f4d454a28c977992328c541bd362266b6fc630988f"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/fy_FY-WesternFrisian.dic.zip",
+      "bytes": 1727840,
+      "sha256": "51a1fc939ef3a120876d25f4cfca3be766d41b38c487d9852a37170d4deb32ad",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "fy_FY-WesternFrisian.aff",
+          "sha256": "8eace0ccacec1d508d3267064aa665724712dbded65043d775a14be5a79ddbe5"
+        },
+        {
+          "name": "fy_FY-WesternFrisian.dic",
+          "sha256": "5cc839a5dce2c0e54b2da7bb5a66d4c59b980438c7964b11e1c8b834f322b7f9"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ga_GA-Irish.dic.zip",
+      "bytes": 403665,
+      "sha256": "372c897d365d32ad0b9f367390de019cb30c6a81f34979981497ae8d83b87c61",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ga_GA-Irish.aff",
+          "sha256": "1c48edbeb0e4225e612bb92d21f819fec58c9121b236db5ac0bba458982623b7"
+        },
+        {
+          "name": "ga_GA-Irish.dic",
+          "sha256": "3ca59ca30da8875020f83697d9f817d44b4efa02d78fe9fb52a2c5a86527349d"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/gd_GD-Gaelic.dic.zip",
+      "bytes": 1007241,
+      "sha256": "26f9cc9a78ab2997fb07570ce00a8e954495b29a1b60c41b1b900cd529b3d43c",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "gd_GD-Gaelic.aff",
+          "sha256": "cee685b3aae9e9d4b794791eb6b113da1a0d6e8c452b39351088f758686866b4"
+        },
+        {
+          "name": "gd_GD-Gaelic.dic",
+          "sha256": "cf134101bafb03147685949bf9acf031c9e3ec56993d1b695aa4fbfe331d9181"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/gl_GL-Galician.dic.zip",
+      "bytes": 1776046,
+      "sha256": "df99d51f3046d6fc9b910d0120229d9dc67d8efb5d894802e5c4d133b46019f2",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "gl_GL-Galician.aff",
+          "sha256": "e2abc4122548c5f9e914fbbbcbebad3486b1492ac352fef72b95be93e32a0617"
+        },
+        {
+          "name": "gl_GL-Galician.dic",
+          "sha256": "ca5f8d735a13225c1dabab042ddac8c58fd5e820ffba807ba8024d0fa0a68170"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/he_HE-Hebrew.dic.zip",
+      "bytes": 877776,
+      "sha256": "0c899f73cb0285e0359de58f1d6502c895fba87e72d325b4f0d6a8af183d94d0",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "he_HE-Hebrew.aff",
+          "sha256": "e115a0a5014d17a8e904f9d4a67d7992039b396c5fa031eb036a13bf63dfb037"
+        },
+        {
+          "name": "he_HE-Hebrew.dic",
+          "sha256": "9bd95042a927e13ab422231e355caa8a7018456e7c49b889f2e6c62ddb5a0552"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/hr_HR-Croatian.dic.zip",
+      "bytes": 225006,
+      "sha256": "23ac3cf96e7aed176cb9f73c827f2317c069244ae73c959575421332a136616c",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "hr_HR-Croatian.aff",
+          "sha256": "c55dc55e252fd5a2f9fd4baba28239342aec1bd3cc60556d8aea6cb24f2f26a6"
+        },
+        {
+          "name": "hr_HR-Croatian.dic",
+          "sha256": "dad20d613174815f5d553d6ccdc106d026ee06c4eff68a23b8d5c37571639871"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/hu_HU.dic.zip",
+      "bytes": 727079,
+      "sha256": "bdfc02af02b2eae8ef7c84d93210ee6ce02eb28400c9b098bed6667337245191",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "hu_HU.aff",
+          "sha256": "03465ee40bd86ce2f77865cc303685975a9493f3276159cb859ad1b89acf62a0"
+        },
+        {
+          "name": "hu_HU.dic",
+          "sha256": "499e0bb7cb98815e646a69908ac1ea96c900ff2ff40e7dfa9a47e9653df0a497"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/hy_HY-Armenian.dic.zip",
+      "bytes": 305681,
+      "sha256": "c520eec1c3d1f33e7c73dec5e84e61af7da9333240bd0a5f392c1fb56e038fa0",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "hy_HY-Armenian.aff",
+          "sha256": "aa8b49f32350a0136d112f62ee697c87cdc452256d12a70ef1fea2e7a13b32fb"
+        },
+        {
+          "name": "hy_HY-Armenian.dic",
+          "sha256": "53530792b4937e4b8cd387e28ff45884e42742c8218d8ba4510804efcfb81084"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/hyw_HYW-WesternArmenian.dic.zip",
+      "bytes": 313052,
+      "sha256": "8a6c2b03a71007a3584d85db32d375f28033daf3e314dd47fa1002974a2181f8",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "hyw_HYW-WesternArmenian.aff",
+          "sha256": "4223fd49fb82891911f65270982beb5b929e44763476895706567596819dcd3e"
+        },
+        {
+          "name": "hyw_HYW-WesternArmenian.dic",
+          "sha256": "ecfbc8af694532bfb2a40654608d8e0d6cad0b55520543d84c97d2ae8b710694"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ia_IA-Interlingua.dic.zip",
+      "bytes": 212922,
+      "sha256": "aeb07f986b350285cd6e9717081110d079ac0a5db142093e0f97141c5454a4a5",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ia_IA-Interlingua.aff",
+          "sha256": "08fa657fc641f6b2db0e9179d4219a14a0e7091a23471b794a5c5e9805283d18"
+        },
+        {
+          "name": "ia_IA-Interlingua.dic",
+          "sha256": "22ee44726f058c904541b83db9bc3f4652e51186188fadd475619e3a596ada47"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ie_IE-Interlingue.dic.zip",
+      "bytes": 91959,
+      "sha256": "153e6ce1c36985a4553499553aa0e7ca0adb303138833f86cd938b5fc3c62253",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ie_IE-Interlingue.aff",
+          "sha256": "d43698829bc2cc2b8c14890aa454db980c8d71ea07ada1af2711bc055f564f1d"
+        },
+        {
+          "name": "ie_IE-Interlingue.dic",
+          "sha256": "b406301278a04f89764c0fbc0d9ae4cd6de511c43a3a9ca2351eb32403eca88d"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/is_IS-Icelandic.dic.zip",
+      "bytes": 688790,
+      "sha256": "d3c9176e1a92cffd4faad41bf04f5f35b7449efeb866f701a8964df691ad20f0",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "is_IS-Icelandic.aff",
+          "sha256": "0168050c64a369c55b5aeb61f9dfe484d2aa7512d78bb3fa36779ea24b467c50"
+        },
+        {
+          "name": "is_IS-Icelandic.dic",
+          "sha256": "8447594fd7eb1d6d43725c4ca49b00d3f00c4c4f3ac2f2b6dfe3f56eb211d280"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/it_IT.dic.zip",
+      "bytes": 358122,
+      "sha256": "2b0aab412aa754ddbfd64da6c66310e1d0307311e71ea0734f73b54091c05bff",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "it_IT.aff",
+          "sha256": "dd4de7d82eddecf2d0c0f7ecfc97696775f3ace19c65d16e6f20dfb3d0653ff1"
+        },
+        {
+          "name": "it_IT.dic",
+          "sha256": "0e11513d21973cabc62b226e920227dbed9413d38f87d28ebba8c69cd6b72312"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ka_KA-Georgian.dic.zip",
+      "bytes": 554153,
+      "sha256": "a114739204a5fa45b156bb98e102ed77e0f9b5c2bc255764da335378d3370467",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ka_KA-Georgian.aff",
+          "sha256": "f5c39986659f13d703d0bae0ac8856d58768ce2b8d1f5ab6fb1ca3487c5ede5a"
+        },
+        {
+          "name": "ka_KA-Georgian.dic",
+          "sha256": "5963f268e996f1e27e17163873b4d32f41fae2a1e5bef0117126caefe62f5857"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ko_KO-Korean.dic.zip",
+      "bytes": 877777,
+      "sha256": "f43e03d409250fbe3779a8347d4b9c41265d40d0fd83e56ef1b93ea040816068",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ko_KO-Korean.aff",
+          "sha256": "43a984d8f1e2309490b69cfde31832d217a0b31164c67661e293efc096083688"
+        },
+        {
+          "name": "ko_KO-Korean.dic",
+          "sha256": "dcc90cbc9ffaded58f74b6f29266da6f0d724b9f8059de43a9f449bc4c139570"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/la_LA-Latin.dic.zip",
+      "bytes": 501435,
+      "sha256": "1deb56027140d755d31626300f866e029ade5a1926513bfa14a100ecef30fb83",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "la_LA-Latin.aff",
+          "sha256": "6d78952f21ddd6158227544d573958a3d05b759c6219a2e1ac924daf24210e71"
+        },
+        {
+          "name": "la_LA-Latin.dic",
+          "sha256": "8e0910e623800110cf9cc70b6adaea813857d02916b7c9a7dd9d9e9dd72a98ef"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/lb_LB-Luxembourgish.dic.zip",
+      "bytes": 588101,
+      "sha256": "89127c97adbc016c1874953517dc24fc9b86aef239174ccb86384ddc1ad33176",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "lb_LB-Luxembourgish.aff",
+          "sha256": "5c39f6e7c06573a759163746d6722149152ca05f0054d5b4633a6f83aca7cd1a"
+        },
+        {
+          "name": "lb_LB-Luxembourgish.dic",
+          "sha256": "117744e5fabce1575ef5d290f31ce51859c02f2097f916a29f3a07b23cf7e4c8"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/lt_LT-Lithuanian.dic.zip",
+      "bytes": 325453,
+      "sha256": "4aa3bb9c1741ee565ebd19d3769d915c4867d09510d7070ab6c5b57e33e86500",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "lt_LT-Lithuanian.aff",
+          "sha256": "0cb625d3a5939b8c31e0d566b0e6e06030e7aca69027bb6bcc23f35636d4c2b5"
+        },
+        {
+          "name": "lt_LT-Lithuanian.dic",
+          "sha256": "3c3d651a9f2a0505dbceff152d1f073117b9994a572fbdb8c8aa4409baf2152a"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ltg_LTG-Latgalian.dic.zip",
+      "bytes": 72917,
+      "sha256": "01c091deea00914176168d1b8d335f0299a8b578df95f161f60b33ae8b215739",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ltg_LTG-Latgalian.aff",
+          "sha256": "ffe84b7e9fca7157d4f423f246ac3f4da42a78e41d21c64886f9632df00b35ff"
+        },
+        {
+          "name": "ltg_LTG-Latgalian.dic",
+          "sha256": "0f99a93abe86adfe8304967e9e3e8af45dc0d39ba734b42dd49243acf6f8e7fd"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/lv_LV-Latvian.dic.zip",
+      "bytes": 354848,
+      "sha256": "7e3d3b38c7ec9f38d06535f54262427b40e33e69311c85f0714e4725700a4200",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "lv_LV-Latvian.aff",
+          "sha256": "b701a4e2401904f63f913f615026ee28a31413ff5f2dc3414895beb93c015d67"
+        },
+        {
+          "name": "lv_LV-Latvian.dic",
+          "sha256": "7b1983d832ba8f85e7bee0d9dc3abc110d9a9976fc6da9d0bc2a9dcad9c36c51"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/mk_MK-Macedonian.dic.zip",
+      "bytes": 652503,
+      "sha256": "c2adcd553dfd67e145814796ae50f5a1f1938392eac4ee675e3f670f0cc48893",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "mk_MK-Macedonian.aff",
+          "sha256": "4774871b7cafa2d59bd2f539be7a2293f4aa2b2e2a331f1d11f8bcb849b4105e"
+        },
+        {
+          "name": "mk_MK-Macedonian.dic",
+          "sha256": "5008053d3b4e4be163c32b23a9d0551ae7aefceaa7d0760c07f2ebc10af7afb5"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/mn_MN-Mongolian.dic.zip",
+      "bytes": 1833360,
+      "sha256": "9cd9b24ed56efbdc88d76ee020ea3e67b533f11e12f0d89cc3bcb76b740ce99d",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "mn_MN-Mongolian.aff",
+          "sha256": "d90ee189fbe990dc912c8857184f3871addb79eaa492af149c22ca1d6ad39895"
+        },
+        {
+          "name": "mn_MN-Mongolian.dic",
+          "sha256": "593a38d65e790eba032962c9e9ea2d53d4aeea919694bd14211bc695c460b304"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/nb_NB-NorwegianBokmal.dic.zip",
+      "bytes": 1390633,
+      "sha256": "7187fb02314b7961c5a7a85afe105c3ac57a1a56e74dd6b34299851bc6a61367",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "nb_NB-NorwegianBokmal.aff",
+          "sha256": "515a1e5f32ffa555d253c827830420dc5bb1d9a59ea9f720729acb0874c6a8c3"
+        },
+        {
+          "name": "nb_NB-NorwegianBokmal.dic",
+          "sha256": "e97fdf7f441b3c46e1d0761a8ad25fa1883d0977d70ea8cb04751cb1c47fa10e"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/nds_NDS-LowGerman.dic.zip",
+      "bytes": 43796,
+      "sha256": "89679a3b6743909d7c3edd7976766a3ef840bb51578eb089776e6ac5a0dccb26",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "nds_NDS-LowGerman.aff",
+          "sha256": "3bede75cd7db3b8262778e6a5cc673bfee37cb703702e412682d806429ae1073"
+        },
+        {
+          "name": "nds_NDS-LowGerman.dic",
+          "sha256": "d8c380bed2182b1ac36bcef33a9391d9d77232045aaf43b59fe1cb492f378a95"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ne_NE-Nepali.dic.zip",
+      "bytes": 171902,
+      "sha256": "8101335ddf52d55a886d299e0248a02dee8c6d51cce269a7377e8e2926e781d4",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ne_NE-Nepali.aff",
+          "sha256": "0e07d48fbebb6cb7f40d686a9eb9540a949922360d71c6d423a0384ee65f3fc2"
+        },
+        {
+          "name": "ne_NE-Nepali.dic",
+          "sha256": "76c5dbcae6af15ca474213d6e67585e5247304edaa13cc5ee326dfcaf4918f88"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/nl_NL-Dutch.dic.zip",
+      "bytes": 803443,
+      "sha256": "a871695e916b2feb478f27d2e698362707c38bf0620b5e35695c42ad21ac3d45",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "nl_NL-Dutch.aff",
+          "sha256": "6c64e3b07177000517df3b6a06ca2c44931c0a362618cf3bdff9aa137b59e0d7"
+        },
+        {
+          "name": "nl_NL-Dutch.dic",
+          "sha256": "2c2a0ff6461ab1bd9620b9422dc9368c15dc45d1a50973671b19516a1afcf5f8"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/nn_NN-NorwegianNynorsk.dic.zip",
+      "bytes": 917827,
+      "sha256": "799b12a088df60fbc45f62d3a3bcec3a37f7f00df238c02575f9671a207b6bd5",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "nn_NN-NorwegianNynorsk.aff",
+          "sha256": "e50821655063f5680a3e4cf775b0a69c87de74bd6d2bbbb5da14ff8de4633beb"
+        },
+        {
+          "name": "nn_NN-NorwegianNynorsk.dic",
+          "sha256": "eaf1dc7ee7c848358df9aa231640b054ca4e388f2a870185528e4b229626faa6"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/pl_PL-Polish.dic.zip",
+      "bytes": 1137419,
+      "sha256": "e9d643212ee634838cd30e9084bfcd80cbb779e1690d7d234411f9f794b10beb",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "pl_PL-Polish.aff",
+          "sha256": "de7b54a8fa37562d58b481cf3d87a63e3dcc2d74021f6403eb0e4f5df9ecc225"
+        },
+        {
+          "name": "pl_PL-Polish.dic",
+          "sha256": "74b6155391025419967c26913541b55b36d58e80b1028037d4a0b8ddcb18d0b7"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/pt_BR.dic.zip",
+      "bytes": 1337519,
+      "sha256": "eea88217ba4e3144ea98e31a71e31c195a343ec78bef86203312e05ee132d294",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "pt_BR.aff",
+          "sha256": "8427837d0ce374c628e8e90fbffab55f617f345d1774e9f9d1e2bef489b0508a"
+        },
+        {
+          "name": "pt_BR.dic",
+          "sha256": "bc9410b115fb717773585658dc14c0d98d0933db87ae175c160c2321f4a9c273"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/pt_PT-Portuguese.dic.zip",
+      "bytes": 1381887,
+      "sha256": "38a07dcc1f3db9c8214a55f466205e016611b56848706578a46bc89504e16190",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "pt_PT-Portuguese.aff",
+          "sha256": "1c6250e256c287fa860c15095d31cdffb1939de690ed2fd5d814408ecf0b52eb"
+        },
+        {
+          "name": "pt_PT-Portuguese.dic",
+          "sha256": "3d4100daed9e2a8108d1620129a9cd03a31585d5b4f14f2eecc18c8a767713fc"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/pt_PT2-PortuguesePortugal.dic.zip",
+      "bytes": 234537,
+      "sha256": "102cf3d310a3ae5ece04e54b393d253d0e815d4439bd8f4cb2df58847f31d145",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "pt_PT2-PortuguesePortugal.aff",
+          "sha256": "975a209fcc892cb382fa5f34a28c391a39668661ce373ae071287809c5fcae24"
+        },
+        {
+          "name": "pt_PT2-PortuguesePortugal.dic",
+          "sha256": "e43c67b439ede72ed5fe33acbd4413e0a1320af7a94728a331db84e27122228e"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ro_RO-Romanian.dic.zip",
+      "bytes": 594631,
+      "sha256": "799e5c5349c4daebc78750681169442ff6275d7cf980435b66facef8277bdf12",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ro_RO-Romanian.aff",
+          "sha256": "3ee127a667bdec829faee546ae32033e8f10f7c63117f9b572ef03ad9df2b76b"
+        },
+        {
+          "name": "ro_RO-Romanian.dic",
+          "sha256": "c26a9356f598a0ae89e7be650f6bdd9ba70acce66b41d7ab14c0c68639b6ed33"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ru_RU-Russian.dic.zip",
+      "bytes": 770010,
+      "sha256": "8868da215c8c56790d7b4da9376972e24ae9359f3a1168ffeb8c58c3b5ec7bb7",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ru_RU-Russian.aff",
+          "sha256": "b9d4ec53d513b3d56e8ce025ef02f950393a35830949893700e570238e09a9c4"
+        },
+        {
+          "name": "ru_RU-Russian.dic",
+          "sha256": "754bedd3b21ce2edecade002cfa6ffaf7493d6e93ccdc6282e71bd4bf6247f35"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/sk_SK-Slovak.dic.zip",
+      "bytes": 865478,
+      "sha256": "3679585f350be70e3e84f45b7f02fa7f076e5ffa8f2df9fef4b70e2ace734848",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "sk_SK-Slovak.aff",
+          "sha256": "a79dc992b849aa2355db38eea9c4722239993639d77bc81c9c1aa79f213e723c"
+        },
+        {
+          "name": "sk_SK-Slovak.dic",
+          "sha256": "b6cdb6fb512c44881cc91329aea0b179840f5f9a3e6cb024c2ab8547f96f5d94"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/sl_SL-Slovenian.dic.zip",
+      "bytes": 1193652,
+      "sha256": "7e32a667f8f76415e289a3aaa2b0153ed27d393b7248e1ac2b61a8fc43681bce",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "sl_SL-Slovenian.aff",
+          "sha256": "511043a4f9c64a966599e3d53fa1f4e9a172a87de4a7a0c2cf327098a3a605d1"
+        },
+        {
+          "name": "sl_SL-Slovenian.dic",
+          "sha256": "5bac615dbd301ddbefbdaafdae242a89e46605916d77958df22778e770a95b9e"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/sr_LATN-SerbianLatin.dic.zip",
+      "bytes": 655038,
+      "sha256": "58290dcddd0a792f5515a6ad464e011b920de275bfe08a06d74dd301952c5946",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "sr_LATN-SerbianLatin.aff",
+          "sha256": "9112fdbd53c8a20ac06397e736884450d61df0c6c5be6f5512210ed58229f939"
+        },
+        {
+          "name": "sr_LATN-SerbianLatin.dic",
+          "sha256": "a41302b3e707c7a344560bc7df6db739db254f87be0442108a68f4ed2a34782d"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/sr_SR-Serbian.dic.zip",
+      "bytes": 778541,
+      "sha256": "0cc943c109af81f034ee97c0b910043c7d648d117a20543f210510c2c1d0ec97",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "sr_SR-Serbian.aff",
+          "sha256": "10e11edbd55742975f0720b26a2b6669187e9b91fabc5063ee81f0db2f73279f"
+        },
+        {
+          "name": "sr_SR-Serbian.dic",
+          "sha256": "8bdbbe464f20a5a600ccad1ff0257883c42bb6170a55440d45b4b39e002f433a"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/sv_FI-SwedishFinland.dic.zip",
+      "bytes": 731639,
+      "sha256": "03a3ee3a1e306f7a220f1177c0501e0f2b656bf3cdd19d94214267550797484d",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "sv_FI-SwedishFinland.aff",
+          "sha256": "1a8fa2740a552b9d9fbc99c034d0a70eff80fa3f8a1c1603033867220220bd38"
+        },
+        {
+          "name": "sv_FI-SwedishFinland.dic",
+          "sha256": "62874b2ca0080ae663c5e241940097161bb277e5b99bbc40f2cdda1548b38eaa"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/sv_SV-Swedish.dic.zip",
+      "bytes": 733316,
+      "sha256": "0497a57a0a6d9a9f1e64564b4c9a063284c8b6801336fd9c7b78df5108de0be3",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "sv_SV-Swedish.aff",
+          "sha256": "ff8ddb979daa9f128e7489ece5edd666ada7af787933221543b7cecb2b3ed478"
+        },
+        {
+          "name": "sv_SV-Swedish.dic",
+          "sha256": "540ff8d0d9b05aae66dd919625d3a0bd25026d1e157027e6602e5dd11a07b645"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/th_de_DE_v2.dat.zip",
+      "bytes": 7141315,
+      "sha256": "1baf782938e9afac3588e727d9621d7ae6ed717cdb22abe505f93f7f2ac52f5c",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "th_de_DE_v2.dat",
+          "sha256": "cae18340c59738350b8abe7d7822edb76a8f26d177c3f7cdc68fb0187ca25693"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/th_en_US_v2.dat.zip",
+      "bytes": 4018229,
+      "sha256": "fea31ce3bb8b8a16c1c00718c072914bb6c1ba27f1e95a160ca5fc387875d97a",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "th_en_US_v2.dat",
+          "sha256": "8a3e4637450b7277428da248f0a604b5c92942bc30507220c051181462340f39"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/th_fr_FR_v2.dat.zip",
+      "bytes": 1613541,
+      "sha256": "dc9e7561729c48add75a6d39241ecfc75a49f2e05046f0ed5a959cece029e840",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "th_fr_FR_v2.dat",
+          "sha256": "a28216ddcf499f377979ec1d876472a53527a6450744cd1219b4d04a3c854318"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/th_it_IT_v2.dat.zip",
+      "bytes": 697074,
+      "sha256": "329ff809a6138eda58d5db1f36aec4dd18c91cccf0957071015aa6637925fed3",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "th_it_IT_v2.dat",
+          "sha256": "17fa1b397088df564c38eb55f3cf6413bed1760bdd316f81eb398f3446812717"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/tk_TK-Turkmen.dic.zip",
+      "bytes": 288366,
+      "sha256": "aee3107664994343f477567d29d5b3278b171bffaff85f32d549d87374c1a8e7",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "tk_TK-Turkmen.aff",
+          "sha256": "c55a9e98cab463d6095920bc2f8f682837beb971c21a8ea37d8ef60d80133755"
+        },
+        {
+          "name": "tk_TK-Turkmen.dic",
+          "sha256": "4c75d6e1c9f4e4780bd1a00828b37b8826232db4b204a96b30b841f94d2a0b81"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/tlh_LATN-KlingonLatin.dic.zip",
+      "bytes": 15075,
+      "sha256": "85aedc7fe96ff4dc2a469f760952b43784d4a4ba833607b1d4ea649f52e1a8fd",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "tlh_LATN-KlingonLatin.aff",
+          "sha256": "2f3d1b8f6a7372537343df625771438e6d6f95e7bc2f255ef4eea1d90b06cc06"
+        },
+        {
+          "name": "tlh_LATN-KlingonLatin.dic",
+          "sha256": "250ad66287d1202421296b7b582a4eaf5b291b6c3da3afff7520299551e2fd1b"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/tlh_TLH-Klingon.dic.zip",
+      "bytes": 17555,
+      "sha256": "35cb31b456d91a2ac74e4eed7f726d1afe9823bdf7dad6bcc80cac5b07ee620c",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "tlh_TLH-Klingon.aff",
+          "sha256": "3fef00afd2470c0504592e1b18fe65b3e3cba3939dd1bb6e54dc0d5c76879491"
+        },
+        {
+          "name": "tlh_TLH-Klingon.dic",
+          "sha256": "7d7d4f1477cf445fabdb50eca7690bb8f6da0b1a221d01bdffac25fc710c4550"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/tr_TR-Turkish.dic.zip",
+      "bytes": 2285293,
+      "sha256": "d034150619353b5f66238a4d791fafe89197963bcaeb8db5b9b3caf59f3e0c30",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "tr_TR-Turkish.aff",
+          "sha256": "6a390c79b054ad427cf9a6bf6de43463953cc1918e7f727e9dd4ebd4f9702f42"
+        },
+        {
+          "name": "tr_TR-Turkish.dic",
+          "sha256": "dc1d8f7724f4aefd117274678de431e4ea1765f2e02e6983b6ca48cbf5a7fc7c"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/ug_CN-China.dic.zip",
+      "bytes": 1966129,
+      "sha256": "ab89d81d407046c534631c92d45c8a7256a2bbd911ea70ee85bf391795ea4921",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "ug_CN-China.aff",
+          "sha256": "10f8e6cf84dd2172c08501b16da4c69b97f4f5d33683532411aa87e2688460ca"
+        },
+        {
+          "name": "ug_CN-China.dic",
+          "sha256": "901ae08baef8cd5b3827f412f74b8a5ef83006a01c3f2e6ef13a6dd5ed77c21a"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/uk_UK-Ukrainian.dic.zip",
+      "bytes": 1400564,
+      "sha256": "38955df449b23da49565d14f0c798e01669bc7c1993eb5dd1e6963ff74e6bc5d",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "uk_UK-Ukrainian.aff",
+          "sha256": "dec92bbd75c478a9f414cb349b528e2f94d281c3da99678c91a7c902379c696d"
+        },
+        {
+          "name": "uk_UK-Ukrainian.dic",
+          "sha256": "680b904950feb431436f8fbe0ed7360bc200725fdd9386e8c76c0d57b3e4e9b5"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    },
+    {
+      "path": "Contents/Resources/vi_VI-Vietnamese.dic.zip",
+      "bytes": 16783,
+      "sha256": "d39465eb5310a3ef98d70e83132e2701d639285ce2ff0135a78b0c5afe3c27ed",
+      "category": "dictionary/thesaurus",
+      "members": [
+        {
+          "name": "vi_VI-Vietnamese.aff",
+          "sha256": "0d836ebf1d4f1e9964d931fbb76464b24037b71995c73784166a07c43e2a7ae5"
+        },
+        {
+          "name": "vi_VI-Vietnamese.dic",
+          "sha256": "9c56725b43e66de33d28aac8e58124e38247c8b2be34a8469b3113169110256c"
+        }
+      ],
+      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+    }
+  ],
+  "embeddedResourceInputCount": 8343,
+  "otherResourceFileCount": 866,
+  "fullInventoryPath": ".native-sources/license-inventory/inventory.json",
+  "bundledInventoryPath": "Contents/Resources/licenses/inventory.json",
+  "staticRendererSnapshot": "native/license-static-components.json",
+  "additionalValidation": {
+    "fontPayloads": "All 15 retained font symbols mapped through Mach-O segment offsets to byte-identical pinned-source font payloads",
+    "nativeToolTests": 40,
+    "packagedVerification": {
+      "passed": true,
+      "app": "/Users/dominik/GitHub/texstudio/.native-sources/app-updates/next/TeXstudio Espresso.app",
+      "platform": "offscreen",
+      "tests": "^texpresso-(rendering|diagnostics|scrolling|links)$",
+      "engineRevision": "90b211349960b406267b44642c7be49b584d1f4c",
+      "capabilities": {
+        "previewProtocol": 1,
+        "maxPreviewPixels": 16000000,
+        "codecs": [
+          "png",
+          "svg"
+        ],
+        "synctex": true,
+        "regions": true,
+        "links": true,
+        "adaptiveRendering": true,
+        "pngPatches": true,
+        "backgroundRendering": true,
+        "prepareEdit": true,
+        "requestLifecycle": true,
+        "parentWatch": true,
+        "pngCompression": {
+          "library": "zlib-ng",
+          "version": "2.3.3",
+          "level": 2
+        }
+      }
+    },
+    "editorSmoke": {
+      "passed": true,
+      "appSha256": "f6dacf51f111f02931319d479b776a4b78d7967a9f03653833d5ace72e5e0bfa",
+      "targetPages": 30,
+      "platform": "offscreen",
+      "inputs": 128,
+      "elapsedSeconds": 35.755545458057895,
+      "peakEditorFootprintKiB": 106306,
+      "leftoverProcesses": [],
+      "independentPdfSynctexProbes": 5,
+      "scope": "Short startup/edit/project-switch smoke test; no long-session or latency claim"
+    }
+  },
+  "releaseWorkRemaining": [
+    "qtbase-6.12.0_1: installed package has no collected license/attribution text",
+    "qt5compat-6.12.0_1: installed package has no collected license/attribution text",
+    "qtdeclarative-6.12.0_1: installed package has no collected license/attribution text",
+    "qtsvg-6.12.0_1: installed package has no collected license/attribution text",
+    "qttools-6.12.0_1: installed package has no collected license/attribution text",
+    "qtimageformats-6.12.0: installed package has no collected license/attribution text",
+    "Contents/Frameworks/libpoppler-cpp.3.dylib: source matched, but no package receipt",
+    "Contents/Frameworks/libpoppler-qt6.3.dylib: source matched, but no package receipt",
+    "Contents/Frameworks/libpoppler.165.dylib: source matched, but no package receipt",
+    "Dictionaries/thesauri: reconcile each exact payload with its upstream license and copyright notice; generic URL is insufficient evidence",
+    "Qt: retained SPDX documents include build tools/unshipped targets; only binaries[].qt selects shipped targets. Collect full standard license texts and applicable third-party attributions from matching Qt sources",
+    "Static MuPDF: reconcile archive members and font data with final linker retention; engine MIT and MuPDF AGPL notices alone are incomplete",
+    "Publish complete corresponding source matching editor, engine, dependency binaries, data, patches and build scripts; verify submodule commits are publicly accessible",
+    "Artwork, generated symbols, templates, bundled documentation and translations: preserve upstream attribution and reconcile file-level exceptions before release"
+  ],
+  "stagedAppPath": ".native-sources/app-updates/current/TeXstudio Espresso.app"
+}
