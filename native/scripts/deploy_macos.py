@@ -73,17 +73,20 @@ def refresh_engine_manifest(app, signing=None):
     path.write_text(json.dumps(manifest, indent=2) + '\n')
 
 
-def remove_virtual_keyboard(app):
-    """Drop macdeployqt's optional touch keyboard, retaining shared dependencies.
+def remove_optional_qt_modules(app):
+    """Drop unused auto-deployed plugins, retaining shared dependencies.
 
     TeXstudio uses the native desktop input method. macdeployqt nevertheless
     copies every platforminputcontexts plugin. Do not remove QtQml itself: the
     editor uses its JavaScript engine for macros.
+    The normal PDF viewer uses Poppler; Qt's separate PDF image handler adds an
+    unrelated renderer and its QtWebEngine/PDFium source/notice requirements.
     """
     plugin = app / 'Contents/PlugIns/platforminputcontexts/libqtvirtualkeyboardplugin.dylib'
     plugin.unlink(missing_ok=True)
+    (app / 'Contents/PlugIns/imageformats/libqpdf.dylib').unlink(missing_ok=True)
     candidates = {'QtVirtualKeyboard', 'QtVirtualKeyboardQml', 'QtQuick',
-                  'QtQmlModels', 'QtQmlWorkerScript'}
+                  'QtQmlModels', 'QtQmlWorkerScript', 'QtPdf'}
     links = {}
     roots = set()
     for file in macho_files(app):
@@ -167,7 +170,7 @@ def main():
     run([args.macdeployqt, app, '-verbose=2', '-no-codesign',
          '-executable=' + str(offscreen),
          *['-libpath=' + str(path.resolve()) for path in args.library_path]])
-    remove_virtual_keyboard(app)
+    remove_optional_qt_modules(app)
     # A release may not fall back to the runner's Homebrew/temporary prefixes.
     for file in macho_files(app):
         lines = run(['otool', '-l', file], capture=True).splitlines()

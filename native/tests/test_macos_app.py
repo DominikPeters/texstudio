@@ -100,7 +100,7 @@ class MacOSApp(unittest.TestCase):
                 return '/QtQmlModels.framework/Versions/A/QtQmlModels'
             return ''
         with patch.object(deploy_macos, 'run', side_effect=links):
-            removed = deploy_macos.remove_virtual_keyboard(self.app)
+            removed = deploy_macos.remove_optional_qt_modules(self.app)
         self.assertFalse(plugin.exists())
         self.assertEqual(set(removed), {'QtVirtualKeyboard', 'QtVirtualKeyboardQml', 'QtQmlWorkerScript'})
         self.assertTrue(images['QtQuick'].exists())
@@ -109,7 +109,26 @@ class MacOSApp(unittest.TestCase):
     def test_keyboard_direct_dependency_fails_packaging(self):
         with patch.object(deploy_macos, 'run', return_value='/QtVirtualKeyboard.framework/Versions/A/QtVirtualKeyboard'):
             with self.assertRaisesRegex(ValueError, 'Unexpected dependency'):
-                deploy_macos.remove_virtual_keyboard(self.app)
+                deploy_macos.remove_optional_qt_modules(self.app)
+
+    def test_unused_pdf_image_backend_is_removed_but_a_direct_dependency_survives(self):
+        plugin = self.app / 'Contents/PlugIns/imageformats/libqpdf.dylib'
+        plugin.parent.mkdir(parents=True)
+        plugin.write_text('unused PDF image plugin')
+        framework = self.app / 'Contents/Frameworks/QtPdf.framework'
+        image = framework / 'Versions/A/QtPdf'
+        image.parent.mkdir(parents=True)
+        image.write_bytes(bytes.fromhex('cffaedfe'))
+        with patch.object(deploy_macos, 'run', return_value=''):
+            self.assertIn('QtPdf', deploy_macos.remove_optional_qt_modules(self.app))
+        self.assertFalse(plugin.exists())
+        self.assertFalse(framework.exists())
+        image.parent.mkdir(parents=True)
+        image.write_bytes(bytes.fromhex('cffaedfe'))
+        with patch.object(deploy_macos, 'run', side_effect=lambda args, **kw:
+                          '/QtPdf.framework/Versions/A/QtPdf' if args[-1] == self.main else ''):
+            self.assertNotIn('QtPdf', deploy_macos.remove_optional_qt_modules(self.app))
+        self.assertTrue(image.exists())
 
     def test_stapling_retries_ticket_service_and_preserves_stdout(self):
         reports = Path(self.temp.name)
