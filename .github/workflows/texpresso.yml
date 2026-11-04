@@ -21,6 +21,11 @@ jobs:
           submodules: true
       - name: Install Qt, engine build dependencies and TeX Live
         run: |
+          # The runner's Azure mirror can trickle large TeX downloads for tens
+          # of minutes. Use Ubuntu's canonical HTTPS archive for this job.
+          if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
+            sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/ubuntu.sources
+          fi
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             cmake ninja-build build-essential pkg-config patchelf \
