@@ -45,6 +45,7 @@ TexpressoCanvas::TexpressoCanvas(PDFDocumentConfig *config, QScrollArea *area)
     editFigure = new QPushButton(tr("Edit in TikZ Editor"), figurePopup);
     editFigure->setObjectName("texpressoEditTikz");
     editFigure->setFocusPolicy(Qt::NoFocus);
+    editFigure->setCursor(Qt::ArrowCursor);
     editFigure->setIconSize(QSize(20, 20));
     popupLayout->addWidget(editFigure);
     figurePopup->hide();

@@ -165,6 +165,7 @@ void TikzTest::hoverAndStaleTargets()
     QVERIFY(canvas.figurePopup->isVisible());
     auto button = canvas.figurePopup->findChild<QPushButton *>("texpressoEditTikz"); QVERIFY(button);
     QVERIFY(!button->icon().isNull());
+    QCOMPARE(button->cursor().shape(), Qt::ArrowCursor);
     QTest::mouseMove(button, button->rect().center()); QTest::qWait(200);
     QVERIFY(canvas.figurePopup->isVisible());
     QTest::mouseClick(button, Qt::LeftButton);
