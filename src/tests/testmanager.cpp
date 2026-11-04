@@ -51,6 +51,8 @@ QString TestManager::performTest(QObject* obj){
         method = "repaintMemory"; argv[argc++] = method.data();
     } else if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_SOAK") == 1) {
         method = "liveEditingSoak"; argv[argc++] = method.data();
+    } else if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_DEMO_CAPTURE") == 1) {
+        method = "liveDemoCapture"; argv[argc++] = method.data();
     } else if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_PREVIEW_PANEL") == 1) {
         method = "unifiedPreviewPanel"; argv[argc++] = method.data();
     } else if (qEnvironmentVariableIntValue("TEXSTUDIO_TEST_DICTIONARIES") == 1) {
@@ -92,6 +94,7 @@ QString TestManager::execute(TestLevel level, LatexEditorView* edView, QCodeEdit
     if (qEnvironmentVariableIntValue("TEXSTUDIO_TEST_EDITOR_MEMORY") == 1)
         tests << new QEditorTest(editor, false);
     else if (qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_SOAK") == 1
+        || qEnvironmentVariableIntValue("TEXPRESSO_TEST_DEMO_CAPTURE") == 1
         || qEnvironmentVariableIntValue("TEXPRESSO_TEST_PREVIEW_PANEL") == 1
         || qEnvironmentVariableIntValue("TEXSTUDIO_TEST_DICTIONARIES") == 1
         || qEnvironmentVariableIntValue("TEXPRESSO_TEST_UI_BENCHMARK") == 1)

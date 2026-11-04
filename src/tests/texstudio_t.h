@@ -23,6 +23,7 @@ private slots:
     void unifiedPreviewPanel();
     void compressedDictionaries();
     void liveEditingSoak();
+    void liveDemoCapture();
     void liveEditorBuffers();
     void liveEditingBufferBenchmark();
 

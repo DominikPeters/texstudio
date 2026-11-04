@@ -340,6 +340,7 @@ if(${TEXSTUDIO_ENABLE_TESTS})
                 src/tests/dictionaries_t.cpp
                 src/tests/texstudio_t.cpp
                 src/tests/texpresso_soak_t.cpp
+                src/tests/texpresso_demo_t.cpp
 		src/tests/usermacro_t.cpp
 	)
 else()

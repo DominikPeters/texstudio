@@ -1,0 +1,21 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[a5paper,margin=1.6cm]{geometry}
+\title{Fourier Series}
+\author{Lecture notes}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Coefficients}
+Let $f$ be a $2\pi$-periodic function that is integrable on $[-\pi,\pi]$.
+Its Fourier coefficients are
+\[
+c_n = \frac{1}{2\pi}\int_{-\pi}^{\pi} f(x)\, e^{-inx}\,dx, \qquad n \in \mathbb{Z}.
+\]
+
+\section{Convergence}
+The partial sums $S_N f$ need not converge pointwise for every
+continuous $f$, but they converge in $L^2$.
+
+\end{document}
