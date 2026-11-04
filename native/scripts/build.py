@@ -13,6 +13,7 @@ from common import NATIVE, ROOT, check_source, export_source, load_lock, pinned_
 from icu_data import prepare
 from bundle import bundle
 import zlib_ng
+import renderer_evidence
 
 
 def shell_flags(values):
@@ -126,10 +127,13 @@ def main():
                 'profiles': {p.name: sha256(p) for p in (NATIVE / 'profiles').iterdir()},
                 'features': {'externalWindow': True, 'embeddedPreview': capabilities.get('previewProtocol') == 1},
                 'capabilities': capabilities, 'zlibNg': zng_metadata}
+    metadata['rendererLicenseEvidence'], font_notices = renderer_evidence.collect(
+        txp / 'build/texpresso', mupdf, NATIVE / 'profiles/mupdf.mk', lock['mupdf']['revision'])
     notices = {'texpresso-LICENSE': txp / 'LICENSE', 'mupdf-COPYING': mupdf / 'COPYING',
                'lcms2-LICENSE': mupdf / 'thirdparty/lcms2/LICENSE',
                'icu-LICENSE': args.icu_prefix / 'share/icu' / lock['icu']['version'] / 'LICENSE',
                'zlib-ng-LICENSE': zng_notice}
+    notices.update(font_notices)
     bundle([txp / 'build/texpresso', txp / 'build/texpresso-xetex'], args.output, metadata, notices)
 
 

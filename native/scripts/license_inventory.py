@@ -324,8 +324,15 @@ def inventory(app, output, qt_prefix, cellar, library_paths=(), hash_stage='as i
     release = app / 'Contents/Resources/texpresso-release.json'
     static = json.loads((ROOT / 'native/license-static-components.json').read_text())
     engine_manifest = json.loads(manifest.read_text()) if manifest.exists() else {}
-    if (engine_manifest.get('renderer', {}).get('reusedArchives') !=
-            {name: record['sha256'] for name, record in static['archives'].items()}):
+    actual_renderer = engine_manifest.get('rendererLicenseEvidence')
+    if actual_renderer:
+        expected_fonts = {f['source']: f['sha256'] for f in static['retainedFonts']}
+        actual_fonts = {f['source']: f['sha256'] for f in actual_renderer['retainedFonts']}
+        if (actual_renderer['mupdfRevision'] != static['mupdfRevision'] or
+                actual_renderer['profileSha256'] != static['profileSha256'] or actual_fonts != expected_fonts):
+            issues.append('Renderer source/profile/font contents changed; refresh the license inventory')
+    elif (engine_manifest.get('renderer', {}).get('reusedArchives') !=
+          {name: record['sha256'] for name, record in static['archives'].items()}):
         issues.append('Static renderer snapshot does not match this build: repeat archive/link/font inventory')
     issues.extend([
         'Publish complete corresponding source matching editor, engine, dependency binaries, data, patches and build scripts alongside the binary; source archives include recursive submodule contents',

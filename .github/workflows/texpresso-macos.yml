@@ -138,6 +138,28 @@ jobs:
       - name: Assemble complete corresponding source
         run: |
           python3 native/scripts/source_release.py \
+            --plan .native-sources/source-input-plan \
+            --inventory "$RUNNER_TEMP/deploy/texstudio.app/Contents/Resources/licenses/inventory.json"
+          python3 native/scripts/source_release.py \
+            --prefetch .native-sources/source-input-plan \
+            --cache .native-sources/distribution-sources --fetch
+          python3 native/scripts/collect_qt_notices.py \
+            --inventory "$RUNNER_TEMP/deploy/texstudio.app/Contents/Resources/licenses/inventory.json" \
+            --cache .native-sources/distribution-sources --output native/notices/qt
+          python3 native/scripts/collect_library_notices.py \
+            --inventory "$RUNNER_TEMP/deploy/texstudio.app/Contents/Resources/licenses/inventory.json" \
+            --cache .native-sources/distribution-sources --output native/notices/library-sources
+          python3 - <<'PY'
+          import os, pathlib, subprocess, sys
+          sys.path.insert(0, 'native/scripts')
+          from deploy_macos import collect_license_inventory
+          prefix = pathlib.Path(subprocess.check_output(['brew', '--prefix'], text=True).strip())
+          qt = pathlib.Path(subprocess.check_output(['brew', '--prefix', 'qt'], text=True).strip())
+          runner = pathlib.Path(os.environ['RUNNER_TEMP'])
+          collect_license_inventory(runner / 'deploy/texstudio.app', qt / 'bin/macdeployqt',
+                                    [runner / 'poppler/lib', prefix / 'lib'], refresh=True)
+          PY
+          python3 native/scripts/source_release.py \
             --plan .native-sources/source-release-plan \
             --build-dir build \
             --inventory "$RUNNER_TEMP/deploy/texstudio.app/Contents/Resources/licenses/inventory.json"

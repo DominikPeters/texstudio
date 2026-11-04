@@ -30,7 +30,7 @@ def export_editor_source(directory, revision, output):
     excluded = []
     process = subprocess.Popen(['git', 'archive', '--format=tar', revision], cwd=directory, stdout=subprocess.PIPE)
     try:
-        with tarfile.open(fileobj=process.stdout, mode='r|') as source, tarfile.open(output, mode='w|gz', compresslevel=1) as target:
+        with tarfile.open(fileobj=process.stdout, mode='r|') as source, tarfile.open(str(output), mode='w|gz', compresslevel=1) as target:
             for member in source:
                 path = Path(member.name)
                 if len(path.parts) == 2 and path.parts[0] == 'translation' and path.name.startswith('qt_') and path.suffix == '.qm':
@@ -134,6 +134,9 @@ def plan(inventory, destination, evidence_directory=None, build_directory=None):
         shutil.copytree(evidence_directory, destination / 'distribution-evidence')
     if build_directory:
         shutil.copyfile(build_directory / 'CMakeCache.txt', destination / 'editor-CMakeCache.txt')
+        flags = build_directory / 'CMakeFiles/texstudio.dir/flags.make'
+        if flags.is_file():
+            shutil.copyfile(flags, destination / 'editor-compiler-flags.txt')
     return result
 
 
@@ -172,12 +175,7 @@ def fetch_record(record, cache, allow_fetch):
     return file
 
 
-def assemble(plan_dir, cache, output, allow_fetch=False):
-    if output.exists():
-        raise ValueError('Source ZIP output already exists')
-    manifest = json.loads((plan_dir / 'manifest.json').read_text())
-    if manifest['unresolved']:
-        raise ValueError('Unresolved source inputs: ' + '; '.join(manifest['unresolved']))
+def fetch_inputs(manifest, cache, allow_fetch):
     cache.mkdir(parents=True, exist_ok=True)
     entries = []
     for record in manifest['archives'] + [
@@ -186,6 +184,16 @@ def assemble(plan_dir, cache, output, allow_fetch=False):
         file = fetch_record(record, cache, allow_fetch)
         entries.append((record, file))
         print('Source ready:', record['name'], flush=True)
+    return entries
+
+
+def assemble(plan_dir, cache, output, allow_fetch=False):
+    if output.exists():
+        raise ValueError('Source ZIP output already exists')
+    manifest = json.loads((plan_dir / 'manifest.json').read_text())
+    if manifest['unresolved']:
+        raise ValueError('Unresolved source inputs: ' + '; '.join(manifest['unresolved']))
+    entries = fetch_inputs(manifest, cache, allow_fetch)
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = output.with_suffix('.partial')
     try:
@@ -209,7 +217,7 @@ def assemble(plan_dir, cache, output, allow_fetch=False):
                 manifest['inputs'] = inputs
                 for file in (plan_dir / 'recipes').iterdir():
                     archive.write(file, 'recipes/' + file.name)
-                for name in ('binary-inventory.json', 'editor-CMakeCache.txt'):
+                for name in ('binary-inventory.json', 'editor-CMakeCache.txt', 'editor-compiler-flags.txt'):
                     if (plan_dir / name).is_file():
                         archive.write(plan_dir / name, name)
                 if (plan_dir / 'distribution-evidence').is_dir():
@@ -218,6 +226,8 @@ def assemble(plan_dir, cache, output, allow_fetch=False):
                             archive.write(file, str(file.relative_to(plan_dir)))
                 archive.writestr('SOURCE-MANIFEST.json', json.dumps(manifest, indent=2) + '\n')
                 archive.writestr('README.md', SOURCE_README)
+                archive.write(ROOT / 'native/scripts/unpack_source_release.py', 'unpack_source_release.py')
+                archive.writestr('__main__.py', 'from unpack_source_release import main\nmain()\n')
         with zipfile.ZipFile(temporary) as archive:
             if archive.testzip():
                 raise ValueError('Source ZIP integrity check failed')
@@ -228,6 +238,18 @@ def assemble(plan_dir, cache, output, allow_fetch=False):
 
 
 SOURCE_README = '''# TeXstudio Espresso corresponding source
+
+Restore the supplied source offline with Python 3.12+ and Git:
+
+    python3 this-sources.zip --output ./espresso-source
+
+This verifies every upstream input, restores the editor/engine/MuPDF/LCMS2/zlib-ng
+sources, and initializes editable local Git snapshots. The original upstream
+revisions are recorded in SOURCE-ORIGIN.json; new local commits rebind the native
+builder's lock references. Only local Git identity/lock references change, not
+the supplied program implementation. No network access or signing credentials
+are needed to restore or modify source. Commit edits before using the pinned
+native builder, and update its lock references if modifying dependency snapshots.
 
 SOURCE-MANIFEST.json identifies the editor, recursive engine snapshot, dependency
 sources, patches, checksums and original build recipes for the inspected app.
@@ -263,6 +285,7 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument('--plan', type=Path)
     mode.add_argument('--assemble', type=Path)
+    mode.add_argument('--prefetch', type=Path, help='Fetch plan inputs only; does not clear licensing review or produce a ZIP')
     parser.add_argument('--inventory', type=Path)
     parser.add_argument('--cache', type=Path)
     parser.add_argument('--output', type=Path)
@@ -276,6 +299,10 @@ def main():
                       args.inventory.parent, args.build_dir)
         print(json.dumps({'archives': len(result['archives']), 'gitSources': len(result['gitSources']),
                           'unresolved': result['unresolved']}))
+    elif args.prefetch:
+        if args.cache is None:
+            parser.error('--prefetch requires --cache')
+        fetch_inputs(json.loads((args.prefetch / 'manifest.json').read_text()), args.cache, args.fetch)
     else:
         if args.cache is None or args.output is None:
             parser.error('--assemble requires --cache and --output')
