@@ -13,6 +13,7 @@ class TikzTest : public QObject
     Q_OBJECT
 private slots:
     void lexicalSourceRanges();
+    void editorDiscovery();
     void launchArguments();
     void protocolValidation();
     void hoverAndStaleTargets();
@@ -46,6 +47,36 @@ void TikzTest::lexicalSourceRanges()
     QCOMPARE(TexpressoTikz::resolveFigure(wrapped, 4, 5).line, 2);
     const auto ambiguous = TexpressoTikz::sourceFigures("\\scalebox{.5}{\n\\begin{tikzpicture}\\end{tikzpicture}\n\\begin{tikzpicture}\\end{tikzpicture}}");
     QCOMPARE(TexpressoTikz::resolveFigure(ambiguous, 3, 4).line, 0);
+}
+void TikzTest::editorDiscovery()
+{
+    QTemporaryDir temp; QVERIFY(temp.isValid());
+    const auto executable = temp.filePath("editor with spaces");
+    write(executable, "fixture; never launched\n");
+    QVERIFY(QFile::setPermissions(executable, QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
+    QCOMPARE(TexpressoTikz::findEditor(executable), executable);
+    QVERIFY(TexpressoTikz::findEditor(temp.path()).isEmpty());
+#ifdef Q_OS_MACOS
+    const auto bundle = temp.filePath("Renamed TikZ Editor.app");
+    QVERIFY(QDir().mkpath(bundle + "/Contents/MacOS"));
+    const auto app = bundle + "/Contents/MacOS/app";
+    write(app, "fixture; never launched\n");
+    QVERIFY(QFile::setPermissions(app, QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
+    write(bundle + "/Contents/Info.plist", R"PLIST(<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>CFBundleIdentifier</key><string>org.texstudio.tikz-discovery-test</string>
+<key>CFBundlePackageType</key><string>APPL</string><key>CFBundleExecutable</key><string>app</string></dict></plist>)PLIST");
+    QCOMPARE(TexpressoTikz::findEditor(bundle), app);
+    QVERIFY(QFile::setPermissions(app, QFile::ReadOwner | QFile::WriteOwner));
+    QVERIFY(TexpressoTikz::findEditor(bundle).isEmpty());
+    // Opt-in read-only check of the actual installed app. No editor is launched.
+    const auto installed = qEnvironmentVariable("TEXPRESSO_TEST_TIKZ_EDITOR");
+    if (!installed.isEmpty()) {
+        const auto found = TexpressoTikz::findEditor();
+        qInfo() << "Detected installed TikZ Editor:" << found;
+        QCOMPARE(QFileInfo(found).canonicalFilePath(), QFileInfo(installed).canonicalFilePath());
+    }
+#endif
 }
 void TikzTest::launchArguments()
 {

@@ -1,10 +1,11 @@
 #include "texpressotikz.h"
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QProcess>
 #include <QSettings>
 #include <QStandardPaths>
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #include <CoreServices/CoreServices.h>
 #endif
 
@@ -79,22 +80,42 @@ TexpressoTikz::SourceFigure TexpressoTikz::resolveFigure(const QList<SourceFigur
 QString TexpressoTikz::findEditor(const QString &overridePath)
 {
     const auto usable = [](const QString &path) {
-        const QFileInfo f(path);
+        QFileInfo f(path);
+#ifdef Q_OS_MACOS
+        // Tauri's executable name can differ from the product or CLI name
+        // (released TikZ Editor bundles currently use "app"). Resolve the
+        // bundle's declared executable instead of guessing Contents/MacOS.
+        if (f.isDir() && f.suffix().compare("app", Qt::CaseInsensitive) == 0) {
+            const auto bytes = QFile::encodeName(f.absoluteFilePath());
+            const auto url = CFURLCreateFromFileSystemRepresentation(nullptr,
+                reinterpret_cast<const UInt8 *>(bytes.constData()), bytes.size(), true);
+            if (!url) return QString();
+            const auto info = CFBundleCopyInfoDictionaryForURL(url);
+            CFRelease(url);
+            if (!info) return QString();
+            const auto value = CFDictionaryGetValue(info, kCFBundleExecutableKey);
+            const auto name = value && CFGetTypeID(value) == CFStringGetTypeID()
+                ? QString::fromCFString(static_cast<CFStringRef>(value)) : QString();
+            CFRelease(info);
+            if (name.isEmpty() || name == "." || name == ".." || name.contains('/')) return QString();
+            f.setFile(QDir(f.absoluteFilePath()).filePath("Contents/MacOS/" + name));
+        }
+#endif
         return f.isFile() && f.isExecutable() ? f.absoluteFilePath() : QString();
     };
     if (!overridePath.isEmpty()) return usable(overridePath);
     const auto environment = qEnvironmentVariable("TEXSTUDIO_TIKZ_EDITOR");
     if (!environment.isEmpty()) return usable(environment);
     QStringList candidates;
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     CFURLRef url = nullptr;
     if (LSFindApplicationForInfo(kLSUnknownCreator, CFSTR("com.tikz.editor"), nullptr, nullptr, &url) == noErr && url) {
         const auto path = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-        if (path) { candidates << QString::fromCFString(path) + "/Contents/MacOS/tikz-editor"; CFRelease(path); }
+        if (path) { candidates << QString::fromCFString(path); CFRelease(path); }
         CFRelease(url);
     }
-    candidates << QDir::homePath() + "/Applications/TikZ Editor.app/Contents/MacOS/tikz-editor"
-               << "/Applications/TikZ Editor.app/Contents/MacOS/tikz-editor";
+    candidates << QDir::homePath() + "/Applications/TikZ Editor.app"
+               << "/Applications/TikZ Editor.app";
 #elif defined(Q_OS_WIN)
     for (const auto &scope : {"HKEY_CURRENT_USER", "HKEY_LOCAL_MACHINE"}) {
         QSettings key(QString(scope) + "\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\tikz-editor.exe", QSettings::NativeFormat);

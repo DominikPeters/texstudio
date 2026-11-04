@@ -21,14 +21,15 @@ silently written back into a paper.
 ## Discovery
 
 - macOS: application registration for `com.tikz.editor`, then standard user and
-  system Applications directories.
+  system Applications directories. The executable comes from the bundle's
+  `CFBundleExecutable` metadata; it need not be named `tikz-editor`.
 - Windows: App Paths registration, standard user/system install directories,
   and PATH. WSL source paths are translated to host-accessible UNC paths.
 - Linux: registered desktop launchers and PATH.
 
 For an unregistered portable installation, set `TEXSTUDIO_TIKZ_EDITOR` to the
 executable, or set the `texpresso/tikzEditorPath` settings key. These are paths,
-not shell commands. Discovery is performed once at startup; restart TeXstudio
+not shell commands (macOS also accepts an `.app` bundle). Discovery is performed once at startup; restart TeXstudio
 after installing or moving the editor. No app is launched during discovery.
 
 ## Figure metadata and eligibility
