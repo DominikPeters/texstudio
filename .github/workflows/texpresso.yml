@@ -125,16 +125,19 @@ jobs:
           mkdir -p build-client/miktex-results
           # Match the shared engine's validated fresh-install setup. Refreshing
           # only the package DB leaves the apt bootstrap's core files outdated.
-          retry() {
+          retry_miktex() {
             for attempt in 1 2 3; do
-              if "$@"; then return 0; fi
+              status=0
+              miktex packages "$@" || status=$?
+              # MiKTeX reports available updates with a successful status 100.
+              if [ "$status" -eq 0 ] || { [ "$1" = check-update ] && [ "$status" -eq 100 ]; }; then return 0; fi
+              if [ "$attempt" -eq 3 ]; then return "$status"; fi
               sleep 4
             done
-            return 1
           }
-          retry miktex packages update-package-database
-          retry miktex packages check-update
-          retry miktex packages update
+          retry_miktex update-package-database
+          retry_miktex check-update
+          retry_miktex update
           # Exercise the shared provider's explicit download opt-in, fonts and
           # private format cache before testing the client's no-install policy.
           if ! python3 native/texpresso/test/test-miktex-real.py "$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso"; then
