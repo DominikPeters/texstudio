@@ -68,6 +68,7 @@ QProcessEnvironment TexpressoProcess::texliveEnvironment()
 
 TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
 {
+    traceProtocol = qEnvironmentVariableIsSet("TEXPRESSO_TEST_TRACE_PROTOCOL");
 #ifdef Q_OS_WIN
     probe.setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments *args) { args->flags |= 0x08000000; });
 #endif
@@ -137,7 +138,7 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
     });
     connect(&protocol, &TexpressoProtocol::message, this, [this](const QJsonArray &message) {
         const auto verb = message.isEmpty() ? QString() : message[0].toString();
-        if (qEnvironmentVariableIsSet("TEXPRESSO_TEST_TRACE_PROTOCOL") && (verb.startsWith("preview-") || verb == "reset-sync" || verb == "truncate-lines" || verb == "engine-error"))
+        if (traceProtocol && (verb.startsWith("preview-") || verb == "reset-sync" || verb == "truncate-lines" || verb == "engine-error"))
             emit diagnostic("[protocol-receive] " + QString::fromUtf8(QJsonDocument(message).toJson(QJsonDocument::Compact)) + '\n');
         emit this->message(wsl.incoming(message));
     });
@@ -195,7 +196,7 @@ void TexpressoProcess::send(const QJsonArray &command)
 {
     if (!stopping && child.state() == QProcess::Running) {
         const auto bytes = QJsonDocument(wsl.outgoing(command)).toJson(QJsonDocument::Compact);
-        if (qEnvironmentVariableIsSet("TEXPRESSO_TEST_TRACE_PROTOCOL")) emit diagnostic("[protocol-send] " + QString::fromUtf8(bytes) + '\n');
+        if (traceProtocol) emit diagnostic("[protocol-send] " + QString::fromUtf8(bytes) + '\n');
         child.write(bytes + '\n');
     }
 }

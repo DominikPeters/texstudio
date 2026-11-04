@@ -14,7 +14,7 @@ permissions:
 jobs:
   linux:
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && inputs.ui_soak_minutes != '0' && 90 || 35 }}
+    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && inputs.ui_soak_minutes != '0' && 90 || 60 }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,18 +53,25 @@ jobs:
       - name: Fetch locked LCMS2 renderer dependency
         run: git -C .native-sources/mupdf submodule update --init --depth 1 thirdparty/lcms2
       - name: Check native tooling and build bundled engine
+        id: engine
         run: |
           python3 -m unittest discover -s native/tests
           python3 native/scripts/build_linux.py --mupdf-source .native-sources/mupdf --zlib-ng-source .native-sources/zlib-ng --jobs 2
           python3 native/scripts/validate_bundle.py "native/.bundles/linux-$(uname -m)"
+      - name: Read available package providers
+        id: providers
+        run: python3 -c 'import json,os,platform; caps=json.load(open("native/.bundles/linux-"+platform.machine()+"/build-manifest.json"))["capabilities"]; open(os.environ["GITHUB_OUTPUT"],"a").write("miktex="+str("miktex" in caps.get("packageProviders",[])).lower()+"\n")'
+      - name: Build Qt integration clients
+        id: qt-build
+        run: |
+          cmake -S src/texpresso -B build-client -G Ninja
+          cmake --build build-client -j2
       - name: Test Qt client against bundled engine
         id: qt-tests
         env:
           TEXPRESSO_TEST_TRACE_PROTOCOL: "1"
           QT_QPA_PLATFORM: offscreen
         run: |
-          cmake -S src/texpresso -B build-client -G Ninja
-          cmake --build build-client -j2
           TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso" \
             ctest --test-dir build-client --output-on-failure
       - name: Compare failing scenarios against the prior engine
@@ -110,6 +117,45 @@ jobs:
           cmake --build build-soak -j2
           python3 native/scripts/ui_soak.py --app build-soak/texstudio \
             --output build-soak/ui-soak --seconds "$((SOAK_MINUTES * 60))" --platform offscreen
+      - name: Install MiKTeX for provider integration tests
+        id: miktex-setup
+        if: ${{ !cancelled() && steps.qt-build.conclusion == 'success' && steps.providers.outputs.miktex == 'true' }}
+        timeout-minutes: 10
+        run: |
+          curl -fsSL https://miktex.org/download/key | sudo gpg --dearmor -o /usr/share/keyrings/miktex.gpg
+          echo "deb [signed-by=/usr/share/keyrings/miktex.gpg] https://miktex.org/download/ubuntu noble universe" | sudo tee /etc/apt/sources.list.d/miktex.list
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends miktex
+          miktexsetup finish
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.miktex/texmfs/install/miktex/bin" >> "$GITHUB_PATH"
+      - name: Test Qt editing and bibliography with actual MiKTeX
+        if: ${{ !cancelled() && steps.miktex-setup.conclusion == 'success' }}
+        timeout-minutes: 20
+        env:
+          QT_QPA_PLATFORM: offscreen
+          TEXPRESSO_PACKAGE_PROVIDER: miktex
+          TEXPRESSO_TEST_TRACE_PROTOCOL: "1"
+          TEXPRESSO_TEST_ARTIFACTS: ${{ github.workspace }}/build-client/miktex-results
+        run: |
+          mkdir -p build-client/miktex-results
+          mpm --update-db
+          # Exercise the shared provider's explicit download opt-in, fonts and
+          # private format cache before testing the client's no-install policy.
+          python3 native/texpresso/test/test-miktex-real.py "$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso"
+          miktex packages install hyperref biblatex biber-linux-x86_64
+          miktex links install
+          TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso" \
+            build-client/texpresso-wsl-tests realEngine bibliographyBuild \
+            -o build-client/miktex-results/qt.txt,txt -o build-client/miktex-results/qt.xml,junitxml
+      - name: Save MiKTeX provider evidence
+        if: always() && steps.miktex-setup.conclusion == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: qt-miktex-provider-results
+          path: build-client/miktex-results/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Save full-editor soak evidence
         if: always() && github.event_name == 'workflow_dispatch' && inputs.ui_soak_minutes != '0'
         uses: actions/upload-artifact@v4
@@ -125,6 +171,7 @@ jobs:
           path: |
             build-client/Testing/Temporary/
             build-client/engine-comparison-*.log
+            build-client/miktex-results/
             build-client/sustained-results/
             build/CMakeFiles/CMakeConfigureLog.yaml
           if-no-files-found: ignore

@@ -169,6 +169,16 @@ void WslTest::realEngine()
     QVERIFY2(!session->failed(), qPrintable(session->status + "\n" + session->engineOutput));
     QTRY_VERIFY_WITH_TIMEOUT(session->compilerOutput.contains("WSL-INITIAL"), 30000);
     QVERIFY(!session->preview.image().isNull());
+    const auto raster = session->preview.image().convertToFormat(QImage::Format_ARGB32);
+    int ink = 0;
+    for (int y = 0; y < raster.height(); ++y) {
+        const auto row = reinterpret_cast<const QRgb *>(raster.constScanLine(y));
+        for (int x = 0; x < raster.width(); ++x) {
+            const int alpha = qAlpha(row[x]);
+            if ((qGray(row[x]) * alpha + 255 * (255 - alpha)) / 255 < 180) ++ink;
+        }
+    }
+    QVERIFY2(ink > 500, "The decoded preview must contain rendered text, not just a valid blank PNG");
     QSignalSpy inverse(session, &TexpressoSession::sourceLocation);
     session->preview.inverse({80, 130});
     QTRY_VERIFY_WITH_TIMEOUT(!inverse.isEmpty(), 30000);
@@ -217,14 +227,16 @@ void WslTest::bibliographyBuild()
     const auto tool = [&](const QString &name, const QStringList &arguments) {
         QProcess process;
         process.setProcessEnvironment(environment);
+        auto toolArguments = arguments;
+        if (requestedProvider == "miktex" && name == "xelatex") toolArguments.prepend("--disable-installer");
         if (wsl.enabled) {
             process.setWorkingDirectory(temporary.path());
             QStringList args = {"--distribution", wsl.distribution, "--provider", requestedProvider, "--", name};
-            args << arguments;
+            args << toolArguments;
             process.start(qEnvironmentVariable("TEXPRESSO_TEST_COMMAND_RUNNER"), args);
         } else {
             process.setWorkingDirectory(temporary.path());
-            process.start(QStandardPaths::findExecutable(name, environment.value("PATH").split(QDir::listSeparator())), arguments);
+            process.start(QStandardPaths::findExecutable(name, environment.value("PATH").split(QDir::listSeparator())), toolArguments);
         }
         if (!process.waitForStarted(10000) || !process.waitForFinished(90000) || process.exitCode()) {
             qWarning().noquote() << name << process.errorString() << process.readAllStandardOutput() << process.readAllStandardError(); return false;

@@ -39,7 +39,7 @@ struct ProviderOptions {
         install->setObjectName("texpressoMiktexAutoInstall");
         install->setChecked(settings->value("texpresso/miktexAutoInstall", false).toBool());
         install->setEnabled(provider->currentData() != "texlive");
-        QObject::connect(provider, &QComboBox::currentIndexChanged, install, [this] { install->setEnabled(provider->currentData() != "texlive"); });
+        QObject::connect(provider, &QComboBox::currentIndexChanged, install, [combo = provider, check = install] { check->setEnabled(combo->currentData() != "texlive"); });
         layout->addWidget(install);
         auto explanation = new QLabel(QObject::tr("Package downloads use disk space and can delay compilation. With this option off, live compilation never installs MiKTeX packages or opens installer dialogs."));
         explanation->setWordWrap(true); layout->addWidget(explanation);

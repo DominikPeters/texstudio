@@ -50,7 +50,7 @@ private:
     bool installPackages = false;
     QStringList inclusionDirectories;
     qint64 processGroup = 0;
-    bool stopping = false;
+    bool stopping = false, traceProtocol = false;
     int previewPixelLimit = TexpressoProtocol::maxPixels;
     void killGroup();
 };
