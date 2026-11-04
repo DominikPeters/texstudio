@@ -4,6 +4,7 @@
 #include <QBuffer>
 #include <cmath>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QJsonDocument>
 #include "texpressotikz.h"
 #include "texpressowidget.h"
@@ -17,6 +18,7 @@ private slots:
     void launchArguments();
     void protocolValidation();
     void hoverAndStaleTargets();
+    void hoverViewportPlacement();
     void realFigures();
     void providedPaper();
 };
@@ -59,14 +61,20 @@ void TikzTest::editorDiscovery()
 #ifdef Q_OS_MACOS
     const auto bundle = temp.filePath("Renamed TikZ Editor.app");
     QVERIFY(QDir().mkpath(bundle + "/Contents/MacOS"));
+    QVERIFY(QDir().mkpath(bundle + "/Contents/Resources"));
     const auto app = bundle + "/Contents/MacOS/app";
     write(app, "fixture; never launched\n");
     QVERIFY(QFile::setPermissions(app, QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
     write(bundle + "/Contents/Info.plist", R"PLIST(<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict><key>CFBundleIdentifier</key><string>org.texstudio.tikz-discovery-test</string>
-<key>CFBundlePackageType</key><string>APPL</string><key>CFBundleExecutable</key><string>app</string></dict></plist>)PLIST");
+<key>CFBundlePackageType</key><string>APPL</string><key>CFBundleExecutable</key><string>app</string>
+<key>CFBundleIconFile</key><string>editor.png</string></dict></plist>)PLIST");
     QCOMPARE(TexpressoTikz::findEditor(bundle), app);
+    QImage iconImage(32, 32, QImage::Format_ARGB32); iconImage.fill(Qt::red);
+    QVERIFY(iconImage.save(bundle + "/Contents/Resources/editor.png"));
+    const auto appIcon = TexpressoTikz::editorIcon(app).pixmap(16, 16).toImage();
+    QVERIFY(!appIcon.isNull()); QCOMPARE(appIcon.pixelColor(appIcon.width() / 2, appIcon.height() / 2), QColor(Qt::red));
     QVERIFY(QFile::setPermissions(app, QFile::ReadOwner | QFile::WriteOwner));
     QVERIFY(TexpressoTikz::findEditor(bundle).isEmpty());
     // Opt-in read-only check of the actual installed app. No editor is launched.
@@ -75,6 +83,7 @@ void TikzTest::editorDiscovery()
         const auto found = TexpressoTikz::findEditor();
         qInfo() << "Detected installed TikZ Editor:" << found;
         QCOMPARE(QFileInfo(found).canonicalFilePath(), QFileInfo(installed).canonicalFilePath());
+        QVERIFY(!TexpressoTikz::editorIcon(found).pixmap(32, 32).isNull());
     }
 #endif
 }
@@ -121,13 +130,76 @@ void TikzTest::hoverAndStaleTargets()
     canvas.fresh = false; canvas.activateFigure(0); QCOMPARE(activated.size(), 1);
     canvas.fresh = true; canvas.setTikzFigures({}, true); canvas.activateFigure(0); QCOMPARE(activated.size(), 1);
     QVERIFY(!canvas.figurePopup->isVisible());
-    canvas.setTikzFigures({QJsonObject{{"bounds", QJsonArray{20, 30, 100, 80}}, {"index", 4}}}, true);
-    canvas.show(); QTest::mouseMove(&canvas, {40, 50});
+    // A zoomed page with a nonzero page origin checks point-to-pixel mapping,
+    // delayed painting and the path from the picture to the anchored control.
+    canvas.resize(600, 700); canvas.pageBounds = QRectF(100, 200, 300, 350); canvas.scale = 2;
+    canvas.pixels = QImage(600, 700, QImage::Format_RGB32); canvas.pixels.fill(Qt::white);
+    QPixmap iconPixels(32, 32); iconPixels.fill(Qt::red);
+    canvas.setTikzFigures({QJsonObject{{"bounds", QJsonArray{140, 270, 300, 370}}, {"index", 4}}}, true, QIcon(iconPixels));
+    QCOMPARE(canvas.figureRect(0), QRectF(76, 136, 328, 208));
+    canvas.show(); QTest::mouseMove(&canvas, {5, 5}, 0);
+    const auto before = canvas.grab().toImage();
+    canvas.figureTimer.setInterval(250);
+    QTest::mouseMove(&canvas, {120, 180}, 0);
+    QTest::qWait(40); QVERIFY(!canvas.figurePopup->isVisible());
     QTRY_VERIFY_WITH_TIMEOUT(canvas.figurePopup->isVisible(), 1500);
+    const auto after = canvas.grab().toImage();
+    const auto capture = qEnvironmentVariable("TEXPRESSO_TEST_TIKZ_HOVER_CAPTURE");
+    if (!capture.isEmpty()) {
+        const auto editor = qEnvironmentVariable("TEXPRESSO_TEST_TIKZ_EDITOR");
+        if (!editor.isEmpty()) canvas.editFigure->setIcon(TexpressoTikz::editorIcon(editor));
+        QVERIFY(canvas.grab().save(capture));
+    }
+    const auto borderPixel = [](const QImage &image) {
+        return image.pixelColor(qRound(76 * image.devicePixelRatio()), qRound(240 * image.devicePixelRatio()));
+    };
+    QVERIFY(borderPixel(before) != borderPixel(after));
+    const auto anchored = canvas.figurePopup->geometry();
+    QVERIFY(anchored.bottom() < canvas.figureRect(0).top());
+    QVERIFY(canvas.rect().contains(anchored));
+    QTest::mouseMove(&canvas, {180, 280});
+    QCOMPARE(canvas.figurePopup->geometry(), anchored);
+    const QPoint gap(anchored.center().x(), anchored.bottom() + 2);
+    QCOMPARE(canvas.figureAt(gap), -1);
+    QTest::mouseMove(&canvas, gap); QTest::qWait(200);
+    QVERIFY(canvas.figurePopup->isVisible());
     auto button = canvas.figurePopup->findChild<QPushButton *>("texpressoEditTikz"); QVERIFY(button);
+    QVERIFY(!button->icon().isNull());
+    QTest::mouseMove(button, button->rect().center()); QTest::qWait(200);
+    QVERIFY(canvas.figurePopup->isVisible());
     QTest::mouseClick(button, Qt::LeftButton);
     QCOMPARE(activated.size(), 2);
     QVERIFY(!canvas.figurePopup->isVisible());
+    QCOMPARE(borderPixel(canvas.grab().toImage()), borderPixel(before));
+    QTest::mouseMove(&canvas, {120, 180});
+    QTRY_VERIFY_WITH_TIMEOUT(canvas.figurePopup->isVisible(), 1500);
+    area.verticalScrollBar()->setRange(0, 100); area.verticalScrollBar()->setValue(10);
+    QVERIFY(!canvas.figurePopup->isVisible());
+    canvas.hideFigurePopup(); canvas.hoveredFigure = 0;
+    canvas.showFigurePopup();
+    canvas.setAnnotations(2, 8, 10, {});
+    QVERIFY(!canvas.figurePopup->isVisible());
+}
+void TikzTest::hoverViewportPlacement()
+{
+    PDFDocumentConfig config; QScrollArea area;
+    auto document = new QWidget;
+    auto canvas = new TexpressoCanvas(&config, &area); canvas->setParent(document);
+    document->resize(700, 1000); canvas->setGeometry(10, 10, 600, 900);
+    canvas->pixels = QImage(600, 900, QImage::Format_RGB32); canvas->pixels.fill(Qt::white);
+    canvas->pageBounds = QRectF(0, 0, 600, 900); canvas->scale = 1; canvas->fresh = true;
+    canvas->setAnnotations(0, 1, 1, {});
+    canvas->setTikzFigures({QJsonObject{{"bounds", QJsonArray{70, 80, 450, 500}}, {"index", 0}}}, true);
+    canvas->figureTimer.setInterval(100);
+    area.setWidget(document); area.resize(320, 260); area.show();
+    area.verticalScrollBar()->setValue(100);
+    QTest::mouseMove(canvas, canvas->mapFromGlobal(area.viewport()->mapToGlobal(QPoint(120, 100))), 0);
+    QTRY_VERIFY_WITH_TIMEOUT(canvas->figurePopup->isVisible(), 1500);
+    // Both the figure's top and bottom are offscreen. The edit control must
+    // remain reachable in the preview, rather than following either edge out.
+    QVERIFY(canvas->figureVisibleArea().contains(canvas->figurePopup->geometry()));
+    area.verticalScrollBar()->setValue(120);
+    QVERIFY(!canvas->figurePopup->isVisible());
 }
 void TikzTest::realFigures()
 {

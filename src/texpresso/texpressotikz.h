@@ -2,6 +2,7 @@
 #define TEXPRESSOTIKZ_H
 #include <QString>
 #include <QList>
+#include <QIcon>
 
 namespace TexpressoTikz {
 struct SourceFigure {
@@ -12,6 +13,7 @@ struct SourceFigure {
 QList<SourceFigure> sourceFigures(const QString &source);
 SourceFigure resolveFigure(const QList<SourceFigure> &figures, int inputLine, int endInputLine);
 QString findEditor(const QString &overridePath = QString());
+QIcon editorIcon(const QString &executable);
 bool launch(const QString &executable, const QString &file, int oneBasedLine);
 }
 #endif

@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QFileIconProvider>
 #include <QProcess>
 #include <QSettings>
 #include <QStandardPaths>
@@ -139,6 +140,31 @@ QString TexpressoTikz::findEditor(const QString &overridePath)
     candidates << QStandardPaths::findExecutable("tikz-editor");
     for (const auto &path : candidates) { const auto found = usable(path); if (!found.isEmpty()) return found; }
     return {};
+}
+
+QIcon TexpressoTikz::editorIcon(const QString &executable)
+{
+    if (executable.isEmpty()) return {};
+    QFileInfo file(executable);
+#ifdef Q_OS_MACOS
+    const auto bundle = QDir::cleanPath(file.dir().absoluteFilePath("../.."));
+    if (QFileInfo(bundle).suffix().compare("app", Qt::CaseInsensitive) == 0) {
+        QSettings info(bundle + "/Contents/Info.plist", QSettings::NativeFormat);
+        auto name = info.value("CFBundleIconFile").toString();
+        if (!name.isEmpty() && QFileInfo(name).fileName() == name) {
+            if (QFileInfo(name).suffix().isEmpty()) name += ".icns";
+            QIcon icon(bundle + "/Contents/Resources/" + name);
+            if (!icon.pixmap(32, 32).isNull()) return icon;
+        }
+        file.setFile(bundle);
+    }
+#elif !defined(Q_OS_WIN)
+    for (const auto &name : {"com.tikz.editor", "tikz-editor"}) {
+        const auto icon = QIcon::fromTheme(name);
+        if (!icon.isNull()) return icon;
+    }
+#endif
+    return QFileIconProvider().icon(file);
 }
 
 bool TexpressoTikz::launch(const QString &executable, const QString &file, int line)

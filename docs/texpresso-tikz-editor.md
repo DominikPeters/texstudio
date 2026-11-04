@@ -1,8 +1,11 @@
 # Edit preview figures in TikZ Editor
 
 When the local TikZ Editor desktop app is detected, a live-preview figure can
-show **Edit in TikZ Editor** after a short hover. Its context menu offers the
-same action. Ordinary figure clicks retain the preview tool; hyperlinks take
+show a subtle outline and **Edit in TikZ Editor** after the tooltip delay. The
+button includes the installed editor's app icon and sits beside the figure's
+outline, preferably above its top-right corner. It stays within the visible
+preview; moving to the button keeps the outline visible. Its context menu offers
+the same action. Ordinary figure clicks retain the preview tool; hyperlinks take
 precedence over figure hover targets. Hovering does not request a compiler step,
 inverse SyncTeX query, or another render.
 

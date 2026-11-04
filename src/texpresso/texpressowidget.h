@@ -10,6 +10,7 @@
 #include <QPointer>
 #include "ViewerControls.h"
 #include "ViewerTools.h"
+class QPushButton;
 
 class TexpressoCanvas : public QWidget
 {
@@ -25,7 +26,7 @@ public:
     void resetTools();
     void setPreview(TexpressoPreview *preview);
     void setAnnotations(int page, qint64 revision, qint64 sequence, const QJsonObject &annotations);
-    void setTikzFigures(const QJsonArray &figures, bool available);
+    void setTikzFigures(const QJsonArray &figures, bool available, const QIcon &icon = QIcon());
     void invalidateMagnifier() { magnifier->invalidate(); }
 signals:
     void sourceClicked(const QPointF &point);
@@ -52,10 +53,16 @@ private:
     void updateLinkCursor(const QPoint &point, Qt::KeyboardModifiers modifiers);
     void magnify(const QPoint &point);
     int figureAt(const QPoint &point) const;
+    QRectF figureRect(int index) const;
+    QRect figureVisibleArea() const;
+    bool figureHoverContains(const QPoint &globalPoint) const;
+    void showFigurePopup();
     void hideFigurePopup();
     void activateFigure(int index);
     QJsonArray tikzFigures;
     QWidget *figurePopup;
+    QPushButton *editFigure;
+    QIcon tikzIcon;
     QTimer figureTimer, figureLeaveTimer;
     int hoveredFigure = -1;
     bool tikzAvailable = false;
@@ -151,5 +158,6 @@ private:
     double lastZoomMode = 0;
     QRectF lastTextRange;
     QString tikzEditor;
+    QIcon tikzEditorIcon;
 };
 #endif
