@@ -127,6 +127,8 @@ jobs:
           python3 native/texpresso/test/test-miktex-real.py "$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso"
           miktex packages install hyperref biblatex biber-linux-x86_64
           miktex links install
+          findtexmf --must-exist pzdr.tfm
+          miktex --disable-installer fontmaps configure
           TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso" \
             build-client/texpresso-wsl-tests realEngine bibliographyBuild \
             -o build-client/miktex-results/qt.txt,txt -o build-client/miktex-results/qt.xml,junitxml
