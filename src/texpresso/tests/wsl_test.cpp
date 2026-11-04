@@ -85,6 +85,9 @@ void WslTest::packageProviders()
     QCOMPARE(TexpressoProvider::resolve("auto", env), QString("texlive"));
     QCOMPARE(TexpressoProvider::resolve("miktex", env), QString("miktex"));
     QVERIFY(TexpressoProvider::resolve("invalid", env).isEmpty());
+    const auto selected = TexpressoProvider::executionEnvironment("texlive", env);
+    QCOMPARE(selected.value("PATH").split(QDir::listSeparator()).first(), tl);
+    QCOMPARE(TexpressoProvider::executionEnvironment("miktex", selected).value("PATH").split(QDir::listSeparator()).first(), mi);
     QCOMPARE(TexpressoProvider::engineArguments("texlive", false, {}), QStringList{"-texlive"});
     QVERIFY(TexpressoProvider::engineArguments("miktex", false, {}).isEmpty());
     const QJsonObject features = {{"packageProviders", QJsonArray{"texlive", "miktex"}}, {"miktexAutoInstall", true}};
@@ -180,8 +183,9 @@ void WslTest::realEngine()
     QTRY_VERIFY_WITH_TIMEOUT(!session->compilerError.isEmpty(), 30000);
     const auto repaired = QString(edited).replace("WSL-EDITED", "WSL-RECOVERED");
     manager.openBuffer(root, repaired);
-    QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid() && session->compilerError.isEmpty()
-                            && session->compilerOutput.contains("WSL-RECOVERED"), 30000);
+    QTRY_VERIFY2_WITH_TIMEOUT(session->preview.valid() && session->compilerError.isEmpty()
+                            && session->compilerOutput.contains("WSL-RECOVERED"),
+        qPrintable(session->status + "\nERROR:\n" + session->compilerError + "\nENGINE:\n" + session->engineOutput.right(16000) + "\nCOMPILER:\n" + session->compilerOutput.right(4000)), 30000);
     QVERIFY(!session->preview.annotationsForPage(0)["links"].toArray().isEmpty());
     session->preview.activateLink(0, 0, session->preview.revision(), session->preview.sequence());
     QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid() && session->preview.page() == 1, 30000);
@@ -208,17 +212,19 @@ void WslTest::bibliographyBuild()
     wsl.enabled = true; wsl.distribution = qEnvironmentVariable("TEXPRESSO_WSL_DISTRIBUTION");
     wsl.prepare(root); QVERIFY2(wsl.error.isEmpty(), qPrintable(wsl.error));
 #endif
+    const auto requestedProvider = qEnvironmentVariable("TEXPRESSO_PACKAGE_PROVIDER", "auto");
+    const auto environment = TexpressoProvider::executionEnvironment(requestedProvider, TexpressoProcess::texliveEnvironment());
     const auto tool = [&](const QString &name, const QStringList &arguments) {
         QProcess process;
-        process.setProcessEnvironment(TexpressoProcess::texliveEnvironment());
+        process.setProcessEnvironment(environment);
         if (wsl.enabled) {
             process.setWorkingDirectory(temporary.path());
-            QStringList args = {"--distribution", wsl.distribution, "--", name};
+            QStringList args = {"--distribution", wsl.distribution, "--provider", requestedProvider, "--", name};
             args << arguments;
             process.start(qEnvironmentVariable("TEXPRESSO_TEST_COMMAND_RUNNER"), args);
         } else {
             process.setWorkingDirectory(temporary.path());
-            process.start(QStandardPaths::findExecutable(name, TexpressoProcess::texliveEnvironment().value("PATH").split(QDir::listSeparator())), arguments);
+            process.start(QStandardPaths::findExecutable(name, environment.value("PATH").split(QDir::listSeparator())), arguments);
         }
         if (!process.waitForStarted(10000) || !process.waitForFinished(90000) || process.exitCode()) {
             qWarning().noquote() << name << process.errorString() << process.readAllStandardOutput() << process.readAllStandardError(); return false;

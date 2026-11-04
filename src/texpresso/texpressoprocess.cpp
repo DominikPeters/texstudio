@@ -111,7 +111,7 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
             child.setArguments(arguments);
             child.setWorkingDirectory(QFileInfo(rootFile).absolutePath());
         }
-        child.setProcessEnvironment(texliveEnvironment());
+        child.setProcessEnvironment(wsl.enabled ? texliveEnvironment() : probe.processEnvironment());
         connect(&child, &QProcess::started, this, [this, features] {
             processGroup = child.processId();
             if (stopping) stop(); else emit ready(features);
@@ -135,7 +135,12 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
         // Reap worker/checkpoint processes even when the frontend has exited.
         killGroup(); emit stopped();
     });
-    connect(&protocol, &TexpressoProtocol::message, this, [this](const QJsonArray &message) { emit this->message(wsl.incoming(message)); });
+    connect(&protocol, &TexpressoProtocol::message, this, [this](const QJsonArray &message) {
+        const auto verb = message.isEmpty() ? QString() : message[0].toString();
+        if (qEnvironmentVariableIsSet("TEXPRESSO_TEST_TRACE_PROTOCOL") && (verb.startsWith("preview-") || verb == "reset-sync" || verb == "truncate-lines" || verb == "engine-error"))
+            emit diagnostic("[protocol-receive] " + QString::fromUtf8(QJsonDocument(message).toJson(QJsonDocument::Compact)) + '\n');
+        emit this->message(wsl.incoming(message));
+    });
     connect(&initialization, &QFutureWatcher<TexpressoWsl>::finished, this, [this] {
         if (stopping) return;
         wsl = initialization.result();
@@ -175,7 +180,7 @@ void TexpressoProcess::start(const QString &engine, const QString &root, const Q
     if (provider.isEmpty()) {
         emit failed(tr("The selected TeX package provider was not found. Install TeX Live or MiKTeX, then select it in TeX Environment.")); return;
     }
-    probe.setProcessEnvironment(env);
+    probe.setProcessEnvironment(TexpressoProvider::executionEnvironment(provider, env));
     // A newly installed signed executable may spend seconds in OS cold loading.
     startProbe();
 }
@@ -188,8 +193,11 @@ void TexpressoProcess::startProbe()
 }
 void TexpressoProcess::send(const QJsonArray &command)
 {
-    if (!stopping && child.state() == QProcess::Running)
-        child.write(QJsonDocument(wsl.outgoing(command)).toJson(QJsonDocument::Compact) + '\n');
+    if (!stopping && child.state() == QProcess::Running) {
+        const auto bytes = QJsonDocument(wsl.outgoing(command)).toJson(QJsonDocument::Compact);
+        if (qEnvironmentVariableIsSet("TEXPRESSO_TEST_TRACE_PROTOCOL")) emit diagnostic("[protocol-send] " + QString::fromUtf8(bytes) + '\n');
+        child.write(bytes + '\n');
+    }
 }
 void TexpressoProcess::stop()
 {

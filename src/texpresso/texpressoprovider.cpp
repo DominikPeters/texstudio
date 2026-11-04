@@ -4,23 +4,36 @@
 #include <QStandardPaths>
 #include <QJsonArray>
 
-QString TexpressoProvider::resolve(const QString &requested, const QProcessEnvironment &environment)
+namespace {
+QString providerExecutable(const QString &provider, const QProcessEnvironment &environment)
 {
     const auto paths = environment.value("PATH").split(QDir::listSeparator(), Qt::SkipEmptyParts);
-    QString texlive;
+    if (provider == "miktex") return QStandardPaths::findExecutable("findtexmf", paths);
     for (const auto &path : paths) {
         const auto candidate = QStandardPaths::findExecutable("kpsewhich", {path});
         const auto compatibility = QStandardPaths::findExecutable("findtexmf", {path});
-        if (!candidate.isEmpty() && compatibility.isEmpty()) { texlive = candidate; break; }
+        if (!candidate.isEmpty() && compatibility.isEmpty()) return candidate;
     }
-    const auto miktex = QStandardPaths::findExecutable("findtexmf", paths);
-    if (requested == "miktex") return miktex.isEmpty() ? QString() : requested;
-    if (requested == "texlive") return texlive.isEmpty() ? QString() : requested;
+    return {};
+}
+}
+QString TexpressoProvider::resolve(const QString &requested, const QProcessEnvironment &environment)
+{
+    if (requested == "miktex" || requested == "texlive") return providerExecutable(requested, environment).isEmpty() ? QString() : requested;
     if (requested != "auto" && !requested.isEmpty()) return {};
-    // MiKTeX also ships a compatibility kpsewhich. Do not mistake that for
-    // TeX Live when both commands resolve into the same installation.
-    if (texlive.isEmpty() && !miktex.isEmpty()) return "miktex";
-    return texlive.isEmpty() ? QString() : QStringLiteral("texlive");
+    // MiKTeX's compatibility kpsewhich does not indicate a TeX Live install.
+    if (!providerExecutable("texlive", environment).isEmpty()) return "texlive";
+    return providerExecutable("miktex", environment).isEmpty() ? QString() : QStringLiteral("miktex");
+}
+QProcessEnvironment TexpressoProvider::executionEnvironment(const QString &requested, QProcessEnvironment environment)
+{
+    const auto selected = resolve(requested, environment);
+    if (selected.isEmpty()) return environment;
+    auto paths = environment.value("PATH").split(QDir::listSeparator(), Qt::SkipEmptyParts);
+    const auto path = QFileInfo(providerExecutable(selected, environment)).absolutePath();
+    paths.removeAll(path); paths.prepend(path);
+    environment.insert("PATH", paths.join(QDir::listSeparator()));
+    return environment;
 }
 QString TexpressoProvider::shellSetup(const QString &requested)
 {

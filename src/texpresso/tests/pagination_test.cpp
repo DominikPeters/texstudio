@@ -632,7 +632,7 @@ void PaginationTest::fullBuildKeepsCompletedTotal()
     const auto diagnostic = [&] {
         return QString("page=%1 count=%2 complete=%3\n%4")
             .arg(live->preview.page()).arg(live->preview.pageCount()).arg(live->preview.complete())
-            .arg(live->engineOutput.split('\n').filter(QRegularExpression("\\[(?:rerun|pass|prepare-edit)\\]")).join('\n'));
+            .arg(live->engineOutput.split('\n').filter(QRegularExpression("\\[(?:rerun|pass|prepare-edit|protocol-send|protocol-receive)\\]")).join('\n'));
     };
     QTRY_VERIFY2_WITH_TIMEOUT(live->preview.complete(), qPrintable(diagnostic()), 15000);
     QCOMPARE(live->preview.pageCount(), 5);

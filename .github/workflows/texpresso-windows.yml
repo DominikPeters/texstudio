@@ -119,6 +119,7 @@ jobs:
         shell: pwsh
         env:
           QT_QPA_PLATFORM: offscreen
+          TEXPRESSO_TEST_TRACE_PROTOCOL: "1"
           TEXPRESSO_WSL_DISTRIBUTION: Ubuntu-24.04
           MSYS2_ROOT: ${{ steps.msys2.outputs.msys2-location }}
         run: |
