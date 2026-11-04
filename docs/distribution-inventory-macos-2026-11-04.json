@@ -1,6 +1,6 @@
 {
   "date": "2026-11-04",
-  "sourceRevision": "20e654063352540df36f21926e20231bde5fa02f",
+  "sourceRevision": "b8133e6fa159177f280d9389c68046bd0923becd",
   "engineRevision": "90b211349960b406267b44642c7be49b584d1f4c",
   "scope": "arm64 macOS candidate; Intel workflow prepared but not run, Linux needs separate inventory",
   "binariesBefore": 102,
@@ -14,7 +14,7 @@
     "Contents/Frameworks/QtPdf.framework/Versions/A/QtPdf",
     "Contents/PlugIns/imageformats/libqpdf.dylib"
   ],
-  "bytesAfter": 277065688,
+  "bytesAfter": 277065970,
   "binaries": [
     {
       "path": "Contents/Frameworks/QtConcurrent.framework/Versions/A/QtConcurrent",
@@ -3324,9 +3324,9 @@
   "bundledInventoryPath": "Contents/Resources/licenses/inventory.json",
   "staticRendererSnapshot": "native/license-static-components.json",
   "additionalValidation": {
-    "nativeToolTests": 51,
+    "nativeToolTests": 55,
     "signatureAndBundledDependencies": "passed after final notice refresh",
-    "localNoticeLinks": "all local links exist",
+    "localNoticeLinks": "1006 app notice links and 45 separate dependency source links exist",
     "packagedVerification": {
       "passed": true,
       "app": "/Users/dominik/GitHub/texstudio/.native-sources/app-updates/current/TeXstudio Espresso.app",
@@ -3378,21 +3378,30 @@
       "mismatches": []
     },
     "fontPayloads": "15 retained source fonts match actual frontend bytes; 26 static LCMS2 object members verified",
-    "sourceRestore": "Offline extraction and local Git snapshots passed native build.py --check; not a complete dependency rebuild",
-    "scope": "Functional/package smoke checks, not a new long-session performance or latency measurement"
+    "sourceRestore": "Generated split ZIP restored offline with separate MuPDF/LCMS2/zlib-ng sources and passed native build.py --check; not a full compilation",
+    "scope": "Functional/package smoke checks, not a new long-session performance or latency measurement",
+    "nativeCodeImagesAfterResourceRefresh": "All 96 SHA256 values unchanged; signature/dependency checks passed"
   },
   "sourceArchive": {
     "path": ".native-sources/releases/texstudio-espresso-macos-arm64-sources.zip",
-    "bytes": 572218462,
-    "sha256": "2cdbaa7a796504b72629acc4008e05cd4da19950789b6ebdf055696c94f7ca56",
-    "archivesAndGitSnapshots": 45,
-    "editorRevision": "20e654063352540df36f21926e20231bde5fa02f",
-    "engineRevision": "90b211349960b406267b44642c7be49b584d1f4c"
+    "layout": "Project ZIP; dependency sources available separately",
+    "bytes": 136934709,
+    "sha256": "e8cefa23448dc1ebd498204d3d733502cee209cdb9ead90e221b2a90e8bcd7ed",
+    "editorRevision": "b8133e6fa159177f280d9389c68046bd0923becd",
+    "engineRevision": "90b211349960b406267b44642c7be49b584d1f4c",
+    "inlinePatches": 5
   },
   "releaseWorkRemaining": [
-    "Publish complete corresponding source matching editor, engine, dependency binaries, data, patches and build scripts alongside the binary; source archives include recursive submodule contents"
+    "Publish complete corresponding source matching editor, engine, dependency binaries, data, patches and build scripts: link project sources and the exact separately available dependency sources from the binary download page; preserve access while distributing binaries"
   ],
   "stagedAppPath": ".native-sources/app-updates/current/TeXstudio Espresso.app",
   "installation": "Installed application untouched; candidate ad-hoc signed, not notarized or published",
-  "evidencePath": "/tmp/texstudio-licensing-complete-evidence"
+  "evidencePath": "/tmp/texstudio-licensing-complete-evidence",
+  "dependencySources": {
+    "path": ".native-sources/releases/dependency-sources",
+    "files": 45,
+    "bytes": 401950502,
+    "index": "index.json",
+    "reuse": "Full SHA256 filenames; existing files verified and reused, including without a temporary cache"
+  }
 }
