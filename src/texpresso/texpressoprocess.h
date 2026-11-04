@@ -30,6 +30,7 @@ public:
     static QString bundledEngine();
     static void setWslDistribution(const QString &distribution);
     static QProcessEnvironment texliveEnvironment();
+    static void setPackageProvider(const QString &provider, bool installPackages = false);
 signals:
     void ready(const QJsonObject &capabilities);
     void message(const QJsonArray &message);
@@ -45,7 +46,8 @@ private:
     QProcess probe;
     TexpressoProtocol protocol;
     QTimer probeTimeout, shutdownTimer;
-    QString program, rootFile;
+    QString program, rootFile, provider;
+    bool installPackages = false;
     QStringList inclusionDirectories;
     qint64 processGroup = 0;
     bool stopping = false;

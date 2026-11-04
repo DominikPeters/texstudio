@@ -333,10 +333,8 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     restart->setVisible(false);
     connect(autoRerun, &QAction::toggled, this, [this](bool enabled) { if (shown) shown->setAutoRerun(enabled); });
     connect(rerunOnce, &QAction::triggered, this, [this] { if (shown) shown->rerunOnce(); });
-#ifdef Q_OS_WIN
-    auto setup = toolbar->addAction(icons("configure"), tr("WSL Setup…"));
-    connect(setup, &QAction::triggered, this, &TexpressoWidget::wslSetupRequested);
-#endif
+    auto setup = toolbar->addAction(icons("configure"), tr("TeX Environment…"));
+    connect(setup, &QAction::triggered, this, &TexpressoWidget::environmentSetupRequested);
     connect(build, &QAction::triggered, this, &TexpressoWidget::buildRequested);
     area = new QScrollArea(this); area->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     area->setWidgetResizable(false); area->setBackgroundRole(QPalette::Dark); area->setFrameStyle(QFrame::NoFrame);

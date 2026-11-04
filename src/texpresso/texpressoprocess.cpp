@@ -1,4 +1,5 @@
 #include "texpressoprocess.h"
+#include "texpressoprovider.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
@@ -9,7 +10,9 @@
 #include <unistd.h>
 #endif
 #include <QtConcurrent>
-namespace { QString configuredWslDistribution; }
+namespace { QString configuredWslDistribution, configuredProvider = "auto"; bool configuredInstallPackages = false; }
+void TexpressoProcess::setPackageProvider(const QString &provider, bool installPackages)
+{ configuredProvider = provider; configuredInstallPackages = installPackages; }
 void TexpressoProcess::setWslDistribution(const QString &distribution) { configuredWslDistribution = distribution; }
 #include <algorithm>
 
@@ -55,6 +58,10 @@ QProcessEnvironment TexpressoProcess::texliveEnvironment()
             if (QFileInfo::exists(directory + "/kpsewhich") && !paths.contains(directory)) paths.append(directory);
         }
     }
+    const QStringList miktexPaths = {QDir::homePath() + "/bin", QDir::homePath() + "/.local/bin",
+        QDir::homePath() + "/.miktex/texmfs/install/miktex/bin", "/opt/miktex/bin", "/opt/homebrew/bin", "/usr/local/bin"};
+    for (const auto &path : miktexPaths)
+        if (QFileInfo::exists(path + "/findtexmf") && !paths.contains(path)) paths.append(path);
     env.insert("PATH", paths.join(QDir::listSeparator()));
     return env;
 }
@@ -83,7 +90,11 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
             emit failed(tr("The bundled TeXpresso engine does not support PNG preview protocol 1. %1").arg(QString::fromUtf8(probe.readAllStandardError()).trimmed())); return;
         }
         child.setProgram(wsl.enabled ? QStringLiteral("wsl.exe") : program);
-        QStringList arguments = {"-texlive", "-headless", "-json", "-lines"};
+        QStringList arguments = TexpressoProvider::engineArguments(provider, installPackages, features);
+        if (arguments.isEmpty()) {
+            emit failed(tr("The bundled engine does not support the selected TeX package provider or its installation option. Update the application or choose TeX Live in TeX Environment.")); return;
+        }
+        arguments << "-headless" << "-json" << "-lines";
         if (features["parentWatch"].toBool()) arguments << "-watch-parent";
         if (features["maxPreviewPixels"].toInt() > 4000000)
             arguments << "-preview-max-pixels" << QString::number(std::min(features["maxPreviewPixels"].toInt(), previewPixelLimit));
@@ -92,7 +103,7 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
         if (wsl.enabled) {
             const auto engine = wsl.toEngine(program);
             const auto supervisor = engine.left(engine.lastIndexOf('/') + 1) + "texpresso-wsl";
-            QStringList command = {"-c", TexpressoWsl::environmentScript(), "texstudio-wsl", supervisor,
+            QStringList command = {"-c", TexpressoWsl::environmentScript(provider), "texstudio-wsl", supervisor,
                                    wsl.toEngine(QFileInfo(rootFile).absolutePath()), "--", engine};
             command << arguments;
             child.setArguments(wsl.arguments("sh", command));
@@ -128,6 +139,7 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
     connect(&initialization, &QFutureWatcher<TexpressoWsl>::finished, this, [this] {
         if (stopping) return;
         wsl = initialization.result();
+        provider = wsl.provider;
         if (!wsl.error.isEmpty()) { emit failed(wsl.error); return; }
         startProbe();
     });
@@ -148,6 +160,9 @@ void TexpressoProcess::start(const QString &engine, const QString &root, const Q
 {
     previewPixelLimit = std::clamp(pixelLimit, 1, int(TexpressoProtocol::maxPixels));
     program = engine; rootFile = root; inclusionDirectories = directories;
+    const auto requested = qEnvironmentVariable("TEXPRESSO_PACKAGE_PROVIDER", configuredProvider);
+    installPackages = configuredInstallPackages;
+    wsl.requestedProvider = requested;
 #ifdef Q_OS_WIN
     wsl.enabled = true;
     wsl.distribution = qEnvironmentVariable("TEXPRESSO_WSL_DISTRIBUTION", configuredWslDistribution);
@@ -156,8 +171,9 @@ void TexpressoProcess::start(const QString &engine, const QString &root, const Q
 #endif
     const auto env = texliveEnvironment();
     if (!QFileInfo(engine).isExecutable()) { emit failed(tr("The bundled TeXpresso engine is missing. Reinstall this application.")); return; }
-    if (QStandardPaths::findExecutable("kpsewhich", env.value("PATH").split(QDir::listSeparator())).isEmpty()) {
-        emit failed(tr("TeX Live was not found. Install TeX Live, then restart the preview.")); return;
+    provider = TexpressoProvider::resolve(requested, env);
+    if (provider.isEmpty()) {
+        emit failed(tr("The selected TeX package provider was not found. Install TeX Live or MiKTeX, then select it in TeX Environment.")); return;
     }
     probe.setProcessEnvironment(env);
     // A newly installed signed executable may spend seconds in OS cold loading.
@@ -166,7 +182,7 @@ void TexpressoProcess::start(const QString &engine, const QString &root, const Q
 void TexpressoProcess::startProbe()
 {
     if (wsl.enabled) {
-        probe.start("wsl.exe", wsl.arguments("sh", {"-c", TexpressoWsl::environmentScript(), "texstudio-wsl", wsl.toEngine(program), "-capabilities"}));
+        probe.start("wsl.exe", wsl.arguments("sh", {"-c", TexpressoWsl::environmentScript(provider), "texstudio-wsl", wsl.toEngine(program), "-capabilities"}));
     } else probe.start(program, {"-capabilities"});
     probeTimeout.start(wsl.enabled ? 30000 : 10000);
 }

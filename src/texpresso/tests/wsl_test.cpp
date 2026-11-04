@@ -1,5 +1,12 @@
 #include <QtTest>
 #include "texpressowsl.h"
+#include "texpressoprovider.h"
+#include "texpressowslsetup.h"
+#include <QApplication>
+#include <QDialog>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QSettings>
 #include "texpressomanager.h"
 #include <QFile>
 #include <QTemporaryDir>
@@ -10,6 +17,9 @@ class WslTest : public QObject
     Q_OBJECT
 private slots:
     void pathsAndProtocol();
+    void packageProviders();
+    void providerSettings();
+    void realEngine_data();
     void realEngine();
     void bibliographyBuild();
 };
@@ -31,13 +41,112 @@ void WslTest::pathsAndProtocol()
     QCOMPARE(wsl.arguments("engine", {"one argument"}), QStringList({"--distribution", "My Linux", "--exec", "engine", "one argument"}));
     QCOMPARE(TexpressoWsl::relativePath("/home/Case", "/home/case/file.tex"), QString("../case/file.tex"));
     QCOMPARE(TexpressoWsl::relativePath("/mnt/c/Project", "/mnt/c/Project/main.tex"), QString("main.tex"));
+    QCOMPARE(wsl.commandArgument("C:\\Project files\\é.tex", "/custom/c/Project files"), QString("é.tex"));
+    QCOMPARE(wsl.commandArgument("--output-directory=C:/build", "/custom/c/Project files"), QString("--output-directory=../build"));
+    const QString source = "\\def\\name{C:/something}\\input{main.tex}";
+    QCOMPARE(wsl.commandArgument(source, "/custom/c"), source);
+    QCOMPARE(wsl.commandArgument("--jobname=letter", "/custom/c"), QString("--jobname=letter"));
+    QCOMPARE(wsl.commandArgument("/home/main.tex", "/custom/c"), QString("/home/main.tex"));
+    const auto listing = QStringLiteral("  NAME              STATE           VERSION\n* My Linux          Running         2\n  Other Distro      Stopped         1\n");
+    QCOMPARE(TexpressoWsl::distributionVersion(listing, "My Linux"), 2);
+    QCOMPARE(TexpressoWsl::distributionVersion(listing, "Other Distro"), 1);
+    QCOMPARE(TexpressoWsl::distributionVersion(listing, "Missing"), -1);
+    QByteArray utf16;
+    for (const auto code : listing) { utf16 += char(code.unicode() & 255); utf16 += char(code.unicode() >> 8); }
+    QCOMPARE(TexpressoWsl::windowsText(utf16), listing.trimmed());
     wsl.enabled = false;
     QCOMPARE(wsl.outgoing({"open", "C:/main.tex", text}), QJsonArray({"open", "C:/main.tex", text}));
+}
+void WslTest::packageProviders()
+{
+    QTemporaryDir temporary; QVERIFY(temporary.isValid());
+    QDir folder(temporary.path()); QVERIFY(folder.mkdir("texlive")); QVERIFY(folder.mkdir("miktex"));
+    const auto executable = [&](const QString &path) {
+        QFile file(path); if (!file.open(QIODevice::WriteOnly)) return false;
+        file.write("fixture"); file.close();
+        return file.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+    };
+#ifdef Q_OS_WIN
+    const QString suffix = ".exe";
+#else
+    const QString suffix;
+#endif
+    const auto tl = folder.filePath("texlive"), mi = folder.filePath("miktex");
+    QVERIFY(executable(tl + "/kpsewhich" + suffix));
+    QVERIFY(executable(mi + "/findtexmf" + suffix));
+    QVERIFY(executable(mi + "/kpsewhich" + suffix));
+    QProcessEnvironment env; env.insert("PATH", tl);
+    QCOMPARE(TexpressoProvider::resolve("auto", env), QString("texlive"));
+    QVERIFY(TexpressoProvider::resolve("miktex", env).isEmpty());
+    env.insert("PATH", mi);
+    QCOMPARE(TexpressoProvider::resolve("auto", env), QString("miktex"));
+    QVERIFY(TexpressoProvider::resolve("texlive", env).isEmpty());
+    env.insert("PATH", mi + QDir::listSeparator() + tl);
+    QCOMPARE(TexpressoProvider::resolve("auto", env), QString("texlive"));
+    QCOMPARE(TexpressoProvider::resolve("miktex", env), QString("miktex"));
+    QVERIFY(TexpressoProvider::resolve("invalid", env).isEmpty());
+    QCOMPARE(TexpressoProvider::engineArguments("texlive", false, {}), QStringList{"-texlive"});
+    QVERIFY(TexpressoProvider::engineArguments("miktex", false, {}).isEmpty());
+    const QJsonObject features = {{"packageProviders", QJsonArray{"texlive", "miktex"}}, {"miktexAutoInstall", true}};
+    QCOMPARE(TexpressoProvider::engineArguments("miktex", false, features), QStringList{"-miktex"});
+    QCOMPARE(TexpressoProvider::engineArguments("miktex", true, features), QStringList({"-miktex", "-miktex-auto-install"}));
+    auto unsupported = features; unsupported.remove("miktexAutoInstall");
+    QVERIFY(TexpressoProvider::engineArguments("miktex", true, unsupported).isEmpty());
+#ifndef Q_OS_WIN
+    // Execute the same shell prefix used inside WSL; no package install occurs.
+    QProcess probe; env.insert("HOME", temporary.path()); probe.setProcessEnvironment(env);
+    probe.start("/bin/sh", {"-c", TexpressoProvider::shellSetup("miktex") + "printf '%s' \"$TXP_PACKAGE_PROVIDER\""});
+    QVERIFY(probe.waitForFinished(5000)); QCOMPARE(probe.exitCode(), 0);
+    QCOMPARE(probe.readAllStandardOutput(), QByteArray("miktex"));
+#endif
+}
+void WslTest::providerSettings()
+{
+#ifdef Q_OS_WIN
+    QSKIP("WSL environment setup is covered by the real host checks");
+#else
+    QTemporaryDir temporary; QSettings settings(temporary.filePath("profile.ini"), QSettings::IniFormat);
+    const auto closeDialog = [](bool accept) {
+        QTimer::singleShot(0, qApp, [accept] {
+            for (auto widget : QApplication::topLevelWidgets()) {
+                auto dialog = qobject_cast<QDialog *>(widget);
+                if (!dialog || dialog->windowTitle() != "TeX environment") continue;
+                auto provider = dialog->findChild<QComboBox *>("texpressoPackageProvider");
+                auto install = dialog->findChild<QCheckBox *>("texpressoMiktexAutoInstall");
+                QVERIFY(provider); QVERIFY(install); QVERIFY(!install->isChecked());
+                provider->setCurrentIndex(provider->findData("miktex"));
+                install->setChecked(true);
+                accept ? dialog->accept() : dialog->reject();
+            }
+        });
+    };
+    closeDialog(false); QVERIFY(!configureTexpressoEnvironment(nullptr, &settings, {}));
+    QVERIFY(!settings.contains("texpresso/packageProvider"));
+    closeDialog(true); QVERIFY(configureTexpressoEnvironment(nullptr, &settings, {}));
+    QCOMPARE(settings.value("texpresso/packageProvider").toString(), QString("miktex"));
+    QVERIFY(settings.value("texpresso/miktexAutoInstall").toBool());
+    TexpressoProcess::setPackageProvider("auto", false);
+#endif
+}
+void WslTest::realEngine_data()
+{
+    QTest::addColumn<bool>("linuxFilesystem");
+    QTest::newRow("host-project") << false;
+#ifdef Q_OS_WIN
+    QTest::newRow("wsl-native-project") << true;
+#endif
 }
 void WslTest::realEngine()
 {
     if (qEnvironmentVariableIsEmpty("TEXPRESSO_TEST_ENGINE")) QSKIP("Set TEXPRESSO_TEST_ENGINE for real engine integration");
-    QTemporaryDir temporary; QVERIFY(temporary.isValid());
+    QFETCH(bool, linuxFilesystem);
+    QString pattern = QDir::tempPath() + "/texpresso-wsl-XXXXXX";
+    if (linuxFilesystem) {
+        TexpressoWsl host; host.enabled = true; host.distribution = qEnvironmentVariable("TEXPRESSO_WSL_DISTRIBUTION");
+        host.prepare({}); QVERIFY2(host.error.isEmpty(), qPrintable(host.error));
+        pattern = "//wsl.localhost/" + host.distribution + "/tmp/texpresso-qt-XXXXXX";
+    }
+    QTemporaryDir temporary(pattern); QVERIFY(temporary.isValid());
     QDir directory(temporary.path());
 #ifdef Q_OS_MACOS
     // macOS decomposes Unicode filenames; the existing engine's overlay keys

@@ -1,49 +1,79 @@
 # Windows with WSL
 
-The Windows editor and both viewers run natively with Qt. Live compilation uses
-our pinned Linux TeXpresso bundle through a persistent `wsl.exe` pipe. No WSLg
-or network listener is needed. The protocol and renderer remain shared with the
-macOS/Linux clients and the VSCode extension.
+The editor and both viewers run natively with Qt. Live compilation uses the
+bundled Linux TeXpresso engine through a persistent `wsl.exe` pipe. WSLg and a
+network listener are not needed. Windows TeX installations do not supply packages
+to the Linux compiler: install TeX Live or MiKTeX inside the selected distribution.
 
-## Implementation sequence
+## Setup and builds
 
-1. Add a WSL launch/path adapter and Linux process supervisor. Translate only
-   protocol path fields; never rewrite document contents, links or PNG bytes.
-   Reuse the extension's separation of editor/engine path namespaces and cache
-   conversions. Keep the current native launch path on macOS/Linux.
-2. Package the Linux runtime alongside the Windows application. Test the native
-   Qt client against the actual WSL2 engine on `windows-2025`: capability probe,
-   PNG decoding, edits, SyncTeX, pagination, errors/recovery and worker cleanup.
-   Exercise spaces/Unicode paths and Windows-mounted and WSL-native projects.
-3. Add setup UI: use the default distribution, allow any installed distribution,
-   verify actual capabilities and report concrete failures. No distribution-name
-   or version whitelist. Full builds/Biber should run in the selected environment
-   so package versions and auxiliary files match live compilation.
-4. Add TeX Live installation assistance: locate an existing installation first;
-   offer small/full selections, download/installed-space estimates, guest and
-   host free-space checks, an explicit installation confirmation, progress,
-   cancellation and logs. Prefer an official user-local TeX Live installation
-   independent of distro package managers. Verify a small compile and resume.
-   The installation survives application upgrades. Do not install silently.
-5. Extend regression coverage as reports arrive. Ubuntu is a CI baseline, not a
-   runtime restriction. Hardware gestures and representative latency remain
-   separate from runner-based functional validation.
+Open **TeX Environment…** in the live-preview toolbar. Use the default WSL
+distribution or choose any installed distribution. There is no distribution-name
+or release whitelist. WSL2 is required; startup checks its actual version and
+reports loader/tool failures. Ubuntu 24.04 is the initial CI environment.
 
-The engine uses Linux process groups/checkpoint forks. A small app-owned Linux
-supervisor must release only its own compiler group on input-pipe closure,
-frontend exit or shutdown; a Windows process ID is not a Linux process-group ID.
-The supervisor is separate from the shared engine, so engine code need not change.
+Choose Automatic, TeX Live or MiKTeX. Automatic prefers a separate TeX Live
+installation when both are present; MiKTeX's compatibility `kpsewhich` is not
+mistaken for TeX Live. MiKTeX requires an engine advertising the `miktex` provider;
+older bundles report an explicit unsupported-provider error. Its package downloads
+are disabled by default and require a separate opt-in. The provider is implemented
+in the shared engine, not as a TeXstudio-specific compiler.
 
-The Windows package includes Linux libraries but uses the distribution's ELF
-loader/glibc. Failures to load them must remain visible, not be masked by a distro
-whitelist or silent WSL1 fallback. The app should verify the selected distribution
-runs under WSL2. Windows TeX Live alone does not supply the Linux TeX environment.
+The wizard can install an official user-local TeX Live into
+`~/.local/share/texlive/espresso`. Choose full (roughly 10 GB; reserve at least
+12 GB) or small, review available Linux and Windows disk space, then explicitly
+click **Install TeX Live**. Curl, Perl and tar are required. Installation has
+progress/logs and cancellation, does not change system PATH, and does not replace
+another TeX installation. An interrupted installation is retained for repair.
+The smaller scheme includes Biber, biblatex, latexmk and recommended LaTeX
+packages; other missing packages need installing separately. MiKTeX itself is
+installed using [its official instructions](https://miktex.org/Download).
 
-Keep the engine/TeX Live in the Linux environment. Initial direct access to
-Windows projects is supported through WSL mounts; benchmark before introducing
-project mirroring. Native WSL files are opened through `\\wsl.localhost\...`.
-Path conversion results are cached, so typing never launches `wslpath` per edit.
+Enable **Use this distribution for build commands and bibliography tools** to run
+standard TeXstudio recipes in the same Linux environment. The existing build
+manager still handles reruns, bibliography sequencing, logs, errors and refreshing
+the live preview after external builds. Unrelated custom commands keep their
+configured behavior. The setting defaults on when no Windows TeX installation is
+found. Native Windows TeX users can retain their existing build commands.
 
-CI artifacts are development builds, unsigned. They are not automatically
-published as releases or installed on the developer's computer. Packaging/source
-inventory for a public Windows release is a separate validation step.
+Windows projects are accessed through WSL mounts; projects in Linux are opened
+through `\\wsl.localhost\Distribution\...`. Path mappings are prepared once at
+session startup. Typing does not launch `wslpath` or rewrite source contents.
+Full-build source arguments become relative Linux paths so saved-PDF SyncTeX
+continues to identify project files. Project mirroring has not been introduced.
+
+The app-owned Linux supervisor releases its own compiler process group on pipe
+closure, frontend exit or shutdown. The engine also watches its Linux parent.
+No Windows process ID is used as a Linux process-group ID.
+
+## Building and validation
+
+`.github/workflows/texpresso-windows.yml` builds the pinned engine on Ubuntu 22.04
+with the compact MuPDF profile and zlib-ng. It then boots actual WSL2 on
+`windows-2025`, installs a test TeX environment, builds the native Qt app, and
+runs the offscreen Qt integration executable against the Linux engine.
+
+The suite covers binary PNG transport, source overlays/range edits, Unicode and
+space-containing paths, inverse SyncTeX, links, invalid-source recovery,
+pause/restart/shutdown, and a full XeLaTeX/Biber/XeLaTeX build followed by live
+preview refresh. Pure tests cover protocol path fields, command arguments,
+provider discovery/capability checks and WSL version decoding. Windows runs the
+preview scenario with both Windows-hosted and Linux-native project paths.
+No interactive editor or file dialog is needed.
+
+The portable development artifact is named
+**TeXstudio-Espresso-Windows-WSL-development**. CI runs its packaged executable's
+version check and checks for surviving compiler workers after the integration
+suite. Artifacts are unsigned, expire after seven days, and are not automatically
+published as releases or installed on the developer's computer.
+
+Initial runner validation is in progress. Physical trackpad gestures, compositor
+behavior, representative interactive latency and the public-release Windows
+license/source inventory remain separate checks. The engine bundles Linux
+libraries but relies on the distribution's ELF loader/glibc; older or non-glibc
+distributions may report actual loader errors. This is a runtime dependency,
+not a distro whitelist.
+
+For local debugging, `TEXPRESSO_WSL_DISTRIBUTION` overrides the configured distro
+and `TEXPRESSO_PACKAGE_PROVIDER` overrides the provider (`auto`, `texlive`,
+`miktex`). These are development overrides; normal users use the setup UI.

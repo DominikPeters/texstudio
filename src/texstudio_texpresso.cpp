@@ -30,12 +30,14 @@ void Texstudio::setupTexpresso()
     previewPanel->setPdfSupported(false);
 #endif
     TexpressoProcess::setWslDistribution(configManager.getSettings()->value("texpresso/wslDistribution").toString());
+    TexpressoProcess::setPackageProvider(configManager.getSettings()->value("texpresso/packageProvider", "auto").toString(),
+        configManager.getSettings()->value("texpresso/miktexAutoInstall", false).toBool());
     texpressoManager = new TexpressoManager(this);
 #ifdef Q_OS_WIN
     connect(&buildManager, &BuildManager::commandLineRequested, this,
             [this](const QString &id, QString *command, bool *) {
         static const QSet<QString> tools = {"latex", "pdflatex", "xelatex", "lualatex", "latexmk", "bibtex", "bibtex8", "biber", "makeindex", "texindy", "makeglossaries"};
-        if (!tools.contains(id) || !configManager.getSettings()->value("texpresso/wslBuilds", QStandardPaths::findExecutable("kpsewhich.exe").isEmpty()).toBool()) return;
+        if (!tools.contains(id) || !configManager.getSettings()->value("texpresso/wslBuilds", (QStandardPaths::findExecutable("kpsewhich.exe").isEmpty() && QStandardPaths::findExecutable("findtexmf.exe").isEmpty())).toBool()) return;
         const auto program = CommandInfo::getProgramName(*command);
         auto name = QFileInfo(CommandInfo::getProgramNameUnquoted(*command)).fileName().toLower();
         if (name.endsWith(".exe")) name.chop(4);
@@ -43,7 +45,8 @@ void Texstudio::setupTexpresso()
         const auto runner = QCoreApplication::applicationDirPath() + "/texstudio-wsl.exe";
         const auto distribution = configManager.getSettings()->value("texpresso/wslDistribution").toString();
         *command = quoteSpaces(runner) + (distribution.isEmpty() ? QString() : " --distribution " + quoteSpaces(distribution))
-            + " -- " + name + command->mid(program.size());
+            + " --provider " + quoteSpaces(configManager.getSettings()->value("texpresso/packageProvider", "auto").toString())
+            + " -- " + name + command->trimmed().mid(program.size());
     });
 #endif
     // BuildManager captures the root before launching the recipe, so switching
@@ -72,9 +75,9 @@ void Texstudio::setupTexpresso()
         return loadPixmapFromSVG(getRealIconFile(name), QSize(32, 32));
     });
     texpressoWidget = new TexpressoWidget(texpressoManager, previewConfig, getRealIcon, previewPanel);
-    connect(texpressoWidget, &TexpressoWidget::wslSetupRequested, this, [this] {
+    connect(texpressoWidget, &TexpressoWidget::environmentSetupRequested, this, [this] {
         const auto session = texpressoManager->current();
-        if (configureTexpressoWsl(this, configManager.getSettings(), session ? session->root() : QString())) texpressoManager->restartAll();
+        if (configureTexpressoEnvironment(this, configManager.getSettings(), session ? session->root() : QString())) texpressoManager->restartAll();
     });
     previewPanel->setLiveViewer(texpressoWidget);
     texpressoWidget->setPreviewVisible(false);

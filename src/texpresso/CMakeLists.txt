@@ -13,6 +13,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/../pdfviewer/ViewerComponents.cmake")
 add_library(texpresso-client STATIC
     texpressoprotocol.cpp texpressoprotocol.h
     texpressoprocess.cpp texpressoprocess.h
+    texpressoprovider.cpp texpressoprovider.h
     texpressowsl.cpp texpressowsl.h
     texpressowslsetup.cpp texpressowslsetup.h
     texpressopreview.cpp texpressopreview.h
@@ -30,7 +31,7 @@ if(NOT APPLE)
     target_compile_definitions(texpresso-client PRIVATE TEXPRESSO_INSTALL_RELATIVE="${_txp_install_relative}")
 endif()
 if(WIN32 OR TEXSTUDIO_TEXPRESSO_TESTS)
-    add_executable(texstudio-wsl-command wsl_command.cpp texpressowsl.cpp)
+    add_executable(texstudio-wsl-command wsl_command.cpp texpressowsl.cpp texpressoprovider.cpp)
     set_target_properties(texstudio-wsl-command PROPERTIES OUTPUT_NAME texstudio-wsl RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
     target_link_libraries(texstudio-wsl-command PRIVATE Qt${QT_VERSION_MAJOR}::Core)
     if(WIN32 AND TARGET texstudio)

@@ -87,3 +87,20 @@ Offscreen tests cannot establish physical trackpad delivery, native cursor/focus
 behavior, Dock icon caching, or actual compositor presentation. Report those
 limits, and arrange a brief visible check when the user requests one. Never
 escalate a routine test into foreground computer control merely for reassurance.
+
+### Windows / WSL and package providers
+
+The Windows workflow runs `texpresso-wsl-tests.exe` natively with
+`QT_QPA_PLATFORM=offscreen` against a real WSL2 engine. It supplies
+`TEXPRESSO_TEST_ENGINE`, `TEXPRESSO_TEST_COMMAND_RUNNER` and
+`TEXPRESSO_WSL_DISTRIBUTION`; the command runner exercises the same Windows
+compiler/Biber bridge that standard build recipes use. A second preview fixture
+lives under the distribution's Linux `/tmp` and is accessed through WSL UNC.
+Tests only create disposable projects and do not touch the user's editor/profile.
+
+The same suite runs on macOS/Linux using `TEXPRESSO_TEST_ENGINE`. Its pure tests
+cover provider discovery, MiKTeX capability gating and explicit package-download
+policy without installing anything. Real MiKTeX validation additionally requires
+a MiKTeX environment and an engine advertising `packageProviders: ["miktex"]`;
+TeX Live tests alone do not establish MiKTeX compatibility. Set
+`TEXPRESSO_PACKAGE_PROVIDER=miktex` when running against that environment.
