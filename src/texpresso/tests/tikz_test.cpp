@@ -4,6 +4,7 @@
 #include <QBuffer>
 #include <cmath>
 #include <QPushButton>
+#include <QJsonDocument>
 #include "texpressotikz.h"
 #include "texpressowidget.h"
 
@@ -12,6 +13,7 @@ class TikzTest : public QObject
     Q_OBJECT
 private slots:
     void lexicalSourceRanges();
+    void launchArguments();
     void protocolValidation();
     void hoverAndStaleTargets();
     void realFigures();
@@ -44,6 +46,21 @@ void TikzTest::lexicalSourceRanges()
     QCOMPARE(TexpressoTikz::resolveFigure(wrapped, 4, 5).line, 2);
     const auto ambiguous = TexpressoTikz::sourceFigures("\\scalebox{.5}{\n\\begin{tikzpicture}\\end{tikzpicture}\n\\begin{tikzpicture}\\end{tikzpicture}}");
     QCOMPARE(TexpressoTikz::resolveFigure(ambiguous, 3, 4).line, 0);
+}
+void TikzTest::launchArguments()
+{
+    QTemporaryDir temp; QVERIFY(temp.isValid());
+    const auto path = temp.filePath("café $(literal) figure.tex"); write(path, "% fixture\n");
+    QVERIFY(TexpressoTikz::launch(QCoreApplication::applicationFilePath(), path, 284));
+    QFile record(path + ".argv");
+    QTRY_VERIFY_WITH_TIMEOUT(record.exists() && record.size() > 0, 5000);
+    QVERIFY(record.open(QIODevice::ReadOnly));
+    const auto arguments = QJsonDocument::fromJson(record.readAll()).array();
+    QCOMPARE(arguments.size(), 2); QCOMPARE(arguments[0].toString(), QString("--source-line=284"));
+    // macOS normalizes filesystem names to decomposed Unicode. The spelling
+    // may change, while the literal shell characters and file identity must not.
+    QCOMPARE(arguments[1].toString().normalized(), path.normalized());
+    QCOMPARE(QFileInfo(arguments[1].toString()).canonicalFilePath(), QFileInfo(path).canonicalFilePath());
 }
 void TikzTest::protocolValidation()
 {
@@ -182,5 +199,20 @@ void TikzTest::providedPaper()
     qInfo() << "Copied-paper pages/eligible TikZ figures:" << count << targets;
     session.stop();
 }
-QTEST_MAIN(TikzTest)
+int main(int argc, char **argv)
+{
+    // A disposable launch recipient exercises real argv delivery without ever
+    // launching the installed editor or opening a visible app/window.
+    if (argc == 3 && QByteArray(argv[1]).startsWith("--source-line=")) {
+        QCoreApplication application(argc, argv);
+        const auto args = application.arguments();
+        QFile record(args[2] + ".argv");
+        if (!record.open(QIODevice::WriteOnly)) return 1;
+        record.write(QJsonDocument(QJsonArray{args[1], args[2]}).toJson());
+        return 0;
+    }
+    QApplication application(argc, argv);
+    TikzTest test;
+    return QTest::qExec(&test, argc, argv);
+}
 #include "tikz_test.moc"
