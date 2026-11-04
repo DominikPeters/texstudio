@@ -1,10 +1,14 @@
 # Bundled TeXpresso
 
-The engine is the same `DominikPeters/texpresso` `vscode` fork pinned by
+The engine is the same `DominikPeters/texpresso` `codex/unified-engine` branch pinned by
 texpresso-vscode. `native/texpresso` records an exact commit; update both clients
 together after testing shared engine changes. The older web-wrapper branch is
-unrelated. The application always launches its bundled engine with `-texlive`.
-Users install TeX Live, but do not configure an engine executable.
+unrelated. The app bundles its engine; users install TeX Live or MiKTeX and
+choose a package provider in **TeX Environment…**. Automatic prefers TeX Live
+when both installations are available. MiKTeX package downloads require a
+separate opt-in and are disabled otherwise. On Windows the provider must be
+inside the selected WSL2 distribution; see [Windows setup](WINDOWS.md).
+Users do not configure an engine executable.
 
 The macOS builder, dependency lock, profiles, notarization tools and tests were
 adapted from `DominikPeters/texpresso-vscode/native` (engine pin 0868436). Keep

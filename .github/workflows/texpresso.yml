@@ -109,8 +109,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends miktex
           miktexsetup finish
-          echo "$HOME/bin" >> "$GITHUB_PATH"
-          echo "$HOME/.miktex/texmfs/install/miktex/bin" >> "$GITHUB_PATH"
       - name: Test Qt editing and bibliography with actual MiKTeX
         if: ${{ !cancelled() && steps.miktex-setup.conclusion == 'success' }}
         timeout-minutes: 20
@@ -120,6 +118,7 @@ jobs:
           TEXPRESSO_TEST_TRACE_PROTOCOL: "1"
           TEXPRESSO_TEST_ARTIFACTS: ${{ github.workspace }}/build-client/miktex-results
         run: |
+          export PATH="$HOME/bin:$HOME/.miktex/texmfs/install/miktex/bin:$PATH"
           mkdir -p build-client/miktex-results
           mpm --update-db
           # Exercise the shared provider's explicit download opt-in, fonts and
