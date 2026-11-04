@@ -4,6 +4,8 @@
 #include <QWizard>
 #include <QWizardPage>
 #include <QComboBox>
+#include <QCheckBox>
+#include <QStandardPaths>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QPlainTextEdit>
@@ -49,6 +51,9 @@ bool configureTexpressoWsl(QWidget *parent, QSettings *settings, const QString &
     schemes->addItem(QObject::tr("Full TeX Live — best package coverage, roughly 10 GB installed"), "full");
     schemes->addItem(QObject::tr("Smaller installation — fewer packages; add others as needed"), "small");
     choices->addWidget(schemes);
+    auto builds = new QCheckBox(QObject::tr("Use this distribution's TeX Live for build commands and bibliography tools"));
+    builds->setChecked(settings->value("texpresso/wslBuilds", QStandardPaths::findExecutable("kpsewhich.exe").isEmpty()).toBool());
+    choices->addWidget(builds);
     auto warning = new QLabel(QObject::tr("If TeX Live is missing, the next page lets you install it. Installation downloads packages and takes additional disk space for temporary files. Full installation should have at least 12 GB available. Smaller installation size varies. Nothing is installed until you click Install TeX Live."));
     warning->setWordWrap(true); choices->addWidget(warning);
     auto guide = new QLabel(QObject::tr("<a href=\"https://learn.microsoft.com/windows/wsl/install\">Install WSL</a> · <a href=\"https://tug.org/texlive/quickinstall.html\">TeX Live installation guide</a>"));
@@ -144,6 +149,7 @@ bool configureTexpressoWsl(QWidget *parent, QSettings *settings, const QString &
         const auto selected = distribution->currentIndex() >= 0 && distribution->currentText() == distribution->itemText(distribution->currentIndex())
             ? distribution->currentData().toString() : distribution->currentText().trimmed();
         settings->setValue("texpresso/wslDistribution", selected);
+        settings->setValue("texpresso/wslBuilds", builds->isChecked());
         TexpressoProcess::setWslDistribution(selected);
     }
     return accepted;

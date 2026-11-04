@@ -64,6 +64,8 @@ jobs:
     runs-on: windows-2025
     timeout-minutes: 60
     steps:
+      - name: Preserve pinned Linux source bytes on Windows
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
         with:
           submodules: true
@@ -102,6 +104,9 @@ jobs:
       - name: Build native Windows app and Qt integration test
         shell: msys2 {0}
         run: |
+          # NTFS does not preserve Linux executable modes. Validate contents instead.
+          git -C native/texpresso config core.filemode false
+          git -C native/texpresso status --short
           mkdir -p native/.bundles/linux-x86_64
           tar -xzf engine-linux-x86_64.tar.gz -C native/.bundles/linux-x86_64
           cmake -S . -B build-windows -G Ninja -DCMAKE_BUILD_TYPE=Release \
@@ -115,6 +120,7 @@ jobs:
           TEXPRESSO_WSL_DISTRIBUTION: Ubuntu-24.04
         run: |
           $env:PATH = "C:\msys64\ucrt64\bin;" + $env:PATH
+          $env:TEXPRESSO_TEST_COMMAND_RUNNER = "$env:GITHUB_WORKSPACE\build-windows\texstudio-wsl.exe"
           $env:TEXPRESSO_TEST_ENGINE = "$env:GITHUB_WORKSPACE\build-windows\texpresso-runtime\bin\texpresso"
           & .\build-windows\src\texpresso\texpresso-wsl-tests.exe -o wsl-tests.xml,xunitxml -o wsl-tests.txt,txt
           if ($LASTEXITCODE -ne 0) { throw 'Native Windows / WSL integration failed' }
@@ -126,7 +132,7 @@ jobs:
         shell: msys2 {0}
         run: |
           mkdir -p dist/TeXstudio-Espresso
-          cp build-windows/texstudio.exe dist/TeXstudio-Espresso/
+          cp build-windows/texstudio.exe build-windows/texstudio-wsl.exe dist/TeXstudio-Espresso/
           cp -R build-windows/texpresso-runtime dist/TeXstudio-Espresso/
           cd dist/TeXstudio-Espresso
           windeployqt6 --no-qml --qmlcore --no-translations texstudio.exe

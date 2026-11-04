@@ -41,10 +41,21 @@ jobs:
           ref: ${{ steps.compressor.outputs.revision }}
           path: .native-sources/zlib-ng
           persist-credentials: false
+      - name: Read locked renderer
+        id: renderer
+        run: python3 -c 'import json,os; open(os.environ["GITHUB_OUTPUT"], "a").write("revision=" + json.load(open("native/dependencies.lock.json"))["mupdf"]["revision"] + "\n")'
+      - uses: actions/checkout@v4
+        with:
+          repository: ArtifexSoftware/mupdf
+          ref: ${{ steps.renderer.outputs.revision }}
+          path: .native-sources/mupdf
+          persist-credentials: false
+      - name: Fetch locked LCMS2 renderer dependency
+        run: git -C .native-sources/mupdf submodule update --init --depth 1 thirdparty/lcms2
       - name: Check native tooling and build bundled engine
         run: |
           python3 -m unittest discover -s native/tests
-          python3 native/scripts/build_linux.py --zlib-ng-source .native-sources/zlib-ng --jobs 2
+          python3 native/scripts/build_linux.py --mupdf-source .native-sources/mupdf --zlib-ng-source .native-sources/zlib-ng --jobs 2
           python3 native/scripts/validate_bundle.py "native/.bundles/linux-$(uname -m)"
       - name: Test Qt client against bundled engine
         env:

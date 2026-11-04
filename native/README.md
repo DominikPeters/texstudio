@@ -23,7 +23,7 @@ python3 native/scripts/build.py --mupdf-source /path/to/mupdf --icu-prefix /path
 On Linux install the engine's build dependencies (see the live-preview CI), then:
 
 ```
-python3 native/scripts/build_linux.py --zlib-ng-source /path/to/zlib-ng
+python3 native/scripts/build_linux.py --mupdf-source /path/to/mupdf --zlib-ng-source /path/to/zlib-ng
 ```
 
 Both builders require the zlib-ng source revision in `dependencies.lock.json`.

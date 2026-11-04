@@ -20,5 +20,6 @@ public:
     QJsonArray incoming(QJsonArray message) const;
     QStringList arguments(const QString &program, const QStringList &args = {}) const;
     static QString environmentScript();
+    static QString relativePath(const QString &directory, const QString &absolute);
 };
 #endif

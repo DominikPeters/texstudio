@@ -15,6 +15,8 @@
 #include <QPointer>
 #include <QSettings>
 #include <QScreen>
+#include <QStandardPaths>
+#include <QCoreApplication>
 
 namespace {
 QString bufferText(LatexDocument *document) { return document->textLines().join('\n'); }
@@ -29,6 +31,21 @@ void Texstudio::setupTexpresso()
 #endif
     TexpressoProcess::setWslDistribution(configManager.getSettings()->value("texpresso/wslDistribution").toString());
     texpressoManager = new TexpressoManager(this);
+#ifdef Q_OS_WIN
+    connect(&buildManager, &BuildManager::commandLineRequested, this,
+            [this](const QString &id, QString *command, bool *) {
+        static const QSet<QString> tools = {"latex", "pdflatex", "xelatex", "lualatex", "latexmk", "bibtex", "bibtex8", "biber", "makeindex", "texindy", "makeglossaries"};
+        if (!tools.contains(id) || !configManager.getSettings()->value("texpresso/wslBuilds", QStandardPaths::findExecutable("kpsewhich.exe").isEmpty()).toBool()) return;
+        const auto program = CommandInfo::getProgramName(*command);
+        auto name = QFileInfo(CommandInfo::getProgramNameUnquoted(*command)).fileName().toLower();
+        if (name.endsWith(".exe")) name.chop(4);
+        if (!tools.contains(name)) return; // Leave unrelated custom recipes intact.
+        const auto runner = QCoreApplication::applicationDirPath() + "/texstudio-wsl.exe";
+        const auto distribution = configManager.getSettings()->value("texpresso/wslDistribution").toString();
+        *command = quoteSpaces(runner) + (distribution.isEmpty() ? QString() : " --distribution " + quoteSpaces(distribution))
+            + " -- " + name + command->mid(program.size());
+    });
+#endif
     // BuildManager captures the root before launching the recipe, so switching
     // editor tabs while LaTeX/BibTeX/Biber run cannot refresh another project.
     connect(&buildManager, &BuildManager::buildSequenceStarted, texpressoManager,

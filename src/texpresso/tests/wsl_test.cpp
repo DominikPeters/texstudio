@@ -29,6 +29,8 @@ void WslTest::pathsAndProtocol()
     QCOMPARE(wsl.incoming({"lookup-file", "read", "successful", "/custom/c/main.tex"})[3].toString(), QString("C:/main.tex"));
     QCOMPARE(wsl.incoming({"synctex", "/home/me/main.tex", 2})[1].toString(), QString("//wsl.localhost/My Linux/home/me/main.tex"));
     QCOMPARE(wsl.arguments("engine", {"one argument"}), QStringList({"--distribution", "My Linux", "--exec", "engine", "one argument"}));
+    QCOMPARE(TexpressoWsl::relativePath("/home/Case", "/home/case/file.tex"), QString("../case/file.tex"));
+    QCOMPARE(TexpressoWsl::relativePath("/mnt/c/Project", "/mnt/c/Project/main.tex"), QString("main.tex"));
     wsl.enabled = false;
     QCOMPARE(wsl.outgoing({"open", "C:/main.tex", text}), QJsonArray({"open", "C:/main.tex", text}));
 }
@@ -100,9 +102,10 @@ void WslTest::bibliographyBuild()
         QProcess process;
         process.setProcessEnvironment(TexpressoProcess::texliveEnvironment());
         if (wsl.enabled) {
-            QStringList args = {"-c", "cd \"$1\" || exit; shift; " + TexpressoWsl::environmentScript(),
-                                "texstudio-test", wsl.toEngine(temporary.path()), name};
-            args << arguments; process.start("wsl.exe", wsl.arguments("sh", args));
+            process.setWorkingDirectory(temporary.path());
+            QStringList args = {"--distribution", wsl.distribution, "--", name};
+            args << arguments;
+            process.start(qEnvironmentVariable("TEXPRESSO_TEST_COMMAND_RUNNER"), args);
         } else {
             process.setWorkingDirectory(temporary.path());
             process.start(QStandardPaths::findExecutable(name, TexpressoProcess::texliveEnvironment().value("PATH").split(QDir::listSeparator())), arguments);

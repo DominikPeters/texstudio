@@ -41,8 +41,9 @@ def check_source(path, revision):
         raise ValueError(f'{path}: expected {revision}, found {actual}')
     # Exports contain committed files only. Reject tracked edits rather than
     # silently compiling something different from the developer's source view.
-    if run(['git', 'status', '--porcelain', '--untracked-files=no'], cwd=path, capture=True):
-        raise ValueError(f'{path}: commit/stash source changes before building a pinned bundle')
+    changes = run(['git', 'status', '--porcelain', '--untracked-files=no'], cwd=path, capture=True)
+    if changes:
+        raise ValueError(f'{path}: commit/stash source changes before building a pinned bundle:\n{changes}')
 
 
 def export_source(source, destination):

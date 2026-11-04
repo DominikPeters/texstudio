@@ -98,3 +98,16 @@ QJsonArray TexpressoWsl::incoming(QJsonArray message) const
     if (index >= 0 && message.size() > index && message[index].isString()) message[index] = toEditor(message[index].toString());
     return message;
 }
+
+QString TexpressoWsl::relativePath(const QString &directory, const QString &absolute)
+{
+    // QDir uses Windows case rules on Windows, but these are Linux namespaces.
+    const auto from = QDir::cleanPath(directory).split('/', Qt::SkipEmptyParts);
+    const auto to = QDir::cleanPath(absolute).split('/', Qt::SkipEmptyParts);
+    int common = 0;
+    while (common < from.size() && common < to.size() && from[common] == to[common]) ++common;
+    QStringList parts;
+    for (int i = common; i < from.size(); ++i) parts << "..";
+    parts << to.mid(common);
+    return parts.isEmpty() ? QStringLiteral(".") : parts.join('/');
+}
