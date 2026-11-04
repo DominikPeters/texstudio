@@ -76,7 +76,7 @@ The current local compact bundle can be selected with:
 
 ```sh
 cmake -S . -B build-cursor-app \
-  -DTEXPRESSO_BUNDLE_DIR="$PWD/native/.bundles/darwin-arm64-compact"
+  -DTEXPRESSO_BUNDLE_DIR="$PWD/native/.bundles/darwin-arm64-tikz"
 ```
 
 The compact arm64 runtime is approximately 31 MB, compared with 88 MB for the
