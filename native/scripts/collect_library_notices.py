@@ -36,9 +36,11 @@ def main():
                 if relative.is_absolute() or '..' in relative.parts:
                     raise ValueError('Unsafe source notice path')
                 if not (re.match(r'(?i)^(licen[cs]e|copying|copyright|notice|authors)([._-]|$)', relative.name)
-                        or relative.name.lower() in ('ftl.txt', 'readme.ijg') or 'LICENSES' in relative.parts):
+                        or relative.name.lower() in ('ftl.txt', 'readme.ijg') or relative.name.lower().startswith('readme') or 'LICENSES' in relative.parts):
                     continue
                 data = tar.extractfile(member).read()
+                if relative.name.lower().startswith('readme') and not re.search(br'(?i)(copyright|licen[cs]e|permission)', data):
+                    continue
                 file = destination / relative
                 file.parent.mkdir(parents=True, exist_ok=True)
                 file.write_bytes(data)

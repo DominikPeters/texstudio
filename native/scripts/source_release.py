@@ -148,6 +148,12 @@ def fetch_record(record, cache, allow_fetch):
     candidate = cache / basename
     if record.get('sha256') and candidate.is_file() and sha256(candidate) == record['sha256']:
         return candidate
+    if record.get('sha256'):
+        # A source can be shared by the package entry and an installed formula
+        # resource/patch entry with a different descriptive name.
+        for candidate in sorted(cache.glob('*-' + record['sha256'][:12])):
+            if candidate.is_file() and sha256(candidate) == record['sha256']:
+                return candidate
     if not file.exists():
         if not allow_fetch:
             raise ValueError(f'Missing cached source: {record["name"]}; use --fetch')

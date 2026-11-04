@@ -65,6 +65,16 @@ class LicenseEvidence(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Cached source checksum mismatch'):
                 source_release.fetch_record(record, root, False)
 
+    def test_identical_source_cached_under_formula_resource_name_is_reused(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            content = b'exact verified source archive'
+            digest = hashlib.sha256(content).hexdigest()
+            file = root / ('formula-resource-0-' + digest[:12])
+            file.write_bytes(content)
+            record = {'name': 'package', 'url': 'https://example.org/source.tar.gz', 'sha256': digest}
+            self.assertEqual(source_release.fetch_record(record, root, False), file)
+
     def test_source_downloads_with_dotted_versions_have_distinct_temporary_files(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

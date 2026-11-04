@@ -64,6 +64,8 @@ def main():
         if (source / name).is_file():
             shutil.copyfile(source / name, metadata / name)
     shutil.copyfile(build / 'CMakeCache.txt', metadata / 'CMakeCache.txt')
+    cache = (build / 'CMakeCache.txt').read_text().splitlines()
+    compiler = next(line.split('=', 1)[1] for line in cache if line.startswith('CMAKE_CXX_COMPILER:'))
     files = {str(p.relative_to(prefix)): sha256(p) for p in (prefix / 'lib').glob('*.dylib')
              if p.is_file() and not p.is_symlink()}
     (prefix / 'share/texstudio-build-provenance.json').write_text(json.dumps({
@@ -71,7 +73,8 @@ def main():
         'license': 'GPL-2.0-only OR GPL-3.0-only', 'source': lock,
         'configuration': options, 'generator': 'native/scripts/build_poppler.py',
         'cmakeVersion': run(['cmake', '--version'], capture=True).splitlines()[0],
-        'compiler': run(['clang', '--version'], capture=True).splitlines()[0],
+        'compiler': run([compiler, '--version'], capture=True).splitlines()[0],
+        'compilerPath': compiler,
         'files': files,
     }, indent=2) + '\n')
     print('Poppler prefix with verified build provenance:', prefix)
