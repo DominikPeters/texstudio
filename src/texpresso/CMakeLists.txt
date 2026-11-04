@@ -16,6 +16,7 @@ add_library(texpresso-client STATIC
     texpressoprovider.cpp texpressoprovider.h
     texpressowsl.cpp texpressowsl.h
     texpressowslsetup.cpp texpressowslsetup.h
+    texpressotikz.cpp texpressotikz.h
     texpressopreview.cpp texpressopreview.h
     texpressosession.cpp texpressosession.h texpressosourcefollow.h
     texpressomanager.cpp texpressomanager.h
@@ -23,6 +24,9 @@ add_library(texpresso-client STATIC
     texpressowidget.cpp texpressowidget.h)
 target_include_directories(texpresso-client PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(texpresso-client PUBLIC document-viewer Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Concurrent)
+if(APPLE)
+    target_link_libraries(texpresso-client PRIVATE "-framework CoreServices")
+endif()
 if(NOT APPLE)
     if(NOT CMAKE_INSTALL_LIBEXECDIR)
         set(CMAKE_INSTALL_LIBEXECDIR libexec)
@@ -89,7 +93,7 @@ if(TEXSTUDIO_TEXPRESSO_TESTS)
     target_link_libraries(texpresso-link-actions-tests PRIVATE texpresso-client Qt${QT_VERSION_MAJOR}::Test)
     add_test(NAME texpresso-link-actions COMMAND texpresso-link-actions-tests)
     set_tests_properties(texpresso-link-actions PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
-    foreach(_test source-follow source-routing source-viewport sustained startup viewer-panel pagination)
+    foreach(_test source-follow source-routing source-viewport sustained startup viewer-panel pagination tikz)
         string(REPLACE "-" "_" _source "${_test}")
         if(_test STREQUAL "sustained")
             set(_source sustained_editing)

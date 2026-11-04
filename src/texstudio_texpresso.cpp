@@ -3,6 +3,7 @@
 #include "texpresso/texpressomanager.h"
 #include "texpresso/texpressowidget.h"
 #include "texpresso/texpressowslsetup.h"
+#include "texpresso/texpressotikz.h"
 #include "ViewerPanel.h"
 #ifndef NO_POPPLER_PREVIEW
 #include "PDFDocument.h"
@@ -17,6 +18,8 @@
 #include <QScreen>
 #include <QStandardPaths>
 #include <QCoreApplication>
+#include <QFile>
+#include <QMessageBox>
 
 namespace {
 QString bufferText(LatexDocument *document) { return document->textLines().join('\n'); }
@@ -75,6 +78,31 @@ void Texstudio::setupTexpresso()
         return loadPixmapFromSVG(getRealIconFile(name), QSize(32, 32));
     });
     texpressoWidget = new TexpressoWidget(texpressoManager, previewConfig, getRealIcon, previewPanel);
+    const auto tikzEditor = TexpressoTikz::findEditor(configManager.getSettings()->value("texpresso/tikzEditorPath").toString());
+    texpressoWidget->setTikzEditor(tikzEditor);
+    connect(texpressoWidget, &TexpressoWidget::tikzRequested, this, [this, tikzEditor](const QString &file, int line, int endLine) {
+        for (auto document : documents.getDocuments()) {
+            if (TexpressoSession::identity(document->getFileName()) != file || document->isClean()) continue;
+            if (QMessageBox::question(this, tr("Edit in TikZ Editor"),
+                tr("Save changes to %1 before opening its figure in TikZ Editor?").arg(QFileInfo(file).fileName()),
+                QMessageBox::Save | QMessageBox::Cancel, QMessageBox::Save) != QMessageBox::Save) return;
+            const auto view = document->getEditorView();
+            if (!view) return;
+            fileSave(false, view->editor);
+            if (!document->isClean()) return;
+        }
+        QFile source(file);
+        bool matches = false;
+        if (source.open(QIODevice::ReadOnly) && source.size() <= 16 * 1024 * 1024) {
+            for (const auto &figure : TexpressoTikz::sourceFigures(QString::fromUtf8(source.readAll())))
+                if (figure.line == line && figure.endLine == endLine) matches = true;
+        }
+        if (!matches) {
+            setStatusMessageProcess(tr("The figure's source changed. Wait for the preview to update and try again.")); return;
+        }
+        if (!TexpressoTikz::launch(tikzEditor, file, line))
+            QMessageBox::warning(this, tr("TikZ Editor"), tr("Could not open TikZ Editor. Check that it is still installed."));
+    });
     connect(texpressoWidget, &TexpressoWidget::environmentSetupRequested, this, [this] {
         const auto session = texpressoManager->current();
         if (configureTexpressoEnvironment(this, configManager.getSettings(), session ? session->root() : QString())) texpressoManager->restartAll();

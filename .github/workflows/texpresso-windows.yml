@@ -84,7 +84,7 @@ jobs:
           if ($listed -notmatch '(?m)Ubuntu-24\.04\s+.+\s+2\s*$') { throw 'The test distribution is not WSL2' }
           wsl.exe --distribution Ubuntu-24.04 --user root --exec sh -c 'grep -qi microsoft /proc/sys/kernel/osrelease && uname -r'
           if ($LASTEXITCODE -ne 0) { throw 'WSL kernel preflight failed' }
-          wsl.exe --distribution Ubuntu-24.04 --user root --exec sh -c 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends texlive-xetex texlive-fonts-recommended texlive-latex-extra texlive-bibtex-extra biber'
+          wsl.exe --distribution Ubuntu-24.04 --user root --exec sh -c 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends texlive-xetex texlive-fonts-recommended texlive-latex-extra texlive-pictures texlive-bibtex-extra biber'
           if ($LASTEXITCODE -ne 0) { throw 'Linux TeX Live setup failed' }
           wsl.exe --set-default Ubuntu-24.04
       - uses: msys2/setup-msys2@v2
@@ -113,7 +113,7 @@ jobs:
           cmake -S . -B build-windows -G Ninja -DCMAKE_BUILD_TYPE=Release \
             -DTEXSTUDIO_ENABLE_TEXPRESSO=ON -DTEXSTUDIO_TEXPRESSO_TESTS=ON \
             -DTEXPRESSO_BUNDLE_DIR="$PWD/native/.bundles/linux-x86_64"
-          cmake --build build-windows --target texstudio-wsl-command texpresso-wsl-tests -j3
+          cmake --build build-windows --target texstudio-wsl-command texpresso-wsl-tests texpresso-tikz-tests -j3
           cmake -E copy_directory native/.bundles/linux-x86_64 build-windows/texpresso-runtime
       - name: Exercise Windows client against actual WSL2 engine
         shell: pwsh
@@ -128,6 +128,8 @@ jobs:
           $env:TEXPRESSO_TEST_ENGINE = "$env:GITHUB_WORKSPACE\build-windows\texpresso-runtime\bin\texpresso"
           & .\build-windows\src\texpresso\texpresso-wsl-tests.exe -o wsl-tests.xml,xunitxml -o wsl-tests.txt,txt
           if ($LASTEXITCODE -ne 0) { throw 'Native Windows / WSL integration failed' }
+          & .\build-windows\src\texpresso\texpresso-tikz-tests.exe -o tikz-tests.xml,xunitxml -o tikz-tests.txt,txt
+          if ($LASTEXITCODE -ne 0) { throw 'Native Windows / WSL TikZ integration failed' }
           wsl.exe --distribution Ubuntu-24.04 --exec sh -c 'if pgrep -f "[/]texpresso(-xetex|-wsl)?( |$)"; then echo "Leaked engine workers" >&2; exit 1; fi'
           if ($LASTEXITCODE -ne 0) { throw 'Compiler worker leak detected' }
       - name: Build native Windows editor
@@ -173,6 +175,7 @@ jobs:
           name: windows-wsl-diagnostics
           path: |
             wsl-tests.*
+            tikz-tests.*
             build-windows/CMakeFiles/CMakeConfigureLog.yaml
           if-no-files-found: ignore
           retention-days: 7

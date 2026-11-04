@@ -152,7 +152,20 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
         if (!wsl.error.isEmpty()) { emit failed(wsl.error); return; }
         startProbe();
     });
-    connect(&protocol, &TexpressoProtocol::image, this, &TexpressoProcess::image);
+    connect(&protocol, &TexpressoProtocol::image, this, [this](QJsonObject header, const QByteArray &bytes) {
+        if (wsl.enabled && header["annotations"].isObject()) {
+            auto annotations = header["annotations"].toObject();
+            if (annotations.contains("figures")) {
+                auto figures = annotations["figures"].toArray();
+                for (int i = 0; i < figures.size(); ++i) {
+                    auto figure = figures[i].toObject();
+                    figure["file"] = wsl.toEditor(figure["file"].toString()); figures[i] = figure;
+                }
+                annotations["figures"] = figures; header["annotations"] = annotations;
+            }
+        }
+        emit image(header, bytes);
+    });
     connect(&protocol, &TexpressoProtocol::failed, this, [this](const QString &reason) {
         if (!stopping) { emit failed(reason); stop(); }
     });

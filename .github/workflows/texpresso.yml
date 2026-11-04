@@ -61,6 +61,8 @@ jobs:
       - name: Read available package providers
         id: providers
         run: python3 -c 'import json,os,platform; caps=json.load(open("native/.bundles/linux-"+platform.machine()+"/build-manifest.json"))["capabilities"]; open(os.environ["GITHUB_OUTPUT"],"a").write("miktex="+str("miktex" in caps.get("packageProviders",[])).lower()+"\n")'
+      - name: Verify TikZ annotations preserve ordinary-build pixels
+        run: python3 native/texpresso/test/test-tikz-figures.py "native/.bundles/linux-$(uname -m)/bin/texpresso"
       - name: Build Qt integration clients
         id: qt-build
         run: |

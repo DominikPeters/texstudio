@@ -1,4 +1,6 @@
 #include "texpressosession.h"
+#include "texpressotikz.h"
+#include <QFile>
 #include <QDir>
 #include <QFileInfo>
 #include <QRegularExpression>
@@ -19,6 +21,59 @@ QString TexpressoSession::identity(const QString &path)
 QString TexpressoSession::absolute(const QString &path) const
 {
     return QDir::cleanPath(QFileInfo(path).isAbsolute() ? path : QDir(QFileInfo(rootFile).absolutePath()).absoluteFilePath(path));
+}
+QJsonArray TexpressoSession::tikzFigures(int page)
+{
+    if (!preview.pageValid(page) || userStopped || failure || externalBuildRunning()) return {};
+    if (tikzRevision != preview.revision() || tikzSequence != preview.sequence()) {
+        tikzCache.clear(); tikzRawAnnotations.clear(); tikzRevision = preview.revision(); tikzSequence = preview.sequence();
+    }
+    const auto figures = preview.annotationsForPage(page)["figures"].toArray();
+    if (tikzCache.contains(page) && tikzRawAnnotations.value(page) == figures) return tikzCache.value(page);
+    QJsonArray result;
+    QHash<QString, QList<TexpressoTikz::SourceFigure>> sources;
+    for (int i = 0; i < figures.size(); ++i) {
+        auto figure = figures[i].toObject(); const auto b = figure["bounds"].toArray();
+        if (b.size() != 4) continue;
+        const auto width = b[2].toDouble() - b[0].toDouble(), height = b[3].toDouble() - b[1].toDouble();
+        // Physical page units, independent of zoom/DPI. Inline badges, marks
+        // and label decorations do not become hover targets.
+        if (width < 24 || height < 18 || width * height < 900) continue;
+        const auto logical = absolute(figure["file"].toString());
+        const auto path = editorPaths.value(logical, identity(logical));
+        if (path != rootFile && !editorPaths.contains(logical) && !buffers.contains(path)) continue;
+        if (!sources.contains(path)) {
+            QString text;
+            if (buffers.contains(path)) text = buffers.value(path);
+            else {
+                QFile file(path);
+                if (!file.open(QIODevice::ReadOnly) || file.size() > 16 * 1024 * 1024) continue;
+                text = QString::fromUtf8(file.readAll());
+            }
+            sources.insert(path, TexpressoTikz::sourceFigures(text));
+        }
+        const int line = figure["line"].toInt(), endLine = figure["endLine"].toInt();
+        const auto source = TexpressoTikz::resolveFigure(sources.value(path), line, endLine);
+        if (!source.line) continue;
+        figure["file"] = path; figure["index"] = i;
+        figure["line"] = source.line; figure["endLine"] = source.endLine;
+        result.append(figure);
+    }
+    if (tikzCache.size() >= 16 && !tikzCache.contains(page)) {
+        const auto oldest = tikzCache.cbegin().key(); tikzCache.remove(oldest); tikzRawAnnotations.remove(oldest);
+    }
+    tikzCache.insert(page, result);
+    tikzRawAnnotations.insert(page, figures);
+    return result;
+}
+QJsonObject TexpressoSession::tikzFigure(int page, int index, qint64 revision, qint64 sequence)
+{
+    if (!foreground || revision != preview.revision() || sequence != preview.sequence()) return {};
+    for (const auto &value : tikzFigures(page)) {
+        const auto figure = value.toObject();
+        if (figure["index"].toInt(-1) == index) return figure;
+    }
+    return {};
 }
 TexpressoSession::TexpressoSession(const QString &root, const QString &engine, const Buffers &initial, QObject *parent)
     : QObject(parent), preview(this), rootFile(identity(root)), engineFile(engine), buffers(initial),

@@ -25,6 +25,7 @@ public:
     void resetTools();
     void setPreview(TexpressoPreview *preview);
     void setAnnotations(int page, qint64 revision, qint64 sequence, const QJsonObject &annotations);
+    void setTikzFigures(const QJsonArray &figures, bool available);
     void invalidateMagnifier() { magnifier->invalidate(); }
 signals:
     void sourceClicked(const QPointF &point);
@@ -33,6 +34,7 @@ signals:
     void zoomRequested(int direction, const QPoint &anchor);
     void scaleRequested(qreal factor, const QPoint &anchor);
     void linkActivated(int page, int index, qint64 revision, qint64 sequence);
+    void tikzActivated(int page, int index, qint64 revision, qint64 sequence);
 protected:
     bool event(QEvent *event) override;
     void paintEvent(QPaintEvent *) override;
@@ -42,11 +44,21 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void leaveEvent(QEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 private:
     friend class PaginationTest;
+    friend class TikzTest;
     int linkAt(const QPoint &point) const;
     void updateLinkCursor(const QPoint &point, Qt::KeyboardModifiers modifiers);
     void magnify(const QPoint &point);
+    int figureAt(const QPoint &point) const;
+    void hideFigurePopup();
+    void activateFigure(int index);
+    QJsonArray tikzFigures;
+    QWidget *figurePopup;
+    QTimer figureTimer, figureLeaveTimer;
+    int hoveredFigure = -1;
+    bool tikzAvailable = false;
     PDFDocumentConfig *config;
     QScrollArea *area;
     PDFMagnifier *magnifier;
@@ -80,6 +92,7 @@ public:
     void setPreviewVisible(bool visible);
     const QHash<QString, QAction *> &viewerActions() const { return actions; }
     void configureAppearance(bool modern, int iconSize);
+    void setTikzEditor(const QString &executable);
 signals:
     void environmentSetupRequested();
     void outputRequested();
@@ -87,6 +100,7 @@ signals:
     void buildRequested();
     void followCursorChanged(bool enabled);
     void toolChanged(int tool);
+    void tikzRequested(const QString &file, int oneBasedLine, int endLine);
 protected:
     void resizeEvent(QResizeEvent *event) override;
 private:
@@ -136,5 +150,6 @@ private:
     QPointF zoomScrollRemainder;
     double lastZoomMode = 0;
     QRectF lastTextRange;
+    QString tikzEditor;
 };
 #endif

@@ -1,4 +1,9 @@
 #include "texpressowidget.h"
+#include <QContextMenuEvent>
+#include <QMenu>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QFrame>
 #include "ViewerLinks.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -28,6 +33,28 @@ TexpressoCanvas::TexpressoCanvas(PDFDocumentConfig *config, QScrollArea *area)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
+    figurePopup = new QFrame(this, Qt::ToolTip);
+    figurePopup->setAttribute(Qt::WA_ShowWithoutActivating);
+    figurePopup->setObjectName("texpressoTikzPopover");
+    auto popupLayout = new QVBoxLayout(figurePopup);
+    popupLayout->setContentsMargins(6, 4, 6, 4);
+    auto editFigure = new QPushButton(tr("Edit in TikZ Editor"), figurePopup);
+    editFigure->setObjectName("texpressoEditTikz");
+    editFigure->setFocusPolicy(Qt::NoFocus);
+    popupLayout->addWidget(editFigure);
+    figurePopup->hide();
+    figureTimer.setSingleShot(true); figureTimer.setInterval(550);
+    connect(&figureTimer, &QTimer::timeout, this, [this] {
+        if (hoveredFigure < 0 || hoveredFigure != figureAt(mapFromGlobal(QCursor::pos()))) return;
+        figurePopup->adjustSize();
+        figurePopup->move(mapToGlobal(mapFromGlobal(QCursor::pos()) + QPoint(10, 14)));
+        figurePopup->show(); figureLeaveTimer.start();
+    });
+    figureLeaveTimer.setInterval(150);
+    connect(&figureLeaveTimer, &QTimer::timeout, this, [this] {
+        if (!underMouse() && !figurePopup->underMouse()) hideFigurePopup();
+    });
+    connect(editFigure, &QPushButton::clicked, this, [this] { activateFigure(hoveredFigure); });
     setAttribute(Qt::WA_AcceptTouchEvents);
     grabGesture(Qt::PinchGesture);
     magnifier = new PDFMagnifier(this, 96, config,
@@ -81,6 +108,7 @@ int TexpressoCanvas::linkAt(const QPoint &point) const
 void TexpressoCanvas::updateLinkCursor(const QPoint &point, Qt::KeyboardModifiers modifiers)
 {
     if (dragging || magnifier->isVisible()) {
+        hideFigurePopup();
         setToolTip(QString());
         setCursor(dragging ? Qt::ClosedHandCursor : Qt::BlankCursor);
         return;
@@ -88,15 +116,62 @@ void TexpressoCanvas::updateLinkCursor(const QPoint &point, Qt::KeyboardModifier
     // The saved-PDF viewer identifies links even while a modifier is held.
     // Modified clicks still retain their source-sync and zoom actions.
     const int link = linkAt(point);
+    const int figure = link < 0 && modifiers == Qt::NoModifier ? figureAt(point) : -1;
+    if (figure != hoveredFigure) {
+        hideFigurePopup(); hoveredFigure = figure;
+        if (figure >= 0) figureTimer.start();
+    }
     setToolTip(link < 0 ? QString() : annotations.value("links").toArray()[link].toObject().value("uri").toString());
     setCursor(link < 0 ? ViewerControls::toolCursor(tool, modifiers) : QCursor(Qt::PointingHandCursor));
 }
 void TexpressoCanvas::resetTools()
 {
+    hideFigurePopup();
     ++lensToken;
     if (preview) preview->cancelRegion();
     interactionActive = false; dragging = false; pressedLink = -1; linkDragged = false;
     setToolTip(QString()); magnifier->hide(); magnifier->invalidate(); setTool(tool);
+}
+void TexpressoCanvas::setTikzFigures(const QJsonArray &figures, bool available)
+{
+    if (tikzFigures == figures && tikzAvailable == available) return;
+    hideFigurePopup(); tikzFigures = figures; tikzAvailable = available;
+}
+int TexpressoCanvas::figureAt(const QPoint &point) const
+{
+    if (!tikzAvailable || !fresh || pixels.isNull() || scale <= 0 || !rect().contains(point)) return -1;
+    const auto p = pageBounds.topLeft() + QPointF(point) / scale;
+    for (int i = 0; i < tikzFigures.size(); ++i) {
+        const auto b = tikzFigures[i].toObject()["bounds"].toArray();
+        if (b.size() == 4 && QRectF(QPointF(b[0].toDouble(), b[1].toDouble()),
+            QPointF(b[2].toDouble(), b[3].toDouble())).contains(p)) return i;
+    }
+    return -1;
+}
+void TexpressoCanvas::hideFigurePopup()
+{
+    figureTimer.stop(); figureLeaveTimer.stop(); hoveredFigure = -1; figurePopup->hide();
+}
+void TexpressoCanvas::activateFigure(int index)
+{
+    if (!fresh || !tikzAvailable || index < 0 || index >= tikzFigures.size()) return;
+    const int original = tikzFigures[index].toObject()["index"].toInt(-1);
+    hideFigurePopup();
+    if (original >= 0) emit tikzActivated(annotationPage, original, annotationRevision, annotationSequence);
+}
+void TexpressoCanvas::contextMenuEvent(QContextMenuEvent *event)
+{
+    const int index = figureAt(event->pos());
+    const auto snapshot = tikzFigures;
+    const auto revision = annotationRevision, sequence = annotationSequence;
+    const int page = annotationPage;
+    hideFigurePopup();
+    QMenu menu(this);
+    QAction *edit = nullptr;
+    if (index >= 0) { edit = menu.addAction(tr("Edit in TikZ Editor")); menu.addSeparator(); }
+    menu.addActions(actions());
+    if (menu.exec(event->globalPos()) == edit && edit && snapshot == tikzFigures &&
+        revision == annotationRevision && sequence == annotationSequence && page == annotationPage) activateFigure(index);
 }
 void TexpressoCanvas::setPreview(TexpressoPreview *value)
 {
@@ -217,6 +292,7 @@ void TexpressoCanvas::magnify(const QPoint &point)
 }
 void TexpressoCanvas::mousePressEvent(QMouseEvent *event)
 {
+    hideFigurePopup();
     if (event->button() != Qt::LeftButton) return;
     linkGesture = false;
     interactionActive = true;
@@ -283,11 +359,13 @@ void TexpressoCanvas::mouseDoubleClickEvent(QMouseEvent *event)
 }
 void TexpressoCanvas::leaveEvent(QEvent *event)
 {
-    updateLinkCursor(QPoint(-1, -1), QApplication::keyboardModifiers());
+    if (figurePopup->isVisible()) { figureLeaveTimer.start(); setToolTip(QString()); }
+    else updateLinkCursor(QPoint(-1, -1), QApplication::keyboardModifiers());
     QWidget::leaveEvent(event);
 }
 void TexpressoCanvas::wheelEvent(QWheelEvent *event)
 {
+    hideFigurePopup();
     if ((event->modifiers() & Qt::ControlModifier) && event->pixelDelta().y()) {
         emit scaleRequested(std::pow(1.002, event->pixelDelta().y()), event->position().toPoint()); event->accept();
     } else if ((event->modifiers() & Qt::ControlModifier) && event->angleDelta().y()) {
@@ -448,6 +526,10 @@ void TexpressoWidget::configureAppearance(bool modern, int iconSize)
     pages.number->setStyleSheet(modern ? "QLineEdit{ color: white; padding-top: -1px; margin-right: 2px; }"
                                       : "QLineEdit{ padding-top: -1px; margin-right: 2px; }");
 }
+void TexpressoWidget::setTikzEditor(const QString &executable)
+{
+    tikzEditor = executable; refresh();
+}
 void TexpressoWidget::refresh()
 {
     refreshTimer.stop();
@@ -599,16 +681,22 @@ void TexpressoWidget::updateCanvas(TexpressoCanvas *pageCanvas, int page)
     pageCanvas->setProperty("texpressoPage", page);
     pageCanvas->fresh = preview.pageValid(page) && !shown->userStopped && !shown->failed() && !shown->externalBuildRunning();
     pageCanvas->setAnnotations(page, preview.revision(), preview.sequence(), preview.annotationsForPage(page));
+    pageCanvas->setTikzFigures(tikzEditor.isEmpty() ? QJsonArray() : shown->tikzFigures(page), !tikzEditor.isEmpty());
     if (!pageCanvas->fresh) pageCanvas->resetTools();
     if (changed) pageCanvas->update();
 }
 void TexpressoWidget::connectCanvas(TexpressoCanvas *pageCanvas)
 {
+    connect(pageCanvas, &TexpressoCanvas::tikzActivated, this, [this](int page, int index, qint64 revision, qint64 sequence) {
+        if (!shown) return;
+        const auto figure = shown->tikzFigure(page, index, revision, sequence);
+        if (!figure.isEmpty()) emit tikzRequested(figure["file"].toString(), figure["line"].toInt(), figure["endLine"].toInt());
+    });
     connect(pageCanvas, &TexpressoCanvas::linkActivated, this, [this](int page, int index, qint64 revision, qint64 sequence) {
         if (shown) shown->preview.activateLink(page, index, revision, sequence);
     });
     connect(pageCanvas, &TexpressoCanvas::interactionFinished, this, [this] { if (!refreshTimer.isActive()) refreshTimer.start(); });
-    pageCanvas->setContextMenuPolicy(Qt::ActionsContextMenu);
+    pageCanvas->setContextMenuPolicy(Qt::DefaultContextMenu);
     pageCanvas->addActions(contextActions);
     connect(pageCanvas, &TexpressoCanvas::activated, this, [this, pageCanvas] {
         if (!shown) return;

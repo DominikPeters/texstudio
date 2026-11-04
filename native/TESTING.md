@@ -105,6 +105,9 @@ a MiKTeX environment and an engine advertising `packageProviders: ["miktex"]`;
 TeX Live tests alone do not establish MiKTeX compatibility. Set
 `TEXPRESSO_PACKAGE_PROVIDER=miktex` when running against that environment.
 
+TikZ figure/editor integration has a standalone `texpresso-tikz` Qt suite and
+an ordinary-build pixel oracle; see [its background checks](../docs/texpresso-tikz-editor.md).
+
 The MiKTeX CI scenario explicitly permits package downloads for its first Qt
 Hyperref/bibliography run, then repeats editing/navigation/restart with downloads
 disabled. Cold setup has a five-minute fixture deadline; warm starts keep the

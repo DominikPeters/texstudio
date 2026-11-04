@@ -34,6 +34,19 @@ bool annotations(const QJsonValue &v) {
         const auto d = dest.toObject();
         if (!name(d["name"]) || !coordinate(d["x"]) || !coordinate(d["y"])) return false;
     }
+    if (object.contains("figures")) {
+        if (!object["figures"].isArray()) return false;
+        const auto figures = object["figures"].toArray();
+        if (figures.size() > 1024) return false;
+        for (const auto &value : figures) {
+            if (!value.isObject()) return false;
+            const auto figure = value.toObject(); const auto b = figure["bounds"].toArray();
+            if (b.size() != 4 || !name(figure["file"]) || !count(figure["line"]) || !count(figure["endLine"]) ||
+                figure["line"].toInt() < 1 || figure["endLine"].toInt() <= figure["line"].toInt()) return false;
+            for (const auto &c : b) if (!coordinate(c)) return false;
+            if (b[2].toDouble() <= b[0].toDouble() || b[3].toDouble() <= b[1].toDouble()) return false;
+        }
+    }
     return true;
 }
 }

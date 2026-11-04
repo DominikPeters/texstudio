@@ -39,6 +39,8 @@ public:
     void closeBuffer(const QString &path);
     void syncForward(const QString &path, int line, bool explicitRequest = true, int column = 0);
     void prepareEdit(const QString &path, int line, int column);
+    QJsonArray tikzFigures(int page);
+    QJsonObject tikzFigure(int page, int index, qint64 revision, qint64 sequence);
     TexpressoPreview preview;
     QString status;
     QString previewError;
@@ -77,6 +79,9 @@ private:
     QString absolute(const QString &path) const;
     void applyPause();
     QString rootFile, engineFile;
+    qint64 tikzRevision = -1, tikzSequence = -1;
+    QHash<int, QJsonArray> tikzCache;
+    QHash<int, QJsonArray> tikzRawAnnotations;
     Buffers buffers;
     QMap<QString, quint64> bufferVersions;
     TexpressoPrewarm prewarm;
