@@ -98,6 +98,10 @@ void TexpressoManager::restart()
     if (!selected) return;
     selected->restart();
 }
+void TexpressoManager::restartAll()
+{
+    for (auto session : sessions) session->restart();
+}
 void TexpressoManager::beginExternalBuild(const QString &root, const QStringList &auxiliaryDirectories)
 {
     if (root.isEmpty()) return;

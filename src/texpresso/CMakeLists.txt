@@ -14,6 +14,7 @@ add_library(texpresso-client STATIC
     texpressoprotocol.cpp texpressoprotocol.h
     texpressoprocess.cpp texpressoprocess.h
     texpressowsl.cpp texpressowsl.h
+    texpressowslsetup.cpp texpressowslsetup.h
     texpressopreview.cpp texpressopreview.h
     texpressosession.cpp texpressosession.h texpressosourcefollow.h
     texpressomanager.cpp texpressomanager.h

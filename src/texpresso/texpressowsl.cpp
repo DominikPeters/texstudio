@@ -34,7 +34,8 @@ void TexpressoWsl::prepare(const QString &root)
         if (path.size() >= 2 && path[1] == ':') roots << path;
     }
     QStringList command = {"-c",
-        "printf 'DIST\\t%s\\n' \"$WSL_DISTRO_NAME\"; for p do "
+        "printf 'DIST\\t%s\\nHOME\\t%s\\n' \"$WSL_DISTRO_NAME\" \"$HOME\"; "
+        "df -Pk \"$HOME\" | awk 'END {printf \"FREE\\t%.0f\\n\", $4 * 1024}'; for p do "
         "v=$(wslpath -u \"$p\" 2>/dev/null) || continue; printf 'DRIVE\\t%s\\t%s\\n' \"$p\" \"$v\"; done",
         "texstudio-wsl"};
     command << roots;
@@ -49,6 +50,8 @@ void TexpressoWsl::prepare(const QString &root)
     for (const auto &line : QString::fromUtf8(check.readAllStandardOutput()).split('\n')) {
         const auto parts = line.trimmed().split('\t');
         if (parts.size() == 2 && parts[0] == "DIST") distribution = parts[1];
+        if (parts.size() == 2 && parts[0] == "HOME") home = parts[1];
+        if (parts.size() == 2 && parts[0] == "FREE") freeBytes = qint64(parts[1].toDouble());
         if (parts.size() == 3 && parts[0] == "DRIVE") {
             QString drive = parts[1]; drive.replace('\\', '/');
             QString mount = parts[2];

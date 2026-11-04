@@ -20,6 +20,7 @@ public:
     void closeBuffer(const QString &path);
     void retainProjects(const QSet<QString> &roots);
     void restart();
+    void restartAll();
     void beginExternalBuild(const QString &root, const QStringList &auxiliaryDirectories = {});
     void endExternalBuild(const QString &root, bool success);
     QStringList auxiliaryDirectories(const QString &root) const;

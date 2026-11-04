@@ -28,6 +28,7 @@ public:
     bool running() const { return child.state() != QProcess::NotRunning; }
     qint64 processId() const { return child.processId(); }
     static QString bundledEngine();
+    static void setWslDistribution(const QString &distribution);
     static QProcessEnvironment texliveEnvironment();
 signals:
     void ready(const QJsonObject &capabilities);

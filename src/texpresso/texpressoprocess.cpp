@@ -9,7 +9,8 @@
 #include <unistd.h>
 #endif
 #include <QtConcurrent>
-#include <QSettings>
+namespace { QString configuredWslDistribution; }
+void TexpressoProcess::setWslDistribution(const QString &distribution) { configuredWslDistribution = distribution; }
 #include <algorithm>
 
 TexpressoChild::TexpressoChild(QObject *parent) : QProcess(parent)
@@ -149,7 +150,7 @@ void TexpressoProcess::start(const QString &engine, const QString &root, const Q
     program = engine; rootFile = root; inclusionDirectories = directories;
 #ifdef Q_OS_WIN
     wsl.enabled = true;
-    wsl.distribution = qEnvironmentVariable("TEXPRESSO_WSL_DISTRIBUTION", QSettings().value("texpresso/wslDistribution").toString());
+    wsl.distribution = qEnvironmentVariable("TEXPRESSO_WSL_DISTRIBUTION", configuredWslDistribution);
     initialization.setFuture(QtConcurrent::run([copy = wsl, root]() mutable { copy.prepare(root); return copy; }));
     return;
 #endif

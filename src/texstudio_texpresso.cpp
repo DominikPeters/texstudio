@@ -2,6 +2,7 @@
 #include "texstudio.h"
 #include "texpresso/texpressomanager.h"
 #include "texpresso/texpressowidget.h"
+#include "texpresso/texpressowslsetup.h"
 #include "ViewerPanel.h"
 #ifndef NO_POPPLER_PREVIEW
 #include "PDFDocument.h"
@@ -26,6 +27,7 @@ void Texstudio::setupTexpresso()
 #ifdef NO_POPPLER_PREVIEW
     previewPanel->setPdfSupported(false);
 #endif
+    TexpressoProcess::setWslDistribution(configManager.getSettings()->value("texpresso/wslDistribution").toString());
     texpressoManager = new TexpressoManager(this);
     // BuildManager captures the root before launching the recipe, so switching
     // editor tabs while LaTeX/BibTeX/Biber run cannot refresh another project.
@@ -53,6 +55,10 @@ void Texstudio::setupTexpresso()
         return loadPixmapFromSVG(getRealIconFile(name), QSize(32, 32));
     });
     texpressoWidget = new TexpressoWidget(texpressoManager, previewConfig, getRealIcon, previewPanel);
+    connect(texpressoWidget, &TexpressoWidget::wslSetupRequested, this, [this] {
+        const auto session = texpressoManager->current();
+        if (configureTexpressoWsl(this, configManager.getSettings(), session ? session->root() : QString())) texpressoManager->restartAll();
+    });
     previewPanel->setLiveViewer(texpressoWidget);
     texpressoWidget->setPreviewVisible(false);
     connect(previewPanel, &ViewerPanel::liveVisibilityChanged, texpressoWidget, &TexpressoWidget::setPreviewVisible);

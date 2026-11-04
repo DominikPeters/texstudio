@@ -10,7 +10,8 @@ class TexpressoWsl
 {
 public:
     bool enabled = false;
-    QString distribution, error;
+    QString distribution, error, home;
+    qint64 freeBytes = -1;
     QHash<QString, QString> drives;
     void prepare(const QString &root);
     QString toEngine(QString path) const;

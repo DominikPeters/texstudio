@@ -81,6 +81,7 @@ public:
     const QHash<QString, QAction *> &viewerActions() const { return actions; }
     void configureAppearance(bool modern, int iconSize);
 signals:
+    void wslSetupRequested();
     void outputRequested();
     void syncRequested();
     void buildRequested();

@@ -11,6 +11,7 @@ import subprocess
 from pathlib import Path
 from common import NATIVE, export_source, pinned_engine, run, sha256, check_source
 import zlib_ng
+import renderer_evidence
 
 # These libraries and the matching ELF interpreter belong to the host glibc.
 SYSTEM = re.compile(r'^(ld-linux[^/]*|lib(c|m|pthread|dl|rt|util|resolv)\.so(?:\..*)?)$')
@@ -55,16 +56,16 @@ def main():
         check_source(source, lock['mupdf']['revision'])
         mupdf = work / '.mupdf'
         export_source(source, mupdf)
-        for relative, revision in lock['mupdf']['submodules'].items():
-            check_source(source / relative, revision)
+        for relative, subrevision in lock['mupdf']['submodules'].items():
+            check_source(source / relative, subrevision)
             (mupdf / relative).rmdir()
             export_source(source / relative, mupdf / relative)
         shutil.copyfile(NATIVE / 'profiles/mupdf.mk', mupdf / 'user.make')
         packages = ['freetype2', 'libjpeg', 'libopenjp2', 'libbrotlidec', 'libbrotlienc', 'sdl2']
         cflags = shlex.split(run(['pkg-config', '--cflags', *packages], capture=True))
-        run(['make', '-j' + str(args.jobs), 'libs', 'OUT=build/compact',
+        run(['make', '-j' + str(args.jobs), 'libs', 'OUT=build/vscode',
              'XCFLAGS=' + shlex.join(cflags + ['-fPIC'])], cwd=mupdf)
-        libraries = [str(mupdf / 'build/compact/libmupdf.a'), str(mupdf / 'build/compact/libmupdf-third.a')]
+        libraries = [str(mupdf / 'build/vscode/libmupdf.a'), str(mupdf / 'build/vscode/libmupdf-third.a')]
         libraries += shlex.split(run(['pkg-config', '--libs', *packages], capture=True))
         libraries += ['-ljbig2dec', '-lz', '-lm']
         (work / 'Makefile.config').write_text(
@@ -81,6 +82,7 @@ def main():
     (destination / 'lib').mkdir()
     run(['gcc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
          NATIVE / 'wsl/supervisor.c', '-o', destination / 'bin/texpresso-wsl'])
+    shutil.copy2(NATIVE / 'wsl/install-texlive.sh', destination / 'bin/texstudio-install-texlive.sh')
     notices = destination / 'notices'
     notices.mkdir()
     shutil.copyfile(engine / 'LICENSE', notices / 'texpresso-LICENSE')
@@ -119,8 +121,10 @@ def main():
             shutil.copyfile(copyright_file, notices / (package + '-copyright'))
     for relative in ('bin', 'lib'):
         for binary in (destination / relative).iterdir():
+            if binary.suffix == '.sh': continue
             run(['patchelf', '--set-rpath', '$ORIGIN/../lib' if relative == 'bin' else '$ORIGIN', binary])
     for binary in (destination / 'bin').iterdir():
+        if binary.suffix == '.sh': continue
         for soname, resolved in dependencies(binary).items():
             if not resolved.is_relative_to(destination):
                 raise ValueError('Unbundled dependency: ' + soname)
@@ -134,6 +138,10 @@ def main():
                 'hostPackages': sorted(packages), 'libc': list(platform.libc_ver()),
                 'files': [{'path': str(p.relative_to(destination)), 'sha256': sha256(p),
                            'bytes': p.stat().st_size} for p in files]}
+    if args.mupdf_source:
+        manifest['rendererLicenseEvidence'], font_notices = renderer_evidence.collect(
+            work / 'build/texpresso', mupdf, NATIVE / 'profiles/mupdf.mk', lock['mupdf']['revision'])
+        for name, file in font_notices.items(): shutil.copyfile(file, notices / name)
     (destination / 'build-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print('Bundle:', destination)
 
