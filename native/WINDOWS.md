@@ -26,7 +26,7 @@ click **Install TeX Live**. Curl, Perl and tar are required. Installation has
 progress/logs and cancellation, does not change system PATH, and does not replace
 another TeX installation. An interrupted installation is retained for repair.
 The smaller scheme includes Biber, biblatex, latexmk and recommended LaTeX
-packages; other missing packages need installing separately. MiKTeX itself is
+and font packages; other missing packages need installing separately. MiKTeX itself is
 installed using [its official instructions](https://miktex.org/Download).
 
 Enable **Use this distribution for build commands and bibliography tools** to run
@@ -67,7 +67,12 @@ version check and checks for surviving compiler workers after the integration
 suite. Artifacts are unsigned, expire after seven days, and are not automatically
 published as releases or installed on the developer's computer.
 
-Initial runner validation is in progress. Physical trackpad gestures, compositor
+The x64 Windows pipeline has passed real WSL2 integration and isolated portable
+startup checks. The Linux pipeline has passed the full editor build, Qt suites,
+sustained editing, and real MiKTeX cold/warm and Biber tests. See the
+[Windows workflow](https://github.com/DominikPeters/texstudio/actions/workflows/texpresso-windows.yml)
+and [Linux workflow](https://github.com/DominikPeters/texstudio/actions/workflows/texpresso.yml)
+for current results and artifacts. Physical trackpad gestures, compositor
 behavior, representative interactive latency and the public-release Windows
 license/source inventory remain separate checks. The engine bundles Linux
 libraries but relies on the distribution's ELF loader/glibc; older or non-glibc

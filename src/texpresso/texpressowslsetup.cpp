@@ -140,8 +140,8 @@ bool configureTexpressoWsl(QWidget *parent, QSettings *settings, const QString &
     };
     QObject::connect(&process, &QProcess::readyReadStandardOutput, &wizard, [&] {
         const auto bytes = process.readAllStandardOutput();
-        if (!installing) capabilityOutput += bytes;
-        output->appendPlainText(QString::fromUtf8(bytes));
+        if (installing) output->appendPlainText(QString::fromUtf8(bytes));
+        else capabilityOutput += bytes;
     });
     QObject::connect(&process, &QProcess::readyReadStandardError, &wizard, [&] {
         const auto text = QString::fromUtf8(process.readAllStandardError());
@@ -161,7 +161,8 @@ bool configureTexpressoWsl(QWidget *parent, QSettings *settings, const QString &
         const bool ready = code == 0 && status == QProcess::NormalExit && supported && capabilities.value("previewProtocol").toInt() == 1;
         if (!ready && code == 0) output->appendPlainText(QObject::tr("The bundled engine does not support this provider or installation option. Select another provider or update the application."));
         review->complete(ready); wizard.button(QWizard::BackButton)->setEnabled(true);
-        if (ready) output->appendPlainText(QObject::tr("Ready. Click Finish to use this distribution."));
+        if (ready) output->appendPlainText(QObject::tr("Ready using %1. Click Finish to use this distribution.")
+            .arg(wsl.provider == "miktex" ? QStringLiteral("MiKTeX") : QStringLiteral("TeX Live")));
         install->setVisible(!ready && missingTexLive && wsl.requestedProvider != "miktex"); install->setEnabled(true);
     });
     QObject::connect(install, &QPushButton::clicked, &wizard, [&] {

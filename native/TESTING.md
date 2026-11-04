@@ -104,3 +104,13 @@ policy without installing anything. Real MiKTeX validation additionally requires
 a MiKTeX environment and an engine advertising `packageProviders: ["miktex"]`;
 TeX Live tests alone do not establish MiKTeX compatibility. Set
 `TEXPRESSO_PACKAGE_PROVIDER=miktex` when running against that environment.
+
+The MiKTeX CI scenario explicitly permits package downloads for its first Qt
+Hyperref/bibliography run, then repeats editing/navigation/restart with downloads
+disabled. Cold setup has a five-minute fixture deadline; warm starts keep the
+90-second deadline. Known-valid fixtures fail immediately on compiler errors or
+terminal pagination, with full compiler output, rather than timing out silently.
+The first Ubuntu run measured about 81 seconds to the initial Hyperref frame
+with setup/downloads permitted, and 11 seconds on a new engine using the populated
+package cache. These measure time to the first frame; editing latency is a
+separate measurement. The provider's per-lookup process/time limits still apply.
