@@ -159,10 +159,10 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: |
           $env:PATH = "$env:WINDIR\System32;$env:WINDIR"
-          & .\dist\TeXstudio-Espresso\texstudio.exe --version
-          if ($LASTEXITCODE -ne 0) { throw 'Portable app is missing a dependency' }
-          & .\dist\TeXstudio-Espresso\texstudio-wsl.exe --help
-          if ($LASTEXITCODE -ne 0) { throw 'Portable build command adapter is missing a dependency' }
+          $app = Start-Process -FilePath "$env:GITHUB_WORKSPACE\dist\TeXstudio-Espresso\texstudio.exe" -ArgumentList '--version' -Wait -PassThru -NoNewWindow
+          if ($app.ExitCode -ne 0) { throw "Portable app exited with $($app.ExitCode)" }
+          $runner = Start-Process -FilePath "$env:GITHUB_WORKSPACE\dist\TeXstudio-Espresso\texstudio-wsl.exe" -ArgumentList '--help' -Wait -PassThru -NoNewWindow
+          if ($runner.ExitCode -ne 0) { throw "Portable build command adapter exited with $($runner.ExitCode)" }
       - uses: actions/upload-artifact@v4
         with:
           name: TeXstudio-Espresso-Windows-WSL-development
