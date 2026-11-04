@@ -46,6 +46,17 @@ class BundleTests(unittest.TestCase):
                     self.check('darwin')
                 path.unlink()
 
+    def test_windows_wsl_requires_supervisor_and_accepts_ntfs_modes(self):
+        (self.root / 'build-manifest.json').write_text(json.dumps(self.manifest))
+        with self.assertRaisesRegex(ValueError, 'executable'):
+            validate(self.root, 'pinned', 'linux', 'arm64', windows_wsl=True)
+        helper = self.root / 'bin/texpresso-wsl'
+        helper.write_bytes(b'WSL process supervisor')
+        self.manifest['files'].append({'path': 'bin/texpresso-wsl', 'sha256': sha256(helper)})
+        for path in (self.root / 'bin').iterdir(): path.chmod(0o644)
+        (self.root / 'build-manifest.json').write_text(json.dumps(self.manifest))
+        validate(self.root, 'pinned', 'linux', 'arm64', windows_wsl=True)
+
     def test_matching_runtime(self):
         self.assertEqual(self.check()['engineRevision'], 'pinned')
 

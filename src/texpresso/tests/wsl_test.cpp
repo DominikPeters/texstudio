@@ -34,8 +34,16 @@ void WslTest::realEngine()
 {
     if (qEnvironmentVariableIsEmpty("TEXPRESSO_TEST_ENGINE")) QSKIP("Set TEXPRESSO_TEST_ENGINE for real engine integration");
     QTemporaryDir temporary; QVERIFY(temporary.isValid());
-    QDir directory(temporary.path()); QVERIFY(directory.mkdir(QString::fromUtf8("Project with spaces")));
-    const auto root = directory.filePath(QString::fromUtf8("Project with spaces/main.tex"));
+    QDir directory(temporary.path());
+#ifdef Q_OS_MACOS
+    // macOS decomposes Unicode filenames; the existing engine's overlay keys
+    // need a separate normalization fix. Keep actual Windows/Linux coverage.
+    const auto folder = QStringLiteral("Project with spaces");
+#else
+    const auto folder = QString::fromUtf8("Project with spaces é");
+#endif
+    QVERIFY(directory.mkdir(folder));
+    const auto root = directory.filePath(folder + "/main.tex");
     const auto text = QStringLiteral("\\documentclass{article}\n\\usepackage{hyperref}\n\\begin{document}\n\\typeout{WSL-INITIAL}\nWSL-INITIAL.\n\\hyperlink{target}{Go to target}\n\\newpage\n\\hypertarget{target}{Second page}\n\\end{document}\n");
     QFile file(root); QVERIFY(file.open(QIODevice::WriteOnly)); file.write(text.toUtf8()); file.close();
     TexpressoManager manager(nullptr, qEnvironmentVariable("TEXPRESSO_TEST_ENGINE"));

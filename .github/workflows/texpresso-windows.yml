@@ -10,21 +10,24 @@ concurrency:
   cancel-in-progress: true
 jobs:
   engine:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Install Linux build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             cmake ninja-build build-essential pkg-config patchelf \
-            libsdl2-dev libmupdf-dev libmujs-dev libfreetype-dev libgumbo-dev \
+            libsdl2-dev libfreetype-dev libbrotli-dev \
             libjbig2dec0-dev libjpeg-dev libopenjp2-7-dev libfontconfig-dev \
             libharfbuzz-dev libgraphite2-dev libicu-dev libpng-dev \
-            libleptonica-dev libtesseract-dev texlive-xetex texlive-latex-extra
+            texlive-xetex texlive-latex-extra
       - name: Read locked compressor
         id: compressor
         run: python3 -c 'import json,os; open(os.environ["GITHUB_OUTPUT"], "a").write("revision=" + json.load(open("native/dependencies.lock.json"))["zlibNg"]["revision"] + "\n")'
@@ -34,10 +37,21 @@ jobs:
           ref: ${{ steps.compressor.outputs.revision }}
           path: .native-sources/zlib-ng
           persist-credentials: false
+      - name: Read locked renderer
+        id: renderer
+        run: python3 -c 'import json,os; open(os.environ["GITHUB_OUTPUT"], "a").write("revision=" + json.load(open("native/dependencies.lock.json"))["mupdf"]["revision"] + "\n")'
+      - uses: actions/checkout@v4
+        with:
+          repository: ArtifexSoftware/mupdf
+          ref: ${{ steps.renderer.outputs.revision }}
+          path: .native-sources/mupdf
+          persist-credentials: false
+      - name: Fetch locked LCMS2 renderer dependency
+        run: git -C .native-sources/mupdf submodule update --init --depth 1 thirdparty/lcms2
       - name: Build engine and test supervisor lifetime
         run: |
           python3 -m unittest discover -s native/tests -p test_wsl_supervisor.py
-          python3 native/scripts/build_linux.py --zlib-ng-source .native-sources/zlib-ng --jobs 2
+          python3 native/scripts/build_linux.py --mupdf-source .native-sources/mupdf --zlib-ng-source .native-sources/zlib-ng --jobs 2
           python3 native/scripts/validate_bundle.py native/.bundles/linux-x86_64 --windows-wsl
           tar -C native/.bundles/linux-x86_64 -czf engine-linux-x86_64.tar.gz .
       - uses: actions/upload-artifact@v4

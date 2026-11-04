@@ -6,9 +6,10 @@ import os
 import platform
 import re
 import shutil
+import shlex
 import subprocess
 from pathlib import Path
-from common import NATIVE, export_source, pinned_engine, run, sha256
+from common import NATIVE, export_source, pinned_engine, run, sha256, check_source
 import zlib_ng
 
 # These libraries and the matching ELF interpreter belong to the host glibc.
@@ -30,6 +31,7 @@ def dependencies(binary):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--jobs', type=int, default=min(os.cpu_count() or 2, 8))
+    parser.add_argument('--mupdf-source', type=Path, help='Pinned compact renderer source, preferred over distribution MuPDF')
     parser.add_argument('--zlib-ng-source', type=Path, required=True)
     parser.add_argument('--output', type=Path, default=NATIVE / '.bundles' / ('linux-' + platform.machine()))
     args = parser.parse_args()
@@ -47,7 +49,29 @@ def main():
         parser.error('Work directory exists; remove it before rebuilding: ' + str(work))
     export_source(engine, work)
     zng_include, zng_library, zng_notice, zng_metadata = zlib_ng.build(args.zlib_ng_source.resolve(), work / '.zlib-ng', args.jobs)
-    run(['make', 'config'], cwd=work)
+    if args.mupdf_source:
+        lock = json.loads((NATIVE / 'dependencies.lock.json').read_text())
+        source = args.mupdf_source.resolve()
+        check_source(source, lock['mupdf']['revision'])
+        mupdf = work / '.mupdf'
+        export_source(source, mupdf)
+        for relative, revision in lock['mupdf']['submodules'].items():
+            check_source(source / relative, revision)
+            (mupdf / relative).rmdir()
+            export_source(source / relative, mupdf / relative)
+        shutil.copyfile(NATIVE / 'profiles/mupdf.mk', mupdf / 'user.make')
+        packages = ['freetype2', 'libjpeg', 'libopenjp2', 'libbrotlidec', 'libbrotlienc', 'sdl2']
+        cflags = shlex.split(run(['pkg-config', '--cflags', *packages], capture=True))
+        run(['make', '-j' + str(args.jobs), 'libs', 'OUT=build/compact',
+             'XCFLAGS=' + shlex.join(cflags + ['-fPIC'])], cwd=mupdf)
+        libraries = [str(mupdf / 'build/compact/libmupdf.a'), str(mupdf / 'build/compact/libmupdf-third.a')]
+        libraries += shlex.split(run(['pkg-config', '--libs', *packages], capture=True))
+        libraries += ['-ljbig2dec', '-lz', '-lm']
+        (work / 'Makefile.config').write_text(
+            'CFLAGS=' + shlex.join(['-O2', '-fPIC', '-I.', '-I' + str(mupdf / 'include')]) + '\n' +
+            'CC=gcc $(CFLAGS)\nLDCC=g++ $(CFLAGS) -Wl,--gc-sections\nLIBS=' + shlex.join(libraries) + '\n')
+    else:
+        run(['make', 'config'], cwd=work)
     with (work / 'Makefile.config').open('a') as config:
         config.write('CFLAGS+= ' + zlib_ng.make_flags(['-DTXP_ZLIB_NG', '-I' + str(zng_include)]) + '\n')
         config.write('LIBS+= ' + zlib_ng.make_flags([zng_library]) + '\n')
@@ -62,6 +86,9 @@ def main():
     shutil.copyfile(engine / 'LICENSE', notices / 'texpresso-LICENSE')
     shutil.copyfile(NATIVE.parent / 'COPYING', notices / 'texstudio-wsl-COPYING')
     shutil.copyfile(zng_notice, notices / 'zlib-ng-LICENSE')
+    if args.mupdf_source:
+        shutil.copyfile(mupdf / 'COPYING', notices / 'mupdf-COPYING')
+        shutil.copyfile(mupdf / 'thirdparty/lcms2/LICENSE', notices / 'lcms2-LICENSE')
     mapping = {}
     for name in ('texpresso', 'texpresso-xetex'):
         source = work / 'build' / name
@@ -100,7 +127,9 @@ def main():
     capabilities = json.loads(run([destination / 'bin/texpresso', '-capabilities'], capture=True))
     zlib_ng.verify_capabilities(capabilities)
     files = sorted(p for directory in ('bin', 'lib') for p in (destination / directory).iterdir())
-    manifest = {'schema': 1, 'platform': 'linux', 'architecture': platform.machine(),
+    manifest = {'mupdfRevision': lock['mupdf']['revision'] if args.mupdf_source else None,
+                'rendererProfile': sha256(NATIVE / 'profiles/mupdf.mk') if args.mupdf_source else 'distribution',
+                'schema': 1, 'platform': 'linux', 'architecture': platform.machine(),
                 'engineRevision': revision, 'capabilities': capabilities, 'zlibNg': zng_metadata,
                 'hostPackages': sorted(packages), 'libc': list(platform.libc_ver()),
                 'files': [{'path': str(p.relative_to(destination)), 'sha256': sha256(p),

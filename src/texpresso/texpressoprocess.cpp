@@ -60,6 +60,9 @@ QProcessEnvironment TexpressoProcess::texliveEnvironment()
 
 TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
 {
+#ifdef Q_OS_WIN
+    probe.setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments *args) { args->flags |= 0x08000000; });
+#endif
     probeTimeout.setSingleShot(true); shutdownTimer.setSingleShot(true);
     connect(&probeTimeout, &QTimer::timeout, this, [this] {
         probe.kill(); emit failed(tr("The bundled TeXpresso capability check timed out."));
@@ -185,6 +188,8 @@ void TexpressoProcess::killGroup()
     shutdownTimer.stop();
 #ifndef Q_OS_WIN
     if (processGroup > 0) ::kill(-processGroup, SIGKILL);
+#else
+    if (child.state() != QProcess::NotRunning) child.kill();
 #endif
     processGroup = 0;
 }

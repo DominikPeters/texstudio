@@ -25,6 +25,9 @@ void TexpressoWsl::prepare(const QString &root)
     const auto match = unc.match(normalized);
     if (distribution.isEmpty() && match.hasMatch()) distribution = match.captured(1);
     QProcess check;
+#ifdef Q_OS_WIN
+    check.setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments *args) { args->flags |= 0x08000000; });
+#endif
     QStringList roots;
     for (const auto &drive : QDir::drives()) {
         const auto path = drive.absoluteFilePath();
