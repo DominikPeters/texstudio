@@ -31,10 +31,14 @@ void WslTest::initTestCase()
 }
 static bool fixtureReady(TexpressoSession *session)
 {
+    QElapsedTimer elapsed; elapsed.start();
+    const bool installing = qEnvironmentVariable("TEXPRESSO_PACKAGE_PROVIDER") == "miktex"
+        && qEnvironmentVariableIntValue("TEXPRESSO_TEST_MIKTEX_AUTO_INSTALL") == 1;
     const bool settled = QTest::qWaitFor([&] {
         return session->preview.valid() || session->failed() || !session->compilerError.isEmpty() || session->preview.paginationStopped();
-    }, 90000);
+    }, installing ? 300000 : 90000);
     const bool success = settled && session->preview.valid() && !session->failed() && session->compilerError.isEmpty();
+    qInfo() << "Fixture readiness after" << elapsed.elapsed() << "ms; installing allowed:" << installing;
     if (!success) qWarning().noquote() << "STATUS:" << session->status << "ERROR:" << session->compilerError
         << "ENGINE:" << session->engineOutput << "COMPILER:" << session->compilerOutput;
     return success;

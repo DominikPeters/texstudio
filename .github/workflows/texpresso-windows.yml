@@ -144,10 +144,8 @@ jobs:
           ldd texstudio.exe | awk '{print $3}' | grep ucrt64 | xargs -I{} cp -u {} .
           cp ../../COPYING .
           cp -R ../../templates .
-          mkdir dictionaries
-          cp ../../utilities/dictionaries/*.zip dictionaries/ 2>/dev/null || true
-          cp ../../utilities/dictionaries/*.aff ../../utilities/dictionaries/*.dic dictionaries/
-          cp ../../utilities/dictionaries/README* dictionaries/
+          python ../../native/scripts/pack_dictionaries.py --source ../../utilities/dictionaries --output dictionaries
+          python ../../native/scripts/pack_dictionaries.py --source ../../utilities/dictionaries --prune-bundle dictionaries
           cp ../../native/dictionary-provenance.json dictionaries/
           mkdir -p share
           cp -R "$MSYSTEM_PREFIX/share/poppler" share/
