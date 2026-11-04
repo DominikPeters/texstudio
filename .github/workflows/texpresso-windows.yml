@@ -75,9 +75,11 @@ jobs:
         run: |
           wsl.exe --install --distribution Ubuntu-24.04 --no-launch
           if ($LASTEXITCODE -ne 0) { throw 'WSL installation failed' }
-          wsl.exe --set-version Ubuntu-24.04 2
-          if ($LASTEXITCODE -ne 0) { throw 'WSL2 setup failed' }
-          wsl.exe --list --verbose
+          # Current WSL returns an error when converting an already-WSL2 distro.
+          # Check the installed version directly instead of a redundant conversion.
+          $listed = (wsl.exe --list --verbose | Out-String).Replace("`0", "")
+          Write-Output $listed
+          if ($listed -notmatch '(?m)Ubuntu-24\.04\s+.+\s+2\s*$') { throw 'The test distribution is not WSL2' }
           wsl.exe --distribution Ubuntu-24.04 --user root --exec sh -c 'grep -qi microsoft /proc/sys/kernel/osrelease && uname -r'
           if ($LASTEXITCODE -ne 0) { throw 'WSL kernel preflight failed' }
           wsl.exe --distribution Ubuntu-24.04 --user root --exec sh -c 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends texlive-xetex texlive-latex-extra texlive-bibtex-extra biber'

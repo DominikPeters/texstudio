@@ -46,7 +46,7 @@ void WslTest::realEngine()
 #endif
     QVERIFY(directory.mkdir(folder));
     const auto root = directory.filePath(folder + "/main.tex");
-    const auto text = QStringLiteral("\\documentclass{article}\n\\usepackage{hyperref}\n\\begin{document}\n\\typeout{WSL-INITIAL}\nWSL-INITIAL.\n\\hyperlink{target}{Go to target}\n\\newpage\n\\hypertarget{target}{Second page}\n\\end{document}\n");
+    const auto text = QStringLiteral("\\documentclass{article}\n\\usepackage{hyperref}\n\\begin{document}\n\\typeout{WSL-INITIAL}\nCafé WSL-INITIAL.\n\\hyperlink{target}{Go to target}\n\\newpage\n\\hypertarget{target}{Second page}\n\\end{document}\n");
     QFile file(root); QVERIFY(file.open(QIODevice::WriteOnly)); file.write(text.toUtf8()); file.close();
     TexpressoManager manager(nullptr, qEnvironmentVariable("TEXPRESSO_TEST_ENGINE"));
     manager.openBuffer(root, text); manager.activate(root);
@@ -62,10 +62,23 @@ void WslTest::realEngine()
     const auto edited = QString(text).replace("WSL-INITIAL", "WSL-EDITED");
     manager.openBuffer(root, edited);
     QTRY_VERIFY2_WITH_TIMEOUT(session->preview.valid() && session->compilerOutput.contains("WSL-EDITED"), qPrintable(session->status + "\nENGINE:\n" + session->engineOutput.right(3000) + "\nOUTPUT:\n" + session->compilerOutput.right(3000)), 10000);
-    session->preview.setPage(1);
+    QVERIFY(manager.changeBuffer(root, 3, 9, 3, 19, "WSL-RANGE"));
+    QVERIFY(manager.changeBuffer(root, 4, 5, 4, 15, "WSL-RANGE"));
+    QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid() && session->compilerOutput.contains("WSL-RANGE"), 30000);
+    manager.openBuffer(root, QString(edited).replace("\\begin{document}", "\\begin{document}\n\\UndefinedForWslTest"));
+    QTRY_VERIFY_WITH_TIMEOUT(!session->compilerError.isEmpty(), 30000);
+    const auto repaired = QString(edited).replace("WSL-EDITED", "WSL-RECOVERED");
+    manager.openBuffer(root, repaired);
+    QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid() && session->compilerError.isEmpty()
+                            && session->compilerOutput.contains("WSL-RECOVERED"), 30000);
+    QVERIFY(!session->preview.annotationsForPage(0)["links"].toArray().isEmpty());
+    session->preview.activateLink(0, 0, session->preview.revision(), session->preview.sequence());
     QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid() && session->preview.page() == 1, 30000);
     session->setPaused(true); QVERIFY(session->userPaused);
     session->setPaused(false);
+    session->stop(); QVERIFY(session->userStopped);
+    manager.restart();
+    QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid() && session->compilerOutput.contains("WSL-RECOVERED"), 30000);
     manager.shutdown();
 }
 
