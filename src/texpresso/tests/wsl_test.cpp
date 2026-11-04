@@ -188,6 +188,7 @@ void WslTest::realEngine()
     session->setPaused(true); QVERIFY(session->userPaused);
     session->setPaused(false);
     session->stop(); QVERIFY(session->userStopped);
+    manager.restartAll(); QVERIFY(session->userStopped); // Environment changes must preserve Stop.
     manager.restart();
     QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid() && session->compilerOutput.contains("WSL-RECOVERED"), 30000);
     manager.shutdown();

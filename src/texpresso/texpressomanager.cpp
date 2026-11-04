@@ -100,7 +100,8 @@ void TexpressoManager::restart()
 }
 void TexpressoManager::restartAll()
 {
-    for (auto session : sessions) session->restart();
+    for (auto session : sessions)
+        if (!session->userStopped) session->restart();
 }
 void TexpressoManager::beginExternalBuild(const QString &root, const QStringList &auxiliaryDirectories)
 {
