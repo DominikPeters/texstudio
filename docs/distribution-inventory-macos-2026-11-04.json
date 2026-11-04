@@ -1,19 +1,20 @@
 {
   "date": "2026-11-04",
-  "sourceRevision": "574e89c6fc14768a6a52a7db507c123b6d407a67",
+  "sourceRevision": "20e654063352540df36f21926e20231bde5fa02f",
   "engineRevision": "90b211349960b406267b44642c7be49b584d1f4c",
-  "scope": "arm64 macOS local test app; not a release clearance or a Linux/Intel binary inventory",
+  "scope": "arm64 macOS candidate; Intel workflow prepared but not run, Linux needs separate inventory",
   "binariesBefore": 102,
-  "binariesAfter": 98,
-  "installedDependencyPackages": 33,
+  "binariesAfter": 96,
+  "installedDependencyPackages": 34,
   "removedCodeImages": [
     "Contents/Frameworks/QtQuick.framework/Versions/A/QtQuick",
     "Contents/Frameworks/QtVirtualKeyboard.framework/Versions/A/QtVirtualKeyboard",
     "Contents/Frameworks/QtVirtualKeyboardQml.framework/Versions/A/QtVirtualKeyboardQml",
-    "Contents/PlugIns/platforminputcontexts/libqtvirtualkeyboardplugin.dylib"
+    "Contents/PlugIns/platforminputcontexts/libqtvirtualkeyboardplugin.dylib",
+    "Contents/Frameworks/QtPdf.framework/Versions/A/QtPdf",
+    "Contents/PlugIns/imageformats/libqpdf.dylib"
   ],
-  "bytesBefore": 275161647,
-  "bytesAfter": 275027198,
+  "bytesAfter": 277065688,
   "binaries": [
     {
       "path": "Contents/Frameworks/QtConcurrent.framework/Versions/A/QtConcurrent",
@@ -157,24 +158,6 @@
         "source": "git://code.qt.io/qt/qtbase.git",
         "installedPath": "./lib/QtOpenGLWidgets.framework/Versions/A/QtOpenGLWidgets",
         "evidence": "qt-sbom/qtbase-6.12.0.spdx"
-      }
-    },
-    {
-      "path": "Contents/Frameworks/QtPdf.framework/Versions/A/QtPdf",
-      "sha256": "2c66144764e631c9f7ebe4c61bbad55387759750a1d79525c0dc49157ce8a2f9",
-      "uuid": [
-        "564069AE-1EAE-3B4E-98FB-E9D7242DF837"
-      ],
-      "origin": "/opt/homebrew/Cellar/qtwebengine/6.11.2/lib/QtPdf.framework/Versions/A/QtPdf",
-      "package": "qtwebengine-6.11.2",
-      "qt": {
-        "module": "Pdf",
-        "version": "6.11.2",
-        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
-        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
-        "source": "git://code.qt.io/qt/qtpdf.git",
-        "installedPath": "./lib/QtPdf.framework/Versions/A/QtPdf",
-        "evidence": "qt-sbom/qtpdf-6.11.2.spdx"
       }
     },
     {
@@ -641,24 +624,6 @@
         "source": "git://code.qt.io/qt/qtimageformats.git",
         "installedPath": "./share/qt/plugins/imageformats/libqmacjp2.dylib",
         "evidence": "qt-sbom/qtimageformats-6.12.0.spdx"
-      }
-    },
-    {
-      "path": "Contents/PlugIns/imageformats/libqpdf.dylib",
-      "sha256": "8415f5734010e1ce00c6af23e2f247ed6112674b6efc734bdc74d7d0a14a3d9f",
-      "uuid": [
-        "421EF8AD-DE9E-3A36-9146-53181FA0B9FE"
-      ],
-      "origin": "/opt/homebrew/Cellar/qtwebengine/6.11.2/share/qt/plugins/imageformats/libqpdf.dylib",
-      "package": "qtwebengine-6.11.2",
-      "qt": {
-        "module": "QPdfPlugin",
-        "version": "6.11.2",
-        "license": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
-        "copyright": "Copyright (C) The Qt Company Ltd. and other contributors.",
-        "source": "git://code.qt.io/qt/qtpdf.git",
-        "installedPath": "./share/qt/plugins/imageformats/libqpdf.dylib",
-        "evidence": "qt-sbom/qtpdf-6.11.2.spdx"
       }
     },
     {
@@ -1158,21 +1123,23 @@
     },
     {
       "path": "Contents/Frameworks/libpoppler-cpp.3.dylib",
-      "sha256": "66a5ab5cc54986b8f6ac99e354c5cb2ee85438cd71225d1b011283e6b89581b2",
+      "sha256": "d4744f8e04b998f1aee6f01d11c5a7637304fa5240dec46398f910b0fb9ca75b",
       "uuid": [
-        "92BE0DA9-B56C-334B-AF42-5D484E80D559"
+        "9E977748-1A7D-38AC-88B1-B825045769A4"
       ],
-      "origin": "/private/tmp/texstudio-poppler/lib/libpoppler-cpp.3.1.0.dylib",
-      "provenanceStatus": "Local build: preserve exact source/configuration separately"
+      "origin": "/Users/dominik/GitHub/texstudio/.native-sources/dependencies/poppler/lib/libpoppler-cpp.3.1.0.dylib",
+      "package": "poppler-26.10.0-local",
+      "provenanceStatus": "Source checksum, configuration and original binary hash verified"
     },
     {
       "path": "Contents/Frameworks/libpoppler-qt6.3.dylib",
-      "sha256": "1d68ecf4c445a2a5bfcdb4b7b6d6f2b58b6dfdaa1b39509a74d8e87cf14be046",
+      "sha256": "54dc33d9a5be8d937f27ee9a7ab2e9ecd08de2820a1e812012d2d94852884026",
       "uuid": [
-        "5DE96252-8712-368B-9B2E-A154FF542AEC"
+        "1417BE3E-8BEC-3EC5-BFAE-C84A5B698CD0"
       ],
-      "origin": "/private/tmp/texstudio-poppler/lib/libpoppler-qt6.3.13.0.dylib",
-      "provenanceStatus": "Local build: preserve exact source/configuration separately"
+      "origin": "/Users/dominik/GitHub/texstudio/.native-sources/dependencies/poppler/lib/libpoppler-qt6.3.13.0.dylib",
+      "package": "poppler-26.10.0-local",
+      "provenanceStatus": "Source checksum, configuration and original binary hash verified"
     },
     {
       "path": "Contents/Frameworks/libpoppler.165.dylib",
@@ -1180,8 +1147,9 @@
       "uuid": [
         "D00E5C6F-8DE4-3730-999E-FEDE1A024CCF"
       ],
-      "origin": "/private/tmp/texstudio-poppler/lib/libpoppler.165.0.0.dylib",
-      "provenanceStatus": "Local build: preserve exact source/configuration separately"
+      "origin": "/Users/dominik/GitHub/texstudio/.native-sources/dependencies/poppler/lib/libpoppler.165.0.0.dylib",
+      "package": "poppler-26.10.0-local",
+      "provenanceStatus": "Source checksum, configuration and original binary hash verified"
     },
     {
       "path": "Contents/Frameworks/libsharpyuv.0.dylib",
@@ -1248,9 +1216,9 @@
     },
     {
       "path": "Contents/MacOS/texstudio",
-      "sha256": "f6dacf51f111f02931319d479b776a4b78d7967a9f03653833d5ace72e5e0bfa",
+      "sha256": "4504517e66ee5e2d6fc3ce7580b57a5aaa068a8f96444f6aa415ca31ea0127b5",
       "uuid": [
-        "A64CA45A-D85E-364A-94BC-3D9808C2C7F2"
+        "F15F2485-1CCC-31AB-9EA7-80E164BB1B9B"
       ],
       "component": "TeXstudio Espresso (see sourceComponents)"
     }
@@ -1268,7 +1236,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": []
+      "noticeFileCount": 172
     },
     "qt5compat-6.12.0_1": {
       "name": "qt5compat",
@@ -1282,23 +1250,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": []
-    },
-    "qtwebengine-6.11.2": {
-      "name": "qtwebengine",
-      "version": "6.11.2",
-      "license": "(LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only) AND (GPL-3.0-only WITH Qt-GPL-exception-1.0) AND BSD-3-Clause AND Apache-2.0 AND blessing AND BSD-2-Clause AND LGPL-2.1-or-later AND libpng-2.0 AND MIT AND MPL-1.1 AND NCL AND SGI-B-2.0 AND SunPro AND Zlib AND LicenseRef-Homebrew-public-domain",
-      "source": "https://download.qt.io/official_releases/qt/6.11/6.11.2/submodules/qtwebengine-everywhere-src-6.11.2.tar.xz",
-      "sourceChecksums": [
-        {
-          "algorithm": "SHA256",
-          "checksumValue": "6101c1aa00ff933d1b65ee5d167f76e8d71b9ac5b378b0111277723ebda7c163"
-        }
-      ],
-      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/qtwebengine-6.11.2/LICENSE.Chromium"
-      ]
+      "noticeFileCount": 17
     },
     "qtdeclarative-6.12.0_1": {
       "name": "qtdeclarative",
@@ -1312,7 +1264,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": []
+      "noticeFileCount": 36
     },
     "qtsvg-6.12.0_1": {
       "name": "qtsvg",
@@ -1326,7 +1278,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": []
+      "noticeFileCount": 9
     },
     "qttools-6.12.0_1": {
       "name": "qttools",
@@ -1340,7 +1292,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": []
+      "noticeFileCount": 31
     },
     "sdl2-compat-2.32.74": {
       "name": "sdl2-compat",
@@ -1354,10 +1306,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/sdl2-compat-2.32.74/LICENSE.txt",
-        "notices/sdl2-compat-2.32.74/share/licenses/sdl2-compat/LICENSE.txt"
-      ]
+      "noticeFileCount": 6
     },
     "sdl3-3.4.18": {
       "name": "sdl3",
@@ -1371,10 +1320,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/sdl3-3.4.18/LICENSE.txt",
-        "notices/sdl3-3.4.18/share/licenses/SDL3/LICENSE.txt"
-      ]
+      "noticeFileCount": 27
     },
     "brotli-1.2.0": {
       "name": "brotli",
@@ -1388,9 +1334,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/brotli-1.2.0/LICENSE"
-      ]
+      "noticeFileCount": 4
     },
     "fontconfig-2.18.3": {
       "name": "fontconfig",
@@ -1404,10 +1348,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/fontconfig-2.18.3/AUTHORS",
-        "notices/fontconfig-2.18.3/COPYING"
-      ]
+      "noticeFileCount": 4
     },
     "freetype-2.15.0": {
       "name": "freetype",
@@ -1421,9 +1362,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/freetype-2.15.0/LICENSE.TXT"
-      ]
+      "noticeFileCount": 13
     },
     "glib-2.90.1": {
       "name": "glib",
@@ -1437,9 +1376,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/glib-2.90.1/glib-COPYING"
-      ]
+      "noticeFileCount": 20
     },
     "graphite2-1.3.15": {
       "name": "graphite2",
@@ -1453,10 +1390,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/graphite2-1.3.15/COPYING",
-        "notices/graphite2-1.3.15/LICENSE"
-      ]
+      "noticeFileCount": 7
     },
     "harfbuzz-14.6.0": {
       "name": "harfbuzz",
@@ -1470,10 +1404,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/harfbuzz-14.6.0/AUTHORS",
-        "notices/harfbuzz-14.6.0/COPYING"
-      ]
+      "noticeFileCount": 13
     },
     "gettext-1.0": {
       "name": "gettext",
@@ -1487,20 +1418,21 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/gettext-1.0/AUTHORS",
-        "notices/gettext-1.0/COPYING"
-      ]
+      "noticeFileCount": 29
     },
     "jbig2dec-0.20": {
       "name": "jbig2dec",
       "version": "0.20",
-      "license": "NOASSERTION",
-      "source": "NOASSERTION",
-      "noticeFiles": [
-        "notices/jbig2dec-0.20/COPYING",
-        "notices/jbig2dec-0.20/LICENSE"
-      ]
+      "license": "AGPL-3.0-or-later",
+      "source": "https://github.com/ArtifexSoftware/jbig2dec/archive/refs/tags/0.20.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "a9705369a6633aba532693450ec802c562397e1b824662de809ede92f67aff21"
+        }
+      ],
+      "evidence": "Installed Homebrew formula, retained alongside notices",
+      "noticeFileCount": 4
     },
     "jpeg-turbo-3.2.0": {
       "name": "jpeg-turbo",
@@ -1514,10 +1446,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/jpeg-turbo-3.2.0/LICENSE.md",
-        "notices/jpeg-turbo-3.2.0/share/doc/libjpeg-turbo/LICENSE.md"
-      ]
+      "noticeFileCount": 10
     },
     "openjpeg-2.5.4_1": {
       "name": "openjpeg",
@@ -1531,10 +1460,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/openjpeg-2.5.4_1/AUTHORS.md",
-        "notices/openjpeg-2.5.4_1/LICENSE"
-      ]
+      "noticeFileCount": 11
     },
     "pcre2-10.49": {
       "name": "pcre2",
@@ -1548,14 +1474,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/pcre2-10.49/AUTHORS.md",
-        "notices/pcre2-10.49/COPYING",
-        "notices/pcre2-10.49/LICENCE.md",
-        "notices/pcre2-10.49/share/doc/pcre2/AUTHORS.md",
-        "notices/pcre2-10.49/share/doc/pcre2/COPYING",
-        "notices/pcre2-10.49/share/doc/pcre2/LICENCE.md"
-      ]
+      "noticeFileCount": 14
     },
     "libpng-1.6.59": {
       "name": "libpng",
@@ -1569,10 +1488,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/libpng-1.6.59/AUTHORS",
-        "notices/libpng-1.6.59/LICENSE"
-      ]
+      "noticeFileCount": 29
     },
     "qtimageformats-6.12.0": {
       "name": "qtimageformats",
@@ -1586,16 +1502,21 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": []
+      "noticeFileCount": 12
     },
     "libb2-0.98.1": {
       "name": "libb2",
       "version": "0.98.1",
-      "license": "NOASSERTION",
-      "source": "NOASSERTION",
-      "noticeFiles": [
-        "notices/libb2-0.98.1/COPYING"
-      ]
+      "license": "CC0-1.0",
+      "source": "https://github.com/BLAKE2/libb2/releases/download/v0.98.1/libb2-0.98.1.tar.gz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "53626fddce753c454a3fea581cbbc7fe9bbcf0bc70416d48fdbbf5d87ef6c72e"
+        }
+      ],
+      "evidence": "Installed Homebrew formula, retained alongside notices",
+      "noticeFileCount": 2
     },
     "openssl@4-4.1.0": {
       "name": "openssl@4",
@@ -1609,10 +1530,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/openssl@4-4.1.0/AUTHORS.md",
-        "notices/openssl@4-4.1.0/LICENSE.txt"
-      ]
+      "noticeFileCount": 7
     },
     "dbus-1.16.2_1": {
       "name": "dbus",
@@ -1626,10 +1544,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/dbus-1.16.2_1/AUTHORS",
-        "notices/dbus-1.16.2_1/COPYING"
-      ]
+      "noticeFileCount": 15
     },
     "double-conversion-3.4.0": {
       "name": "double-conversion",
@@ -1643,11 +1558,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/double-conversion-3.4.0/AUTHORS",
-        "notices/double-conversion-3.4.0/COPYING",
-        "notices/double-conversion-3.4.0/LICENSE"
-      ]
+      "noticeFileCount": 6
     },
     "hunspell-1.7.5": {
       "name": "hunspell",
@@ -1661,14 +1572,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/hunspell-1.7.5/AUTHORS",
-        "notices/hunspell-1.7.5/COPYING",
-        "notices/hunspell-1.7.5/COPYING.LESSER",
-        "notices/hunspell-1.7.5/COPYING.MPL",
-        "notices/hunspell-1.7.5/license.hunspell",
-        "notices/hunspell-1.7.5/license.myspell"
-      ]
+      "noticeFileCount": 13
     },
     "icu4c@78-78.3": {
       "name": "icu4c@78",
@@ -1682,10 +1586,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/icu4c@78-78.3/LICENSE",
-        "notices/icu4c@78-78.3/license.html"
-      ]
+      "noticeFileCount": 25
     },
     "little-cms2-2.19.1": {
       "name": "little-cms2",
@@ -1699,10 +1600,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/little-cms2-2.19.1/AUTHORS",
-        "notices/little-cms2-2.19.1/LICENSE"
-      ]
+      "noticeFileCount": 9
     },
     "xz-5.8.4": {
       "name": "xz",
@@ -1716,18 +1614,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/xz-5.8.4/AUTHORS",
-        "notices/xz-5.8.4/COPYING",
-        "notices/xz-5.8.4/COPYING.0BSD",
-        "notices/xz-5.8.4/COPYING.GPLv2",
-        "notices/xz-5.8.4/COPYING.GPLv3",
-        "notices/xz-5.8.4/COPYING.LGPLv2.1",
-        "notices/xz-5.8.4/share/doc/xz/AUTHORS",
-        "notices/xz-5.8.4/share/doc/xz/COPYING",
-        "notices/xz-5.8.4/share/doc/xz/COPYING.0BSD",
-        "notices/xz-5.8.4/share/doc/xz/COPYING.GPLv2"
-      ]
+      "noticeFileCount": 20
     },
     "md4c-0.6.0": {
       "name": "md4c",
@@ -1741,9 +1628,20 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/md4c-0.6.0/LICENSE.md"
-      ]
+      "noticeFileCount": 4
+    },
+    "poppler-26.10.0-local": {
+      "name": "poppler",
+      "version": "26.10.0",
+      "license": "GPL-2.0-only OR GPL-3.0-only",
+      "source": "https://poppler.freedesktop.org/poppler-26.10.0.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "6792cb7c69205007ad87d2e936cecc5b3a31fac29ab54ffc3175fdb6b2a6ce35"
+        }
+      ],
+      "noticeFileCount": 6
     },
     "webp-1.6.0": {
       "name": "webp",
@@ -1757,10 +1655,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/webp-1.6.0/AUTHORS",
-        "notices/webp-1.6.0/COPYING"
-      ]
+      "noticeFileCount": 5
     },
     "libtiff-4.7.2": {
       "name": "libtiff",
@@ -1774,12 +1669,7 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/libtiff-4.7.2/LICENSE.md",
-        "notices/libtiff-4.7.2/share/doc/tiff-4.7.2/LICENSE.md",
-        "notices/libtiff-4.7.2/share/doc/tiff-4.7.2/manual/_sources/project/license.rst.txt",
-        "notices/libtiff-4.7.2/share/doc/tiff-4.7.2/manual/project/license.html"
-      ]
+      "noticeFileCount": 9
     },
     "zstd-1.5.7_1": {
       "name": "zstd",
@@ -1793,18 +1683,27 @@
         }
       ],
       "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
-      "noticeFiles": [
-        "notices/zstd-1.5.7_1/COPYING",
-        "notices/zstd-1.5.7_1/LICENSE"
-      ]
+      "noticeFileCount": 7
+    },
+    "qttranslations-6.12.0": {
+      "name": "qttranslations",
+      "version": "6.12.0",
+      "license": "BSD-3-Clause",
+      "source": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qttranslations-everywhere-src-6.12.0.tar.xz",
+      "sourceChecksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "85929c0c30d6f273f23bd879bb69803ea17b010ab73cab2f8abf95357f6f6bbb"
+        }
+      ],
+      "evidence": "Homebrew source-package SPDX metadata; not a file-level conclusion",
+      "noticeFileCount": 5
     }
   },
   "dictionaryAndThesaurusPayloads": [
     {
       "path": "Contents/Resources/bg_BG-Bulgarian.dic.zip",
-      "bytes": 296283,
       "sha256": "21697c7c1bcb056e11c9d696fd67b9e01b4161de8ca227e7bcaecbfef720c1c8",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "bg_BG-Bulgarian.aff",
@@ -1815,13 +1714,13 @@
           "sha256": "44408b1ee50301e8f9a133b0ec92565bb8be49818c444d91821876d447f58906"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+      "provenanceRecord": "bg_BG-Bulgarian.dic"
     },
     {
       "path": "Contents/Resources/br_BR-Breton.dic.zip",
-      "bytes": 876151,
       "sha256": "32359860cfb7f5a39ef3358d8ee4e64761dd153132355e6a84bc03189c3c401e",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "br_BR-Breton.aff",
@@ -1832,13 +1731,13 @@
           "sha256": "235241afc01c0726d32427e1411f96bee1a5f536bd1bdb7f083a311e6f0d780b"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+      "provenanceRecord": "br_BR-Breton.dic"
     },
     {
       "path": "Contents/Resources/ca_CAVA-CatalanValencian.dic.zip",
-      "bytes": 723975,
       "sha256": "c5f2f74ab943c8978889848eddff13e303cea69f60aebfc0ffec787eee36bd0e",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ca_CAVA-CatalanValencian.aff",
@@ -1849,13 +1748,13 @@
           "sha256": "d563c06562c09d6661add56486ecf04e5120486b2e2269c303b5d01885b160f4"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1)",
+      "provenanceRecord": "ca_CAVA-CatalanValencian.dic"
     },
     {
       "path": "Contents/Resources/ca_ES-Catalan.dic.zip",
-      "bytes": 722871,
       "sha256": "485489b207997f22f65a1ac97a6703c4fd6df9048b7da3dd12fbb52958653628",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ca_ES-Catalan.aff",
@@ -1866,13 +1765,13 @@
           "sha256": "14f724133c509de7d7c06f119ef6ff1680c256cdb98f1a353562bda1da3c0684"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1)",
+      "provenanceRecord": "ca_ES-Catalan.dic"
     },
     {
       "path": "Contents/Resources/cs_CS-Czech.dic.zip",
-      "bytes": 912165,
       "sha256": "abe697029a4c0359b6ce41fa708c33b693348e92c669b219475f3df33b7f6c97",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "cs_CS-Czech.aff",
@@ -1883,13 +1782,13 @@
           "sha256": "559486d16e8c117cc47c1e4d4be1784bfb2265e660582c008485f994c6ac9397"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-contributor-archive",
+      "license": "GNU GPL; full version text in original readme.txt",
+      "provenanceRecord": "cs_CS-Czech.dic"
     },
     {
       "path": "Contents/Resources/da_DA-Danish.dic.zip",
-      "bytes": 649325,
       "sha256": "1381665addee670577a0929fe9c77f39b98d8e27ca2463f0d73eb4203febe610",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "da_DA-Danish.aff",
@@ -1900,13 +1799,13 @@
           "sha256": "ee22a1beaeec06384068317a66522d0a1ed9c6ad288d9a8e4db948fbf24a66a7"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+      "provenanceRecord": "da_DA-Danish.dic"
     },
     {
       "path": "Contents/Resources/de_AT-GermanAustria.dic.zip",
-      "bytes": 337908,
       "sha256": "b441db8c2b4798b9b7f4f190513e86b2466f7a45ac90c99175827d831884b105",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "de_AT-GermanAustria.aff",
@@ -1917,13 +1816,13 @@
           "sha256": "b7d1fe9830909dcca3ab6d75fe25ebd8bedd9dbf12fcb415f79b576392b1b980"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR GPL-3.0)",
+      "provenanceRecord": "de_AT-GermanAustria.dic"
     },
     {
       "path": "Contents/Resources/de_CH-GermanSwitzerland.dic.zip",
-      "bytes": 337203,
       "sha256": "42dc7d621ad7410d01b051379c0ef76e98b0eddb390126d0353db68b6edfc64d",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "de_CH-GermanSwitzerland.aff",
@@ -1934,13 +1833,13 @@
           "sha256": "56eb32b42cbaf15c45ea9cb8e1ef40beae74359397be58859412d5a827ded0c3"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR GPL-3.0)",
+      "provenanceRecord": "de_CH-GermanSwitzerland.dic"
     },
     {
       "path": "Contents/Resources/de_DE.dic.zip",
-      "bytes": 1226043,
       "sha256": "12e3070c831f16e53fed164ac93f0e9a9091649db30f1f1bfeaef76f00545863",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "de_DE.aff",
@@ -1951,13 +1850,13 @@
           "sha256": "52d2484a70681386d979e958f2f828a976f0dcdaa680038f371bc70abcf7463a"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "See collected upstream notices",
+      "provenanceRecord": "de_DE.dic"
     },
     {
       "path": "Contents/Resources/el_EL-ModernGreek.dic.zip",
-      "bytes": 2583550,
       "sha256": "9a0961bb3bd949cac22319e670c2df1398a9a9b9396b984211c6d2f0f6b98089",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "el_EL-ModernGreek.aff",
@@ -1968,13 +1867,13 @@
           "sha256": "f08daefb302600beb1b345e4fd77f4ecf6617aa080a72efe6ae7eec0ad5b2ac7"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+      "provenanceRecord": "el_EL-ModernGreek.dic"
     },
     {
       "path": "Contents/Resources/el_POL-ModerGreekPolytonicGreek.dic.zip",
-      "bytes": 2339573,
       "sha256": "8c49dce97e5be3ee316396970813e242fd527391fbdbe5242658faf1dd3e0d25",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "el_POL-ModerGreekPolytonicGreek.aff",
@@ -1985,13 +1884,13 @@
           "sha256": "2368557909c26a368234623c199a70f4322e62a4c933dd32da43cb55bb26efa8"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-3.0",
+      "provenanceRecord": "el_POL-ModerGreekPolytonicGreek.dic"
     },
     {
       "path": "Contents/Resources/en_AU-EnglishAustralia.dic.zip",
-      "bytes": 192777,
       "sha256": "7da766dd840a907bfcf8f8185fa90c21b3a107dfb936eba0842d429efc3780ba",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "en_AU-EnglishAustralia.aff",
@@ -2002,13 +1901,13 @@
           "sha256": "f8094a6bd24b600518704062e6fd96682cdcb3220d74eff3dd04b99b2ebbb304"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "See collected upstream notices",
+      "provenanceRecord": "en_AU-EnglishAustralia.dic"
     },
     {
       "path": "Contents/Resources/en_CA-EnglishCanada.dic.zip",
-      "bytes": 191846,
       "sha256": "84edf0a4720464c25a30bd49a706b3db38f2b2b1c73cd215f5dc7a7654f5525c",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "en_CA-EnglishCanada.aff",
@@ -2019,13 +1918,13 @@
           "sha256": "55677b9facf26a8b7b9d0c1099fdf7105c7ed54f8ca9fb85d285c484a996cef0"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "See collected upstream notices",
+      "provenanceRecord": "en_CA-EnglishCanada.dic"
     },
     {
       "path": "Contents/Resources/en_EN-EnglishUnitedKingdom.dic.zip",
-      "bytes": 191961,
       "sha256": "4e52f6abb1dbbc5a2bfdb4a3231284750fbc8e181fd3f071af0b58491d63148c",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "en_EN-EnglishUnitedKingdom.aff",
@@ -2036,13 +1935,13 @@
           "sha256": "e2aec1aff3e2b840c59e2a4f49f7eb9388b6078c681d960153fc72ce183086cc"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(MIT AND BSD)",
+      "provenanceRecord": "en_EN-EnglishUnitedKingdom.dic"
     },
     {
       "path": "Contents/Resources/en_GB.dic.zip",
-      "bytes": 398402,
       "sha256": "2c3b78b00c0b119e6061ab657ae442374b7c29faca942beb43a33beca040f642",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "en_GB.aff",
@@ -2053,13 +1952,13 @@
           "sha256": "3460dbf70e42199cd7fb8a2ee881dafc8cedda05a2bc0d2240e40e1e64b652e7"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "See collected upstream notices",
+      "provenanceRecord": "en_GB.dic"
     },
     {
       "path": "Contents/Resources/en_US.dic.zip",
-      "bytes": 191885,
       "sha256": "1dbd4b31aef73f80bff4fca1695a012deed36b2ac95409e0e5318eeeb8623bb4",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "en_US.aff",
@@ -2070,13 +1969,13 @@
           "sha256": "e2aec1aff3e2b840c59e2a4f49f7eb9388b6078c681d960153fc72ce183086cc"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "See collected upstream notices",
+      "provenanceRecord": "en_US.dic"
     },
     {
       "path": "Contents/Resources/en_ZA-EnglishSouthAfrica.dic.zip",
-      "bytes": 272221,
       "sha256": "9b01aec349066ec1c22bc34bf6fc2eec309a295789f2f77bb2116baef7107020",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "en_ZA-EnglishSouthAfrica.aff",
@@ -2087,13 +1986,13 @@
           "sha256": "5928244f918bfcbea2794fac365c0f29de102bd05494115da8301d48ba660571"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "See collected upstream notices",
+      "provenanceRecord": "en_ZA-EnglishSouthAfrica.dic"
     },
     {
       "path": "Contents/Resources/eo_EO-Esperanto.dic.zip",
-      "bytes": 150732,
       "sha256": "8885bd08fddfe062d366eb816b629754dd2a5b7565e055ba594893e23d5d55d2",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "eo_EO-Esperanto.aff",
@@ -2104,13 +2003,13 @@
           "sha256": "75b09812254cd6b49c2849ed3b92f1c252117906f5a2ce281d25e1798c437ac1"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-2.0",
+      "provenanceRecord": "eo_EO-Esperanto.dic"
     },
     {
       "path": "Contents/Resources/es_AR-SpanishArgentina.dic.zip",
-      "bytes": 229625,
       "sha256": "cb8e4df6e303a8e6da013e98e8455b5138bf3ac45a2d337ac220c7e51a5da318",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_AR-SpanishArgentina.aff",
@@ -2121,13 +2020,13 @@
           "sha256": "34f566cbf6a73f0e2e309feea99d6ae90a2f893ceef3d3652632c7a326fe6724"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_AR-SpanishArgentina.dic"
     },
     {
       "path": "Contents/Resources/es_BO-SpanishBolivia.dic.zip",
-      "bytes": 226647,
       "sha256": "4f6136c095d23b677a0e133f66313df07031bc70b67612ae2b0ec8bf96951de8",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_BO-SpanishBolivia.aff",
@@ -2138,13 +2037,13 @@
           "sha256": "8cb875ef018de7e35341f351ced64d25e6c2596d5ae31beb4edb3164a3288437"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_BO-SpanishBolivia.dic"
     },
     {
       "path": "Contents/Resources/es_CL-SpanishChile.dic.zip",
-      "bytes": 227849,
       "sha256": "6ccf3da7da4098475cfe228996910d0f6009504ceb429ad7db2e5b8687e5c624",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_CL-SpanishChile.aff",
@@ -2155,13 +2054,13 @@
           "sha256": "ffabe12bcc6224b278e1f9d134ee1598134579ecf6cc24dd39dd48f42c6f5c1c"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_CL-SpanishChile.dic"
     },
     {
       "path": "Contents/Resources/es_CO-SpanishColombia.dic.zip",
-      "bytes": 248257,
       "sha256": "98128df5c1d169aaca9e413ac32962aa2769d144f53fbfb24b04e8f972819124",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_CO-SpanishColombia.aff",
@@ -2172,13 +2071,13 @@
           "sha256": "8d8a7ada740d86d0f1eac168c845d1f9722231efdbcae9085dfb23e2f146eedf"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_CO-SpanishColombia.dic"
     },
     {
       "path": "Contents/Resources/es_CR-SpanishCostaRica.dic.zip",
-      "bytes": 225638,
       "sha256": "f28405f0b01f6269d9057695fd9de001969b0b1f70e80e6331125da7665c7095",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_CR-SpanishCostaRica.aff",
@@ -2189,13 +2088,13 @@
           "sha256": "d528fedf3abc62c84cdfd224a39f355ab3955367a61d40adf313c02a27a98891"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_CR-SpanishCostaRica.dic"
     },
     {
       "path": "Contents/Resources/es_CU-SpanishCuba.dic.zip",
-      "bytes": 225917,
       "sha256": "93638ec58fa8f364667e4f4c1db41961cfbaa4c1344dff189c29cd3a563761ba",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_CU-SpanishCuba.aff",
@@ -2206,13 +2105,13 @@
           "sha256": "9aa6aa4994000d8c202b3aef9c45d7fec46df00bed4dd09f1f259f926236a3a1"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_CU-SpanishCuba.dic"
     },
     {
       "path": "Contents/Resources/es_DO-SpanishDominicanRepublic.dic.zip",
-      "bytes": 225351,
       "sha256": "1a932ebbd946687254f05aa8225744280df0b59da0f35117711d1282fd910df7",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_DO-SpanishDominicanRepublic.aff",
@@ -2223,13 +2122,13 @@
           "sha256": "6e1a1c59b942370e4f3288457f0049cad2b663011a21f640580cfc9159a12d04"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_DO-SpanishDominicanRepublic.dic"
     },
     {
       "path": "Contents/Resources/es_EC-SpanishEcuador.dic.zip",
-      "bytes": 225817,
       "sha256": "f61cf25f11cb88208fc96924f261706c5be5dc19c24b33de162fe3cef6329f65",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_EC-SpanishEcuador.aff",
@@ -2240,13 +2139,13 @@
           "sha256": "3af7effe9c5b3803c97cb23a7888d71b9c511eedcb77443cb291ad7b8a8087d7"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_EC-SpanishEcuador.dic"
     },
     {
       "path": "Contents/Resources/es_ES.dic.zip",
-      "bytes": 288753,
       "sha256": "395d5419779ac6489bc2ced8f01f5188924ef9d00e7287cd315e68eab37a495e",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_ES.aff",
@@ -2257,13 +2156,13 @@
           "sha256": "875a33c342ccab0aab1c840adaf7083b161550cde71882b68db3fc354591c6f3"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "in-tree-license-notice",
+      "license": "GPL-2.0-or-later (in-tree README)",
+      "provenanceRecord": "es_ES.dic"
     },
     {
       "path": "Contents/Resources/es_GT-SpanishGuatemala.dic.zip",
-      "bytes": 225556,
       "sha256": "ac4f689465860906af2c4c302af2a0d9036b90776d6bfbe60d49c4e10c37633c",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_GT-SpanishGuatemala.aff",
@@ -2274,13 +2173,13 @@
           "sha256": "698a7e481f48a7439980171f579fcece8249d71b1678c0f8a93c1cedf79d7992"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_GT-SpanishGuatemala.dic"
     },
     {
       "path": "Contents/Resources/es_HN-SpanishHonduras.dic.zip",
-      "bytes": 226061,
       "sha256": "4be1d9a32ec8885be99076489b1240689730db602cd6d8f4de49a5713cbca131",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_HN-SpanishHonduras.aff",
@@ -2291,13 +2190,13 @@
           "sha256": "00fb2d00c17c0a28a1f1aedd0e5a7ec9fabc2de0f0a441afaadbfe447d3eaf5b"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_HN-SpanishHonduras.dic"
     },
     {
       "path": "Contents/Resources/es_MX-SpanishMexico.dic.zip",
-      "bytes": 236600,
       "sha256": "168c2e2e70d2d52bbd9c16cab92834ab2e738cb26a0f47ac4a61bca91fc41bd9",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_MX-SpanishMexico.aff",
@@ -2308,13 +2207,13 @@
           "sha256": "c64234571d1c7908f3d3ea4ca4e72db61261c63c629252c53a0c0786ae6456f2"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_MX-SpanishMexico.dic"
     },
     {
       "path": "Contents/Resources/es_NI-SpanishNicaragua.dic.zip",
-      "bytes": 225790,
       "sha256": "bac26c597bee995ead69cb0c13317f2a2524cb2441673c735f8825a1a0898805",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_NI-SpanishNicaragua.aff",
@@ -2325,13 +2224,13 @@
           "sha256": "a27ff43b635e3afcd3d3dcf98aebeb728e0d41cfb908ee681d91d727561704d7"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_NI-SpanishNicaragua.dic"
     },
     {
       "path": "Contents/Resources/es_PA-SpanishPanama.dic.zip",
-      "bytes": 225449,
       "sha256": "ddd2cd5668c28c8f8ccb9ba97747f578dbfd397d77d509066a309601abd00c30",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_PA-SpanishPanama.aff",
@@ -2342,13 +2241,13 @@
           "sha256": "a25b207c77caf8b4ecdb4acceebd0fe065b101edf90b69f845f83723ae115685"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_PA-SpanishPanama.dic"
     },
     {
       "path": "Contents/Resources/es_PE-SpanishPeru.dic.zip",
-      "bytes": 233229,
       "sha256": "b77f7cb2a9cae530869b683f291cdb0bc80b41a782f9aabed2dc2a8850eb62ac",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_PE-SpanishPeru.aff",
@@ -2359,13 +2258,13 @@
           "sha256": "a3c40143c6e1521c3e559f6fe24b0ec66bb4f5429bef492fae6a6308c10dce35"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_PE-SpanishPeru.dic"
     },
     {
       "path": "Contents/Resources/es_PH-SpanishPhilippines.dic.zip",
-      "bytes": 258989,
       "sha256": "7e69006d9d022d5d263e8fa009cf6e76aace6a350b719faf23c9068764a4963c",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_PH-SpanishPhilippines.aff",
@@ -2376,13 +2275,13 @@
           "sha256": "eb84f48e55f3f672efc470b3f0094e625d2afcaf4d61049a5c69fca55d3a347a"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_PH-SpanishPhilippines.dic"
     },
     {
       "path": "Contents/Resources/es_PR-SpanishPuertoRico.dic.zip",
-      "bytes": 225360,
       "sha256": "e7c863c69e30d3aebf62480f1b2f7d262ad1aa73901f359441a0f850bee3001f",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_PR-SpanishPuertoRico.aff",
@@ -2393,13 +2292,13 @@
           "sha256": "16978777263ba5f85277915134a66c186ce9717662c303f797a7a1d8b1eb2e9f"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_PR-SpanishPuertoRico.dic"
     },
     {
       "path": "Contents/Resources/es_PY-SpanishParaguay.dic.zip",
-      "bytes": 225528,
       "sha256": "839687bee22c6d5508e4fb900b37a0b46a40a8fc8029fe6a1537d64a4fa77a58",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_PY-SpanishParaguay.aff",
@@ -2410,13 +2309,13 @@
           "sha256": "322a7b7ba862f8f4d76d222f657b067a9f6679c6a6a91014afddd2383ae4f16b"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_PY-SpanishParaguay.dic"
     },
     {
       "path": "Contents/Resources/es_SV-SpanishElSalvador.dic.zip",
-      "bytes": 225699,
       "sha256": "ca74daddc666041a351e292e98f3d88e876cd36941ffeea6d16a101494c9382d",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_SV-SpanishElSalvador.aff",
@@ -2427,13 +2326,13 @@
           "sha256": "8ee31559042a1a12a13922b2fbb86dfa558d74e7b22470f8e4ce1227127997ae"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_SV-SpanishElSalvador.dic"
     },
     {
       "path": "Contents/Resources/es_US-SpanishUnitedStates.dic.zip",
-      "bytes": 225345,
       "sha256": "1f1f2b3473e247ac9deb1dda5802afd2d6ef7827920434a48f082d3dd5be7ac0",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_US-SpanishUnitedStates.aff",
@@ -2444,13 +2343,13 @@
           "sha256": "de4a2cdb7880b6545a2db72532fdece49d8c831895d450ac82df4a68a208bc5f"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_US-SpanishUnitedStates.dic"
     },
     {
       "path": "Contents/Resources/es_UY-SpanishUruguay.dic.zip",
-      "bytes": 226055,
       "sha256": "068aaa3b2c05fe95ab9df82a91f9a986a99139d8fab09e9a76cec830ae5bb8cc",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_UY-SpanishUruguay.aff",
@@ -2461,13 +2360,13 @@
           "sha256": "4a6287d1affd717b068167496b66f5140fc1f8c59f5f1cb89c15ae030683a677"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_UY-SpanishUruguay.dic"
     },
     {
       "path": "Contents/Resources/es_VE-SpanishVenezuela.dic.zip",
-      "bytes": 227170,
       "sha256": "d795ba927b1d6361f5bf272f3d6317265877401559b4011db876fe03998d68d7",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "es_VE-SpanishVenezuela.aff",
@@ -2478,13 +2377,13 @@
           "sha256": "dfca3e8fd5033af54a96e3beda4ec0f0408f0851fa3acbf9923f16c52b91919d"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-1.1)",
+      "provenanceRecord": "es_VE-SpanishVenezuela.dic"
     },
     {
       "path": "Contents/Resources/et_ET-Estonian.dic.zip",
-      "bytes": 863365,
       "sha256": "3c9c352aa5eacbf72dbe2ea3a828004520cfb19425cb827b144b07a94c0ed922",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "et_ET-Estonian.aff",
@@ -2495,13 +2394,13 @@
           "sha256": "237ff31093ec03c7f992919b8e7c9a4d3df90cdef9859edab571ebff42c9f5e8"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "LGPL-2.1",
+      "provenanceRecord": "et_ET-Estonian.dic"
     },
     {
       "path": "Contents/Resources/eu_EU-Basque.dic.zip",
-      "bytes": 844477,
       "sha256": "fa5a6c4de347738daf145a75115ac3b352d810678b79e45b34e31a202f96cab7",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "eu_EU-Basque.aff",
@@ -2512,13 +2411,13 @@
           "sha256": "2f046ed070c11f9dc6f502577462bdc11a0966be50e0d9750823922a22d9e948"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-2.0",
+      "provenanceRecord": "eu_EU-Basque.dic"
     },
     {
       "path": "Contents/Resources/fa_FA-Persian.dic.zip",
-      "bytes": 360302,
       "sha256": "a3ad9a75ef202e1189befcc85d9cb90a9f10823da496796d8e126e4ce80df799",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "fa_FA-Persian.aff",
@@ -2529,13 +2428,13 @@
           "sha256": "314f31e059994f26e8016c834b14dfd10f74834b3f623a6040265b8f2a9dddab"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "Apache-2.0",
+      "provenanceRecord": "fa_FA-Persian.dic"
     },
     {
       "path": "Contents/Resources/fo_FO-Faroese.dic.zip",
-      "bytes": 579012,
       "sha256": "77bcbb4689e060e1e7fc92c2101019154039d7694a67dfa9f5045d2c204d4cf6",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "fo_FO-Faroese.aff",
@@ -2546,13 +2445,13 @@
           "sha256": "3b62983af6b5c093e2ec020ff35869cc3068167e7cc7f8cc9585456a6b1368db"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+      "provenanceRecord": "fo_FO-Faroese.dic"
     },
     {
       "path": "Contents/Resources/fr_FR.dic.zip",
-      "bytes": 316079,
       "sha256": "b3c1c2d619115b8e7d924fc74df7f2ce705bd453225e813c49dd182f3b193a06",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "fr_FR.aff",
@@ -2563,13 +2462,13 @@
           "sha256": "b988750ac2b3a139a8fb87940946b81a928b14d8eca28283b48727658c8e4f2f"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "in-tree-license-notice",
+      "license": "GPL-2.0-or-later OR LGPL-2.1-or-later OR MPL-1.1-or-later (in-tree README)",
+      "provenanceRecord": "fr_FR.dic"
     },
     {
       "path": "Contents/Resources/fur_FUR-Friulian.dic.zip",
-      "bytes": 120165,
       "sha256": "58a6e56ccf66cd0edbb523eb483828b655fbaddca24ff719c25765136bae5cf4",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "fur_FUR-Friulian.aff",
@@ -2580,13 +2479,13 @@
           "sha256": "f1ac6d1029915bc749c8b4f4d454a28c977992328c541bd362266b6fc630988f"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-2.0",
+      "provenanceRecord": "fur_FUR-Friulian.dic"
     },
     {
       "path": "Contents/Resources/fy_FY-WesternFrisian.dic.zip",
-      "bytes": 1727840,
       "sha256": "51a1fc939ef3a120876d25f4cfca3be766d41b38c487d9852a37170d4deb32ad",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "fy_FY-WesternFrisian.aff",
@@ -2597,13 +2496,13 @@
           "sha256": "5cc839a5dce2c0e54b2da7bb5a66d4c59b980438c7964b11e1c8b834f322b7f9"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-3.0",
+      "provenanceRecord": "fy_FY-WesternFrisian.dic"
     },
     {
       "path": "Contents/Resources/ga_GA-Irish.dic.zip",
-      "bytes": 403665,
       "sha256": "372c897d365d32ad0b9f367390de019cb30c6a81f34979981497ae8d83b87c61",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ga_GA-Irish.aff",
@@ -2614,13 +2513,13 @@
           "sha256": "3ca59ca30da8875020f83697d9f817d44b4efa02d78fe9fb52a2c5a86527349d"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-2.0",
+      "provenanceRecord": "ga_GA-Irish.dic"
     },
     {
       "path": "Contents/Resources/gd_GD-Gaelic.dic.zip",
-      "bytes": 1007241,
       "sha256": "26f9cc9a78ab2997fb07570ce00a8e954495b29a1b60c41b1b900cd529b3d43c",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "gd_GD-Gaelic.aff",
@@ -2631,13 +2530,13 @@
           "sha256": "cf134101bafb03147685949bf9acf031c9e3ec56993d1b695aa4fbfe331d9181"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-3.0",
+      "provenanceRecord": "gd_GD-Gaelic.dic"
     },
     {
       "path": "Contents/Resources/gl_GL-Galician.dic.zip",
-      "bytes": 1776046,
       "sha256": "df99d51f3046d6fc9b910d0120229d9dc67d8efb5d894802e5c4d133b46019f2",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "gl_GL-Galician.aff",
@@ -2648,13 +2547,13 @@
           "sha256": "ca5f8d735a13225c1dabab042ddac8c58fd5e820ffba807ba8024d0fa0a68170"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-3.0",
+      "provenanceRecord": "gl_GL-Galician.dic"
     },
     {
       "path": "Contents/Resources/he_HE-Hebrew.dic.zip",
-      "bytes": 877776,
       "sha256": "0c899f73cb0285e0359de58f1d6502c895fba87e72d325b4f0d6a8af183d94d0",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "he_HE-Hebrew.aff",
@@ -2665,13 +2564,13 @@
           "sha256": "9bd95042a927e13ab422231e355caa8a7018456e7c49b889f2e6c62ddb5a0552"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "AGPL-3.0",
+      "provenanceRecord": "he_HE-Hebrew.dic"
     },
     {
       "path": "Contents/Resources/hr_HR-Croatian.dic.zip",
-      "bytes": 225006,
       "sha256": "23ac3cf96e7aed176cb9f73c827f2317c069244ae73c959575421332a136616c",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "hr_HR-Croatian.aff",
@@ -2682,13 +2581,13 @@
           "sha256": "dad20d613174815f5d553d6ccdc106d026ee06c4eff68a23b8d5c37571639871"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(LGPL-2.1 OR SISSL)",
+      "provenanceRecord": "hr_HR-Croatian.dic"
     },
     {
       "path": "Contents/Resources/hu_HU.dic.zip",
-      "bytes": 727079,
       "sha256": "bdfc02af02b2eae8ef7c84d93210ee6ce02eb28400c9b098bed6667337245191",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "hu_HU.aff",
@@ -2699,13 +2598,13 @@
           "sha256": "499e0bb7cb98815e646a69908ac1ea96c900ff2ff40e7dfa9a47e9653df0a497"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "in-tree-license-notice",
+      "license": "GPL-2.0-or-later OR LGPL-2.1-or-later OR MPL-1.1 (in-tree README)",
+      "provenanceRecord": "hu_HU.dic"
     },
     {
       "path": "Contents/Resources/hy_HY-Armenian.dic.zip",
-      "bytes": 305681,
       "sha256": "c520eec1c3d1f33e7c73dec5e84e61af7da9333240bd0a5f392c1fb56e038fa0",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "hy_HY-Armenian.aff",
@@ -2716,13 +2615,13 @@
           "sha256": "53530792b4937e4b8cd387e28ff45884e42742c8218d8ba4510804efcfb81084"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+      "provenanceRecord": "hy_HY-Armenian.dic"
     },
     {
       "path": "Contents/Resources/hyw_HYW-WesternArmenian.dic.zip",
-      "bytes": 313052,
       "sha256": "8a6c2b03a71007a3584d85db32d375f28033daf3e314dd47fa1002974a2181f8",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "hyw_HYW-WesternArmenian.aff",
@@ -2733,13 +2632,13 @@
           "sha256": "ecfbc8af694532bfb2a40654608d8e0d6cad0b55520543d84c97d2ae8b710694"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+      "provenanceRecord": "hyw_HYW-WesternArmenian.dic"
     },
     {
       "path": "Contents/Resources/ia_IA-Interlingua.dic.zip",
-      "bytes": 212922,
       "sha256": "aeb07f986b350285cd6e9717081110d079ac0a5db142093e0f97141c5454a4a5",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ia_IA-Interlingua.aff",
@@ -2750,13 +2649,13 @@
           "sha256": "22ee44726f058c904541b83db9bc3f4652e51186188fadd475619e3a596ada47"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-3.0",
+      "provenanceRecord": "ia_IA-Interlingua.dic"
     },
     {
       "path": "Contents/Resources/ie_IE-Interlingue.dic.zip",
-      "bytes": 91959,
       "sha256": "153e6ce1c36985a4553499553aa0e7ca0adb303138833f86cd938b5fc3c62253",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ie_IE-Interlingue.aff",
@@ -2767,13 +2666,13 @@
           "sha256": "b406301278a04f89764c0fbc0d9ae4cd6de511c43a3a9ca2351eb32403eca88d"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "Apache-2.0",
+      "provenanceRecord": "ie_IE-Interlingue.dic"
     },
     {
       "path": "Contents/Resources/is_IS-Icelandic.dic.zip",
-      "bytes": 688790,
       "sha256": "d3c9176e1a92cffd4faad41bf04f5f35b7449efeb866f701a8964df691ad20f0",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "is_IS-Icelandic.aff",
@@ -2784,13 +2683,13 @@
           "sha256": "8447594fd7eb1d6d43725c4ca49b00d3f00c4c4f3ac2f2b6dfe3f56eb211d280"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "CC-BY-SA-3.0",
+      "provenanceRecord": "is_IS-Icelandic.dic"
     },
     {
       "path": "Contents/Resources/it_IT.dic.zip",
-      "bytes": 358122,
       "sha256": "2b0aab412aa754ddbfd64da6c66310e1d0307311e71ea0734f73b54091c05bff",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "it_IT.aff",
@@ -2801,13 +2700,13 @@
           "sha256": "0e11513d21973cabc62b226e920227dbed9413d38f87d28ebba8c69cd6b72312"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "in-tree-license-notice",
+      "license": "GPL-3.0-only (explicit affix header)",
+      "provenanceRecord": "it_IT.dic"
     },
     {
       "path": "Contents/Resources/ka_KA-Georgian.dic.zip",
-      "bytes": 554153,
       "sha256": "a114739204a5fa45b156bb98e102ed77e0f9b5c2bc255764da335378d3370467",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ka_KA-Georgian.aff",
@@ -2818,13 +2717,13 @@
           "sha256": "5963f268e996f1e27e17163873b4d32f41fae2a1e5bef0117126caefe62f5857"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "MIT",
+      "provenanceRecord": "ka_KA-Georgian.dic"
     },
     {
       "path": "Contents/Resources/ko_KO-Korean.dic.zip",
-      "bytes": 877777,
       "sha256": "f43e03d409250fbe3779a8347d4b9c41265d40d0fd83e56ef1b93ea040816068",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ko_KO-Korean.aff",
@@ -2835,13 +2734,13 @@
           "sha256": "dcc90cbc9ffaded58f74b6f29266da6f0d724b9f8059de43a9f449bc4c139570"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+      "provenanceRecord": "ko_KO-Korean.dic"
     },
     {
       "path": "Contents/Resources/la_LA-Latin.dic.zip",
-      "bytes": 501435,
       "sha256": "1deb56027140d755d31626300f866e029ade5a1926513bfa14a100ecef30fb83",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "la_LA-Latin.aff",
@@ -2852,13 +2751,13 @@
           "sha256": "8e0910e623800110cf9cc70b6adaea813857d02916b7c9a7dd9d9e9dd72a98ef"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-2.0",
+      "provenanceRecord": "la_LA-Latin.dic"
     },
     {
       "path": "Contents/Resources/lb_LB-Luxembourgish.dic.zip",
-      "bytes": 588101,
       "sha256": "89127c97adbc016c1874953517dc24fc9b86aef239174ccb86384ddc1ad33176",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "lb_LB-Luxembourgish.aff",
@@ -2869,13 +2768,13 @@
           "sha256": "117744e5fabce1575ef5d290f31ce51859c02f2097f916a29f3a07b23cf7e4c8"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "EUPL-1.1",
+      "provenanceRecord": "lb_LB-Luxembourgish.dic"
     },
     {
       "path": "Contents/Resources/lt_LT-Lithuanian.dic.zip",
-      "bytes": 325453,
       "sha256": "4aa3bb9c1741ee565ebd19d3769d915c4867d09510d7070ab6c5b57e33e86500",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "lt_LT-Lithuanian.aff",
@@ -2886,13 +2785,13 @@
           "sha256": "3c3d651a9f2a0505dbceff152d1f073117b9994a572fbdb8c8aa4409baf2152a"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "BSD-3-Clause",
+      "provenanceRecord": "lt_LT-Lithuanian.dic"
     },
     {
       "path": "Contents/Resources/ltg_LTG-Latgalian.dic.zip",
-      "bytes": 72917,
       "sha256": "01c091deea00914176168d1b8d335f0299a8b578df95f161f60b33ae8b215739",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ltg_LTG-Latgalian.aff",
@@ -2903,13 +2802,13 @@
           "sha256": "0f99a93abe86adfe8304967e9e3e8af45dc0d39ba734b42dd49243acf6f8e7fd"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "LGPL-2.1",
+      "provenanceRecord": "ltg_LTG-Latgalian.dic"
     },
     {
       "path": "Contents/Resources/lv_LV-Latvian.dic.zip",
-      "bytes": 354848,
       "sha256": "7e3d3b38c7ec9f38d06535f54262427b40e33e69311c85f0714e4725700a4200",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "lv_LV-Latvian.aff",
@@ -2920,13 +2819,13 @@
           "sha256": "7b1983d832ba8f85e7bee0d9dc3abc110d9a9976fc6da9d0bc2a9dcad9c36c51"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "LGPL-2.1",
+      "provenanceRecord": "lv_LV-Latvian.dic"
     },
     {
       "path": "Contents/Resources/mk_MK-Macedonian.dic.zip",
-      "bytes": 652503,
       "sha256": "c2adcd553dfd67e145814796ae50f5a1f1938392eac4ee675e3f670f0cc48893",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "mk_MK-Macedonian.aff",
@@ -2937,13 +2836,13 @@
           "sha256": "5008053d3b4e4be163c32b23a9d0551ae7aefceaa7d0760c07f2ebc10af7afb5"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-3.0",
+      "provenanceRecord": "mk_MK-Macedonian.dic"
     },
     {
       "path": "Contents/Resources/mn_MN-Mongolian.dic.zip",
-      "bytes": 1833360,
       "sha256": "9cd9b24ed56efbdc88d76ee020ea3e67b533f11e12f0d89cc3bcb76b740ce99d",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "mn_MN-Mongolian.aff",
@@ -2954,13 +2853,13 @@
           "sha256": "593a38d65e790eba032962c9e9ea2d53d4aeea919694bd14211bc695c460b304"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "explicit-payload-license",
+      "license": "LPPL-1.3-or-later",
+      "provenanceRecord": "mn_MN-Mongolian.dic"
     },
     {
       "path": "Contents/Resources/nb_NB-NorwegianBokmal.dic.zip",
-      "bytes": 1390633,
       "sha256": "7187fb02314b7961c5a7a85afe105c3ac57a1a56e74dd6b34299851bc6a61367",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "nb_NB-NorwegianBokmal.aff",
@@ -2971,13 +2870,13 @@
           "sha256": "e97fdf7f441b3c46e1d0761a8ad25fa1883d0977d70ea8cb04751cb1c47fa10e"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-2.0",
+      "provenanceRecord": "nb_NB-NorwegianBokmal.dic"
     },
     {
       "path": "Contents/Resources/nds_NDS-LowGerman.dic.zip",
-      "bytes": 43796,
       "sha256": "89679a3b6743909d7c3edd7976766a3ef840bb51578eb089776e6ac5a0dccb26",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "nds_NDS-LowGerman.aff",
@@ -2988,13 +2887,13 @@
           "sha256": "d8c380bed2182b1ac36bcef33a9391d9d77232045aaf43b59fe1cb492f378a95"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-3.0",
+      "provenanceRecord": "nds_NDS-LowGerman.dic"
     },
     {
       "path": "Contents/Resources/ne_NE-Nepali.dic.zip",
-      "bytes": 171902,
       "sha256": "8101335ddf52d55a886d299e0248a02dee8c6d51cce269a7377e8e2926e781d4",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ne_NE-Nepali.aff",
@@ -3005,13 +2904,13 @@
           "sha256": "76c5dbcae6af15ca474213d6e67585e5247304edaa13cc5ee326dfcaf4918f88"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "LGPL-2.1",
+      "provenanceRecord": "ne_NE-Nepali.dic"
     },
     {
       "path": "Contents/Resources/nl_NL-Dutch.dic.zip",
-      "bytes": 803443,
       "sha256": "a871695e916b2feb478f27d2e698362707c38bf0620b5e35695c42ad21ac3d45",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "nl_NL-Dutch.aff",
@@ -3022,13 +2921,13 @@
           "sha256": "2c2a0ff6461ab1bd9620b9422dc9368c15dc45d1a50973671b19516a1afcf5f8"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(BSD-3-Clause OR CC-BY-3.0)",
+      "provenanceRecord": "nl_NL-Dutch.dic"
     },
     {
       "path": "Contents/Resources/nn_NN-NorwegianNynorsk.dic.zip",
-      "bytes": 917827,
       "sha256": "799b12a088df60fbc45f62d3a3bcec3a37f7f00df238c02575f9671a207b6bd5",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "nn_NN-NorwegianNynorsk.aff",
@@ -3039,13 +2938,13 @@
           "sha256": "eaf1dc7ee7c848358df9aa231640b054ca4e388f2a870185528e4b229626faa6"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-2.0",
+      "provenanceRecord": "nn_NN-NorwegianNynorsk.dic"
     },
     {
       "path": "Contents/Resources/pl_PL-Polish.dic.zip",
-      "bytes": 1137419,
       "sha256": "e9d643212ee634838cd30e9084bfcd80cbb779e1690d7d234411f9f794b10beb",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "pl_PL-Polish.aff",
@@ -3056,13 +2955,13 @@
           "sha256": "74b6155391025419967c26913541b55b36d58e80b1028037d4a0b8ddcb18d0b7"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-3.0 OR MPL-2.0)",
+      "provenanceRecord": "pl_PL-Polish.dic"
     },
     {
       "path": "Contents/Resources/pt_BR.dic.zip",
-      "bytes": 1337519,
       "sha256": "eea88217ba4e3144ea98e31a71e31c195a343ec78bef86203312e05ee132d294",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "pt_BR.aff",
@@ -3073,13 +2972,13 @@
           "sha256": "bc9410b115fb717773585658dc14c0d98d0933db87ae175c160c2321f4a9c273"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "in-tree-license-notice",
+      "license": "LGPL-2.1-only (explicit affix header and README)",
+      "provenanceRecord": "pt_BR.dic"
     },
     {
       "path": "Contents/Resources/pt_PT-Portuguese.dic.zip",
-      "bytes": 1381887,
       "sha256": "38a07dcc1f3db9c8214a55f466205e016611b56848706578a46bc89504e16190",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "pt_PT-Portuguese.aff",
@@ -3090,13 +2989,13 @@
           "sha256": "3d4100daed9e2a8108d1620129a9cd03a31585d5b4f14f2eecc18c8a767713fc"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(LGPL-3.0 OR MPL-2.0)",
+      "provenanceRecord": "pt_PT-Portuguese.dic"
     },
     {
       "path": "Contents/Resources/pt_PT2-PortuguesePortugal.dic.zip",
-      "bytes": 234537,
       "sha256": "102cf3d310a3ae5ece04e54b393d253d0e815d4439bd8f4cb2df58847f31d145",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "pt_PT2-PortuguesePortugal.aff",
@@ -3107,13 +3006,13 @@
           "sha256": "e43c67b439ede72ed5fe33acbd4413e0a1320af7a94728a331db84e27122228e"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+      "provenanceRecord": "pt_PT2-PortuguesePortugal.dic"
     },
     {
       "path": "Contents/Resources/ro_RO-Romanian.dic.zip",
-      "bytes": 594631,
       "sha256": "799e5c5349c4daebc78750681169442ff6275d7cf980435b66facef8277bdf12",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ro_RO-Romanian.aff",
@@ -3124,13 +3023,13 @@
           "sha256": "c26a9356f598a0ae89e7be650f6bdd9ba70acce66b41d7ab14c0c68639b6ed33"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+      "provenanceRecord": "ro_RO-Romanian.dic"
     },
     {
       "path": "Contents/Resources/ru_RU-Russian.dic.zip",
-      "bytes": 770010,
       "sha256": "8868da215c8c56790d7b4da9376972e24ae9359f3a1168ffeb8c58c3b5ec7bb7",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ru_RU-Russian.aff",
@@ -3141,13 +3040,13 @@
           "sha256": "754bedd3b21ce2edecade002cfa6ffaf7493d6e93ccdc6282e71bd4bf6247f35"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "LGPL-3.0",
+      "provenanceRecord": "ru_RU-Russian.dic"
     },
     {
       "path": "Contents/Resources/sk_SK-Slovak.dic.zip",
-      "bytes": 865478,
       "sha256": "3679585f350be70e3e84f45b7f02fa7f076e5ffa8f2df9fef4b70e2ace734848",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "sk_SK-Slovak.aff",
@@ -3158,13 +3057,13 @@
           "sha256": "b6cdb6fb512c44881cc91329aea0b179840f5f9a3e6cb024c2ab8547f96f5d94"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+      "provenanceRecord": "sk_SK-Slovak.dic"
     },
     {
       "path": "Contents/Resources/sl_SL-Slovenian.dic.zip",
-      "bytes": 1193652,
       "sha256": "7e32a667f8f76415e289a3aaa2b0153ed27d393b7248e1ac2b61a8fc43681bce",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "sl_SL-Slovenian.aff",
@@ -3175,13 +3074,13 @@
           "sha256": "5bac615dbd301ddbefbdaafdae242a89e46605916d77958df22778e770a95b9e"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-3.0 OR LGPL-2.1)",
+      "provenanceRecord": "sl_SL-Slovenian.dic"
     },
     {
       "path": "Contents/Resources/sr_LATN-SerbianLatin.dic.zip",
-      "bytes": 655038,
       "sha256": "58290dcddd0a792f5515a6ad464e011b920de275bfe08a06d74dd301952c5946",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "sr_LATN-SerbianLatin.aff",
@@ -3192,13 +3091,13 @@
           "sha256": "a41302b3e707c7a344560bc7df6db739db254f87be0442108a68f4ed2a34782d"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1 OR CC-BY-SA-3.0)",
+      "provenanceRecord": "sr_LATN-SerbianLatin.dic"
     },
     {
       "path": "Contents/Resources/sr_SR-Serbian.dic.zip",
-      "bytes": 778541,
       "sha256": "0cc943c109af81f034ee97c0b910043c7d648d117a20543f210510c2c1d0ec97",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "sr_SR-Serbian.aff",
@@ -3209,13 +3108,13 @@
           "sha256": "8bdbbe464f20a5a600ccad1ff0257883c42bb6170a55440d45b4b39e002f433a"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1 OR CC-BY-SA-3.0)",
+      "provenanceRecord": "sr_SR-Serbian.dic"
     },
     {
       "path": "Contents/Resources/sv_FI-SwedishFinland.dic.zip",
-      "bytes": 731639,
       "sha256": "03a3ee3a1e306f7a220f1177c0501e0f2b656bf3cdd19d94214267550797484d",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "sv_FI-SwedishFinland.aff",
@@ -3226,13 +3125,13 @@
           "sha256": "62874b2ca0080ae663c5e241940097161bb277e5b99bbc40f2cdda1548b38eaa"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "LGPL-3.0",
+      "provenanceRecord": "sv_FI-SwedishFinland.dic"
     },
     {
       "path": "Contents/Resources/sv_SV-Swedish.dic.zip",
-      "bytes": 733316,
       "sha256": "0497a57a0a6d9a9f1e64564b4c9a063284c8b6801336fd9c7b78df5108de0be3",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "sv_SV-Swedish.aff",
@@ -3243,65 +3142,65 @@
           "sha256": "540ff8d0d9b05aae66dd919625d3a0bd25026d1e157027e6602e5dd11a07b645"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "LGPL-3.0",
+      "provenanceRecord": "sv_SV-Swedish.dic"
     },
     {
       "path": "Contents/Resources/th_de_DE_v2.dat.zip",
-      "bytes": 7141315,
       "sha256": "1baf782938e9afac3588e727d9621d7ae6ed717cdb22abe505f93f7f2ac52f5c",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "th_de_DE_v2.dat",
           "sha256": "cae18340c59738350b8abe7d7822edb76a8f26d177c3f7cdc68fb0187ca25693"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-payload",
+      "license": "See collected upstream notices",
+      "provenanceRecord": "th_de_DE_v2.dat"
     },
     {
       "path": "Contents/Resources/th_en_US_v2.dat.zip",
-      "bytes": 4018229,
       "sha256": "fea31ce3bb8b8a16c1c00718c072914bb6c1ba27f1e95a160ca5fc387875d97a",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "th_en_US_v2.dat",
           "sha256": "8a3e4637450b7277428da248f0a604b5c92942bc30507220c051181462340f39"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-payload",
+      "license": "See collected upstream notices",
+      "provenanceRecord": "th_en_US_v2.dat"
     },
     {
       "path": "Contents/Resources/th_fr_FR_v2.dat.zip",
-      "bytes": 1613541,
       "sha256": "dc9e7561729c48add75a6d39241ecfc75a49f2e05046f0ed5a959cece029e840",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "th_fr_FR_v2.dat",
           "sha256": "a28216ddcf499f377979ec1d876472a53527a6450744cd1219b4d04a3c854318"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-payload",
+      "license": "See collected upstream notices",
+      "provenanceRecord": "th_fr_FR_v2.dat"
     },
     {
       "path": "Contents/Resources/th_it_IT_v2.dat.zip",
-      "bytes": 697074,
       "sha256": "329ff809a6138eda58d5db1f36aec4dd18c91cccf0957071015aa6637925fed3",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "th_it_IT_v2.dat",
           "sha256": "17fa1b397088df564c38eb55f3cf6413bed1760bdd316f81eb398f3446812717"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-payload",
+      "license": "See collected upstream notices",
+      "provenanceRecord": "th_it_IT_v2.dat"
     },
     {
       "path": "Contents/Resources/tk_TK-Turkmen.dic.zip",
-      "bytes": 288366,
       "sha256": "aee3107664994343f477567d29d5b3278b171bffaff85f32d549d87374c1a8e7",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "tk_TK-Turkmen.aff",
@@ -3312,13 +3211,13 @@
           "sha256": "4c75d6e1c9f4e4780bd1a00828b37b8826232db4b204a96b30b841f94d2a0b81"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "Apache-2.0",
+      "provenanceRecord": "tk_TK-Turkmen.dic"
     },
     {
       "path": "Contents/Resources/tlh_LATN-KlingonLatin.dic.zip",
-      "bytes": 15075,
       "sha256": "85aedc7fe96ff4dc2a469f760952b43784d4a4ba833607b1d4ea649f52e1a8fd",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "tlh_LATN-KlingonLatin.aff",
@@ -3329,13 +3228,13 @@
           "sha256": "250ad66287d1202421296b7b582a4eaf5b291b6c3da3afff7520299551e2fd1b"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "Apache-2.0",
+      "provenanceRecord": "tlh_LATN-KlingonLatin.dic"
     },
     {
       "path": "Contents/Resources/tlh_TLH-Klingon.dic.zip",
-      "bytes": 17555,
       "sha256": "35cb31b456d91a2ac74e4eed7f726d1afe9823bdf7dad6bcc80cac5b07ee620c",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "tlh_TLH-Klingon.aff",
@@ -3346,13 +3245,13 @@
           "sha256": "7d7d4f1477cf445fabdb50eca7690bb8f6da0b1a221d01bdffac25fc710c4550"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "Apache-2.0",
+      "provenanceRecord": "tlh_TLH-Klingon.dic"
     },
     {
       "path": "Contents/Resources/tr_TR-Turkish.dic.zip",
-      "bytes": 2285293,
       "sha256": "d034150619353b5f66238a4d791fafe89197963bcaeb8db5b9b3caf59f3e0c30",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "tr_TR-Turkish.aff",
@@ -3363,13 +3262,13 @@
           "sha256": "dc1d8f7724f4aefd117274678de431e4ea1765f2e02e6983b6ca48cbf5a7fc7c"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "MIT",
+      "provenanceRecord": "tr_TR-Turkish.dic"
     },
     {
       "path": "Contents/Resources/ug_CN-China.dic.zip",
-      "bytes": 1966129,
       "sha256": "ab89d81d407046c534631c92d45c8a7256a2bbd911ea70ee85bf391795ea4921",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "ug_CN-China.aff",
@@ -3380,13 +3279,13 @@
           "sha256": "901ae08baef8cd5b3827f412f74b8a5ef83006a01c3f2e6ef13a6dd5ed77c21a"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "repository-contribution-license",
+      "license": "GPL-3.0-only (TeXstudio repository contribution)",
+      "provenanceRecord": "ug_CN-China.dic"
     },
     {
       "path": "Contents/Resources/uk_UK-Ukrainian.dic.zip",
-      "bytes": 1400564,
       "sha256": "38955df449b23da49565d14f0c798e01669bc7c1993eb5dd1e6963ff74e6bc5d",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "uk_UK-Ukrainian.aff",
@@ -3397,13 +3296,13 @@
           "sha256": "680b904950feb431436f8fbe0ed7360bc200725fdd9386e8c76c0d57b3e4e9b5"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-3.0",
+      "provenanceRecord": "uk_UK-Ukrainian.dic"
     },
     {
       "path": "Contents/Resources/vi_VI-Vietnamese.dic.zip",
-      "bytes": 16783,
       "sha256": "d39465eb5310a3ef98d70e83132e2701d639285ce2ff0135a78b0c5afe3c27ed",
-      "category": "dictionary/thesaurus",
       "members": [
         {
           "name": "vi_VI-Vietnamese.aff",
@@ -3414,20 +3313,23 @@
           "sha256": "9c56725b43e66de33d28aac8e58124e38247c8b2be34a8469b3113169110256c"
         }
       ],
-      "licenseStatus": "Per-file provenance/license reconciliation required; see dictionary READMEs"
+      "licenseStatus": "exact-pair",
+      "license": "GPL-2.0",
+      "provenanceRecord": "vi_VI-Vietnamese.dic"
     }
   ],
   "embeddedResourceInputCount": 8343,
-  "otherResourceFileCount": 866,
+  "otherResourceFileCount": 1693,
   "fullInventoryPath": ".native-sources/license-inventory/inventory.json",
   "bundledInventoryPath": "Contents/Resources/licenses/inventory.json",
   "staticRendererSnapshot": "native/license-static-components.json",
   "additionalValidation": {
-    "fontPayloads": "All 15 retained font symbols mapped through Mach-O segment offsets to byte-identical pinned-source font payloads",
-    "nativeToolTests": 40,
+    "nativeToolTests": 51,
+    "signatureAndBundledDependencies": "passed after final notice refresh",
+    "localNoticeLinks": "all local links exist",
     "packagedVerification": {
       "passed": true,
-      "app": "/Users/dominik/GitHub/texstudio/.native-sources/app-updates/next/TeXstudio Espresso.app",
+      "app": "/Users/dominik/GitHub/texstudio/.native-sources/app-updates/current/TeXstudio Espresso.app",
       "platform": "offscreen",
       "tests": "^texpresso-(rendering|diagnostics|scrolling|links)$",
       "engineRevision": "90b211349960b406267b44642c7be49b584d1f4c",
@@ -3456,32 +3358,41 @@
     },
     "editorSmoke": {
       "passed": true,
-      "appSha256": "f6dacf51f111f02931319d479b776a4b78d7967a9f03653833d5ace72e5e0bfa",
+      "appSha256": "4504517e66ee5e2d6fc3ce7580b57a5aaa068a8f96444f6aa415ca31ea0127b5",
       "targetPages": 30,
       "platform": "offscreen",
       "inputs": 128,
-      "elapsedSeconds": 35.755545458057895,
-      "peakEditorFootprintKiB": 106306,
+      "elapsedSeconds": 41.19625141599681,
+      "peakEditorFootprintKiB": 110546,
       "leftoverProcesses": [],
-      "independentPdfSynctexProbes": 5,
-      "scope": "Short startup/edit/project-switch smoke test; no long-session or latency claim"
-    }
+      "independentPdfSynctexProbes": 5
+    },
+    "bundledPdfAndQtTranslationProbe": {
+      "passed": true,
+      "scope": "Bundled Poppler: example PDF page count, text and raster; current German Qt translation",
+      "platform": "offscreen"
+    },
+    "popplerData": {
+      "matchedPayloadFiles": 263,
+      "sourceSha256": "c835b640a40ce357e1b83666aabd95edffa24ddddd49b8daff63adb851cdab74",
+      "mismatches": []
+    },
+    "fontPayloads": "15 retained source fonts match actual frontend bytes; 26 static LCMS2 object members verified",
+    "sourceRestore": "Offline extraction and local Git snapshots passed native build.py --check; not a complete dependency rebuild",
+    "scope": "Functional/package smoke checks, not a new long-session performance or latency measurement"
+  },
+  "sourceArchive": {
+    "path": ".native-sources/releases/texstudio-espresso-macos-arm64-sources.zip",
+    "bytes": 572218462,
+    "sha256": "2cdbaa7a796504b72629acc4008e05cd4da19950789b6ebdf055696c94f7ca56",
+    "archivesAndGitSnapshots": 45,
+    "editorRevision": "20e654063352540df36f21926e20231bde5fa02f",
+    "engineRevision": "90b211349960b406267b44642c7be49b584d1f4c"
   },
   "releaseWorkRemaining": [
-    "qtbase-6.12.0_1: installed package has no collected license/attribution text",
-    "qt5compat-6.12.0_1: installed package has no collected license/attribution text",
-    "qtdeclarative-6.12.0_1: installed package has no collected license/attribution text",
-    "qtsvg-6.12.0_1: installed package has no collected license/attribution text",
-    "qttools-6.12.0_1: installed package has no collected license/attribution text",
-    "qtimageformats-6.12.0: installed package has no collected license/attribution text",
-    "Contents/Frameworks/libpoppler-cpp.3.dylib: source matched, but no package receipt",
-    "Contents/Frameworks/libpoppler-qt6.3.dylib: source matched, but no package receipt",
-    "Contents/Frameworks/libpoppler.165.dylib: source matched, but no package receipt",
-    "Dictionaries/thesauri: reconcile each exact payload with its upstream license and copyright notice; generic URL is insufficient evidence",
-    "Qt: retained SPDX documents include build tools/unshipped targets; only binaries[].qt selects shipped targets. Collect full standard license texts and applicable third-party attributions from matching Qt sources",
-    "Static MuPDF: reconcile archive members and font data with final linker retention; engine MIT and MuPDF AGPL notices alone are incomplete",
-    "Publish complete corresponding source matching editor, engine, dependency binaries, data, patches and build scripts; verify submodule commits are publicly accessible",
-    "Artwork, generated symbols, templates, bundled documentation and translations: preserve upstream attribution and reconcile file-level exceptions before release"
+    "Publish complete corresponding source matching editor, engine, dependency binaries, data, patches and build scripts alongside the binary; source archives include recursive submodule contents"
   ],
-  "stagedAppPath": ".native-sources/app-updates/current/TeXstudio Espresso.app"
+  "stagedAppPath": ".native-sources/app-updates/current/TeXstudio Espresso.app",
+  "installation": "Installed application untouched; candidate ad-hoc signed, not notarized or published",
+  "evidencePath": "/tmp/texstudio-licensing-complete-evidence"
 }
