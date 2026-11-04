@@ -7,7 +7,7 @@ from pathlib import Path
 from common import pinned_engine, sha256
 
 
-def validate(bundle, revision, system, architecture):
+def validate(bundle, revision, system, architecture, windows_wsl=False):
     bundle = bundle.resolve()
     manifest = json.loads((bundle / 'build-manifest.json').read_text())
     if manifest.get('engineRevision') != revision:
@@ -38,8 +38,13 @@ def validate(bundle, revision, system, architecture):
             for path in libraries.iterdir():
                 if path.name.startswith(('libmupdf', 'libtesseract', 'libleptonica', 'libmujs', 'libgumbo')):
                     raise ValueError('macOS requires the compact static MuPDF build; unexpected library: ' + path.name)
-    for name in ('bin/texpresso', 'bin/texpresso-xetex'):
-        if name not in names or not (bundle / name).stat().st_mode & 0o111:
+    executables = ['bin/texpresso', 'bin/texpresso-xetex']
+    if windows_wsl:
+        if system != 'linux':
+            raise ValueError('Windows/WSL requires a Linux bundle')
+        executables.append('bin/texpresso-wsl')
+    for name in executables:
+        if name not in names or (not windows_wsl and not (bundle / name).stat().st_mode & 0o111):
             raise ValueError('Missing executable in bundle: ' + name)
     if not (bundle / 'notices').is_dir():
         raise ValueError('Bundle dependency notices are missing')
@@ -51,7 +56,8 @@ if __name__ == '__main__':
     parser.add_argument('bundle', type=Path)
     parser.add_argument('--platform', default=platform.system().lower())
     parser.add_argument('--architecture', default=platform.machine())
+    parser.add_argument('--windows-wsl', action='store_true', help='Validate Linux files for packaging on Windows; executable bits are not retained by NTFS')
     args = parser.parse_args()
     _, revision = pinned_engine()
-    validate(args.bundle, revision, args.platform, args.architecture)
+    validate(args.bundle, revision, args.platform, args.architecture, args.windows_wsl)
     print('Validated bundled TeXpresso ' + revision)

@@ -55,9 +55,12 @@ def main():
     run(['make', 'test-preview-png'], cwd=work)
     (destination / 'bin').mkdir(parents=True)
     (destination / 'lib').mkdir()
+    run(['gcc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror',
+         NATIVE / 'wsl/supervisor.c', '-o', destination / 'bin/texpresso-wsl'])
     notices = destination / 'notices'
     notices.mkdir()
     shutil.copyfile(engine / 'LICENSE', notices / 'texpresso-LICENSE')
+    shutil.copyfile(NATIVE.parent / 'COPYING', notices / 'texstudio-wsl-COPYING')
     shutil.copyfile(zng_notice, notices / 'zlib-ng-LICENSE')
     mapping = {}
     for name in ('texpresso', 'texpresso-xetex'):

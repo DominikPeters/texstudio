@@ -5,16 +5,23 @@
 #include <QJsonDocument>
 #include <QStandardPaths>
 #include <csignal>
+#ifndef Q_OS_WIN
 #include <unistd.h>
+#endif
+#include <QtConcurrent>
+#include <QSettings>
 #include <algorithm>
 
 TexpressoChild::TexpressoChild(QObject *parent) : QProcess(parent)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#ifdef Q_OS_WIN
+    setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments *args) { args->flags |= 0x08000000; });
+#endif
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && !defined(Q_OS_WIN)
     setChildProcessModifier([] { if (::setsid() < 0) ::_exit(127); });
 #endif
 }
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0) && !defined(Q_OS_WIN)
 void TexpressoChild::setupChildProcess() { if (::setsid() < 0) ::_exit(127); }
 #endif
 
@@ -69,17 +76,26 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
         const auto features = QJsonDocument::fromJson(probe.readAllStandardOutput()).object();
         if (status != QProcess::NormalExit || code || features["previewProtocol"].toInt() != 1
             || !features["codecs"].toArray().contains("png")) {
-            emit failed(tr("The bundled TeXpresso engine does not support PNG preview protocol 1.")); return;
+            emit failed(tr("The bundled TeXpresso engine does not support PNG preview protocol 1. %1").arg(QString::fromUtf8(probe.readAllStandardError()).trimmed())); return;
         }
-        child.setProgram(program);
+        child.setProgram(wsl.enabled ? QStringLiteral("wsl.exe") : program);
         QStringList arguments = {"-texlive", "-headless", "-json", "-lines"};
         if (features["parentWatch"].toBool()) arguments << "-watch-parent";
         if (features["maxPreviewPixels"].toInt() > 4000000)
             arguments << "-preview-max-pixels" << QString::number(std::min(features["maxPreviewPixels"].toInt(), previewPixelLimit));
-        for (const auto &directory : inclusionDirectories) arguments << "-I" << directory;
-        arguments << rootFile;
-        child.setArguments(arguments);
-        child.setWorkingDirectory(QFileInfo(rootFile).absolutePath());
+        for (const auto &directory : inclusionDirectories) arguments << "-I" << wsl.toEngine(directory);
+        arguments << wsl.toEngine(rootFile);
+        if (wsl.enabled) {
+            const auto engine = wsl.toEngine(program);
+            const auto supervisor = engine.left(engine.lastIndexOf('/') + 1) + "texpresso-wsl";
+            QStringList command = {"-c", TexpressoWsl::environmentScript(), "texstudio-wsl", supervisor,
+                                   wsl.toEngine(QFileInfo(rootFile).absolutePath()), "--", engine};
+            command << arguments;
+            child.setArguments(wsl.arguments("sh", command));
+        } else {
+            child.setArguments(arguments);
+            child.setWorkingDirectory(QFileInfo(rootFile).absolutePath());
+        }
         child.setProcessEnvironment(texliveEnvironment());
         connect(&child, &QProcess::started, this, [this, features] {
             processGroup = child.processId();
@@ -104,7 +120,13 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
         // Reap worker/checkpoint processes even when the frontend has exited.
         killGroup(); emit stopped();
     });
-    connect(&protocol, &TexpressoProtocol::message, this, &TexpressoProcess::message);
+    connect(&protocol, &TexpressoProtocol::message, this, [this](const QJsonArray &message) { emit this->message(wsl.incoming(message)); });
+    connect(&initialization, &QFutureWatcher<TexpressoWsl>::finished, this, [this] {
+        if (stopping) return;
+        wsl = initialization.result();
+        if (!wsl.error.isEmpty()) { emit failed(wsl.error); return; }
+        startProbe();
+    });
     connect(&protocol, &TexpressoProtocol::image, this, &TexpressoProcess::image);
     connect(&protocol, &TexpressoProtocol::failed, this, [this](const QString &reason) {
         if (!stopping) { emit failed(reason); stop(); }
@@ -115,12 +137,19 @@ TexpressoProcess::~TexpressoProcess()
 {
     stopping = true;
     probe.kill(); probe.waitForFinished(1000);
+    if (wsl.enabled) { child.closeWriteChannel(); child.waitForFinished(1000); }
     killGroup(); child.kill(); child.waitForFinished(1000);
 }
 void TexpressoProcess::start(const QString &engine, const QString &root, const QStringList &directories, int pixelLimit)
 {
     previewPixelLimit = std::clamp(pixelLimit, 1, int(TexpressoProtocol::maxPixels));
     program = engine; rootFile = root; inclusionDirectories = directories;
+#ifdef Q_OS_WIN
+    wsl.enabled = true;
+    wsl.distribution = qEnvironmentVariable("TEXPRESSO_WSL_DISTRIBUTION", QSettings().value("texpresso/wslDistribution").toString());
+    initialization.setFuture(QtConcurrent::run([copy = wsl, root]() mutable { copy.prepare(root); return copy; }));
+    return;
+#endif
     const auto env = texliveEnvironment();
     if (!QFileInfo(engine).isExecutable()) { emit failed(tr("The bundled TeXpresso engine is missing. Reinstall this application.")); return; }
     if (QStandardPaths::findExecutable("kpsewhich", env.value("PATH").split(QDir::listSeparator())).isEmpty()) {
@@ -128,22 +157,34 @@ void TexpressoProcess::start(const QString &engine, const QString &root, const Q
     }
     probe.setProcessEnvironment(env);
     // A newly installed signed executable may spend seconds in OS cold loading.
-    probe.start(engine, {"-capabilities"}); probeTimeout.start(10000);
+    startProbe();
+}
+void TexpressoProcess::startProbe()
+{
+    if (wsl.enabled) {
+        probe.start("wsl.exe", wsl.arguments("sh", {"-c", TexpressoWsl::environmentScript(), "texstudio-wsl", wsl.toEngine(program), "-capabilities"}));
+    } else probe.start(program, {"-capabilities"});
+    probeTimeout.start(wsl.enabled ? 30000 : 10000);
 }
 void TexpressoProcess::send(const QJsonArray &command)
 {
     if (!stopping && child.state() == QProcess::Running)
-        child.write(QJsonDocument(command).toJson(QJsonDocument::Compact) + '\n');
+        child.write(QJsonDocument(wsl.outgoing(command)).toJson(QJsonDocument::Compact) + '\n');
 }
 void TexpressoProcess::stop()
 {
     stopping = true; probeTimeout.stop(); probe.kill();
     child.closeWriteChannel();
+#ifndef Q_OS_WIN
     if (processGroup > 0) ::kill(-processGroup, SIGTERM);
+#endif
     shutdownTimer.start(750);
 }
 void TexpressoProcess::killGroup()
 {
     shutdownTimer.stop();
-    if (processGroup > 0) { ::kill(-processGroup, SIGKILL); processGroup = 0; }
+#ifndef Q_OS_WIN
+    if (processGroup > 0) ::kill(-processGroup, SIGKILL);
+#endif
+    processGroup = 0;
 }

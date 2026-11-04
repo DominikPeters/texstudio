@@ -3,12 +3,14 @@
 #include "texpressoprotocol.h"
 #include <QProcess>
 #include <QTimer>
+#include <QFutureWatcher>
+#include "texpressowsl.h"
 
 class TexpressoChild : public QProcess
 {
 public:
     explicit TexpressoChild(QObject *parent = nullptr);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0) && !defined(Q_OS_WIN)
 protected:
     void setupChildProcess() override;
 #endif
@@ -36,6 +38,9 @@ signals:
     void stopped();
 private:
     TexpressoChild child;
+    TexpressoWsl wsl;
+    QFutureWatcher<TexpressoWsl> initialization;
+    void startProbe();
     QProcess probe;
     TexpressoProtocol protocol;
     QTimer probeTimeout, shutdownTimer;

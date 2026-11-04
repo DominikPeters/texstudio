@@ -1,0 +1,140 @@
+name: Windows WSL live preview
+on:
+  push:
+    branches: [texpresso-windows-wsl]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: windows-wsl-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  engine:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build build-essential pkg-config patchelf \
+            libsdl2-dev libmupdf-dev libmujs-dev libfreetype-dev libgumbo-dev \
+            libjbig2dec0-dev libjpeg-dev libopenjp2-7-dev libfontconfig-dev \
+            libharfbuzz-dev libgraphite2-dev libicu-dev libpng-dev \
+            libleptonica-dev libtesseract-dev texlive-xetex texlive-latex-extra
+      - name: Read locked compressor
+        id: compressor
+        run: python3 -c 'import json,os; open(os.environ["GITHUB_OUTPUT"], "a").write("revision=" + json.load(open("native/dependencies.lock.json"))["zlibNg"]["revision"] + "\n")'
+      - uses: actions/checkout@v4
+        with:
+          repository: zlib-ng/zlib-ng
+          ref: ${{ steps.compressor.outputs.revision }}
+          path: .native-sources/zlib-ng
+          persist-credentials: false
+      - name: Build engine and test supervisor lifetime
+        run: |
+          python3 -m unittest discover -s native/tests -p test_wsl_supervisor.py
+          python3 native/scripts/build_linux.py --zlib-ng-source .native-sources/zlib-ng --jobs 2
+          python3 native/scripts/validate_bundle.py native/.bundles/linux-x86_64 --windows-wsl
+          tar -C native/.bundles/linux-x86_64 -czf engine-linux-x86_64.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-wsl-linux-engine
+          path: engine-linux-x86_64.tar.gz
+          retention-days: 3
+  windows:
+    needs: engine
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-wsl-linux-engine
+      - name: Install WSL Ubuntu for CI (application accepts any distribution)
+        shell: pwsh
+        run: |
+          wsl.exe --install --distribution Ubuntu-24.04 --no-launch
+          if ($LASTEXITCODE -ne 0) { throw 'WSL installation failed' }
+          wsl.exe --set-version Ubuntu-24.04 2
+          if ($LASTEXITCODE -ne 0) { throw 'WSL2 setup failed' }
+          wsl.exe --list --verbose
+          wsl.exe --distribution Ubuntu-24.04 --user root --exec sh -c 'grep -qi microsoft /proc/sys/kernel/osrelease && uname -r'
+          if ($LASTEXITCODE -ne 0) { throw 'WSL kernel preflight failed' }
+          wsl.exe --distribution Ubuntu-24.04 --user root --exec sh -c 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends texlive-xetex texlive-latex-extra texlive-bibtex-extra biber'
+          if ($LASTEXITCODE -ne 0) { throw 'Linux TeX Live setup failed' }
+          wsl.exe --set-default Ubuntu-24.04
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            git make zip mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-python mingw-w64-ucrt-x86_64-python-pillow
+            mingw-w64-ucrt-x86_64-qt6-base mingw-w64-ucrt-x86_64-qt6-declarative
+            mingw-w64-ucrt-x86_64-qt6-tools mingw-w64-ucrt-x86_64-qt6-svg
+            mingw-w64-ucrt-x86_64-qt6-translations mingw-w64-ucrt-x86_64-qt6-5compat
+            mingw-w64-ucrt-x86_64-quazip-qt6 mingw-w64-ucrt-x86_64-hunspell
+            mingw-w64-ucrt-x86_64-poppler mingw-w64-ucrt-x86_64-poppler-qt6
+            mingw-w64-ucrt-x86_64-python-mingw-ldd
+      - name: Build native Windows app and Qt integration test
+        shell: msys2 {0}
+        run: |
+          mkdir -p native/.bundles/linux-x86_64
+          tar -xzf engine-linux-x86_64.tar.gz -C native/.bundles/linux-x86_64
+          cmake -S . -B build-windows -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DTEXSTUDIO_ENABLE_TEXPRESSO=ON -DTEXSTUDIO_TEXPRESSO_TESTS=ON \
+            -DTEXPRESSO_BUNDLE_DIR="$PWD/native/.bundles/linux-x86_64"
+          cmake --build build-windows --target texstudio texpresso-wsl-tests texpresso_bundle -j3
+      - name: Exercise Windows client against actual WSL2 engine
+        shell: pwsh
+        env:
+          QT_QPA_PLATFORM: offscreen
+          TEXPRESSO_WSL_DISTRIBUTION: Ubuntu-24.04
+        run: |
+          $env:PATH = "C:\msys64\ucrt64\bin;" + $env:PATH
+          $env:TEXPRESSO_TEST_ENGINE = "$env:GITHUB_WORKSPACE\build-windows\texpresso-runtime\bin\texpresso"
+          & .\build-windows\src\texpresso\texpresso-wsl-tests.exe -o wsl-tests.xml,xunitxml -o wsl-tests.txt,txt
+          if ($LASTEXITCODE -ne 0) { throw 'Native Windows / WSL integration failed' }
+          wsl.exe --distribution Ubuntu-24.04 --exec sh -c 'if pgrep -f "[/]texpresso(-xetex|-wsl)?( |$)"; then echo "Leaked engine workers" >&2; exit 1; fi'
+          if ($LASTEXITCODE -ne 0) { throw 'Compiler worker leak detected' }
+          & .\build-windows\texstudio.exe --version
+          if ($LASTEXITCODE -ne 0) { throw 'Windows app startup failed' }
+      - name: Package portable development app
+        shell: msys2 {0}
+        run: |
+          mkdir -p dist/TeXstudio-Espresso
+          cp build-windows/texstudio.exe dist/TeXstudio-Espresso/
+          cp -R build-windows/texpresso-runtime dist/TeXstudio-Espresso/
+          cd dist/TeXstudio-Espresso
+          windeployqt6 --no-qml --qmlcore --no-translations texstudio.exe
+          ldd texstudio.exe | awk '{print $3}' | grep ucrt64 | xargs -I{} cp -u {} .
+          cp -R ../../templates .
+          mkdir dictionaries
+          cp ../../utilities/dictionaries/*.zip dictionaries/ 2>/dev/null || true
+          cp ../../utilities/dictionaries/*.aff ../../utilities/dictionaries/*.dic dictionaries/
+          mkdir -p share
+          cp -R "$MSYSTEM_PREFIX/share/poppler" share/
+          mkdir config
+          QT_QPA_PLATFORM=offscreen ./texstudio.exe --version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TeXstudio-Espresso-Windows-WSL-development
+          path: dist/TeXstudio-Espresso/
+          retention-days: 7
+      - name: Save integration diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-wsl-diagnostics
+          path: |
+            wsl-tests.*
+            build-windows/CMakeFiles/CMakeConfigureLog.yaml
+          if-no-files-found: ignore
+          retention-days: 7

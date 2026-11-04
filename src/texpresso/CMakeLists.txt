@@ -13,6 +13,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/../pdfviewer/ViewerComponents.cmake")
 add_library(texpresso-client STATIC
     texpressoprotocol.cpp texpressoprotocol.h
     texpressoprocess.cpp texpressoprocess.h
+    texpressowsl.cpp texpressowsl.h
     texpressopreview.cpp texpressopreview.h
     texpressosession.cpp texpressosession.h texpressosourcefollow.h
     texpressomanager.cpp texpressomanager.h
@@ -31,6 +32,10 @@ option(TEXSTUDIO_TEXPRESSO_TESTS "Build live-preview tests" OFF)
 if(TEXSTUDIO_TEXPRESSO_TESTS)
     enable_testing()
     find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
+    add_executable(texpresso-wsl-tests tests/wsl_test.cpp)
+    target_link_libraries(texpresso-wsl-tests PRIVATE texpresso-client Qt${QT_VERSION_MAJOR}::Test)
+    add_test(NAME texpresso-wsl COMMAND texpresso-wsl-tests)
+    set_tests_properties(texpresso-wsl PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 240)
     add_executable(texpresso-client-tests tests/client_test.cpp)
     target_link_libraries(texpresso-client-tests PRIVATE texpresso-client Qt${QT_VERSION_MAJOR}::Test)
     add_test(NAME texpresso-client COMMAND texpresso-client-tests)
