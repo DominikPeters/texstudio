@@ -46,7 +46,9 @@ source ranges.** Lines are one-based and the end is exclusive. TeX executes a
 collected macro argument at its closing line, so a multiline `scalebox` can
 report that line for both endpoints. TeXstudio resolves it only when a balanced
 source argument ending there contains a unique literal picture; it never picks
-the nearest preceding figure. Ambiguous same-line/grouped pictures are omitted.
+the nearest preceding figure. Ambiguous same-line/grouped pictures are omitted,
+including a literal picture plus a macro-generated picture that both execute at
+the same collected argument's closing line.
 
 Eligibility also requires width >= 24 pt, height >= 18 pt and area >= 900 square
 points, independently of preview zoom. This omits tiny inline symbols. A macro

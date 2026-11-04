@@ -4,6 +4,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QFrame>
+#include <QScreen>
 #include "ViewerLinks.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -47,12 +48,18 @@ TexpressoCanvas::TexpressoCanvas(PDFDocumentConfig *config, QScrollArea *area)
     connect(&figureTimer, &QTimer::timeout, this, [this] {
         if (hoveredFigure < 0 || hoveredFigure != figureAt(mapFromGlobal(QCursor::pos()))) return;
         figurePopup->adjustSize();
-        figurePopup->move(mapToGlobal(mapFromGlobal(QCursor::pos()) + QPoint(10, 14)));
+        auto position = QCursor::pos() + QPoint(10, 14);
+        if (auto screen = QGuiApplication::screenAt(position)) {
+            const auto bounds = screen->availableGeometry();
+            position.setX(std::clamp(position.x(), bounds.left(), std::max(bounds.left(), bounds.right() - figurePopup->width() + 1)));
+            position.setY(std::clamp(position.y(), bounds.top(), std::max(bounds.top(), bounds.bottom() - figurePopup->height() + 1)));
+        }
+        figurePopup->move(position);
         figurePopup->show(); figureLeaveTimer.start();
     });
     figureLeaveTimer.setInterval(150);
     connect(&figureLeaveTimer, &QTimer::timeout, this, [this] {
-        if (!underMouse() && !figurePopup->underMouse()) hideFigurePopup();
+        if (!underMouse() && !figurePopup->rect().contains(figurePopup->mapFromGlobal(QCursor::pos()))) hideFigurePopup();
     });
     connect(editFigure, &QPushButton::clicked, this, [this] { activateFigure(hoveredFigure); });
     setAttribute(Qt::WA_AcceptTouchEvents);
@@ -191,6 +198,7 @@ void TexpressoCanvas::setPreview(TexpressoPreview *value)
 }
 bool TexpressoCanvas::event(QEvent *event)
 {
+    if (event->type() == QEvent::Hide || event->type() == QEvent::WindowDeactivate) hideFigurePopup();
     if (event->type() == QEvent::NativeGesture) {
         const auto gesture = static_cast<QNativeGestureEvent *>(event);
         if (gesture->gestureType() == Qt::ZoomNativeGesture) {

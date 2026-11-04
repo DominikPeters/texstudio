@@ -59,7 +59,7 @@ void TikzTest::launchArguments()
     QCOMPARE(arguments.size(), 2); QCOMPARE(arguments[0].toString(), QString("--source-line=284"));
     // macOS normalizes filesystem names to decomposed Unicode. The spelling
     // may change, while the literal shell characters and file identity must not.
-    QCOMPARE(arguments[1].toString().normalized(), path.normalized());
+    QCOMPARE(arguments[1].toString().normalized(QString::NormalizationForm_C), path.normalized(QString::NormalizationForm_C));
     QCOMPARE(QFileInfo(arguments[1].toString()).canonicalFilePath(), QFileInfo(path).canonicalFilePath());
 }
 void TikzTest::protocolValidation()
@@ -119,6 +119,9 @@ Text \badge. \macrofigure
 \rotatebox{30}{\begin{tikzpicture}\fill[green] (0,0) rectangle (3,2);\end{tikzpicture}}
 \begin{tikzpicture}\fill (0,0) rectangle (0.2,0.2);\end{tikzpicture}
 \input{included}
+\scalebox{1}{
+\begin{tikzpicture}\fill (0,0) rectangle (2,2);\end{tikzpicture}
+\macrofigure}
 \end{document}
 )TEX";
     write(path, source);
@@ -128,7 +131,7 @@ Text \badge. \macrofigure
     QTRY_VERIFY_WITH_TIMEOUT(!session.compilerError.isEmpty() || (session.preview.valid() && session.preview.complete()), 90000);
     QVERIFY2(session.compilerError.isEmpty(), qPrintable(session.compilerError + "\n" + session.compilerOutput.right(5000) + session.engineOutput.right(2000)));
     const auto all = session.preview.annotationsForPage(0)["figures"].toArray();
-    QCOMPARE(all.size(), 7); // badge, macro, outer, scaled, rotated, tiny, input; no nested badge
+    QCOMPARE(all.size(), 9); // plus two ambiguous instances in one collected argument
     const auto figures = session.tikzFigures(0);
     QCOMPARE(figures.size(), 4); // outer/scaled/rotated/input; macros and tiny pictures excluded
     QSet<int> lines;
