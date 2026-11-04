@@ -35,7 +35,8 @@ static int forwardCount(const QSignalSpy &commands)
 {
     int count = 0;
     for (const auto &entry : commands) {
-        const auto verb = entry[0].toJsonArray()[0];
+        const auto command = entry[0].toJsonArray();
+        const auto verb = command[0];
         if (verb == "synctex-forward" || verb == "preview-search") ++count;
     }
     return count;
