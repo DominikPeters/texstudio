@@ -1,146 +1,168 @@
 # Distribution licensing inventory
 
-This inventories the macOS TeXstudio Espresso package. It is a technical record
-of what we distribute and the available licensing evidence, not a declaration
-that a development build is ready for public distribution. A Linux release must
-be inventoried separately against its actual binaries and system/bundled split.
+The macOS TeXstudio Espresso package now carries its library, dictionary, artwork
+and documentation notices, an offline **Licenses and Source** page linked from
+About, and a matching corresponding-source ZIP. The
+[2026-11-04 inspected build snapshot](distribution-inventory-macos-2026-11-04.json)
+records 96 Mach-O images, 34 dependency packages and all 96 dictionary/thesaurus
+archives. This inventories the tested arm64 macOS package. Intel CI is prepared
+but was not run for this work; Linux needs its own actual dependency inventory.
 
-The [2026-11-04 inspected build snapshot](distribution-inventory-macos-2026-11-04.json)
-records all 98 code images, 33 installed dependency packages and the hashes of all
-96 dictionary/thesaurus payloads, with verification results and remaining review
-items. All dependency code origins matched by UUID, including three local Poppler
-libraries whose exact source/build provenance still needs archiving. The full
-post-sign report is retained in `.native-sources/license-inventory/`.
-The packaged app passed signature/dependency and preview protocol checks, all 40
-native tooling tests passed, and a disposable offscreen editor smoke test made
-128 edits across a 30-page fixture with five independent PDF/SyncTeX probes and
-no leftover test processes. This is packaging/startup evidence, not a new
-long-session performance measurement. The verified candidate is staged at
-`.native-sources/app-updates/current/TeXstudio Espresso.app`; installation remains
-separate.
+The candidate is staged at
+`.native-sources/app-updates/current/TeXstudio Espresso.app`; it has an ad-hoc
+signature and has not been installed, notarized or published. Its complete source
+archive is `.native-sources/releases/texstudio-espresso-macos-arm64-sources.zip`,
+with an adjacent SHA256 file. **Distribute the matching source ZIP and checksum
+alongside each binary release.** A GitHub repository's default source download
+does not include submodule contents. Release-channel terms need separate review
+if an app store is considered.
 
-## Reproduce and inspect
+## Evidence and licensing basis
 
-`native/scripts/deploy_macos.py` now puts the inventory and collected notices in
-`Contents/Resources/licenses/` before signing. The local test app generator
-refreshes it after adding its launcher, icon and metadata. The existing engine
-notices remain under `Contents/Resources/texpresso/notices/`.
+| Component | Basis and supplied evidence |
+| --- | --- |
+| TeXstudio and inherited editor/PDF code | GPLv3 baseline, original per-file notices and modified source. `ESPRESSO-CHANGES.md` identifies this unofficial modified fork. |
+| TeXpresso frontend | MIT code combined with the separately licensed renderer and worker; the entire runtime is not MIT-only. |
+| XeTeX/Tectonic/SyncTeX worker | Mixed permissive code plus GPL-2.0-or-later dvipdfmx. Full pinned engine source, notices and build instructions are supplied. |
+| Compact MuPDF and jbig2dec | AGPLv3 components. Feature trimming does not remove these terms. Static renderer sources, retained font notices, CMap notices and profiles are included. |
+| Poppler | Source package offers GPL2 or GPL3; GPL3 fits this app. The local build now has a checksum-locked source, recorded compiler/configuration and binary hashes. |
+| Qt | Shipped target SPDX records retain LGPLv3/GPL alternatives. Exact module sources, original third-party attributions and full license texts are supplied. |
+| QuaZip/MiniZip and other inherited code | Original LGPL/static-linking-exception, zlib-style and individual notices remain; see `native/license-components.json`. |
+| Other shared libraries | Exact installed recipes, source archives, patches and full notices, including notices referenced from other license files. Package metadata and target-level evidence remain distinct. |
+| Dictionaries/thesauri | All 92 spelling dictionaries and four thesauri are retained, each bound to the exact decompressed payload hashes and original notices or the documented project contribution license. |
+| Artwork, symbols, templates and documentation | Original authors, file-level declarations and modifications are recorded in `native/asset-provenance.json`; original license texts are included. |
+| Qt translations | Current QtBase catalogs replace unused opaque Qt4 binaries in the packaged app. BSD-3-Clause Qt translation sources include editable TS files. App translations remain unchanged. |
 
-For an independent, read-only inspection of a signed app:
+Dictionary provenance is in `native/dictionary-provenance.json`: 78 spelling
+pairs match historical wooorm snapshots, six spelling pairs and four thesauri
+match LibreOffice, and Czech matches its original contributor ZIP. Other
+payloads carry explicit declarations. The Uyghur dictionary was contributed
+directly to GPLv3 TeXstudio in
+[PR 1743](https://github.com/texstudio-org/texstudio/pull/1743); the project license
+is its recorded basis. Missing a separate file header does not by itself remove
+that license. No conflicting third-party declaration was found. This follows
+[GitHub's contribution-under-repository-license terms](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service#6-contributions-under-repository-license).
+Mongolian's explicit LPPL declaration is preserved instead of substituting a
+nearby upstream version that does not match its bytes.
+
+Crystal, Oxygen and Colibre credits and their LGPL, CC-BY-SA and CC0 declarations
+are retained. Font Awesome Free icons are credited to Fonticons under CC-BY 4.0;
+source fonts are OFL1.1 and code is MIT. The coffee cup uses the TeXpresso v3
+repository's MIT license, with the removed lettering/background and composition
+recorded. A different logo's CC0 declaration is not used as its basis. Generated
+manual assets retain their Sphinx, Furo, jQuery, Underscore and other notices.
+
+Qt Virtual Keyboard, its plugin/frameworks and unneeded QtQuick are omitted.
+They provide an on-screen touch keyboard that this desktop editor does not use.
+The automatically deployed Qt PDF image plugin and QtPdf are also omitted:
+TeXstudio's normal PDF viewer uses Poppler, while the live renderer supplies PNG.
+Deployment follows the dependency graph and keeps modules genuinely required by
+remaining binaries; a real new Virtual Keyboard dependency fails packaging.
+QtQml stays for the editor's JavaScript macros. Native Cocoa input methods stay.
+See [Qt licensing](https://doc.qt.io/qt-6/licensing.html) and
+[Virtual Keyboard's terms](https://doc.qt.io/qt-6/qtvirtualkeyboard-index.html#licenses-and-attributions).
+
+No TeX Live distribution is bundled. Users supply it separately; embedded
+renderer fonts and other data actually shipped in our binaries remain inventoried.
+
+## Reproduce the inventory
+
+Deployment collects notices under `Contents/Resources/licenses/` before signing.
+Engine notices remain under `Contents/Resources/texpresso/notices/`. For a separate
+read-only post-sign report, choose a new output directory:
 
 ```sh
 python3 native/scripts/license_inventory.py \
   --app '.native-sources/app-updates/current/TeXstudio Espresso.app' \
   --output .native-sources/license-inventory \
-  --qt-prefix /opt/homebrew/opt/qt \
-  --cellar /opt/homebrew/Cellar \
-  --library-path /tmp/texstudio-poppler/lib
+  --qt-prefix /opt/homebrew/opt/qt --cellar /opt/homebrew/Cellar \
+  --library-path "$PWD/.native-sources/dependencies/poppler/lib"
 ```
 
-The output directory must not already exist. Keep the latest report and compact
-evidence, removing superseded experiment copies. The report contains:
+Keep only the latest report and useful compact results. Its `inventory.json`
+records code UUIDs/hashes/origins, source package versions/checksums, every
+ordinary resource, dictionary archive member and QRC input, static renderer
+evidence and publication work. `notices/`, `qt-sbom/` and `assets.json` retain the
+original declarations; `index.html` provides offline navigation. All local links
+are checked before sealing the candidate.
 
-- `README.md`: package/version/license tables and explicit evidence gaps.
-- `inventory.json`: every Mach-O image, UUID, SHA256 and origin; all ordinary
-  resources and hashes; every dictionary archive member hash; all root QRC input
-  paths/hashes; engine build manifest; static renderer snapshot; review items.
-- `notices/`: original package license/copyright/author files and in-tree evidence.
-- `qt-sbom/`: original upstream Qt SPDX documents for the modules represented.
+Origins match installed binaries by Mach-O UUID, not merely filename. Poppler's
+`share/texstudio-build-provenance.json` also binds source/configuration and actual
+compiler evidence to library hashes. The embedded inventory describes the stage
+**before final signing**; signing changes signature bytes and engine-manifest
+hashes. The independent report records final hashes. Inventories omit their own
+contents and signature resources to avoid recursive hashing.
 
-Code origins are matched against installed dependency binaries by Mach-O UUID,
-which survives relocation and signing. A same-named library alone is not enough.
-Locally built libraries without package receipts remain marked for source/build
-provenance reconciliation. The local Poppler libraries are such a case.
+Qt module attribution collections are a source-level superset, while per-target
+`binaries[].qt` records identify shipped modules/plugins. Original license
+expressions are retained; an `OR` expression does not require choosing every
+alternative. Notice collection checks package version, source checksum and every
+notice digest; dictionary checks also fail if member names or payload bytes drift.
 
-The embedded inventory describes **the stage before final signing**. Signature
-bytes, engine-manifest hashes and outer signatures subsequently change. Use an
-independent post-sign inspection for final artifact hashes. The embedded inventory
-excludes itself and code-signature resources to avoid recursive hashing.
+The compact renderer retains LCMS2, 14 URW CFF fonts (OFL1.1) and
+DroidSansFallbackFull (Apache2). Their actual font bytes were matched in the
+unstripped frontend. `renderer_evidence.py` repeats this check for fresh engine
+builds and rejects unknown static third-party object members. It compares the
+pinned source/profile/font set rather than demanding architecture-identical
+archive bytes. The existing local engine also matches the earlier reviewed
+archive hashes in `native/license-static-components.json`. Changed renderer
+profiles or retained resources require a refreshed review.
 
-Qt and Homebrew license expressions are retained verbatim as evidence. A whole
-formula can include licenses for tools, docs and components we do not ship; the
-per-target `binaries[].qt` records identify the distributed Qt modules/plugins.
-The retained full SPDX documents also contain unshipped build targets. Neither a
-formula expression nor the presence of a COPYING file certifies compliance, and
-an `OR` expression does not require selecting every offered license.
+## Matching source and local modification
 
-## Main findings
+The macOS workflow builds Poppler through `native/scripts/build_poppler.py`,
+collects exact dependency sources/patches and regenerates source-derived notices
+before signing. It uploads the complete source ZIP beside the binary. It does
+not treat missing source inputs as a successful partial archive.
 
-| Component | Evidence and distribution implications |
-| --- | --- |
-| TeXstudio, QCodeEdit, inherited editor/PDF code | GPLv3 distribution baseline. Keep inherited per-file notices and provide complete matching modified source. About already declares GPLv3. |
-| TeXpresso frontend | Original MIT terms, combined with the renderer and other dependencies below. Do not label the whole bundled runtime MIT-only. |
-| XeTeX/Tectonic/SyncTeX worker | Mixed permissive code plus **GPL-2.0-or-later dvipdfmx** compiled into the worker. Provide the complete worker source and preserve its individual notices. |
-| Compact MuPDF | **AGPLv3**. Disabling modules does not change this. Exact archive hashes are recorded in the engine manifest. |
-| jbig2dec | **AGPL-3.0-or-later**, independently of MuPDF. The installed LICENSE supplies evidence where the Homebrew source SPDX says NOASSERTION. |
-| Poppler | Upstream source-package metadata offers GPL2 or GPL3; the GPL3 option fits this app. Local rebuilt binaries need exact source/configuration archived. |
-| Qt | The remaining shipped target SPDX records offer LGPLv3/GPL alternatives. Collect the applicable Qt and bundled third-party notices from matching source releases. |
-| QuaZip/MiniZip | LGPL2.1 with an explicit static linking exception; MiniZip has zlib-style terms. Preserve both. |
-| QMarkedScrollBar, adwaita-qt, other inherited code | Additional GPL/LGPL/per-file notices, recorded in `native/license-components.json`. adwaita's main style source permits GPL2 **or later**. |
-| Other shared libraries | The generated report records exact installed versions, upstream source URLs/license expressions and available texts (OpenSSL, ICU, GLib, codecs, font libraries, SDL, etc.). |
-| Dictionaries/thesauri | **92 spelling dictionaries and four thesauri** in the inspected app. Mixed licenses independent of Hunspell. Reconcile each exact payload, copyright and source; the generic upstream URL in README_others is insufficient. |
-| Artwork, symbols, docs, templates and translations | Separate attribution/copying terms apply. About identifies Crystal LGPL, Oxygen CC-BY-SA-3.0 and Colibre CC0 artwork. File-level provenance and modifications still need reconciliation. |
+To prepare a source archive for an already inventoried app:
 
-### Virtual keyboard removal
+```sh
+python3 native/scripts/source_release.py --plan .native-sources/source-plan \
+  --inventory '.native-sources/app-updates/current/TeXstudio Espresso.app/Contents/Resources/licenses/inventory.json' \
+  --build-dir build-cursor-app
+python3 native/scripts/source_release.py --assemble .native-sources/source-plan \
+  --cache .native-sources/distribution-sources \
+  --output .native-sources/releases/texstudio-espresso-macos-arm64-sources.zip \
+  --fetch
+```
 
-Qt Virtual Keyboard implements an on-screen touch keyboard; it is not the
-system's ordinary desktop input method. The editor does not link it or request
-it. `macdeployqt` automatically copied the platform input-context plugin, bringing
-in VirtualKeyboard, VirtualKeyboardQml and additional Quick dependencies.
+Use new plan/output paths. `--fetch` explicitly permits HTTPS retrieval; omit it
+for cached offline assembly. Source plans retain installed build recipes and
+patches, editor compiler flags/CMake cache and the app's complete notice evidence.
+Source notices can be regenerated from verified inputs using
+`collect_qt_notices.py` and `collect_library_notices.py`, as in the workflow.
 
-Deployment now removes that plugin and both keyboard frameworks. It also removes
-Quick/QmlModels/QmlWorkerScript only when no remaining code image requires them,
-following the dependency graph transitively. A newly introduced real keyboard
-dependency fails packaging instead of producing a broken app. QtQml remains:
-TeXstudio uses its JavaScript engine for user macros. Native Cocoa input methods
-are retained.
+Restore the ZIP offline with Python 3.12+ and Git:
 
-Upstream describes Virtual Keyboard as GPLv3/commercial, so removing the unused
-component also removes its separate third-party notice requirements:
-<https://doc.qt.io/qt-6/qtvirtualkeyboard-index.html#licenses-and-attributions>.
-This does not remove the app's existing GPL/AGPL obligations.
+```sh
+python3 texstudio-espresso-macos-arm64-sources.zip --output ./espresso-source
+```
 
-### Static renderer and embedded data
+The helper verifies input checksums, restores editor/engine/MuPDF/LCMS2/zlib-ng
+sources, and initializes editable local Git snapshots. Original IDs remain in
+`SOURCE-ORIGIN.json`; only native lock references change to the new local snapshot
+IDs. No program implementation is changed. Commit modifications before invoking
+the pinned builder and update dependency lock references when modifying those
+snapshots. Other complete library sources and original recipes remain in the ZIP.
+Unused legacy Qt4 binary catalogs are excluded from the export, while current
+editable Qt TS sources are supplied. This does not delete checkout files.
 
-`native/license-static-components.json` records the exact compact archive member
-lists and hashes, plus font symbols observed in the unstripped frontend. It is
-applied only to builds with matching archive hashes; a mismatch creates a review
-item. Archive membership alone does not establish final linked retention.
+Use `native/LOCAL_TEST_APP.md` and `native/MACOS_RELEASE.md` from the restored
+source for build/packaging instructions. Local modified apps use ad-hoc signing;
+no distributor signing key or notarization is required. Apple SDK/system libraries
+and unmodified external build tools are not included. This supports inspection,
+modification and rebuilding without promising bit-identical output across SDKs
+and compilers. The source archive is about 545 MiB because it includes full
+upstream sources, not just the small runtime subset.
 
-For this build, `libmupdf-third.a` contains **LCMS2 only** (MIT). The frontend
-retains **14 URW CFF font payloads** (OFL1.1) and **DroidSansFallbackFull.ttf**
-(Apache2). The larger source tree includes many fonts that are absent from this
-frontend; do not describe all of them as shipped. The hyphenation archive is in
-libmupdf.a, but its resource symbol was not present in the unstripped frontend.
-The 15 retained font symbols were also mapped to Mach-O file offsets and their
-actual payload bytes matched the source font files exactly.
+## Verification scope
 
-Unmodified URW/Droid/LCMS2 license files and the source CMaps' individual Adobe
-copyright/license blocks are retained in `native/notices/mupdf/` and collected
-into the app. MuPDF's Artifex ICC profiles and generated CMap code also belong
-in the corresponding-source archive. Repeat the link/data review after renderer
-profile changes; this snapshot is not a general future clearance.
-
-## Remaining release work
-
-1. Reconcile the exact dictionaries/thesauri against upstream snapshots; ship
-   their full notices and any required source. Replace a payload only if its
-   provenance cannot be established, rather than guessing from its language code.
-2. Complete Qt's full license/third-party-attribution collection for the selected
-   targets. The Homebrew Qt module installs provide SPDX data but omit most full
-   license texts. Keep the distinction between package-level and target-level data.
-3. Resolve the artwork/documentation/template exceptions, including the exact
-   coffee-cup v3 SVG. An older logo has CC0 metadata; the v3 file does not repeat
-   it, so confirm provenance instead of silently extending the older declaration.
-4. Publish complete corresponding source beside the binaries, matching every
-   release. Include recursive submodules, dependency sources, modifications,
-   build/configuration/packaging scripts, private ICU filtering and static data.
-   Preserve the local Poppler source/build recipe. A default GitHub source ZIP
-   does not include submodule contents. Verify engine commits are public.
-5. Provide an accessible Licenses/Source entry in About and clear release source
-   links, together with instructions to build, modify and re-sign locally. Review
-   release-channel terms separately if considering an app store.
-
-No TeX Live distribution is included: users supply their own installation.
-This avoids redistributing the installed TeX package/font collection; it does not
-cover dependencies or font data actually embedded in our binaries.
+The packaged candidate passed signature/dependency and live preview rendering,
+diagnostics, scrolling and link checks. All 51 native tooling tests passed.
+An offscreen full-editor smoke test made 128 edits across a 30-page fixture,
+checked five independent PDF/SyncTeX probes and left no test processes. A separate
+probe exercised the bundled Poppler PDF text/raster backend and a current Qt
+translation. The offline source restore passed native pinned-source checks.
+These are packaging and functional checks, not a new long-session performance
+measurement or a claim that all dependencies were rebuilt from the restored ZIP.
