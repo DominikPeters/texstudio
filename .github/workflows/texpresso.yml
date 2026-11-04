@@ -115,6 +115,7 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
           TEXPRESSO_PACKAGE_PROVIDER: miktex
+          TEXPRESSO_TEST_MIKTEX_AUTO_INSTALL: "1"
           TEXPRESSO_TEST_TRACE_PROTOCOL: "1"
           TEXPRESSO_TEST_ARTIFACTS: ${{ github.workspace }}/build-client/miktex-results
         run: |
@@ -131,6 +132,12 @@ jobs:
           TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso" \
             build-client/texpresso-wsl-tests realEngine bibliographyBuild \
             -o build-client/miktex-results/qt.txt,txt -o build-client/miktex-results/qt.xml,junitxml
+          # Repeat after installation to establish that an offline-policy launch
+          # can edit, navigate and restart with the populated package set.
+          TEXPRESSO_TEST_MIKTEX_AUTO_INSTALL=0 \
+          TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso" \
+            build-client/texpresso-wsl-tests realEngine \
+            -o build-client/miktex-results/qt-offline.txt,txt -o build-client/miktex-results/qt-offline.xml,junitxml
       - name: Save MiKTeX provider evidence
         if: always() && steps.miktex-setup.conclusion == 'success'
         uses: actions/upload-artifact@v4

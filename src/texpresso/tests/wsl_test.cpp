@@ -16,6 +16,7 @@ class WslTest : public QObject
 {
     Q_OBJECT
 private slots:
+    void initTestCase();
     void pathsAndProtocol();
     void packageProviders();
     void providerSettings();
@@ -23,6 +24,21 @@ private slots:
     void realEngine();
     void bibliographyBuild();
 };
+void WslTest::initTestCase()
+{
+    if (qEnvironmentVariable("TEXPRESSO_PACKAGE_PROVIDER") == "miktex")
+        TexpressoProcess::setPackageProvider("miktex", qEnvironmentVariableIntValue("TEXPRESSO_TEST_MIKTEX_AUTO_INSTALL") == 1);
+}
+static bool fixtureReady(TexpressoSession *session)
+{
+    const bool settled = QTest::qWaitFor([&] {
+        return session->preview.valid() || session->failed() || !session->compilerError.isEmpty() || session->preview.paginationStopped();
+    }, 90000);
+    const bool success = settled && session->preview.valid() && !session->failed() && session->compilerError.isEmpty();
+    if (!success) qWarning().noquote() << "STATUS:" << session->status << "ERROR:" << session->compilerError
+        << "ENGINE:" << session->engineOutput << "COMPILER:" << session->compilerOutput;
+    return success;
+}
 void WslTest::pathsAndProtocol()
 {
     TexpressoWsl wsl; wsl.enabled = true; wsl.distribution = "My Linux";
@@ -165,8 +181,7 @@ void WslTest::realEngine()
     TexpressoManager manager(nullptr, qEnvironmentVariable("TEXPRESSO_TEST_ENGINE"));
     manager.openBuffer(root, text); manager.activate(root);
     auto session = manager.current(); QVERIFY(session); session->followCursor = false; session->setAutoRerun(false);
-    QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid() || session->failed(), 90000);
-    QVERIFY2(!session->failed(), qPrintable(session->status + "\n" + session->engineOutput));
+    QVERIFY2(fixtureReady(session), "The known-valid fixture must compile without errors; see diagnostics above");
     QTRY_VERIFY_WITH_TIMEOUT(session->compilerOutput.contains("WSL-INITIAL"), 30000);
     QVERIFY2(session->compilerError.isEmpty(), qPrintable(session->compilerError));
     QVERIFY(!session->preview.image().isNull());
@@ -246,8 +261,7 @@ void WslTest::bibliographyBuild()
     };
     TexpressoManager manager(nullptr, qEnvironmentVariable("TEXPRESSO_TEST_ENGINE"));
     manager.activate(root); auto session = manager.current(); QVERIFY(session); session->followCursor = false;
-    QTRY_VERIFY2_WITH_TIMEOUT(session->preview.valid() || session->failed(), qPrintable(session->status + session->engineOutput), 90000);
-    QVERIFY(!session->failed());
+    QVERIFY2(fixtureReady(session), "The known-valid bibliography fixture must compile without errors; see diagnostics above");
     session->beginExternalBuild();
     QVERIFY(tool("xelatex", {"-interaction=nonstopmode", "-halt-on-error", "main.tex"}));
     QVERIFY(tool("biber", {"main"}));
