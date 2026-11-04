@@ -123,10 +123,28 @@ jobs:
         run: |
           export PATH="$HOME/bin:$HOME/.miktex/texmfs/install/miktex/bin:$PATH"
           mkdir -p build-client/miktex-results
-          mpm --update-db
+          # Match the shared engine's validated fresh-install setup. Refreshing
+          # only the package DB leaves the apt bootstrap's core files outdated.
+          retry() {
+            for attempt in 1 2 3; do
+              if "$@"; then return 0; fi
+              sleep 4
+            done
+            return 1
+          }
+          retry miktex packages update-package-database
+          retry miktex packages check-update
+          retry miktex packages update
           # Exercise the shared provider's explicit download opt-in, fonts and
           # private format cache before testing the client's no-install policy.
-          python3 native/texpresso/test/test-miktex-real.py "$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso"
+          if ! python3 native/texpresso/test/test-miktex-real.py "$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso"; then
+            # Preserve a direct provider lookup if format bootstrap fails, so a
+            # repository/setup failure can be distinguished from engine lookup.
+            findtexmf --the-name-of-the-game=xetex --must-exist -- latex.ltx \
+              > build-client/miktex-results/latex-lookup.log 2>&1 || true
+            cat build-client/miktex-results/latex-lookup.log
+            exit 1
+          fi
           miktex packages install hyperref biblatex biber-linux-x86_64
           miktex links install
           findtexmf --must-exist pzdr.tfm
