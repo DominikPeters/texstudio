@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Restore a supplied source ZIP into editable, offline-buildable Git snapshots."""
+"""Restore project sources, optionally with separately supplied dependencies."""
 import argparse
 import hashlib
 import json
@@ -9,6 +9,8 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
+import urllib.request
 import zipfile
 
 
@@ -33,7 +35,7 @@ def snapshot(directory):
 
 def extract(archive, member, destination, strip_root=False):
     destination.mkdir(parents=True, exist_ok=True)
-    with archive.open(member) as stream, tarfile.open(fileobj=stream, mode='r:*') as tar:
+    with (archive.open(member) if archive else Path(member).open('rb')) as stream, tarfile.open(fileobj=stream, mode='r:*') as tar:
         if not strip_root:
             tar.extractall(destination, filter='data')
             return
@@ -50,30 +52,70 @@ def extract(archive, member, destination, strip_root=False):
                 shutil.move(file, target)
 
 
-def unpack(source_zip, output):
-    if output.exists():
-        raise ValueError('Source output already exists')
-    output.mkdir(parents=True)
-    with zipfile.ZipFile(source_zip) as archive:
-        manifest = json.loads(archive.read('SOURCE-MANIFEST.json'))
-        # Verify every supplied upstream input before using any of them.
-        for record in manifest['inputs']:
-            with archive.open(record['archiveMember']) as stream:
+def dependency_source(record, directory, fetch=False):
+    name = record['sourceFile']
+    if Path(name).name != name or name in ('.', '..'):
+        raise ValueError('Unsafe dependency source filename')
+    file = directory / name
+    if not file.exists():
+        if not fetch:
+            raise ValueError(f'Missing dependency source: {record["name"]}; supply {file} or explicitly use --fetch')
+        if not record['url'].startswith('https://'):
+            raise ValueError('Dependency source requires HTTPS')
+        directory.mkdir(parents=True, exist_ok=True)
+        temporary = file.with_name(file.name + '.partial')
+        try:
+            deadline = time.monotonic() + 900
+            with urllib.request.urlopen(record['url'], timeout=60) as response, temporary.open('wb') as stream:
+                while chunk := response.read(1024 * 1024):
+                    if time.monotonic() > deadline:
+                        raise TimeoutError(f'Source download exceeded 15 minutes: {record["name"]}')
+                    stream.write(chunk)
+            with temporary.open('rb') as stream:
                 if hashlib.file_digest(stream, 'sha256').hexdigest() != record['sha256']:
                     raise ValueError(f'Source input checksum mismatch: {record["name"]}')
+            temporary.replace(file)
+        finally:
+            temporary.unlink(missing_ok=True)
+    with file.open('rb') as stream:
+        if hashlib.file_digest(stream, 'sha256').hexdigest() != record['sha256']:
+            raise ValueError(f'Source input checksum mismatch: {record["name"]}')
+    return file
+
+
+def unpack(source_zip, output, dependencies=None, fetch=False):
+    if output.exists():
+        raise ValueError('Source output already exists')
+    with zipfile.ZipFile(source_zip) as archive:
+        manifest = json.loads(archive.read('SOURCE-MANIFEST.json'))
+        with_dependencies = dependencies is not None or fetch or manifest.get('schema', 1) < 2
+        dependencies = dependencies or source_zip.parent / 'dependency-sources'
+        external = {}
+        # Verify embedded patches and requested snapshots before extracting.
+        for record in manifest['inputs']:
+            if record.get('archiveMember'):
+                with archive.open(record['archiveMember']) as stream:
+                    if hashlib.file_digest(stream, 'sha256').hexdigest() != record['sha256']:
+                        raise ValueError(f'Source input checksum mismatch: {record["name"]}')
+            elif record.get('extractTo') and with_dependencies:
+                external[record['name']] = dependency_source(record, dependencies, fetch)
+        output.mkdir(parents=True)
         editor = output / 'texstudio'
         extract(archive, 'project/texstudio.tar.gz', editor)
         engine = editor / 'native/texpresso'
         extract(archive, 'project/texpresso.tar.gz', engine)
         for record in manifest['inputs']:
-            if not record.get('extractTo'):
+            if not record.get('extractTo') or not with_dependencies:
                 continue
             relative = Path(record['extractTo'])
             if relative.is_absolute() or '..' in relative.parts:
                 raise ValueError('Unsafe Git snapshot destination')
-            extract(archive, record['archiveMember'], output / relative, strip_root=True)
+            if record.get('archiveMember'):
+                extract(archive, record['archiveMember'], output / relative, strip_root=True)
+            else:
+                extract(None, external[record['name']], output / relative, strip_root=True)
         for name in archive.namelist():
-            if name.startswith('recipes/') and not name.endswith('/'):
+            if name.startswith(('recipes/', 'patches/')) and not name.endswith('/'):
                 relative = Path(name)
                 if '..' in relative.parts:
                     raise ValueError('Unsafe recipe destination')
@@ -84,18 +126,23 @@ def unpack(source_zip, output):
               'gitSources': manifest['gitSources'],
               'note': 'Program/source bytes retain the supplied revisions. New local commits identify imported snapshots; only lock references are rebound to those local commits. This is not a claim of identical Git commit IDs.'}
     (output / 'SOURCE-MANIFEST.json').write_text(json.dumps(manifest, indent=2) + '\n')
-    for directory in [output / 'mupdf/thirdparty/lcms2', output / 'mupdf', output / 'zlib-ng', engine, editor]:
+    directories = [engine, editor]
+    if with_dependencies:
+        directories += [output / 'mupdf/thirdparty/lcms2', output / 'mupdf', output / 'zlib-ng']
+    for directory in directories:
         (directory / 'SOURCE-ORIGIN.json').write_text(json.dumps(origin, indent=2) + '\n')
-    lcms_revision = snapshot(output / 'mupdf/thirdparty/lcms2')
-    mupdf_revision = snapshot(output / 'mupdf')
-    zlib_revision = snapshot(output / 'zlib-ng')
+    if with_dependencies:
+        lcms_revision = snapshot(output / 'mupdf/thirdparty/lcms2')
+        mupdf_revision = snapshot(output / 'mupdf')
+        zlib_revision = snapshot(output / 'zlib-ng')
     snapshot(engine)
-    lock_path = editor / 'native/dependencies.lock.json'
-    lock = json.loads(lock_path.read_text())
-    lock['mupdf']['revision'] = mupdf_revision
-    lock['mupdf']['submodules']['thirdparty/lcms2'] = lcms_revision
-    lock['zlibNg']['revision'] = zlib_revision
-    lock_path.write_text(json.dumps(lock, indent=2) + '\n')
+    if with_dependencies:
+        lock_path = editor / 'native/dependencies.lock.json'
+        lock = json.loads(lock_path.read_text())
+        lock['mupdf']['revision'] = mupdf_revision
+        lock['mupdf']['submodules']['thirdparty/lcms2'] = lcms_revision
+        lock['zlibNg']['revision'] = zlib_revision
+        lock_path.write_text(json.dumps(lock, indent=2) + '\n')
     snapshot(editor)
     return editor
 
@@ -105,15 +152,20 @@ def main():
     parser.add_argument('archive', nargs='?', type=Path,
                         default=Path(sys.argv[0]) if sys.argv[0].endswith('.zip') else None)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--dependencies', type=Path, help='Also restore native snapshots from this separate dependency-source directory')
+    parser.add_argument('--fetch', action='store_true', help='Explicitly fetch missing native snapshots over HTTPS; checksums are required')
     args = parser.parse_args()
     if args.archive is None:
         parser.error('Supply the source ZIP, or run python3 source.zip --output DIRECTORY')
-    editor = unpack(args.archive.resolve(), args.output.resolve())
+    editor = unpack(args.archive.resolve(), args.output.resolve(), args.dependencies, args.fetch)
     print('Editable source:', editor)
-    print('Original dependency archives remain in the source ZIP; recipes are restored beside the editor.')
-    print('Native input check (use your matching ICU prefix):')
-    print(f'python3 {editor}/native/scripts/build.py --mupdf-source {editor.parent}/mupdf '
-          f'--zlib-ng-source {editor.parent}/zlib-ng --icu-prefix /path/to/icu --output /path/to/new-bundle --check')
+    print('Recipes and patches are restored beside the editor. SOURCE-MANIFEST.json identifies other dependency sources.')
+    if (editor.parent / 'mupdf').exists():
+        print('Native input check (use your matching ICU prefix):')
+        print(f'python3 {editor}/native/scripts/build.py --mupdf-source {editor.parent}/mupdf '
+              f'--zlib-ng-source {editor.parent}/zlib-ng --icu-prefix /path/to/icu --output /path/to/new-bundle --check')
+    else:
+        print('For native engine dependency snapshots, restore to a new output with --dependencies DIRECTORY; add --fetch only if downloads are wanted.')
 
 
 if __name__ == '__main__':

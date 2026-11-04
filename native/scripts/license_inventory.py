@@ -335,7 +335,7 @@ def inventory(app, output, qt_prefix, cellar, library_paths=(), hash_stage='as i
           {name: record['sha256'] for name, record in static['archives'].items()}):
         issues.append('Static renderer snapshot does not match this build: repeat archive/link/font inventory')
     issues.extend([
-        'Publish complete corresponding source matching editor, engine, dependency binaries, data, patches and build scripts alongside the binary; source archives include recursive submodule contents',
+        'Publish complete corresponding source matching editor, engine, dependency binaries, data, patches and build scripts: link project sources and the exact separately available dependency sources from the binary download page; preserve access while distributing binaries',
     ])
     result = {'schema': 1, 'scope': 'macOS app inventory; evidence, not release clearance',
               'hashStage': hash_stage,
@@ -379,10 +379,10 @@ def write_index(output, result):
             '<p>TeXstudio is distributed under GPLv3. The bundled TeXpresso engine also includes AGPLv3 components. Individual libraries, dictionaries, artwork and documentation keep their own terms below.</p>',
             '<p>Editor source revision: <code>' + escape(result['release'].get('sourceRevision', 'unrecorded')) + '</code><br>',
             'Engine source revision: <code>' + escape(result['release'].get('engineRevision', 'unrecorded')) + '</code></p>',
-            '<p>Matching complete source archives must accompany distributed binaries. They include the editor, engine, dependency sources, patches, build recipes and installation instructions. ',
+            '<p>The binary download page must provide access to matching project and dependency sources. The project source ZIP contains the editor, engine, patches, build recipes and installation instructions; its SOURCE-MANIFEST.json identifies exact separately available dependency sources by URL and SHA256. ',
             '<a href="https://github.com/DominikPeters/texstudio">Fork source repository</a> · ',
             '<a href="https://github.com/DominikPeters/texpresso">Engine source repository</a>. ',
-            'A repository branch alone may differ from this build; use the matching source archive supplied with the binary.</p>',
+            'A repository branch alone may differ from this build; use the matching project source download and its dependency manifest.</p>',
             '<p>' + link('inventory.json', 'Detailed distribution inventory') + ' · ' + link('assets.json', 'Artwork/template attribution and modifications') + '</p>',
             '<h2>Editor, engine and inherited components</h2><table><tr><th>Component</th><th>License and attribution evidence</th></tr>']
     for component in result['sourceComponents']:

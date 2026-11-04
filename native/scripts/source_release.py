@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Prepare an offline corresponding-source ZIP; never publishes or signs it.
+"""Prepare project sources and reusable dependency sources; never publishes/signs.
 
 --plan records source archives/patches and installed build recipes. --assemble
 requires every listed input; --fetch explicitly allows HTTPS downloads. There
-is no successful partial-source archive mode.
+is no successful mode that silently omits required source inputs. Dependency
+archives are checksum-named files beside the project ZIP, reusable by releases.
 """
 import argparse
 import hashlib
+import html
 import json
 from pathlib import Path
 import re
@@ -30,7 +32,7 @@ def export_editor_source(directory, revision, output):
     excluded = []
     process = subprocess.Popen(['git', 'archive', '--format=tar', revision], cwd=directory, stdout=subprocess.PIPE)
     try:
-        with tarfile.open(fileobj=process.stdout, mode='r|') as source, tarfile.open(str(output), mode='w|gz', compresslevel=1) as target:
+        with tarfile.open(fileobj=process.stdout, mode='r|') as source, tarfile.open(str(output), mode='w|gz', compresslevel=6) as target:
             for member in source:
                 path = Path(member.name)
                 if len(path.parts) == 2 and path.parts[0] == 'translation' and path.name.startswith('qt_') and path.suffix == '.qm':
@@ -181,31 +183,93 @@ def fetch_record(record, cache, allow_fetch):
     return file
 
 
-def fetch_inputs(manifest, cache, allow_fetch):
+def fetch_inputs(manifest, cache, allow_fetch, source_mirror=None):
     cache.mkdir(parents=True, exist_ok=True)
     entries = []
+    mirror_index = source_mirror / 'index.json' if source_mirror else None
+    mirrored = json.loads(mirror_index.read_text()) if mirror_index and mirror_index.exists() else []
     for record in manifest['archives'] + [
             {**s, 'url': f'https://codeload.github.com/{s["repository"]}/tar.gz/{s["revision"]}'}
             for s in manifest['gitSources']]:
-        file = fetch_record(record, cache, allow_fetch)
+        previous = next((r for r in mirrored if r['url'] == record['url'] and
+                         ((record.get('sha256') and r['sha256'] == record['sha256']) or
+                          (record.get('revision') and r.get('revision') == record['revision']))), None)
+        if previous:
+            name = previous['sourceFile']
+            if Path(name).name != name:
+                raise ValueError('Unsafe dependency index filename')
+            file = source_mirror / name
+            if sha256(file) != previous['sha256']:
+                raise ValueError(f'Dependency mirror checksum mismatch: {file}')
+        else:
+            file = fetch_record(record, cache, allow_fetch)
         entries.append((record, file))
         print('Source ready:', record['name'], flush=True)
     return entries
 
 
-def assemble(plan_dir, cache, output, allow_fetch=False):
+def source_filename(file, digest):
+    """Content-based names let versions and architectures share exact sources."""
+    with file.open('rb') as stream:
+        magic = stream.read(6)
+    suffix = '.tar.gz' if magic.startswith(b'\x1f\x8b') else '.tar.xz' if magic.startswith(b'\xfd7zXZ') else '.tar.bz2' if magic.startswith(b'BZh') else '.zip' if magic.startswith(b'PK\x03\x04') else '.source'
+    return digest + suffix
+
+
+def mirror_source(file, destination, digest):
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if destination.exists():
+        if sha256(destination) != digest:
+            raise ValueError(f'Dependency mirror checksum mismatch: {destination}')
+        return
+    temporary = destination.with_name(destination.name + '.partial')
+    try:
+        shutil.copyfile(file, temporary)
+        if sha256(temporary) != digest:
+            raise ValueError(f'Dependency source changed while copying: {file}')
+        temporary.replace(destination)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def write_dependency_index(directory, records):
+    """Index all retained sources, including ones reused by earlier releases."""
+    index = directory / 'index.json'
+    previous = json.loads(index.read_text()) if index.exists() else []
+    combined = {r['sourceFile']: r for r in previous + records if 'sourceFile' in r}
+    rows = sorted(combined.values(), key=lambda r: r['name'])
+    for record in rows:
+        if Path(record['sourceFile']).name != record['sourceFile']:
+            raise ValueError('Unsafe dependency index filename')
+        path = directory / record['sourceFile']
+        if sha256(path) != record['sha256']:
+            raise ValueError(f'Dependency index checksum mismatch: {path}')
+    index.write_text(json.dumps(rows, indent=2) + '\n')
+    lines = ['<!doctype html><meta charset="utf-8"><title>Dependency sources</title>',
+             '<h1>TeXstudio Espresso dependency sources</h1>',
+             '<p>Unmodified source archives shared across releases. Use the project source ZIP\'s SOURCE-MANIFEST.json for the exact version set, patches and build recipes.</p>',
+             '<ul>']
+    for row in rows:
+        lines.append('<li><a href="' + row['sourceFile'] + '">' + html.escape(row['name']) + '</a> — SHA256 <code>' + row['sha256'] + '</code></li>')
+    (directory / 'index.html').write_text('\n'.join(lines + ['</ul>']) + '\n')
+
+
+def assemble(plan_dir, cache, output, allow_fetch=False, dependencies=None):
     if output.exists():
         raise ValueError('Source ZIP output already exists')
     manifest = json.loads((plan_dir / 'manifest.json').read_text())
     if manifest['unresolved']:
         raise ValueError('Unresolved source inputs: ' + '; '.join(manifest['unresolved']))
-    entries = fetch_inputs(manifest, cache, allow_fetch)
     output.parent.mkdir(parents=True, exist_ok=True)
+    dependencies = dependencies or output.parent / 'dependency-sources'
+    entries = fetch_inputs(manifest, cache, allow_fetch, dependencies)
+    manifest.update(schema=2, layout='project ZIP with separate dependency sources',
+                    dependencyDirectory='dependency-sources')
     temporary = output.with_suffix('.partial')
     try:
         with tempfile.TemporaryDirectory(dir=output.parent) as temp:
             temp = Path(temp)
-            with zipfile.ZipFile(temporary, 'w', zipfile.ZIP_STORED) as archive:
+            with zipfile.ZipFile(temporary, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
                 for name, directory, revision in [('texstudio', ROOT, manifest['editorRevision']),
                                                   ('texpresso', ROOT / 'native/texpresso', manifest['engineRevision'])]:
                     file = temp / (name + '.tar.gz')
@@ -214,13 +278,22 @@ def assemble(plan_dir, cache, output, allow_fetch=False):
                     else:
                         subprocess.run(['git', 'archive', '--format=tar.gz', '--output=' + str(file), revision],
                                        cwd=directory, check=True)
-                    archive.write(file, 'project/' + file.name)
+                    archive.write(file, 'project/' + file.name, compress_type=zipfile.ZIP_STORED)
                 inputs = []
-                for index, (record, file) in enumerate(entries):
-                    name = f'upstream/{index:03d}-' + re.sub(r'[^A-Za-z0-9_.-]', '_', record['name'])
-                    archive.write(file, name)
-                    inputs.append({**record, 'archiveMember': name, 'sha256': sha256(file)})
+                for record, file in entries:
+                    digest = sha256(file)
+                    is_patch = 'patch' in record['name'].lower() or record['url'].split('?', 1)[0].endswith(('.patch', '.diff'))
+                    source_file = digest + '.patch' if is_patch else source_filename(file, digest)
+                    mirror_source(file, dependencies / source_file, digest)
+                    item = {**record, 'sourceFile': source_file, 'sha256': digest}
+                    if is_patch:
+                        name = 'patches/' + digest + '.patch'
+                        if name not in archive.namelist():
+                            archive.write(file, name)
+                        item['archiveMember'] = name
+                    inputs.append(item)
                 manifest['inputs'] = inputs
+                write_dependency_index(dependencies, inputs)
                 for file in (plan_dir / 'recipes').iterdir():
                     archive.write(file, 'recipes/' + file.name)
                 for name in ('binary-inventory.json', 'editor-CMakeCache.txt', 'editor-compiler-flags.txt'):
@@ -243,19 +316,33 @@ def assemble(plan_dir, cache, output, allow_fetch=False):
     output.with_suffix(output.suffix + '.sha256').write_text(sha256(output) + '  ' + output.name + '\n')
 
 
-SOURCE_README = '''# TeXstudio Espresso corresponding source
+SOURCE_README = '''# TeXstudio Espresso project source
 
-Restore the supplied source offline with Python 3.12+ and Git:
+Restore the editor and engine offline with Python 3.12+ and Git:
 
     python3 this-sources.zip --output ./espresso-source
 
-This verifies every upstream input, restores the editor/engine/MuPDF/LCMS2/zlib-ng
-sources, and initializes editable local Git snapshots. The original upstream
-revisions are recorded in SOURCE-ORIGIN.json; new local commits rebind the native
-builder's lock references. Only local Git identity/lock references change, not
-the supplied program implementation. No network access or signing credentials
-are needed to restore or modify source. Commit edits before using the pinned
-native builder, and update its lock references if modifying dependency snapshots.
+This source ZIP contains the editor and pinned engine, notices, patches and build
+recipes. Full upstream dependency archives are separate, reusable checksum-named
+files in dependency-sources/. SOURCE-MANIFEST.json records their exact versions,
+original URLs and SHA256 values. The release download page must provide access
+to this complete matching set; the project ZIP alone does not contain all of it.
+
+To also restore the pinned MuPDF/LCMS2/zlib-ng engine build inputs, supply that
+directory (only those three source snapshots are needed by the restore helper):
+
+    python3 this-sources.zip --output ./espresso-source --dependencies ./dependency-sources
+
+Missing snapshots fail with instructions; they are never fetched implicitly.
+Explicit --fetch allows HTTPS retrieval from the recorded original URLs into
+that directory, verifying full SHA256 before extraction. Other dependencies
+(Qt, Poppler, OpenSSL, etc.) remain individually available using the manifest.
+
+The helper initializes editable local Git snapshots. Original upstream revisions
+are recorded in SOURCE-ORIGIN.json; when dependencies are restored, new local
+commits rebind the native builder's lock references. Only Git identity/lock
+references change, not implementation. Commit edits before using the pinned
+builder, and update its lock references if modifying dependency snapshots.
 
 SOURCE-MANIFEST.json identifies the editor, recursive engine snapshot, dependency
 sources, patches, checksums and original build recipes for the inspected app.
@@ -263,8 +350,8 @@ project/ contains Git exports at the app's recorded revisions; the separate
 texpresso export belongs at texstudio/native/texpresso after extraction.
 Unused historical binary Qt4 translations are excluded from the editor export;
 their paths are recorded. The app uses current QtBase translations instead, with
-editable TS source in the supplied Qt translations source archive.
-upstream/ contains original source archives and patches; formats are preserved.
+editable TS source in the separately available Qt translations source archive.
+patches/ contains the exact patches; dependency archive formats are preserved.
 The Git snapshots' extractTo fields identify MuPDF, LCMS2's submodule and zlib-ng.
 Verify each archive member against its recorded SHA256 before extraction.
 
@@ -295,6 +382,7 @@ def main():
     parser.add_argument('--inventory', type=Path)
     parser.add_argument('--cache', type=Path)
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--dependencies', type=Path, help='Reusable dependency source directory; default: beside output ZIP')
     parser.add_argument('--fetch', action='store_true')
     parser.add_argument('--build-dir', type=Path, help='Include the exact editor CMake cache')
     args = parser.parse_args()
@@ -312,7 +400,7 @@ def main():
     else:
         if args.cache is None or args.output is None:
             parser.error('--assemble requires --cache and --output')
-        assemble(args.assemble, args.cache, args.output, args.fetch)
+        assemble(args.assemble, args.cache, args.output, args.fetch, args.dependencies)
 
 
 if __name__ == '__main__':

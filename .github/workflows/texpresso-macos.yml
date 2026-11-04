@@ -135,7 +135,7 @@ jobs:
             --macdeployqt "$(brew --prefix qt)/bin/macdeployqt" \
             --library-path "$RUNNER_TEMP/poppler/lib" --library-path "$(brew --prefix)/lib" \
             --poppler-data "$RUNNER_TEMP/poppler/share/poppler"
-      - name: Assemble complete corresponding source
+      - name: Prepare project sources and reusable dependency sources
         run: |
           python3 native/scripts/source_release.py \
             --plan .native-sources/source-input-plan \
@@ -166,6 +166,7 @@ jobs:
           python3 native/scripts/source_release.py \
             --assemble .native-sources/source-release-plan \
             --cache .native-sources/distribution-sources --fetch \
+            --dependencies dist/dependency-sources \
             --output "dist/texstudio-texpresso-macos-${{ matrix.architecture }}-sources.zip"
       - name: Sign, notarize, staple, and verify the complete app
         timeout-minutes: 45
@@ -189,6 +190,13 @@ jobs:
         with:
           name: texstudio-texpresso-macos-${{ matrix.architecture }}-notarized
           path: dist/*.zip*
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload reusable dependency sources
+        uses: actions/upload-artifact@v7
+        with:
+          name: texstudio-texpresso-macos-${{ matrix.architecture }}-dependency-sources
+          path: dist/dependency-sources/
           if-no-files-found: error
           retention-days: 14
       - name: Build provenance
