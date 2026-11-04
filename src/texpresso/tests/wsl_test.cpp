@@ -168,6 +168,7 @@ void WslTest::realEngine()
     QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid() || session->failed(), 90000);
     QVERIFY2(!session->failed(), qPrintable(session->status + "\n" + session->engineOutput));
     QTRY_VERIFY_WITH_TIMEOUT(session->compilerOutput.contains("WSL-INITIAL"), 30000);
+    QVERIFY2(session->compilerError.isEmpty(), qPrintable(session->compilerError));
     QVERIFY(!session->preview.image().isNull());
     const auto raster = session->preview.image().convertToFormat(QImage::Format_ARGB32);
     int ink = 0;
@@ -190,7 +191,7 @@ void WslTest::realEngine()
     QVERIFY(manager.changeBuffer(root, 4, 5, 4, 15, "WSL-RANGE"));
     QTRY_VERIFY_WITH_TIMEOUT(session->preview.valid() && session->compilerOutput.contains("WSL-RANGE"), 30000);
     manager.openBuffer(root, QString(edited).replace("\\begin{document}", "\\begin{document}\n\\UndefinedForWslTest"));
-    QTRY_VERIFY_WITH_TIMEOUT(!session->compilerError.isEmpty(), 30000);
+    QTRY_VERIFY_WITH_TIMEOUT(session->compilerError.contains("Undefined control sequence"), 30000);
     const auto repaired = QString(edited).replace("WSL-EDITED", "WSL-RECOVERED");
     manager.openBuffer(root, repaired);
     QTRY_VERIFY2_WITH_TIMEOUT(session->preview.valid() && session->compilerError.isEmpty()

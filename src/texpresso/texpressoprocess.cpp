@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QJsonDocument>
+#include <QDebug>
 #include <QStandardPaths>
 #include <csignal>
 #ifndef Q_OS_WIN
@@ -138,8 +139,10 @@ TexpressoProcess::TexpressoProcess(QObject *parent) : QObject(parent)
     });
     connect(&protocol, &TexpressoProtocol::message, this, [this](const QJsonArray &message) {
         const auto verb = message.isEmpty() ? QString() : message[0].toString();
-        if (traceProtocol && (verb.startsWith("preview-") || verb == "reset-sync" || verb == "truncate-lines" || verb == "engine-error"))
-            emit diagnostic("[protocol-receive] " + QString::fromUtf8(QJsonDocument(message).toJson(QJsonDocument::Compact)) + '\n');
+        if (traceProtocol && (verb.startsWith("preview-") || verb == "reset-sync" || verb == "truncate-lines" || verb == "engine-error")) {
+            const auto line = "[protocol-receive] " + QString::fromUtf8(QJsonDocument(message).toJson(QJsonDocument::Compact));
+            qInfo().noquote() << line; emit diagnostic(line + '\n');
+        }
         emit this->message(wsl.incoming(message));
     });
     connect(&initialization, &QFutureWatcher<TexpressoWsl>::finished, this, [this] {
@@ -196,7 +199,10 @@ void TexpressoProcess::send(const QJsonArray &command)
 {
     if (!stopping && child.state() == QProcess::Running) {
         const auto bytes = QJsonDocument(wsl.outgoing(command)).toJson(QJsonDocument::Compact);
-        if (traceProtocol) emit diagnostic("[protocol-send] " + QString::fromUtf8(bytes) + '\n');
+        if (traceProtocol) {
+            const auto line = "[protocol-send] " + QString::fromUtf8(bytes).left(4096);
+            qInfo().noquote() << line; emit diagnostic(line + '\n');
+        }
         child.write(bytes + '\n');
     }
 }

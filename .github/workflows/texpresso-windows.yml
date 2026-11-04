@@ -27,7 +27,7 @@ jobs:
             libsdl2-dev libfreetype-dev libbrotli-dev \
             libjbig2dec0-dev libjpeg-dev libopenjp2-7-dev libfontconfig-dev \
             libharfbuzz-dev libgraphite2-dev libicu-dev libpng-dev \
-            texlive-xetex texlive-latex-extra
+            texlive-xetex texlive-fonts-recommended texlive-latex-extra
       - name: Read locked compressor
         id: compressor
         run: python3 -c 'import json,os; open(os.environ["GITHUB_OUTPUT"], "a").write("revision=" + json.load(open("native/dependencies.lock.json"))["zlibNg"]["revision"] + "\n")'
@@ -84,7 +84,7 @@ jobs:
           if ($listed -notmatch '(?m)Ubuntu-24\.04\s+.+\s+2\s*$') { throw 'The test distribution is not WSL2' }
           wsl.exe --distribution Ubuntu-24.04 --user root --exec sh -c 'grep -qi microsoft /proc/sys/kernel/osrelease && uname -r'
           if ($LASTEXITCODE -ne 0) { throw 'WSL kernel preflight failed' }
-          wsl.exe --distribution Ubuntu-24.04 --user root --exec sh -c 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends texlive-xetex texlive-latex-extra texlive-bibtex-extra biber'
+          wsl.exe --distribution Ubuntu-24.04 --user root --exec sh -c 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends texlive-xetex texlive-fonts-recommended texlive-latex-extra texlive-bibtex-extra biber'
           if ($LASTEXITCODE -ne 0) { throw 'Linux TeX Live setup failed' }
           wsl.exe --set-default Ubuntu-24.04
       - uses: msys2/setup-msys2@v2

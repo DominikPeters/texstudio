@@ -41,7 +41,7 @@ for directory in "$destination"/bin/*; do
 done
 export PATH
 if [ "$scheme" = small ]; then
-    tlmgr --repository "$repository" install biber biblatex latexmk collection-latexrecommended
+    tlmgr --repository "$repository" install biber biblatex latexmk collection-latexrecommended collection-fontsrecommended
 fi
 mkdir "$work/check"
 printf '\\documentclass{article}\n\\begin{document}TeXstudio Espresso setup check.\\end{document}\n' > "$work/check/main.tex"

@@ -29,7 +29,7 @@ jobs:
             libsdl2-dev libmupdf-dev libmujs-dev libfreetype-dev libgumbo-dev \
             libjbig2dec0-dev libjpeg-dev libopenjp2-7-dev libfontconfig-dev \
             libharfbuzz-dev libgraphite2-dev libicu-dev libpng-dev \
-            libleptonica-dev libtesseract-dev texlive-xetex texlive-bibtex-extra biber \
+            libleptonica-dev libtesseract-dev texlive-xetex texlive-fonts-recommended texlive-bibtex-extra biber \
             texlive-latex-extra texlive-pictures poppler-utils
       - name: Read locked PNG compressor revision
         id: compressor
@@ -74,24 +74,6 @@ jobs:
         run: |
           TEXPRESSO_TEST_ENGINE="$PWD/native/.bundles/linux-$(uname -m)/bin/texpresso" \
             ctest --test-dir build-client --output-on-failure
-      - name: Compare failing scenarios against the prior engine
-        if: failure() && steps.qt-tests.conclusion == 'failure'
-        env:
-          QT_QPA_PLATFORM: offscreen
-          TEXPRESSO_TEST_TRACE_PROTOCOL: "1"
-        run: |
-          # Same Qt client, TeX installation and renderer: distinguish an engine
-          # regression from previously uncovered distribution/platform behavior.
-          previous=90b211349960b406267b44642c7be49b584d1f4c
-          git -C native/texpresso fetch --depth 1 origin "$previous"
-          mkdir -p native/.work/engine-comparison
-          git -C native/texpresso archive "$previous" | tar -x -C native/.work/engine-comparison
-          current=$(git -C native/texpresso rev-parse HEAD)
-          cp "native/.work/linux-$current/Makefile.config" native/.work/engine-comparison/
-          make -C native/.work/engine-comparison -j2 all > build-client/engine-comparison-build.log 2>&1
-          TEXPRESSO_TEST_ENGINE="$PWD/native/.work/engine-comparison/build/texpresso" \
-            ctest --test-dir build-client -R '^(texpresso-wsl|texpresso-links|texpresso-pagination)$' --output-on-failure \
-            > build-client/engine-comparison-tests.log 2>&1
       - name: Exercise sustained source following on natural 30/100-page documents
         env:
           QT_QPA_PLATFORM: offscreen
@@ -170,7 +152,6 @@ jobs:
           name: linux-live-preview-diagnostics
           path: |
             build-client/Testing/Temporary/
-            build-client/engine-comparison-*.log
             build-client/miktex-results/
             build-client/sustained-results/
             build/CMakeFiles/CMakeConfigureLog.yaml
