@@ -18,6 +18,7 @@ private slots:
     void externalBuildDisablesInteractions();
     void realEngine();
     void cachedInverseUsesPublishedSourceMap();
+    void preciseCachedSourceSearch();
     void retinaResolution();
 };
 void RenderingTest::retinaResolution()
@@ -203,7 +204,7 @@ void RenderingTest::cachedInverseUsesPublishedSourceMap()
     QSignalSpy images(&process, &TexpressoProcess::image), messages(&process, &TexpressoProcess::message), commands(&preview, &TexpressoPreview::command);
     connect(&process, &TexpressoProcess::diagnostic, &preview, [&](const QString &text) { diagnostics += text; });
     connect(&process, &TexpressoProcess::ready, &preview, [&](QJsonObject capabilities) {
-        capabilities["backgroundRendering"] = false; preview.setCapabilities(capabilities);
+        capabilities["backgroundRendering"] = false; capabilities["synctexPrecision"] = 0; preview.setCapabilities(capabilities);
         process.send({"rerun", false}); preview.setActive(true);
     });
     connect(&process, &TexpressoProcess::message, &preview, &TexpressoPreview::message);
@@ -284,6 +285,55 @@ void RenderingTest::realEngine()
     qInfo() << "Native full PNG bytes:" << fullBytes << "small edit patch bytes:" << patchBytes
         << "no-op bytes: 0; region pixels:" << detail.size();
     process.stop();
+}
+void RenderingTest::preciseCachedSourceSearch()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE");
+    if (engine.isEmpty()) QSKIP("Set TEXPRESSO_TEST_ENGINE for native precise source search");
+    QTemporaryDir project; const auto root = project.filePath("main.tex");
+    QFile file(root); QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write(QString::fromUtf8("\\documentclass{article}\n\\pagestyle{empty}\n\\begin{document}\nAlpha office café repeated repeated finalword.\n\\newpage\nSecond page finalmarker.\n\\end{document}\n").toUtf8()); file.close();
+    TexpressoProcess process; TexpressoPreview preview; QString diagnostics;
+    QSignalSpy images(&process, &TexpressoProcess::image), messages(&process, &TexpressoProcess::message),
+        commands(&preview, &TexpressoPreview::command), highlights(&preview, &TexpressoPreview::sourceHighlights),
+        locations(&preview, &TexpressoPreview::sourceLocation);
+    connect(&process, &TexpressoProcess::diagnostic, &preview, [&](const QString &text) { diagnostics += text; });
+    connect(&process, &TexpressoProcess::ready, &preview, [&](QJsonObject capabilities) {
+        capabilities["backgroundRendering"] = false; preview.setCapabilities(capabilities);
+        process.send({"rerun", false}); preview.setActive(true);
+    });
+    connect(&process, &TexpressoProcess::message, &preview, &TexpressoPreview::message);
+    connect(&process, &TexpressoProcess::image, &preview, &TexpressoPreview::receive);
+    connect(&preview, &TexpressoPreview::command, &process, &TexpressoProcess::send);
+    process.start(engine, root); QTRY_VERIFY2_WITH_TIMEOUT(preview.valid(), qPrintable(diagnostics), 25000);
+    QVERIFY(preview.preciseSync());
+    preview.forward(QFileInfo(root).canonicalFilePath(), 3, 9, "office");
+    const auto wordRect = [&] {
+        for (auto it = highlights.crbegin(); it != highlights.crend(); ++it)
+            if ((*it)[0].toInt() == 0) return qvariant_cast<QList<QRectF>>((*it)[1]);
+        return QList<QRectF>();
+    };
+    QTRY_VERIFY2_WITH_TIMEOUT(!wordRect().isEmpty(), qPrintable(diagnostics.right(10000)), 5000);
+    QTest::qWait(100); QCOMPARE(wordRect().size(), 1); QVERIFY2(wordRect().first().width() < 50, qPrintable(diagnostics.right(1800)));
+    const auto point = wordRect().first().center();
+    preview.setPage(1); QTRY_VERIFY_WITH_TIMEOUT(preview.valid(), 10000);
+    images.clear(); messages.clear(); commands.clear(); diagnostics.clear();
+    preview.inverse(point, false, false, 0);
+    QTRY_COMPARE_WITH_TIMEOUT(locations.size(), 1, 3000);
+    QCOMPARE(locations.last()[1].toInt(), 4); QCOMPARE(locations.last()[3].toString(), QString("office"));
+    QCOMPARE(commands.size(), 1); QVERIFY(images.isEmpty()); QCOMPARE(preview.page(), 1);
+    QVERIFY2(!diagnostics.contains("dvi-display-list") && !diagnostics.contains("compiler-restore"), qPrintable(diagnostics));
+    preview.setSyncInputTags(QJsonArray{}); preview.inverse(point, false, false, 0);
+    const auto none = lastCommand(commands);
+    const auto settled = [&] { for (const auto &row : messages) { const auto m = row[0].toJsonArray();
+        if (m[0] == "preview-inverse-result" && m[1] == none[1] && m[5].isNull()) return true; } return false; };
+    QTRY_VERIFY_WITH_TIMEOUT(settled(), 3000); QCOMPARE(locations.size(), 1);
+    // Invalid new command shapes are rejected without corrupting the next valid query.
+    process.send({"preview-search-precise", 99, root, 4, 0, -1, "office"});
+    process.send({"preview-inverse-precise", 100, double(preview.revision()), 0, 0, 10, 10, QJsonArray{-1}, false});
+    process.send({"preview-inverse-precise", 101, double(preview.revision()), 0, 0, 10, 10, QJsonValue::Null, 1});
+    preview.setSyncInputTags(QJsonValue::Null); preview.inverse(point, false, false, 0);
+    QTRY_COMPARE_WITH_TIMEOUT(locations.size(), 2, 3000); QCOMPARE(locations.last()[3].toString(), QString("office"));
 }
 QTEST_MAIN(RenderingTest)
 #include "rendering_test.moc"

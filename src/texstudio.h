@@ -196,7 +196,7 @@ public:
 private:
 	OutputViewWidget *outputView; ///< contains output widgets (over OutputLayout)
     enum class PreviewSourceVersion { SavedSnapshot, CurrentBuffer };
-    void syncFromPreview(const QString &fileName, int line, bool activate, const QString &word, PreviewSourceVersion source);
+    void syncFromPreview(const QString &fileName, int line, bool activate, const QString &word, PreviewSourceVersion source, int oneBasedByteColumn = -1);
 #ifdef TEXSTUDIO_TEXPRESSO
     TexpressoManager *texpressoManager = nullptr;
     TexpressoWidget *texpressoWidget = nullptr;

@@ -40,4 +40,10 @@ qreal sliderToScale(int position);
 int scaleToSlider(qreal scale);
 qreal steppedScale(qreal scale, int direction, qreal step);
 bool isSyncClick(Qt::KeyboardModifiers modifiers);
+bool matchesSyncFileMask(const QString &file, const QString &mask);
+int utf8SourceColumn(const QString &line, int utf16Column);
+int utf16SourceColumn(const QString &line, int oneBasedByteColumn);
+QString sourceWord(const QString &line, int utf16Column);
+// An ambiguous word alone must not choose an arbitrary occurrence.
+int sourceWordColumn(const QList<int> &matches, int wordLength, int preferredColumn = -1);
 }

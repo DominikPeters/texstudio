@@ -96,7 +96,7 @@ QJsonArray TexpressoWsl::outgoing(QJsonArray message) const
     const auto verb = message[0].toString();
     int index = -1;
     if (verb == "open" || verb == "close" || verb == "change-range" || verb == "synctex-forward") index = 1;
-    if (verb == "preview-search" || verb == "preview-prepare") index = 2;
+    if (verb == "preview-search" || verb == "preview-search-precise" || verb == "preview-prepare") index = 2;
     if (index >= 0 && message.size() > index && message[index].isString()) message[index] = toEngine(message[index].toString());
     return message;
 }
@@ -106,6 +106,11 @@ QJsonArray TexpressoWsl::incoming(QJsonArray message) const
     const auto verb = message[0].toString();
     int index = verb == "input-file" ? 2 : verb == "lookup-file" ? 3 : verb == "synctex" ? 1 : -1;
     if (index >= 0 && message.size() > index && message[index].isString()) message[index] = toEditor(message[index].toString());
+    if (verb == "preview-inverse-result" && message.size() == 6 && message[5].isObject()) {
+        auto location = message[5].toObject();
+        if (location["file"].isString()) location["file"] = toEditor(location["file"].toString());
+        message[5] = location;
+    }
     return message;
 }
 

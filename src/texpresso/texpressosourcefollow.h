@@ -15,6 +15,7 @@ public:
         quint64 version = 0;
         int line = 0, column = 0;
         qint64 sequence = 0, revision = 0;
+        bool precise = false;
     };
     bool request(const Intent &intent, bool explicitRequest = false)
     {
@@ -32,7 +33,8 @@ public:
         held.reset();
         if (!explicitRequest && !resumed && previous
             && previous->document == intent.document && previous->version == intent.version
-            && previous->line == intent.line && previous->sequence == intent.sequence
+            && previous->line == intent.line && (!intent.precise || previous->column == intent.column)
+            && previous->sequence == intent.sequence
             && previous->revision == intent.revision) {
             // SyncTeX searches by line; remember horizontal caret movement so
             // a later manual preview hold can distinguish a new selection.

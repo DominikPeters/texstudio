@@ -338,6 +338,13 @@ void TexpressoCanvas::paintEvent(QPaintEvent *)
         }
         painter.drawPixmap(rect(), convertedPixels);
     }
+    if (fresh && !sourceHighlights.isEmpty()) {
+        painter.save();
+        painter.setPen(Qt::NoPen); painter.setBrush(QColor(config->highlightColor));
+        for (const auto &r : sourceHighlights)
+            painter.drawRect(QRectF((r.topLeft() - pageBounds.topLeft()) * scale, r.size() * scale));
+        painter.restore();
+    }
     if (fresh && figurePopup->isVisible() && hoveredFigure >= 0) {
         auto color = palette().color(QPalette::Highlight); color.setAlpha(105);
         QPen pen(color, 1); pen.setCosmetic(true);
@@ -564,14 +571,22 @@ TexpressoWidget::TexpressoWidget(TexpressoManager *manager, PDFDocumentConfig *c
     connect(actions["restart"], &QAction::triggered, manager, &TexpressoManager::restart);
     connect(actions["sync"], &QAction::triggered, this, &TexpressoWidget::syncRequested);
     connect(actions["gotoSource"], &QAction::triggered, this, [this] {
-        if (shown && canvas->fresh) shown->preview.inverse(QPointF(canvas->pageBounds.center()));
+        if (shown && canvas->fresh) {
+            shown->setSyncFileMask(this->config->syncFileMask);
+            shown->syncInverse(canvas->pageBounds.center());
+        }
     });
     connectCanvas(canvas);
     connect(actions["output"], &QAction::triggered, this, &TexpressoWidget::outputRequested);
+    scrollSyncTimer.setSingleShot(true); scrollSyncTimer.setInterval(200);
+    connect(&scrollSyncTimer, &QTimer::timeout, this, &TexpressoWidget::syncVisibleSource);
+    sourceHighlightTimer.setSingleShot(true);
+    connect(&sourceHighlightTimer, &QTimer::timeout, this, &TexpressoWidget::clearSourceHighlights);
     const auto saveScroll = [this] {
         if (previewEnabled && shown && !updating) {
             shown->preview.scroll = {area->horizontalScrollBar()->value(), area->verticalScrollBar()->value()};
             updateViewport(true);
+            if (this->config->followFromScroll) scrollSyncTimer.start();
         }
     };
     connect(area->horizontalScrollBar(), &QScrollBar::valueChanged, this, saveScroll);
@@ -582,7 +597,7 @@ void TexpressoWidget::setPreviewVisible(bool visible)
 {
     if (previewEnabled == visible) return;
     previewEnabled = visible;
-    widthTimer.stop(); refreshTimer.stop();
+    widthTimer.stop(); refreshTimer.stop(); scrollSyncTimer.stop(); clearSourceHighlights();
     canvas->resetTools();
     for (auto page : extraCanvases) page->resetTools();
     manager->setPreviewVisible(visible);
@@ -678,6 +693,18 @@ void TexpressoWidget::refresh()
         shownInvert = config->invertColors; shownGray = config->grayscale;
         actions["gotoSource"]->setEnabled(canvas->fresh);
         if (switched) {
+            scrollSyncTimer.stop(); clearSourceHighlights(); disconnect(highlightConnection);
+            session->setSyncFileMask(config->syncFileMask);
+            highlightConnection = connect(&preview, &TexpressoPreview::sourceHighlights, this,
+                [this, session](int page, const QList<QRectF> &rects) {
+                    if (!previewEnabled || shown != session) return;
+                    clearSourceHighlights();
+                    sourceHighlightPage = page; sourceHighlightRects = rects;
+                    sourceHighlightRevision = session->preview.revision(); sourceHighlightSequence = session->preview.sequence();
+                    if (config->highlightDuration > 0 && !rects.isEmpty()) sourceHighlightTimer.start(config->highlightDuration);
+                    updateCanvas(canvas, session->preview.page()); canvas->update();
+                    for (auto extra : extraCanvases) { updateCanvas(extra, extra->property("texpressoPage").toInt()); extra->update(); }
+                });
             disconnect(revealConnection);
             revealConnection = connect(&preview, &TexpressoPreview::reveal, this, [this, session](const QPointF &point) {
                 if (!previewEnabled || shown != session) return;
@@ -747,6 +774,8 @@ void TexpressoWidget::updateCanvas(TexpressoCanvas *pageCanvas, int page)
     const bool changed = pageCanvas->pixels.cacheKey() != image.cacheKey()
         || shownInvert != config->invertColors || shownGray != config->grayscale;
     if (changed || !samePage) { pageCanvas->resetTools(); pageCanvas->invalidateMagnifier(); }
+    pageCanvas->sourceHighlights = page == sourceHighlightPage && sourceHighlightRevision == preview.revision()
+        && sourceHighlightSequence == preview.sequence() ? sourceHighlightRects : QList<QRectF>();
     pageCanvas->pixels = image; pageCanvas->pageBounds = bounds;
     pageCanvas->setProperty("texpressoPage", page);
     pageCanvas->fresh = preview.pageValid(page) && !shown->userStopped && !shown->failed() && !shown->externalBuildRunning();
@@ -777,8 +806,13 @@ void TexpressoWidget::connectCanvas(TexpressoCanvas *pageCanvas)
     connect(pageCanvas, &TexpressoCanvas::sourceClicked, this, [this, pageCanvas](const QPointF &point) {
         if (!shown) return;
         const int page = pageCanvas->property("texpressoPage").toInt();
-        const auto scroll = shown->preview.scroll; shown->preview.setPage(page); shown->preview.scroll = scroll;
-        shown->preview.inverse(point);
+        scrollSyncTimer.stop(); clearSourceHighlights();
+        shown->setSyncFileMask(this->config->syncFileMask);
+        // Published neighbor pages can be queried without changing page demand.
+        if (!shown->preview.preciseSync()) {
+            const auto scroll = shown->preview.scroll; shown->preview.setPage(page); shown->preview.scroll = scroll;
+        }
+        shown->syncInverse(point, page);
     });
     connect(pageCanvas, &TexpressoCanvas::zoomRequested, this, [this, pageCanvas](int direction, const QPoint &anchor) {
         setZoom(ViewerControls::steppedScale(pageCanvas->scale * 72 / 96, direction, config->zoomStepFactor), pageCanvas->mapTo(canvas, anchor));
@@ -797,7 +831,7 @@ void TexpressoWidget::showPage(int page)
     const QRect bounds = page < pageRects.size() ? pageRects[page] : QRect();
     if (!bounds.isEmpty()) area->verticalScrollBar()->setValue(bounds.top());
     updating = before;
-    if (!updating) updateViewport();
+    if (!updating) { updateViewport(); if (config->followFromScroll) scrollSyncTimer.start(); }
 }
 void TexpressoWidget::revealPoint(const QPointF &point, bool source)
 {
@@ -989,3 +1023,24 @@ void TexpressoWidget::updateViewport(bool gesture)
     if (geometryChanged && !refreshTimer.isActive()) refreshTimer.start();
 }
 void TexpressoWidget::resizeEvent(QResizeEvent *event) { QWidget::resizeEvent(event); layoutPage(); }
+
+void TexpressoWidget::clearSourceHighlights()
+{
+    sourceHighlightTimer.stop(); sourceHighlightPage = -1; sourceHighlightRects.clear();
+    canvas->sourceHighlights.clear(); canvas->update();
+    for (auto extra : extraCanvases) { extra->sourceHighlights.clear(); extra->update(); }
+}
+void TexpressoWidget::syncVisibleSource()
+{
+    if (!config->followFromScroll || !previewEnabled || !shown || updating || !shown->preview.preciseSync()
+        || shown->preview.followingSource() || viewportPage < 0 || viewportPage >= pageRects.size()) return;
+    auto &preview = shown->preview;
+    if (!preview.pageValid(viewportPage)) return;
+    const QRect viewport(documentCanvas->mapFrom(area->viewport(), QPoint()), area->viewport()->size());
+    const auto visible = pageRects[viewportPage].intersected(viewport);
+    if (visible.isEmpty() || canvas->scale <= 0) return;
+    const auto point = preview.boundsForPage(viewportPage).topLeft()
+        + QPointF(visible.center() - pageRects[viewportPage].topLeft()) / canvas->scale;
+    shown->setSyncFileMask(this->config->syncFileMask);
+    shown->syncInverse(point, viewportPage, false);
+}

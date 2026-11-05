@@ -3991,19 +3991,7 @@ void PDFDocument::syncClick(int pageIndex, const QPointF &pos, bool activate)
 	while (iter.hasNext()) {
 		QSynctex::Node node = iter.next();
 		QString fullName = scanner.getNameFileInfo(curDir, node).canonicalFilePath();
-		if (!globalConfig->syncFileMask.trimmed().isEmpty()) {
-			bool found = false;
-            foreach (const QString & s, globalConfig->syncFileMask.split(";")){
-                QString rxs=s.trimmed().replace(".","\\.").replace("*",".*");
-                QRegularExpression rx=QRegularExpression(rxs);
-                QRegularExpressionMatch rxm=rx.match(fullName);
-                if (rxm.hasMatch()) {
-                    found = true;
-                    break;
-                }
-            }
-			if (!found) continue;
-		}
+		if (!ViewerControls::matchesSyncFileMask(fullName, globalConfig->syncFileMask)) continue;
 
 		QString word;
 		if (!document.isNull() && pageIndex >= 0 && pageIndex < pdfWidget->realNumPages()) {

@@ -57,6 +57,11 @@ void WslTest::pathsAndProtocol()
     QCOMPARE(command, QJsonArray({"open", "/custom/c/main.tex", text}));
     QCOMPARE(wsl.outgoing({"preview-prepare", 3, "C:/main.tex", 42})[2].toString(), QString("/custom/c/main.tex"));
     QCOMPARE(wsl.incoming({"lookup-file", "read", "successful", "/custom/c/main.tex"})[3].toString(), QString("C:/main.tex"));
+    QCOMPARE(wsl.outgoing({"preview-search-precise", 3, "C:/main.tex", 4, 0, 9, "office"})[2].toString(), QString("/custom/c/main.tex"));
+    const auto precise = wsl.incoming({"preview-inverse-result", 3, 1, 0, 0,
+        QJsonObject{{"file", "/custom/c/main.tex"}, {"line", 4}, {"column", -1}, {"word", "office"}}});
+    QCOMPARE(precise[5].toObject()["file"].toString(), QString("C:/main.tex"));
+    QCOMPARE(precise[5].toObject()["word"].toString(), QString("office"));
     QCOMPARE(wsl.incoming({"synctex", "/home/me/main.tex", 2})[1].toString(), QString("//wsl.localhost/My Linux/home/me/main.tex"));
     QCOMPARE(wsl.arguments("engine", {"one argument"}), QStringList({"--distribution", "My Linux", "--exec", "engine", "one argument"}));
     QCOMPARE(TexpressoWsl::relativePath("/home/Case", "/home/case/file.tex"), QString("../case/file.tex"));

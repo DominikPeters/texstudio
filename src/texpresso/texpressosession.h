@@ -38,6 +38,8 @@ public:
     void changeBuffer(const QString &path, int startLine, int startColumn, int endLine, int endColumn, const QString &text, const QString &currentText);
     void closeBuffer(const QString &path);
     void syncForward(const QString &path, int line, bool explicitRequest = true, int column = 0);
+    void setSyncFileMask(const QString &mask);
+    void syncInverse(const QPointF &point, int page = -1, bool activate = true);
     void prepareEdit(const QString &path, int line, int column);
     QJsonArray tikzFigures(int page);
     QJsonObject tikzFigure(int page, int index, qint64 revision, qint64 sequence);
@@ -60,7 +62,7 @@ public:
 signals:
     void updated();
     void outputUpdated();
-    void sourceLocation(const QString &file, int oneBasedLine, int column, const QString &word);
+    void sourceLocation(const QString &file, int oneBasedLine, int column, const QString &word, bool activate = true);
 private:
     friend class RerunTest;
     friend class PaginationTest;
@@ -75,6 +77,8 @@ private:
     void resetEngine();
     void sendSource(QJsonArray command, bool preserveSearch = false);
     void message(const QJsonArray &message);
+    void updateSyncInputTags();
+    void deliverSourceLocation(const QString &file, int line, int column, const QString &word, bool activate);
     void announce(const QString &path, const QString &editorPath = QString());
     QString absolute(const QString &path) const;
     void applyPause();
@@ -94,6 +98,8 @@ private:
     QString lastPreparationFrame;
     QMap<QString, QSet<QString>> aliases;
     QMap<QString, QString> editorPaths, inputAliases;
+    QMap<int, QString> syncInputs;
+    QString syncFileMask;
     std::unique_ptr<TexpressoProcess> process;
     QStringList auxiliaryDirectories, previousAuxiliaryDirectories;
     int externalBuildDepth = 0;

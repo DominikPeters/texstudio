@@ -1,11 +1,14 @@
 #include <QtTest>
 #include "texpressopreview.h"
+#include "ViewerControls.h"
 #include <QBuffer>
 
 class SourceRoutingTest : public QObject
 {
     Q_OBJECT
 private slots:
+    void preciseForwardAndInverse();
+    void sourceColumnsWordsAndMasks();
     void targetWaitsForItsDecodedFrame();
     void cachedTargetRevealsWithSourceFlag();
     void navigationCancelsForegroundCredit_data();
@@ -280,6 +283,62 @@ void SourceRoutingTest::sourceEpochCannotReuseOldCompletion()
     QVERIFY(preview.followingSource()); // No state has acknowledged this source epoch.
     preview.message({"preview-state", 11, 1, 1, true, 0});
     QVERIFY(!preview.followingSource());
+}
+void SourceRoutingTest::sourceColumnsWordsAndMasks()
+{
+    const auto line = QString::fromUtf8("é😀 office café office");
+    QCOMPARE(ViewerControls::utf8SourceColumn(line, 1), 3);
+    QCOMPARE(ViewerControls::utf8SourceColumn(line, 2), 3); // Mid-surrogate snaps back.
+    QCOMPARE(ViewerControls::utf8SourceColumn(line, 3), 7);
+    QCOMPARE(ViewerControls::utf16SourceColumn(line, 5), 1); // Mid-UTF8 scalar snaps back.
+    QCOMPARE(ViewerControls::utf16SourceColumn(line, 7), 3);
+    QCOMPARE(ViewerControls::utf16SourceColumn(line, 100), -1);
+    QCOMPARE(ViewerControls::sourceWord(line, 17), QString("office"));
+    QCOMPARE(ViewerControls::sourceWord(QString::fromUtf8("cafe\u0301"), 3), QString::fromUtf8("café"));
+    QVERIFY(ViewerControls::sourceWord("\\section{hello}", 5).isEmpty());
+    QCOMPARE(ViewerControls::sourceWordColumn({4, 16}, 6), -1);
+    QCOMPARE(ViewerControls::sourceWordColumn({4, 16}, 6, 17), 19);
+    QCOMPARE(ViewerControls::sourceWordColumn({4, 16}, 6, 13), -1); // Equal-distance ambiguity.
+    QCOMPARE(ViewerControls::sourceWordColumn({4}, 6), 7);
+    QVERIFY(ViewerControls::matchesSyncFileMask("/tmp/figure.tikz", "*.tex; *.tikz"));
+    QVERIFY(!ViewerControls::matchesSyncFileMask("/tmp/figure.sty", "*.tex;*.tikz"));
+    QVERIFY(!ViewerControls::matchesSyncFileMask("/tmp/figure.TEX", "*.tex"));
+    QVERIFY(ViewerControls::matchesSyncFileMask("/tmp/main.tex.backup", "*.tex")); // Existing unanchored PDF semantics.
+    QVERIFY(ViewerControls::matchesSyncFileMask("/tmp/anything.sty", ""));
+}
+void SourceRoutingTest::preciseForwardAndInverse()
+{
+    TexpressoPreview preview;
+    QSignalSpy commands(&preview, &TexpressoPreview::command), reveals(&preview, &TexpressoPreview::reveal),
+        highlights(&preview, &TexpressoPreview::sourceHighlights), locations(&preview, &TexpressoPreview::sourceLocation);
+    preview.setCapabilities({{"requestLifecycle", true}, {"synctexPrecision", 1}});
+    start(preview); deliver(preview, lastCommand(commands)); QTRY_VERIFY(preview.valid());
+    preview.forward("main.tex", 2, 17, "office");
+    const auto search = lastCommand(commands);
+    QCOMPARE(search, (QJsonArray{"preview-search-precise", search[1], "main.tex", 3, 0, 17, "office"}));
+    preview.message({"preview-source-precise", search[1], 10, 0, 1, 50, 80, QJsonArray{QJsonValue(QJsonArray{40, 70, 60, 90})}});
+    QVERIFY(reveals.isEmpty()); // Geometry must wait for the target page's pixels.
+    deliver(preview, lastCommand(commands)); QTRY_COMPARE(reveals.size(), 1);
+    QCOMPARE(highlights.last()[0].toInt(), 1);
+    QCOMPARE(qvariant_cast<QList<QRectF>>(highlights.last()[1]), QList<QRectF>{QRectF(40, 70, 20, 20)});
+    preview.setSyncInputTags(QJsonArray{1, 4}); commands.clear();
+    preview.inverse({50, 80}, false, false);
+    QCOMPARE(commands.size(), 1);
+    const auto inverse = lastCommand(commands);
+    QCOMPARE(inverse, (QJsonArray{"preview-inverse-precise", inverse[1], 10, 0, 1, 50, 80, QJsonArray{1, 4}, false}));
+    const QJsonObject hit{{"file", "main.tex"}, {"line", 3}, {"column", 17}, {"word", "office"}};
+    preview.message({"preview-inverse-result", inverse[1], 9, 0, 1, hit}); QVERIFY(locations.isEmpty());
+    preview.message({"preview-inverse-result", inverse[1], 10, 0, 0, hit}); QVERIFY(locations.isEmpty());
+    preview.message({"preview-inverse-result", inverse[1], 10, 0, 1, hit}); QCOMPARE(locations.size(), 1);
+    QVERIFY(!locations.last()[4].toBool()); QCOMPARE(commands.size(), 1); // No render or preparation commands.
+    preview.inverse({50, 80}); const auto old = lastCommand(commands);
+    preview.inverse({60, 80}); const auto current = lastCommand(commands);
+    preview.message({"preview-inverse-result", old[1], 10, 0, 1, hit}); QCOMPARE(locations.size(), 1);
+    preview.message({"preview-inverse-result", current[1], 10, 0, 1, QJsonValue::Null});
+    preview.message({"preview-inverse-result", current[1], 10, 0, 1, hit}); QCOMPARE(locations.size(), 1); // Null settles.
+    preview.inverse({60, 80}); const auto stale = lastCommand(commands);
+    preview.sourceChanged(1);
+    preview.message({"preview-inverse-result", stale[1], 10, 0, 1, hit}); QCOMPARE(locations.size(), 1);
 }
 QTEST_MAIN(SourceRoutingTest)
 #include "source_routing_test.moc"

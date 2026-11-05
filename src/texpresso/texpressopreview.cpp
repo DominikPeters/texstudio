@@ -24,6 +24,8 @@ bool protocolCount(const QJsonValue &value)
 }
 TexpressoPreview::TexpressoPreview(QObject *parent) : QObject(parent)
 {
+    inverseTimer.setSingleShot(true); inverseTimer.setInterval(30000);
+    connect(&inverseTimer, &QTimer::timeout, this, [this] { inverseRequest.reset(); });
     endTimer.setSingleShot(true); endTimer.setInterval(120000);
     connect(&endTimer, &QTimer::timeout, this, [this] {
         cancelEndSearch();
@@ -207,12 +209,13 @@ void TexpressoPreview::schedulePrefetch()
 }
 void TexpressoPreview::setCapabilities(const QJsonObject &capabilities)
 {
+    supportsPreciseSync = capabilities["synctexPrecision"].toInt() == 1;
     supportsLinks = capabilities["links"].toBool();
     if (!supportsLinks) cancelDestination();
     supportsBackground = capabilities["backgroundRendering"].toBool();
     supportsRegions = capabilities["regions"].toBool();
     supportsPatches = capabilities["pngPatches"].toBool();
-    supportsRequestLifecycle = capabilities["requestLifecycle"].toBool();
+    supportsRequestLifecycle = capabilities["requestLifecycle"].toBool() || supportsPreciseSync;
     if (!supportsRegions) cancelRegion();
     if (!supportsPatches) rasterId = 0;
 }
@@ -238,6 +241,7 @@ void TexpressoPreview::sourceChanged(qint64 sequence)
     cancelDestination(false);
     emit interactionStarted();
     prefetched.clear(); frontierBudget = 1; prefetchReady = false; prefetchTimer.stop();
+    inverseRequest.reset(); inverseTimer.stop(); emit sourceHighlights(-1, {});
     sourceSequence = sequence; engineRevision = stateRevision = -1;
     dirty = true; fresh = false; inFlight = 0; pending.reset();
     waitingForward = false; nativeForwardPending = false; sourceFollowing = false; sourceTarget.reset(); forwardTimer.stop();
@@ -249,6 +253,7 @@ void TexpressoPreview::sourceChanged(qint64 sequence)
 void TexpressoPreview::setActive(bool enabled)
 {
     active = enabled;
+    if (!active) { inverseRequest.reset(); inverseTimer.stop(); }
     if (!active) cancelDestination();
     if (!active) cancelEndSearch();
     if (!active) { cancelRegion(); prefetchTimer.stop(); gestureTimer.stop(); gestureActive = false; interruptBackground(); }
@@ -268,6 +273,7 @@ void TexpressoPreview::setPage(int page)
     const int maximum = canDiscoverPages() ? 100000 : std::max(0, count - 1);
     page = std::clamp(page, 0, maximum);
     if (page == currentPage) return;
+    inverseRequest.reset(); inverseTimer.stop(); emit sourceHighlights(-1, {});
     emit interactionStarted(); interruptBackground();
     cancelRegion(); rasterId = 0;
     currentPage = page; dirty = true; fresh = false; inFlight = 0; pending.reset();
@@ -290,6 +296,7 @@ void TexpressoPreview::message(const QJsonArray &m)
         if (revision < engineRevision) return;
         if (revision != engineRevision) {
             if (endSelected && !m[4].toBool()) { findingEnd = true; endTimer.start(); }
+            inverseRequest.reset(); inverseTimer.stop(); emit sourceHighlights(-1, {});
             endUnavailable = false; sourceTarget.reset(); cancelDestination(false); inFlight = 0; dirty = true; fresh = false; cancelRegion(); clearCache();
         }
         const bool sameGeneration = revision == engineRevision;
@@ -392,18 +399,49 @@ void TexpressoPreview::message(const QJsonArray &m)
             setPage(int(target));
             finishDestination(); request();
         }
+    } else if (verb == "preview-inverse-result" && supportsPreciseSync && inverseRequest && m.size() == 6) {
+        const auto owned = *inverseRequest;
+        if (!protocolCount(m[1]) || m[1].toDouble() != owned.id
+            || m[2].toDouble(-1) != owned.revision || m[3].toDouble(-1) != owned.sequence
+            || !protocolCount(m[4]) || m[4].toDouble() != owned.page
+            || owned.revision != engineRevision || owned.sequence != sourceSequence) return;
+        if (!m[5].isNull() && !m[5].isObject()) return;
+        const auto location = m[5].toObject();
+        if (!m[5].isNull() && (!location["file"].isString() || location["file"].toString().isEmpty()
+            || !protocolCount(location["line"]) || location["line"].toInt() < 1
+            || !location["column"].isDouble() || location["column"].toDouble() < -1
+            || location["column"].toDouble() > 2147483647
+            || std::floor(location["column"].toDouble()) != location["column"].toDouble()
+            || !location["word"].isString() || location["word"].toString().toUtf8().size() > 256)) return;
+        inverseRequest.reset(); inverseTimer.stop();
+        if (!m[5].isNull()) emit sourceLocation(location["file"].toString(), location["line"].toInt(),
+            location["column"].toInt(-1), location["word"].toString(), owned.activate);
     } else if (sourceFollowing && ((verb == "preview-forward" && !supportsRequestLifecycle && m.size() == 6)
-        || (verb == "preview-source" && supportsRequestLifecycle && m.size() == 7
+        || (verb == "preview-source" && supportsRequestLifecycle && !supportsPreciseSync && m.size() == 7
+            && protocolCount(m[1]) && sourceRequest && m[1].toDouble() == sourceRequest)
+        || (verb == "preview-source-precise" && supportsPreciseSync && m.size() == 8
             && protocolCount(m[1]) && sourceRequest && m[1].toDouble() == sourceRequest))) {
-        const int offset = verb == "preview-source" ? 2 : 1;
+        const int offset = verb == "preview-forward" ? 1 : 2;
         if (m[offset].toDouble(-1) != engineRevision || m[offset + 1].toDouble(-1) != sourceSequence
             || !protocolCount(m[offset + 2]) || m[offset + 2].toDouble() > 100000) return;
         const int page = m[offset + 2].toInt();
         const auto x = m[offset + 3], y = m[offset + 4];
         if (!x.isDouble() || !y.isDouble() || !std::isfinite(x.toDouble()) || !std::isfinite(y.toDouble())
             || std::abs(x.toDouble()) >= 1e9 || std::abs(y.toDouble()) >= 1e9) return;
+        QList<QRectF> rects;
+        if (verb == "preview-source-precise") {
+            if (!m[7].isArray() || m[7].toArray().size() > 128) return;
+            for (const auto &value : m[7].toArray()) {
+                if (!value.isArray() || value.toArray().size() != 4) return;
+                const auto r = value.toArray();
+                for (const auto &n : r) if (!n.isDouble() || !std::isfinite(n.toDouble()) || std::abs(n.toDouble()) >= 1e9) return;
+                const QRectF rect(QPointF(r[0].toDouble(), r[1].toDouble()), QPointF(r[2].toDouble(), r[3].toDouble()));
+                if (rect.isEmpty()) return;
+                rects.append(rect);
+            }
+        }
         sourceRequest = 0;
-        sourceTarget = SourceTarget{engineRevision, sourceSequence, page, {x.toDouble(), y.toDouble()}};
+        sourceTarget = SourceTarget{engineRevision, sourceSequence, page, {x.toDouble(), y.toDouble()}, rects};
         waitingForward = false; nativeForwardPending = false; forwardTimer.stop();
         setPage(page); finishForward(); request();
     }
@@ -546,9 +584,21 @@ void TexpressoPreview::retryFullFrame()
     const auto inverse = pendingInverse;
     clearCache(); pendingInverse = inverse; emit updated(); request();
 }
-void TexpressoPreview::inverse(const QPointF &point)
+void TexpressoPreview::inverse(const QPointF &point, bool activate, bool allowPreparation, int page)
 {
-    if (!fresh) return;
+    if (page < 0) page = currentPage;
+    if (!active || !pageValid(page) || (!supportsPreciseSync && (!allowPreparation || page != currentPage))) return;
+    if (!std::isfinite(point.x()) || !std::isfinite(point.y())) return;
+    if (!allowPreparation && followingSource()) return;
+    if (supportsPreciseSync) {
+        if (activate) { cancelDestination(); cancelForward(currentPage); emit interactionStarted(); interruptBackground(); cancelRegion(); }
+        const auto id = nextRequestId();
+        inverseRequest = InverseRequest{id, engineRevision, sourceSequence, page, activate};
+        inverseTimer.start();
+        emit command({"preview-inverse-precise", double(id), double(engineRevision), double(sourceSequence),
+            page, point.x(), point.y(), syncInputTags, allowPreparation});
+        return;
+    }
     cancelDestination(); cancelForward(currentPage);
     emit interactionStarted(); interruptBackground();
     cancelRegion();
@@ -615,17 +665,22 @@ bool TexpressoPreview::restorePage()
     }
     return false;
 }
-void TexpressoPreview::forward(const QString &path, int zeroBasedLine)
+void TexpressoPreview::forward(const QString &path, int zeroBasedLine, int column, const QString &word, bool highlight)
 {
     if (active) {
         cancelEndSearch();
         cancelDestination();
         // Forward search can move the native viewer before its reply arrives.
         emit interactionStarted(); interruptBackground();
+        inverseRequest.reset(); inverseTimer.stop(); highlightSource = highlight; emit sourceHighlights(-1, {});
         sourceTarget.reset(); sourceFollowing = true; nativeForwardPending = true;
         needsNativePage = true; waitingForward = true;
         forwardTimer.start(supportsRequestLifecycle ? 30000 : 2000);
-        if (supportsRequestLifecycle) {
+        if (supportsPreciseSync) {
+            sourceRequest = nextRequestId();
+            emit command({"preview-search-precise", double(sourceRequest), path, zeroBasedLine + 1,
+                double(sourceSequence), qMax(0, column), word});
+        } else if (supportsRequestLifecycle) {
             sourceRequest = nextRequestId();
             emit command({"preview-search", double(sourceRequest), path, zeroBasedLine + 1, double(sourceSequence)});
         } else emit command({"synctex-forward", path, zeroBasedLine + 1});
@@ -639,6 +694,7 @@ void TexpressoPreview::finishForward()
     sourceTarget.reset();
     if (target.revision != engineRevision || target.sequence != sourceSequence) return;
     QScopedValueRollback<bool> guard(sourceReveal, true);
+    if (highlightSource) emit sourceHighlights(target.page, target.rects);
     emit reveal(target.point);
 }
 void TexpressoPreview::settleSourceSearch()
@@ -649,6 +705,7 @@ void TexpressoPreview::settleSourceSearch()
 }
 void TexpressoPreview::cancelForward(int page)
 {
+    inverseRequest.reset(); inverseTimer.stop();
     cancelEndSearch();
     emit manualNavigated();
     sourceRequest = 0;

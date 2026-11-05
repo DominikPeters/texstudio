@@ -1,5 +1,6 @@
 #include "texpressosession.h"
 #include "texpressotikz.h"
+#include "ViewerControls.h"
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
@@ -110,6 +111,7 @@ TexpressoSession::TexpressoSession(const QString &root, const QString &engine, c
     connect(&preview, &TexpressoPreview::interactionStarted, &prewarm, [this] { prewarm.interrupt(); });
     connect(&preview, &TexpressoPreview::manualNavigated, this, [this] { sourceFollow.suspend(); });
     connect(&preview, &TexpressoPreview::manualNavigated, this, [this] { sourceRefreshPending = false; });
+    connect(&preview, &TexpressoPreview::sourceLocation, this, &TexpressoSession::deliverSourceLocation);
     connect(&preview, &TexpressoPreview::failed, this, [this](const QString &reason) { previewError = reason; emit updated(); });
     connect(&preview, &TexpressoPreview::updated, this, [this] {
         if (preview.valid()) previewError.clear();
@@ -194,7 +196,7 @@ void TexpressoSession::resetEngine()
     if (!watcher.files().isEmpty()) watcher.removePaths(watcher.files());
     rescanTimer.stop(); pendingDependencies.clear(); writtenFiles.clear();
     aliases.clear(); aliases[identity(rootFile)].insert(rootFile);
-    editorPaths.clear(); inputAliases.clear(); acknowledgedSource = 0;
+    editorPaths.clear(); inputAliases.clear(); syncInputs.clear(); updateSyncInputTags(); acknowledgedSource = 0;
     compilerOutputTimer.stop();
     outputLines.clear(); logLines.clear(); compilerOutput.clear(); engineOutput.clear();
     compilerLogSequence = -1; compilerLog.clear();
@@ -359,6 +361,7 @@ void TexpressoSession::message(const QJsonArray &m)
     } else if (verb == "input-file" && m.size() == 3) {
         const auto logical = absolute(m[2].toString());
         const auto editor = editorPaths.value(logical, identity(logical));
+        syncInputs[m[1].toInt()] = editor; updateSyncInputTags();
         announce(logical, editor); inputAliases[editor] = logical;
         prewarm.refresh(true);
     }
@@ -377,12 +380,8 @@ void TexpressoSession::message(const QJsonArray &m)
         for (auto it = aliases.cbegin(); it != aliases.cend(); ++it)
             if (buffers.contains(it.key())) for (const auto &alias : it.value()) sendSource({"open", alias, buffers.value(it.key())}, true);
     } else if (verb == "synctex" && m.size() >= 3 && preview.valid()) {
-        const auto logical = absolute(m[1].toString());
-        // The resulting editor caret movement is navigation, not a new edit or
-        // a forward-search intent. Do not immediately rewarm/revisit that line.
-        prewarm.select();
-        const QScopedValueRollback<bool> guard(deliveringInverseLocation, true);
-        emit sourceLocation(editorPaths.value(logical, logical), m[2].toInt(), m.size() > 3 ? m[3].toInt(-1) : -1, m.size() > 4 ? m[4].toString() : QString());
+        deliverSourceLocation(m[1].toString(), m[2].toInt(), m.size() > 3 ? m[3].toInt(-1) : -1,
+            m.size() > 4 ? m[4].toString() : QString(), true);
     } else if (verb == "append-lines" && m.size() >= 2) {
         auto &lines = m[1] == "out" ? outputLines : logLines;
         for (int i = 2; i < m.size(); ++i) lines.append(m[i].toString());
@@ -497,7 +496,39 @@ void TexpressoSession::syncForward(const QString &path, int line, bool explicitR
     const auto known = aliases.value(key);
     if (known.isEmpty()) return;
     if (!sourceFollow.request({key, bufferVersions.value(key), line, column,
-        preview.sequence(), preview.revision()}, explicitRequest)) return;
+        preview.sequence(), preview.revision(), preview.preciseSync()}, explicitRequest)) return;
     sourceRefreshPending = false; sourceRequestExplicit = explicitRequest;
-    preview.forward(inputAliases.value(key, *known.cbegin()), line);
+    const auto text = buffers.value(key).section('\n', line, line);
+    preview.forward(inputAliases.value(key, *known.cbegin()), line,
+        ViewerControls::utf8SourceColumn(text, column), ViewerControls::sourceWord(text, column), explicitRequest);
+}
+
+void TexpressoSession::setSyncFileMask(const QString &mask)
+{
+    if (syncFileMask == mask) return;
+    syncFileMask = mask; updateSyncInputTags();
+}
+void TexpressoSession::updateSyncInputTags()
+{
+    if (syncFileMask.trimmed().isEmpty()) { preview.setSyncInputTags(QJsonValue::Null); return; }
+    QJsonArray tags;
+    for (auto it = syncInputs.cbegin(); it != syncInputs.cend(); ++it)
+        if (it.key() > 0 && ViewerControls::matchesSyncFileMask(it.value(), syncFileMask)) tags.append(it.key());
+    // The protocol has a finite input-list limit. Fail closed if exceeded.
+    preview.setSyncInputTags(tags.size() <= 4096 ? tags : QJsonArray());
+}
+void TexpressoSession::syncInverse(const QPointF &point, int page, bool activate)
+{
+    if (!foreground || !previewVisible || userPaused || userStopped || failure || externalBuildRunning()) return;
+    if (!activate && (!compilerError.isEmpty() || preview.followingSource())) return;
+    preview.inverse(point, activate, activate, page);
+}
+void TexpressoSession::deliverSourceLocation(const QString &file, int line, int column, const QString &word, bool activate)
+{
+    if (!foreground || !previewVisible || userStopped || failure || externalBuildRunning()) return;
+    const auto logical = absolute(file), editor = editorPaths.value(logical, identity(logical));
+    if (!ViewerControls::matchesSyncFileMask(editor, syncFileMask)) return;
+    prewarm.select();
+    const QScopedValueRollback<bool> guard(deliveringInverseLocation, true);
+    emit sourceLocation(editor, line, column, word, activate);
 }

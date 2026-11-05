@@ -20,6 +20,7 @@ private slots:
     void explicitLinkPositionsAnchor_data();
     void explicitLinkPositionsAnchor();
     void scrollingHandoffRetainsVisiblePixels();
+    void scrollFollowingUsesPublishedPageWithoutFocus();
     void fitTextWidth();
     void fitTextWidthBlankAndEditedPages();
 private:
@@ -265,6 +266,28 @@ void SourceViewportTest::fitTextWidthBlankAndEditedPages()
     QVERIFY(preview.horizontalTextRange().isEmpty());
     QVERIFY(std::isfinite(widget->canvas->scale));
     QVERIFY(widget->canvas->scale < scale); // Falls back to fitting the paper.
+}
+void SourceViewportTest::scrollFollowingUsesPublishedPageWithoutFocus()
+{
+    auto &preview = session->preview;
+    preview.setCapabilities({{"synctexPrecision", 1}, {"requestLifecycle", true}});
+    session->setActive(true); config.followFromScroll = true;
+    QSignalSpy commands(&preview, &TexpressoPreview::command), sources(session.get(), &TexpressoSession::sourceLocation);
+    widget->updateViewport();
+    const auto before = scroll();
+    widget->syncVisibleSource();
+    QCOMPARE(commands.size(), 1);
+    const auto inverse = commands[0][0].toJsonArray();
+    QCOMPARE(inverse[0].toString(), QString("preview-inverse-precise"));
+    QCOMPARE(inverse[8].toBool(), false);
+    const QJsonObject hit{{"file", session->root()}, {"line", 4}, {"column", -1}, {"word", "Source"}};
+    preview.message({"preview-inverse-result", inverse[1], inverse[2], inverse[3], inverse[4], hit});
+    QCOMPARE(sources.size(), 1); QVERIFY(!sources.last()[4].toBool()); QCOMPARE(scroll(), before);
+    config.followFromScroll = false; widget->syncVisibleSource(); QCOMPARE(commands.size(), 1);
+    config.followFromScroll = true; session->setPaused(true); commands.clear();
+    widget->syncVisibleSource(); QVERIFY(commands.isEmpty());
+    session->setPaused(false); preview.sourceChanged(1); commands.clear();
+    widget->syncVisibleSource(); QVERIFY(commands.isEmpty()); // Stale pixels cannot drive source movement.
 }
 QTEST_MAIN(SourceViewportTest)
 #include "source_viewport_test.moc"

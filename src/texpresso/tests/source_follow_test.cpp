@@ -20,6 +20,7 @@ private slots:
     void holdBeforeInitialCompilation();
     void invalidationPreservesHold();
     void horizontalCaret();
+    void preciseHorizontalCaretAndFileMask();
     void sessionFlushDedupeAndCanonicalPath();
     void sessionStoresDisabledCaretAndKeepsEditStartSeparate();
     void sessionManualNavigationAndRecovery();
@@ -217,6 +218,27 @@ void TexpressoSourceFollowTest::dirtyIncludeKeepsOwnedReveal()
     QVERIFY(!session.sourceRefreshPending);
     session.message({"preview-state", 13, double(session.preview.sequence()), 1, false, 0});
     QCOMPARE(forwardCount(commands), 4);
+}
+void TexpressoSourceFollowTest::preciseHorizontalCaretAndFileMask()
+{
+    QTemporaryDir temp; const auto root = temp.filePath("main.tex");
+    QFile file(root); QVERIFY(file.open(QIODevice::WriteOnly)); file.write("é office office\n"); file.close();
+    const auto key = TexpressoSession::identity(root);
+    TexpressoSession session(root, {}, {{key, QString::fromUtf8("é office office\n")}});
+    makeReady(session); session.preview.setCapabilities({{"requestLifecycle", true}, {"synctexPrecision", 1}});
+    QSignalSpy commands(&session.preview, &TexpressoPreview::command), locations(&session, &TexpressoSession::sourceLocation);
+    session.syncForward(root, 0, false, 4); QVERIFY(!commands.isEmpty()); const auto first = commands.last()[0].toJsonArray();
+    QCOMPARE(first[0].toString(), QString("preview-search-precise")); QCOMPARE(first[5].toInt(), 6); QCOMPARE(first[6].toString(), QString("office"));
+    session.syncForward(root, 0, false, 4); QCOMPARE(commands.size(), 1);
+    session.syncForward(root, 0, false, 12); QCOMPARE(commands.size(), 2);
+    session.setSyncFileMask("*.tex;*.tikz");
+    session.ready = false; // Synthetic inputs must not send to an absent process.
+    session.message({"input-file", 1, root}); session.message({"input-file", 2, temp.filePath("macro.sty")});
+    session.message({"input-file", 3, temp.filePath("figure.tikz")});
+    session.preview.setSyncInputTags(QJsonValue::Null); // Recompute after a setting change.
+    session.setSyncFileMask("*.tex");
+    session.deliverSourceLocation(temp.filePath("macro.sty"), 1, -1, "", true); QVERIFY(locations.isEmpty());
+    session.deliverSourceLocation(root, 1, -1, "office", false); QCOMPARE(locations.size(), 1); QVERIFY(!locations.last()[4].toBool());
 }
 QTEST_MAIN(TexpressoSourceFollowTest)
 #include "source_follow_test.moc"

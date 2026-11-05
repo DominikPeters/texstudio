@@ -16,8 +16,8 @@ void TexpressoManager::activate(const QString &root)
             session = new TexpressoSession(root, engineFile, buffers, this);
             sessions[key] = session;
             connect(session, &TexpressoSession::updated, this, [this, session] { if (session == selected) emit updated(); });
-            connect(session, &TexpressoSession::sourceLocation, this, [this, session](const QString &file, int line, int column, const QString &word) {
-                if (session == selected) emit sourceLocation(file, line, column, word);
+            connect(session, &TexpressoSession::sourceLocation, this, [this, session](const QString &file, int line, int column, const QString &word, bool activate) {
+                if (session == selected) emit sourceLocation(file, line, column, word, activate);
             });
             selected = session;
             const auto build = externalBuilds.value(key);

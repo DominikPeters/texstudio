@@ -22,6 +22,7 @@ public:
     double scale = 1;
     bool fresh = false;
     bool interactionActive = false;
+    QList<QRectF> sourceHighlights;
     void setTool(int tool);
     void resetTools();
     void setPreview(TexpressoPreview *preview);
@@ -118,6 +119,8 @@ private:
     void connectCanvas(TexpressoCanvas *pageCanvas);
     void updateCanvas(TexpressoCanvas *pageCanvas, int page);
     void showPage(int page);
+    void syncVisibleSource();
+    void clearSourceHighlights();
     void revealPoint(const QPointF &point, bool source);
     void setZoom(qreal value, const QPoint &anchor = QPoint(-1, -1));
     enum Severity { StatusPlain, StatusWarning, StatusError };
@@ -132,7 +135,11 @@ private:
     ViewerControls::ZoomControls zoomControls;
     QPointer<TexpressoSession> shown;
     QMetaObject::Connection revealConnection;
-    QMetaObject::Connection externalLinkConnection;
+    QMetaObject::Connection externalLinkConnection, highlightConnection;
+    QTimer scrollSyncTimer, sourceHighlightTimer;
+    QList<QRectF> sourceHighlightRects;
+    int sourceHighlightPage = -1;
+    qint64 sourceHighlightRevision = -1, sourceHighlightSequence = -1;
     TexpressoCanvas *canvas;
     QWidget *documentCanvas;
     QList<TexpressoCanvas *> extraCanvases;

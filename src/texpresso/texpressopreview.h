@@ -35,8 +35,10 @@ public:
     bool followingSource() const { return nativeForwardPending || sourceTarget.has_value() || sourceReveal; }
     bool revealingSource() const { return sourceReveal; }
     void setWidth(int width);
-    void inverse(const QPointF &point);
-    void forward(const QString &path, int zeroBasedLine);
+    void inverse(const QPointF &point, bool activate = true, bool allowPreparation = true, int page = -1);
+    void setSyncInputTags(const QJsonValue &tags) { syncInputTags = tags; }
+    bool preciseSync() const { return supportsPreciseSync; }
+    void forward(const QString &path, int zeroBasedLine, int column = 0, const QString &word = QString(), bool highlight = true);
     void releaseCache();
     void setViewportPages(const QList<int> &visible, bool gesture = false);
     QImage pageImage(int page) const;
@@ -73,6 +75,8 @@ signals:
     void updated();
     void failed(const QString &reason);
     void reveal(const QPointF &point);
+    void sourceHighlights(int page, const QList<QRectF> &rects);
+    void sourceLocation(const QString &file, int line, int column, const QString &word, bool activate);
     void regionReady(qint64 token, const QImage &image, const QRectF &bounds);
     void externalLinkRequested(const QUrl &url);
 private:
@@ -117,10 +121,14 @@ private:
     bool endRevealPending = false;
     std::optional<int> previousTotal;
     QTimer endTimer;
-    struct SourceTarget { qint64 revision, sequence; int page; QPointF point; };
+    struct SourceTarget { qint64 revision, sequence; int page; QPointF point; QList<QRectF> rects; };
     std::optional<SourceTarget> sourceTarget;
     bool waitingForward = false, sourceFollowing = false, sourceReveal = false, nativeForwardPending = false;
-    bool supportsRequestLifecycle = false;
+    bool supportsRequestLifecycle = false, supportsPreciseSync = false, highlightSource = true;
+    QJsonValue syncInputTags = QJsonValue::Null;
+    struct InverseRequest { qint64 id, revision, sequence; int page; bool activate; };
+    std::optional<InverseRequest> inverseRequest;
+    QTimer inverseTimer;
     qint64 sourceRequest = 0;
     std::optional<Frame> pending;
     QList<CachedPage> pages; // LRU, four entries normally, up to sixteen for zoomed-out visible pages / 32 MiB.

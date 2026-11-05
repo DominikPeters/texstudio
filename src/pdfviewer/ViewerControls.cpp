@@ -2,9 +2,66 @@
 #include <QCoreApplication>
 #include <QIntValidator>
 #include <QActionGroup>
+#include <QRegularExpression>
+#include <limits>
+#include <algorithm>
 #include <cmath>
 
 namespace ViewerControls {
+bool matchesSyncFileMask(const QString &file, const QString &mask)
+{
+    if (mask.trimmed().isEmpty()) return true;
+    // Preserve the PDF viewer's existing case-sensitive, unanchored patterns.
+    for (const auto &part : mask.split(';')) {
+        const auto pattern = part.trimmed().replace(".", "\\.").replace("*", ".*");
+        if (QRegularExpression(pattern).match(file).hasMatch()) return true;
+    }
+    return false;
+}
+int utf8SourceColumn(const QString &line, int column)
+{
+    column = std::clamp(column, 0, int(line.size()));
+    if (column > 0 && column < line.size() && line[column].isLowSurrogate() && line[column - 1].isHighSurrogate()) --column;
+    const auto bytes = line.left(column).toUtf8().size();
+    return bytes < std::numeric_limits<int>::max() ? int(bytes) + 1 : 0;
+}
+int utf16SourceColumn(const QString &line, int byteColumn)
+{
+    if (byteColumn < 1 || byteColumn > line.toUtf8().size() + 1) return -1;
+    int bytes = 0, column = 0;
+    while (column < line.size()) {
+        const int length = line[column].isHighSurrogate() && column + 1 < line.size() && line[column + 1].isLowSurrogate() ? 2 : 1;
+        const int next = line.mid(column, length).toUtf8().size();
+        if (bytes + next > byteColumn - 1) break;
+        bytes += next; column += length;
+    }
+    return column;
+}
+QString sourceWord(const QString &line, int column)
+{
+    static const QRegularExpression word("[\\p{L}\\p{M}\\p{N}]+");
+    auto matches = word.globalMatch(line);
+    while (matches.hasNext()) {
+        const auto m = matches.next();
+        if (column < m.capturedStart() || column > m.capturedEnd()) continue;
+        if (m.capturedStart() && line[m.capturedStart() - 1] == '\\') return {};
+        const auto text = m.captured().normalized(QString::NormalizationForm_C);
+        return text.toUtf8().size() <= 256 ? text : QString();
+    }
+    return {};
+}
+int sourceWordColumn(const QList<int> &matches, int length, int preferred)
+{
+    if (matches.size() == 1) return matches[0] + length / 2;
+    if (preferred < 0 || matches.isEmpty()) return -1;
+    int best = -1, distance = std::numeric_limits<int>::max();
+    for (int start : matches) {
+        const int d = preferred < start ? start - preferred : preferred > start + length ? preferred - start - length : 0;
+        if (d < distance) { distance = d; best = start + length / 2; }
+        else if (d == distance) best = -1;
+    }
+    return best;
+}
 namespace {
 struct ToolCursors {
     QCursor magnifier, zoomIn, zoomOut, hand;

@@ -19,6 +19,7 @@
 #endif
 #include <QAtomicInt>
 #include "texstudio.h"
+#include "pdfviewer/ViewerControls.h"
 #ifdef TEXSTUDIO_TEXPRESSO
 #include "ViewerPanel.h"
 #include "texpresso/texpressomanager.h"
@@ -9563,7 +9564,7 @@ void Texstudio::syncFromViewer(const QString &fileName, int line, bool activate,
     syncFromPreview(fileName, line, activate, guessedWord, PreviewSourceVersion::SavedSnapshot);
 }
 
-void Texstudio::syncFromPreview(const QString &fileName, int line, bool activate, const QString &guessedWord, PreviewSourceVersion source)
+void Texstudio::syncFromPreview(const QString &fileName, int line, bool activate, const QString &guessedWord, PreviewSourceVersion source, int oneBasedByteColumn)
 {
     QPointer<QWidget> w = focusWidget();
 	if (!activateEditorForFile(fileName, true, activate)) {
@@ -9572,7 +9573,7 @@ void Texstudio::syncFromPreview(const QString &fileName, int line, bool activate
 			w->setFocus();  // restore focus
 		if (!success) return;
 	}
-	shrinkEmbeddedPDFViewer();
+    if (activate || source == PreviewSourceVersion::SavedSnapshot) shrinkEmbeddedPDFViewer();
 
     if (!currentEditorView()) return;
     // The live engine already tracks unsaved edits. Only saved PDFs refer to
@@ -9586,7 +9587,10 @@ void Texstudio::syncFromPreview(const QString &fileName, int line, bool activate
     }
     line = qBound(0, line, currentEditorView()->document->lines() - 1);
 
-	gotoLine(line, 0, nullptr, QEditor::Navigation, activate);
+    const auto sourceText = currentEditorView()->document->line(line).text();
+    const int preferredColumn = source == PreviewSourceVersion::CurrentBuffer
+        ? ViewerControls::utf16SourceColumn(sourceText, oneBasedByteColumn) : -1;
+    gotoLine(line, qMax(0, preferredColumn), nullptr, QEditor::Navigation, activate);
 	Q_ASSERT(currentEditor());
 
 	// guessedWord may appear multiple times -> we highlight them all
@@ -9610,11 +9614,18 @@ void Texstudio::syncFromPreview(const QString &fileName, int line, bool activate
 				highlight.movePosition(1, QDocumentCursor::PreviousCharacter, QDocumentCursor::MoveAnchor);
 				highlight.movePosition(1, QDocumentCursor::NextCharacter, QDocumentCursor::KeepAnchor);
 			}
-			currentEditor()->setCursorPosition(currentEditor()->cursor().lineNumber(), cursorCol, false);
-			currentEditor()->ensureCursorVisible(QEditor::KeepSurrounding | QEditor::ExpandFold);
 			currentEditorView()->temporaryHighlight(highlight);
 		}
 	}
+
+    // A repeated word without a usable column does not identify one occurrence.
+    // Highlight every match, but do not silently choose the last one.
+    const int targetColumn = guessedWord.isEmpty() ? preferredColumn
+        : ViewerControls::sourceWordColumn(columns, guessedWord.size(), preferredColumn);
+    if (targetColumn >= 0) {
+        currentEditor()->setCursorPosition(line, targetColumn, false);
+        currentEditor()->ensureCursorVisible(QEditor::KeepSurrounding | QEditor::ExpandFold);
+    }
 
 	if (activate) {
 		raise();

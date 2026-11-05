@@ -30,7 +30,7 @@ public:
     void shutdown();
 signals:
     void updated();
-    void sourceLocation(const QString &file, int oneBasedLine, int column, const QString &word);
+    void sourceLocation(const QString &file, int oneBasedLine, int column, const QString &word, bool activate = true);
 private:
     friend class TexStudioTest;
     QString engineFile;

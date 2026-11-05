@@ -165,9 +165,8 @@ void Texstudio::setupTexpresso()
     connect(texpressoManager, &TexpressoManager::updated, this, [this] {
         setPreviewPanelVisible(texpressoManager->current() && texpressoAction->isChecked());
     });
-    connect(texpressoManager, &TexpressoManager::sourceLocation, this, [this](const QString &file, int line, int column, const QString &word) {
-        Q_UNUSED(column)
-        syncFromPreview(file, qMax(0, line - 1), true, word, PreviewSourceVersion::CurrentBuffer);
+    connect(texpressoManager, &TexpressoManager::sourceLocation, this, [this](const QString &file, int line, int column, const QString &word, bool activate) {
+        syncFromPreview(file, qMax(0, line - 1), activate, word, PreviewSourceVersion::CurrentBuffer, column);
     });
     connect(texpressoWidget, &TexpressoWidget::syncRequested, this, [this] {
         if (auto editor = currentEditor()) syncTexpressoViewer(editor->cursor(), true);
