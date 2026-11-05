@@ -20,6 +20,7 @@ private slots:
     void hoverAndStaleTargets();
     void hoverViewportPlacement();
     void realFigures();
+    void commentEditsReuseDrawingAndRefreshSources();
     void providedPaper();
 };
 static void write(const QString &path, const QByteArray &bytes)
@@ -259,6 +260,52 @@ Text \badge. \macrofigure
     QTRY_VERIFY_WITH_TIMEOUT(session.preview.valid() && session.preview.complete(), 30000);
     QCOMPARE(session.tikzFigures(0).size(), 4);
     session.stop(); QVERIFY(session.tikzFigures(0).isEmpty());
+}
+void TikzTest::commentEditsReuseDrawingAndRefreshSources()
+{
+    const auto engine = qEnvironmentVariable("TEXPRESSO_TEST_ENGINE", TexpressoProcess::bundledEngine());
+    if (!QFileInfo::exists(engine)) QSKIP("Set TEXPRESSO_TEST_ENGINE to the built engine");
+    const auto oldProfile = qgetenv("TEXPRESSO_PROFILE"); qputenv("TEXPRESSO_PROFILE", "1");
+    const auto restore = qScopeGuard([&] { if (oldProfile.isNull()) qunsetenv("TEXPRESSO_PROFILE"); else qputenv("TEXPRESSO_PROFILE", oldProfile); });
+    QTemporaryDir temp; QVERIFY(temp.isValid());
+    const auto root = temp.filePath("main.tex"), included = temp.filePath("figure-café.tex");
+    const QByteArray source = "\\documentclass{article}\n\\usepackage{tikz}\n\\pagestyle{empty}\n\\begin{document}\n\\input{figure-café}\n\\end{document}\n";
+    const QString figureSource = "% included figure\n\\begin{tikzpicture}\n\\draw[red,line width=2pt] (0,0) rectangle (2,2);\n\\end{tikzpicture}\n";
+    write(root, source); write(included, figureSource.toUtf8());
+    TexpressoSession session(root, engine, {{TexpressoSession::identity(root), QString::fromUtf8(source)},
+        {TexpressoSession::identity(included), figureSource}});
+    session.setAutoRerun(false); session.preview.setWidth(600); session.setActive(true); session.start();
+    const auto currentFigure = [&]() { const auto figures = session.tikzFigures(0); return figures.size() == 1 ? figures[0].toObject() : QJsonObject{}; };
+    QTRY_VERIFY2_WITH_TIMEOUT(session.preview.valid() && session.preview.image().width() == 600 && !currentFigure().isEmpty(),
+                             qPrintable(session.compilerError + session.engineOutput.right(3000)), 30000);
+    const auto initial = currentFigure();
+    QCOMPARE(initial["file"].toString(), TexpressoSession::identity(included));
+    QCOMPARE(initial["line"].toInt(), 2); QCOMPARE(initial["endLine"].toInt(), 5);
+    const auto pixels = session.preview.image();
+    const auto oldRevision = session.preview.revision(), oldSequence = session.preview.sequence();
+    session.engineOutput.clear();
+    session.replaceBuffer(included, "% shifted line one\n% shifted line two\n" + figureSource);
+    QVERIFY(session.tikzFigure(0, initial["index"].toInt(), oldRevision, oldSequence).isEmpty());
+    QTRY_VERIFY2_WITH_TIMEOUT(session.preview.valid() && session.preview.sequence() > oldSequence && currentFigure()["line"].toInt() == 4,
+                             qPrintable(session.compilerError + session.engineOutput.right(3000)), 30000);
+    QCOMPARE(currentFigure()["endLine"].toInt(), 7);
+    QCOMPARE(currentFigure()["bounds"], initial["bounds"]);
+    QTRY_COMPARE(session.preview.image().width(), 600);
+    QCOMPARE(session.preview.image(), pixels);
+    QTRY_VERIFY2(session.engineOutput.contains("page-list-cache-hit"), qPrintable(session.engineOutput));
+    QVERIFY2(!session.engineOutput.contains("page-list-cache-miss"), qPrintable(session.engineOutput));
+    QVERIFY(!session.tikzFigure(0, currentFigure()["index"].toInt(), session.preview.revision(), session.preview.sequence()).isEmpty());
+    const auto shiftedSequence = session.preview.sequence();
+    session.engineOutput.clear(); session.replaceBuffer(included, figureSource);
+    QTRY_VERIFY2_WITH_TIMEOUT(session.preview.valid() && session.preview.sequence() > shiftedSequence && currentFigure()["line"].toInt() == 2,
+                             qPrintable(session.compilerError + session.engineOutput.right(3000)), 30000);
+    QCOMPARE(currentFigure()["endLine"].toInt(), 5);
+    QCOMPARE(currentFigure()["bounds"], initial["bounds"]);
+    QTRY_COMPARE(session.preview.image().width(), 600);
+    QCOMPARE(session.preview.image(), pixels);
+    QTRY_VERIFY2(session.engineOutput.contains("page-list-cache-hit"), qPrintable(session.engineOutput));
+    QVERIFY2(!session.engineOutput.contains("page-list-cache-miss"), qPrintable(session.engineOutput));
+    session.stop();
 }
 void TikzTest::providedPaper()
 {

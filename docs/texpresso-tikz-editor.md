@@ -75,6 +75,9 @@ The native test compares the live PNG byte-for-byte with an ordinary-build XDV
 render to check that the metadata hook changes neither layout nor pixels.
 Qt tests cover source resolution, protocol validation, hover activation, stale
 frames, nested/macro/tiny pictures, transforms, included sources and edits.
+The real-session comment-edit regression shifts figure source lines forward and
+back in a UTF-8 included file. It checks fresh source routing and unchanged
+pixels/bounds while requiring display-list cache hits without misses.
 
 `TEXPRESSO_TEST_TIKZ_PAPER` optionally points at `approval-irv-journal.tex`. The
 test uses a disposable excerpt containing its original nested macros and first
