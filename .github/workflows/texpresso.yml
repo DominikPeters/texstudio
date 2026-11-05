@@ -169,7 +169,16 @@ jobs:
             cat build-client/miktex-results/latex-lookup.log
             exit 1
           fi
-          miktex packages install hyperref biblatex biber-linux-x86_64
+          # Provider bootstrap can already install these packages (including
+          # dependencies of an earlier item). MiKTeX rejects duplicate installs.
+          for miktex_package in hyperref biblatex biber-linux-x86_64; do
+            miktex_installed=$(miktex packages info --template '{isInstalled}' "$miktex_package")
+            case "$miktex_installed" in
+              true|1) ;;
+              false|0) retry_miktex install "$miktex_package" ;;
+              *) echo "Unexpected installation status for $miktex_package: $miktex_installed" >&2; exit 1 ;;
+            esac
+          done
           miktex links install
           findtexmf --must-exist pzdr.tfm
           miktex --disable-installer fontmaps configure
