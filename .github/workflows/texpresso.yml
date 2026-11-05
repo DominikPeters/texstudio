@@ -12,6 +12,18 @@ on:
 permissions:
   contents: read
 jobs:
+  checkpoint-cleanup:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, macos-14]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Verify checkpoint EOF, crash and supervisor signal cleanup
+        run: make -C native/texpresso test-checkpoint-cleanup test-parent-watch
   linux:
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && inputs.ui_soak_minutes != '0' && 90 || 60 }}
@@ -68,6 +80,10 @@ jobs:
         run: python3 -c 'import json,os,platform; caps=json.load(open("native/.bundles/linux-"+platform.machine()+"/build-manifest.json"))["capabilities"]; open(os.environ["GITHUB_OUTPUT"],"a").write("miktex="+str("miktex" in caps.get("packageProviders",[])).lower()+"\n")'
       - name: Verify TikZ annotations preserve ordinary-build pixels
         run: python3 native/texpresso/test/test-tikz-figures.py "native/.bundles/linux-$(uname -m)/bin/texpresso"
+      - name: Verify checkpoint and supervisor cleanup after abrupt shutdown
+        run: |
+          make -C native/texpresso test-parent-watch test-sprotocol
+          python3 native/texpresso/test/test-checkpoint-cleanup.py "native/.bundles/linux-$(uname -m)/bin/texpresso"
       - name: Build Qt integration clients
         id: qt-build
         run: |
